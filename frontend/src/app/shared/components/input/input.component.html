@@ -1,0 +1,40 @@
+<div class="input-field" [class.input-field--error]="error" [class.input-field--disabled]="disabled()">
+  @if (label) {
+    <label class="input-field__label">{{ label }}</label>
+  }
+  <div class="input-field__wrapper">
+    @if (icon) {
+      <span class="input-field__prefix-icon">
+        <lucide-icon [img]="icon" [size]="16" />
+      </span>
+    }
+    <input
+      class="input-field__input"
+      [class.input-field__input--has-icon]="icon"
+      [class.input-field__input--has-suffix]="type === 'password'"
+      [type]="inputType()"
+      [placeholder]="placeholder"
+      [value]="value()"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    />
+    @if (type === 'password') {
+      <button
+        type="button"
+        class="input-field__toggle-password"
+        (click)="togglePassword()"
+        tabindex="-1"
+      >
+        @if (showPassword()) {
+          <lucide-icon [img]="EyeOffIcon" [size]="16" />
+        } @else {
+          <lucide-icon [img]="EyeIcon" [size]="16" />
+        }
+      </button>
+    }
+  </div>
+  @if (error) {
+    <span class="input-field__error">{{ error }}</span>
+  }
+</div>

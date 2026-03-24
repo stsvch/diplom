@@ -1,0 +1,38 @@
+<div class="stats-card">
+  <div class="stats-card__body">
+    <div class="stats-card__info">
+      <span class="stats-card__title">{{ title }}</span>
+      <span class="stats-card__value">{{ value }}</span>
+      @if (subtitle) {
+        <span class="stats-card__subtitle">{{ subtitle }}</span>
+      }
+    </div>
+    @if (iconName) {
+      <div
+        class="stats-card__icon"
+        [style.background-color]="iconBg"
+        [style.color]="iconColor"
+      >
+        <lucide-icon [img]="iconName" [size]="22" />
+      </div>
+    }
+  </div>
+  @if (change) {
+    <div class="stats-card__footer">
+      <span class="stats-card__change" [class]="'stats-card__change--' + changeType">
+        @switch (changeType) {
+          @case ('positive') {
+            <lucide-icon [img]="TrendingUpIcon" [size]="14" />
+          }
+          @case ('negative') {
+            <lucide-icon [img]="TrendingDownIcon" [size]="14" />
+          }
+          @default {
+            <lucide-icon [img]="MinusIcon" [size]="14" />
+          }
+        }
+        {{ change }}
+      </span>
+    </div>
+  }
+</div>

@@ -1,0 +1,26 @@
+<div class="toast-container">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toast" [class]="'toast--' + toast.type">
+      <span class="toast__icon">
+        @switch (toast.type) {
+          @case ('success') {
+            <lucide-icon [img]="icons.success" [size]="18" />
+          }
+          @case ('error') {
+            <lucide-icon [img]="icons.error" [size]="18" />
+          }
+          @case ('warning') {
+            <lucide-icon [img]="icons.warning" [size]="18" />
+          }
+          @default {
+            <lucide-icon [img]="icons.info" [size]="18" />
+          }
+        }
+      </span>
+      <span class="toast__message">{{ toast.message }}</span>
+      <button class="toast__close" (click)="dismiss(toast.id)">
+        <lucide-icon [img]="icons.close" [size]="14" />
+      </button>
+    </div>
+  }
+</div>

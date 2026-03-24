@@ -1,0 +1,134 @@
+<div class="catalog">
+  <!-- Header -->
+  <div class="catalog__header">
+    <div class="catalog__header-text">
+      <h1 class="catalog__title">Каталог курсов</h1>
+      <p class="catalog__subtitle">Найдите курс, который поможет вам достичь ваших целей</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="catalog__filters">
+    <div class="catalog__search">
+      <app-search-input
+        placeholder="Поиск курсов..."
+        [(value)]="searchValue"
+      />
+    </div>
+
+    <div class="catalog__filter-row">
+      <select class="catalog__select" [(ngModel)]="selectedLevel" (ngModelChange)="onFilterChange()">
+        @for (opt of levels; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <select class="catalog__select" [(ngModel)]="selectedPrice" (ngModelChange)="onFilterChange()">
+        @for (opt of priceOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+
+      <select class="catalog__select" [(ngModel)]="selectedSort" (ngModelChange)="onFilterChange()">
+        @for (opt of sortOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Discipline pills -->
+  <div class="catalog__disciplines">
+    <button
+      class="catalog__pill"
+      [class.catalog__pill--active]="selectedDisciplineId() === ''"
+      (click)="selectDiscipline('')"
+    >
+      Все
+    </button>
+    @for (disc of disciplines(); track disc.id) {
+      <button
+        class="catalog__pill"
+        [class.catalog__pill--active]="selectedDisciplineId() === disc.id"
+        (click)="selectDiscipline(disc.id)"
+      >
+        {{ disc.name }}
+      </button>
+    }
+  </div>
+
+  <!-- Results count -->
+  @if (!loading()) {
+    <div class="catalog__results-count">
+      Найдено {{ totalCount() }} курсов
+    </div>
+  }
+
+  <!-- Grid -->
+  @if (loading()) {
+    <div class="catalog__grid">
+      @for (item of skeletonItems; track $index) {
+        <div class="catalog__skeleton">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-line--sm"></div>
+            <div class="skeleton-line skeleton-line--lg"></div>
+            <div class="skeleton-line skeleton-line--md"></div>
+            <div class="skeleton-line skeleton-line--sm"></div>
+          </div>
+          <div class="skeleton-footer"></div>
+        </div>
+      }
+    </div>
+  } @else if (courses().length === 0) {
+    <div class="catalog__empty">
+      <lucide-icon [img]="BookOpenIcon" [size]="64" class="catalog__empty-icon" />
+      <h3 class="catalog__empty-title">Курсы не найдены</h3>
+      <p class="catalog__empty-text">Попробуйте изменить фильтры или поисковый запрос</p>
+      <app-button variant="outline" (click)="selectDiscipline(''); searchValue.set(''); onFilterChange()">
+        Сбросить фильтры
+      </app-button>
+    </div>
+  } @else {
+    <div class="catalog__grid">
+      @for (course of courses(); track course.id) {
+        <app-course-card [course]="course" linkPrefix="/student/course" />
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="catalog__pagination">
+        <button
+          class="catalog__page-btn catalog__page-btn--nav"
+          [disabled]="page() === 1"
+          (click)="prevPage()"
+        >
+          <lucide-icon [img]="ChevronLeftIcon" [size]="16" />
+        </button>
+
+        @for (p of pages(); track $index) {
+          @if (p === null) {
+            <span class="catalog__page-ellipsis">…</span>
+          } @else {
+            <button
+              class="catalog__page-btn"
+              [class.catalog__page-btn--active]="page() === p"
+              (click)="goToPage(p)"
+            >
+              {{ p }}
+            </button>
+          }
+        }
+
+        <button
+          class="catalog__page-btn catalog__page-btn--nav"
+          [disabled]="page() === totalPages()"
+          (click)="nextPage()"
+        >
+          <lucide-icon [img]="ChevronRightIcon" [size]="16" />
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,72 @@
+<a [routerLink]="courseLink" class="course-card">
+  <!-- Image -->
+  <div class="course-card__image-wrap">
+    @if (course.imageUrl) {
+      <img [src]="course.imageUrl" [alt]="course.title" class="course-card__image" />
+    } @else {
+      <div class="course-card__image-placeholder">
+        <lucide-icon [img]="BookOpenIcon" [size]="40" />
+      </div>
+    }
+    <div class="course-card__badges">
+      <app-badge [variant]="levelVariant" size="sm">{{ levelLabel }}</app-badge>
+      @if (course.isFree) {
+        <app-badge variant="success" size="sm">Бесплатно</app-badge>
+      }
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="course-card__body">
+    <p class="course-card__discipline">{{ course.disciplineName }}</p>
+    <h3 class="course-card__title">{{ course.title }}</h3>
+    <p class="course-card__description">{{ course.description }}</p>
+
+    <p class="course-card__instructor">
+      <lucide-icon [img]="UsersIcon" [size]="13" />
+      {{ course.teacherName }}
+    </p>
+
+    <!-- Stats -->
+    <div class="course-card__stats">
+      @if (course.rating) {
+        <span class="course-card__stat">
+          <lucide-icon [img]="StarIcon" [size]="14" class="stat-star" />
+          {{ course.rating | number:'1.1-1' }}
+        </span>
+      }
+      @if (course.duration) {
+        <span class="course-card__stat">
+          <lucide-icon [img]="ClockIcon" [size]="14" />
+          {{ course.duration | duration }}
+        </span>
+      }
+      <span class="course-card__stat">
+        <lucide-icon [img]="BookOpenIcon" [size]="14" />
+        {{ course.lessonsCount }} уроков
+      </span>
+    </div>
+
+    <!-- Progress -->
+    @if (showProgress && course.progress !== undefined) {
+      <div class="course-card__progress">
+        <div class="course-card__progress-header">
+          <span class="course-card__progress-label">Прогресс</span>
+          <span class="course-card__progress-pct">{{ course.progress }}%</span>
+        </div>
+        <app-progress-bar [value]="course.progress" />
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="course-card__footer">
+    <span class="course-card__students">
+      <lucide-icon [img]="UsersIcon" [size]="14" />
+      {{ course.studentsCount }} студентов
+    </span>
+    <span class="course-card__price" [class.course-card__price--free]="course.isFree">
+      {{ priceLabel }}
+    </span>
+  </div>
+</a>

@@ -1,0 +1,47 @@
+@use '../../../../styles/variables' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: $radius-full;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  white-space: nowrap;
+
+  // Sizes
+  &--sm {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+
+  &--md {
+    font-size: $font-size-xs;
+    padding: 3px 10px;
+  }
+
+  // Variants
+  &--primary {
+    background-color: $primary-light;
+    color: $primary-hover;
+  }
+
+  &--success {
+    background-color: $success-light;
+    color: $success-dark;
+  }
+
+  &--warning {
+    background-color: $warning-light;
+    color: $warning-dark;
+  }
+
+  &--danger {
+    background-color: $danger-light;
+    color: $danger-dark;
+  }
+
+  &--neutral {
+    background-color: $bg-muted;
+    color: $text-secondary;
+  }
+}

@@ -1,0 +1,13 @@
+<button
+  class="btn"
+  [class]="'btn btn--' + variant + ' btn--' + size"
+  [class.btn--full-width]="fullWidth"
+  [class.btn--loading]="loading"
+  [disabled]="disabled || loading"
+  [type]="type"
+>
+  @if (loading) {
+    <lucide-icon class="btn__spinner" [img]="loaderIcon" [size]="16" />
+  }
+  <ng-content />
+</button>

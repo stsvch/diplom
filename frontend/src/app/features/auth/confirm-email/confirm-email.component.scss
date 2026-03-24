@@ -1,0 +1,121 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.confirm-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1E1B4B 0%, #4F46E5 100%);
+  @include flex-center;
+  padding: $spacing-8;
+}
+
+.confirm-card {
+  background: $bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-10 $spacing-8;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: $shadow-xl;
+  text-align: center;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-3;
+    margin-bottom: $spacing-8;
+  }
+
+  &__brand-icon {
+    width: 44px;
+    height: 44px;
+    background: $primary-light;
+    border-radius: $radius-lg;
+    @include flex-center;
+    color: $primary;
+  }
+
+  &__brand-name {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-foreground;
+  }
+}
+
+.confirm-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-4;
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    @include flex-center;
+    margin-bottom: $spacing-2;
+
+    &--loading {
+      background: $bg-muted;
+      color: $text-muted;
+
+      lucide-icon {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    &--success {
+      background: $success-light;
+      color: $success;
+    }
+
+    &--error {
+      background: $danger-light;
+      color: $danger;
+    }
+  }
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-foreground;
+  }
+
+  &__text {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    line-height: 1.6;
+    max-width: 320px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.confirm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 $spacing-8;
+  background: $primary;
+  color: #fff;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  transition: background $transition-fast;
+  margin-top: $spacing-2;
+
+  &:hover { background: $primary-hover; }
+
+  &--outline {
+    background: transparent;
+    color: $primary;
+    border: 1.5px solid $primary;
+
+    &:hover {
+      background: $primary-light;
+    }
+  }
+}

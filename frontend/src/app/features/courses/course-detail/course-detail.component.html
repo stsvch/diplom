@@ -1,0 +1,205 @@
+<div class="course-detail">
+  @if (loading()) {
+    <div class="course-detail__loading">
+      <div class="detail-skeleton">
+        <div class="detail-skeleton__hero"></div>
+        <div class="detail-skeleton__body">
+          <div class="detail-skeleton__main">
+            <div class="skeleton-line skeleton-line--xl"></div>
+            <div class="skeleton-line skeleton-line--lg"></div>
+            <div class="skeleton-line skeleton-line--md"></div>
+          </div>
+          <div class="detail-skeleton__side"></div>
+        </div>
+      </div>
+    </div>
+  } @else if (course()) {
+    <!-- Hero -->
+    <div class="course-detail__hero" [style.background-image]="course()!.imageUrl ? 'url(' + course()!.imageUrl + ')' : 'none'">
+      <div class="course-detail__hero-overlay">
+        <div class="course-detail__hero-content">
+          <!-- Back -->
+          <a routerLink="/student/catalog" class="course-detail__back">
+            <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+            Назад к каталогу
+          </a>
+
+          <!-- Meta badges -->
+          <div class="course-detail__meta-badges">
+            <app-badge [variant]="levelVariant" size="sm">{{ levelLabel }}</app-badge>
+            @if (course()!.isFree) {
+              <app-badge variant="success" size="sm">Бесплатно</app-badge>
+            }
+            @if (course()!.isPublished) {
+              <app-badge variant="primary" size="sm">Опубликован</app-badge>
+            }
+          </div>
+
+          <p class="course-detail__discipline">{{ course()!.disciplineName }}</p>
+          <h1 class="course-detail__title">{{ course()!.title }}</h1>
+          <p class="course-detail__description">{{ course()!.description }}</p>
+
+          <!-- Stats row -->
+          <div class="course-detail__stats">
+            <div class="course-detail__stat">
+              <lucide-icon [img]="StarIcon" [size]="16" class="stat-star" />
+              <span>4.8 рейтинг</span>
+            </div>
+            <div class="course-detail__stat">
+              <lucide-icon [img]="UsersIcon" [size]="16" />
+              <span>{{ course()!.studentsCount }} студентов</span>
+            </div>
+            @if (course()!.duration) {
+              <div class="course-detail__stat">
+                <lucide-icon [img]="ClockIcon" [size]="16" />
+                <span>{{ course()!.duration }}</span>
+              </div>
+            }
+            <div class="course-detail__stat">
+              <lucide-icon [img]="BookOpenIcon" [size]="16" />
+              <span>{{ totalLessons }} уроков</span>
+            </div>
+          </div>
+
+          <p class="course-detail__teacher">
+            <lucide-icon [img]="GraduationCapIcon" [size]="16" />
+            Преподаватель: <strong>{{ course()!.teacherName }}</strong>
+          </p>
+        </div>
+
+        <!-- Sidebar Card -->
+        <div class="course-detail__sidebar">
+          <div class="course-detail__enroll-card">
+            @if (course()!.imageUrl) {
+              <img [src]="course()!.imageUrl" [alt]="course()!.title" class="course-detail__enroll-img" />
+            }
+
+            @if (isEnrolled()) {
+              <div class="course-detail__progress-section">
+                <div class="course-detail__progress-header">
+                  <span>Ваш прогресс</span>
+                  <span class="course-detail__progress-pct">{{ course()!.progress }}%</span>
+                </div>
+                <app-progress-bar [value]="course()!.progress ?? 0" [showLabel]="false" />
+              </div>
+              <a routerLink="/student/courses" class="enroll-btn enroll-btn--continue">
+                Продолжить обучение
+              </a>
+            } @else {
+              <div class="course-detail__price">
+                @if (course()!.isFree) {
+                  <span class="course-detail__price-free">Бесплатно</span>
+                } @else if (course()!.price) {
+                  <span class="course-detail__price-amount">{{ course()!.price }} ₽</span>
+                } @else {
+                  <span class="course-detail__price-free">Бесплатно</span>
+                }
+              </div>
+              <app-button variant="primary" [fullWidth]="true" [loading]="enrolling()" (click)="enroll()">
+                Записаться на курс
+              </app-button>
+            }
+
+            <ul class="course-detail__includes">
+              <li>
+                <lucide-icon [img]="BookOpenIcon" [size]="16" />
+                {{ totalLessons }} уроков
+              </li>
+              @if (course()!.duration) {
+                <li>
+                  <lucide-icon [img]="ClockIcon" [size]="16" />
+                  {{ course()!.duration }} видео
+                </li>
+              }
+              <li>
+                <lucide-icon [img]="AwardIcon" [size]="16" />
+                Сертификат по окончании
+              </li>
+              <li>
+                <lucide-icon [img]="CheckCircleIcon" [size]="16" />
+                Пожизненный доступ
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="course-detail__body">
+      <div class="course-detail__main">
+        <!-- Tags -->
+        @if (tags.length > 0) {
+          <div class="course-detail__tags">
+            <lucide-icon [img]="TagIcon" [size]="16" />
+            @for (tag of tags; track tag) {
+              <span class="course-detail__tag">{{ tag }}</span>
+            }
+          </div>
+        }
+
+        <!-- Modules -->
+        <div class="course-detail__modules">
+          <h2 class="course-detail__section-title">Программа курса</h2>
+          <p class="course-detail__modules-meta">
+            {{ course()!.modules.length }} модулей · {{ totalLessons }} уроков
+          </p>
+
+          @for (module of course()!.modules; track module.id) {
+            <div class="module-item" [class.module-item--expanded]="isModuleExpanded(module.id)">
+              <button class="module-item__header" (click)="toggleModule(module.id)">
+                <div class="module-item__header-left">
+                  <lucide-icon
+                    [img]="isModuleExpanded(module.id) ? ChevronUpIcon : ChevronDownIcon"
+                    [size]="20"
+                    class="module-item__chevron"
+                  />
+                  <div>
+                    <span class="module-item__title">{{ module.title }}</span>
+                    @if (module.description) {
+                      <p class="module-item__desc">{{ module.description }}</p>
+                    }
+                  </div>
+                </div>
+                <span class="module-item__count">{{ module.lessons.length }} уроков</span>
+              </button>
+
+              @if (isModuleExpanded(module.id)) {
+                <div class="module-item__lessons">
+                  @for (lesson of module.lessons; track lesson.id) {
+                    <div class="lesson-row">
+                      <div class="lesson-row__left">
+                        <lucide-icon [img]="PlayCircleIcon" [size]="18" class="lesson-row__icon" />
+                        <span class="lesson-row__title">{{ lesson.title }}</span>
+                      </div>
+                      <div class="lesson-row__right">
+                        @if (lesson.duration) {
+                          <span class="lesson-row__duration">{{ lesson.duration | duration }}</span>
+                        }
+                        @if (!isEnrolled()) {
+                          <lucide-icon [img]="LockIcon" [size]="14" class="lesson-row__lock" />
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Instructor sidebar -->
+      <div class="course-detail__instructor-card">
+        <h3 class="course-detail__instructor-title">О преподавателе</h3>
+        <div class="course-detail__instructor">
+          <app-avatar [alt]="course()!.teacherName" size="lg" [fallback]="course()!.teacherName" />
+          <div>
+            <p class="course-detail__instructor-name">{{ course()!.teacherName }}</p>
+            <p class="course-detail__instructor-role">Преподаватель</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -52,3 +52,23 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Temp
+.tmp/
+
+# OS
+Thumbs.db
+.DS_Store

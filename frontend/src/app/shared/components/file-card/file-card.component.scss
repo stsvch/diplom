@@ -1,0 +1,121 @@
+@use '../../../../styles/variables' as v;
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-3 v.$spacing-4;
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-xl;
+  transition: box-shadow v.$transition-fast;
+
+  &:hover {
+    box-shadow: v.$shadow-sm;
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: v.$radius-md;
+    flex-shrink: 0;
+
+    &.icon--image {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    &.icon--video {
+      background: #EDE9FE;
+      color: #7C3AED;
+    }
+
+    &.icon--audio {
+      background: #FCE7F3;
+      color: #DB2777;
+    }
+
+    &.icon--pdf {
+      background: v.$danger-light;
+      color: v.$danger;
+    }
+
+    &.icon--doc {
+      background: #DBEAFE;
+      color: #2563EB;
+    }
+
+    &.icon--archive {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    &.icon--default {
+      background: v.$primary-light;
+      color: v.$primary;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-foreground;
+    margin: 0 0 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__size {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    flex-shrink: 0;
+  }
+
+  &__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: v.$radius-sm;
+    background: transparent;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+    text-decoration: none;
+
+    &--download {
+      color: v.$text-muted;
+
+      &:hover {
+        background: v.$primary-light;
+        color: v.$primary;
+      }
+    }
+
+    &--delete {
+      color: v.$text-muted;
+
+      &:hover {
+        background: v.$danger-light;
+        color: v.$danger;
+      }
+    }
+  }
+}

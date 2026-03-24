@@ -1,0 +1,142 @@
+@use '../../../../styles/variables' as v;
+
+.my-courses {
+  padding: v.$spacing-6;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: v.$spacing-6;
+    gap: v.$spacing-4;
+
+    @media (max-width: v.$breakpoint-sm) {
+      flex-direction: column;
+    }
+  }
+
+  &__title {
+    font-size: v.$font-size-3xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-base;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: v.$spacing-1;
+    margin-bottom: v.$spacing-6;
+    border-bottom: 1px solid v.$border-color;
+    padding-bottom: 0;
+  }
+
+  &__tab {
+    padding: v.$spacing-3 v.$spacing-5;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-muted;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+    font-family: v.$font-family;
+
+    &:hover {
+      color: v.$primary;
+    }
+
+    &--active {
+      color: v.$primary;
+      border-bottom-color: v.$primary;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: v.$spacing-5;
+
+    @media (max-width: v.$breakpoint-lg) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: v.$breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    text-align: center;
+    gap: v.$spacing-4;
+  }
+
+  &__empty-icon {
+    color: v.$text-placeholder;
+  }
+
+  &__empty-title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__empty-text {
+    font-size: v.$font-size-base;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__skeleton {
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    border: 1px solid v.$border-color;
+    overflow: hidden;
+  }
+}
+
+.skeleton-image {
+  height: 180px;
+  background: linear-gradient(90deg, v.$bg-muted 25%, #e2e8f0 50%, v.$bg-muted 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-body {
+  padding: v.$spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: v.$radius-sm;
+  background: linear-gradient(90deg, v.$bg-muted 25%, #e2e8f0 50%, v.$bg-muted 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+
+  &--sm { width: 40%; }
+  &--md { width: 70%; }
+  &--lg { width: 100%; height: 16px; }
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

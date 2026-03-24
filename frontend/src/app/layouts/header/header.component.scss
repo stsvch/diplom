@@ -1,0 +1,372 @@
+@use '../../../styles/variables' as *;
+
+.header {
+  display: flex;
+  align-items: center;
+  height: $header-height;
+  background-color: $bg-card;
+  border-bottom: 1px solid $border-color;
+  padding: 0 $spacing-6;
+  gap: $spacing-4;
+  position: sticky;
+  top: 0;
+  z-index: $z-header;
+
+  &__left {
+    flex-shrink: 0;
+    min-width: 180px;
+  }
+
+  &__title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $text-foreground;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  &__search {
+    flex: 1;
+    max-width: 480px;
+    margin: 0 auto;
+
+    @media (max-width: $breakpoint-md) {
+      display: none;
+    }
+  }
+
+  &__search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: $spacing-3;
+    color: $text-muted;
+    pointer-events: none;
+    display: flex;
+  }
+
+  &__search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 $spacing-4 0 $spacing-8;
+    background-color: $bg-muted;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
+    font-size: $font-size-sm;
+    color: $text-foreground;
+    font-family: $font-family;
+    transition: border-color $transition-fast, background-color $transition-fast;
+
+    &::placeholder {
+      color: $text-placeholder;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background-color: $bg-card;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  &__action-group {
+    position: relative;
+  }
+
+  &__icon-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
+    background-color: $bg-card;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    &:hover {
+      background-color: $bg-muted;
+      color: $text-foreground;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background-color: $danger;
+    color: #fff;
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    border-radius: $radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid $bg-card;
+  }
+
+  &__profile-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
+    background-color: $bg-card;
+    cursor: pointer;
+    transition: background-color $transition-fast;
+
+    &:hover {
+      background-color: $bg-muted;
+    }
+
+    lucide-icon {
+      color: $text-muted;
+    }
+  }
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-full;
+    background-color: $primary;
+    color: $primary-foreground;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__user-name {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-foreground;
+
+    @media (max-width: $breakpoint-md) {
+      display: none;
+    }
+  }
+
+  // Dropdown base
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + $spacing-2);
+    right: 0;
+    background-color: $bg-card;
+    border: 1px solid $border-color;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-xl;
+    z-index: $z-dropdown;
+    animation: dropdown-in 0.15s ease;
+
+    &--notifications {
+      width: 360px;
+    }
+
+    &--profile {
+      width: 200px;
+      padding: $spacing-2;
+    }
+  }
+
+  &__dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-3 $spacing-4;
+    border-bottom: 1px solid $border-color;
+  }
+
+  &__dropdown-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+  }
+
+  &__dropdown-action {
+    font-size: $font-size-xs;
+    color: $primary;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: $font-family;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__dropdown-body {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__dropdown-empty {
+    padding: $spacing-6;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+
+  &__dropdown-divider {
+    height: 1px;
+    background-color: $border-color;
+    margin: $spacing-2 0;
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: $text-foreground;
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    font-family: $font-family;
+    transition: background-color $transition-fast;
+
+    &:hover {
+      background-color: $bg-muted;
+    }
+
+    &--danger {
+      color: $danger;
+
+      &:hover {
+        background-color: $danger-light;
+      }
+    }
+  }
+
+  // Notification items
+  &__notif {
+    display: flex;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border-bottom: 1px solid $border-color;
+    transition: background-color $transition-fast;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: $bg-muted;
+    }
+
+    &--unread {
+      background-color: rgba($primary, 0.04);
+    }
+  }
+
+  &__notif-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &[data-type='info'] {
+      background-color: rgba($info, 0.1);
+      color: $info;
+    }
+
+    &[data-type='success'] {
+      background-color: $success-light;
+      color: $success;
+    }
+
+    &[data-type='warning'] {
+      background-color: $warning-light;
+      color: $warning;
+    }
+  }
+
+  &__notif-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__notif-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+    margin: 0 0 2px;
+  }
+
+  &__notif-message {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+    margin: 0 0 4px;
+    line-height: 1.4;
+  }
+
+  &__notif-time {
+    font-size: $font-size-xs;
+    color: $text-muted;
+  }
+
+  &__notif-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-sm;
+    border: none;
+    background: none;
+    color: $text-muted;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: $bg-muted;
+      color: $text-foreground;
+    }
+  }
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

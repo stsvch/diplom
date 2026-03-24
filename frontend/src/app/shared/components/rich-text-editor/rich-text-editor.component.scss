@@ -1,0 +1,265 @@
+@use '../../../../styles/variables' as v;
+
+.rte {
+  position: relative;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  background: v.$bg-card;
+  overflow: hidden;
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: v.$spacing-1;
+    padding: v.$spacing-2 v.$spacing-3;
+    border-bottom: 1px solid v.$border-color;
+    background: v.$bg-muted;
+  }
+
+  &__group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__divider {
+    width: 1px;
+    height: 20px;
+    background: v.$border-color;
+    margin: 0 v.$spacing-1;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: v.$radius-sm;
+    background: transparent;
+    color: v.$text-secondary;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+    padding: 0;
+
+    &:hover {
+      background: v.$bg-card;
+      color: v.$text-foreground;
+    }
+
+    &--active {
+      background: v.$primary-light;
+      color: v.$primary;
+
+      &:hover {
+        background: v.$primary-light;
+        color: v.$primary-hover;
+      }
+    }
+  }
+
+  &__content {
+    padding: v.$spacing-4 v.$spacing-5;
+    min-height: 200px;
+    font-size: v.$font-size-base;
+    line-height: 1.7;
+    color: v.$text-foreground;
+    outline: none;
+
+    // TipTap ProseMirror content
+    :global(.ProseMirror) {
+      outline: none;
+      min-height: 180px;
+    }
+
+    :deep(.ProseMirror) {
+      outline: none;
+      min-height: 180px;
+
+      p.is-editor-empty:first-child::before {
+        content: attr(data-placeholder);
+        float: left;
+        color: v.$text-placeholder;
+        pointer-events: none;
+        height: 0;
+      }
+
+      h1 { font-size: v.$font-size-3xl; font-weight: v.$font-weight-bold; margin: 1.2em 0 0.5em; }
+      h2 { font-size: v.$font-size-2xl; font-weight: v.$font-weight-bold; margin: 1.2em 0 0.5em; }
+      h3 { font-size: v.$font-size-xl; font-weight: v.$font-weight-semibold; margin: 1.2em 0 0.5em; }
+
+      p { margin: 0 0 0.75em; }
+      p:last-child { margin-bottom: 0; }
+
+      ul, ol { padding-left: 1.5em; margin: 0 0 0.75em; }
+      li { margin-bottom: 0.3em; }
+
+      strong { font-weight: v.$font-weight-bold; }
+      em { font-style: italic; }
+      u { text-decoration: underline; }
+      s { text-decoration: line-through; }
+
+      code {
+        background: v.$bg-muted;
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.875em;
+        color: v.$primary;
+      }
+
+      pre {
+        background: #1E293B;
+        color: #86EFAC;
+        padding: v.$spacing-4;
+        border-radius: v.$radius-md;
+        overflow-x: auto;
+        margin: 0 0 0.75em;
+        font-family: 'Fira Code', 'Courier New', monospace;
+        font-size: 0.875em;
+
+        code {
+          background: none;
+          color: inherit;
+          padding: 0;
+          font-size: 1em;
+        }
+      }
+
+      blockquote {
+        border-left: 3px solid v.$primary;
+        padding-left: v.$spacing-4;
+        margin: 0 0 0.75em;
+        color: v.$text-secondary;
+        font-style: italic;
+      }
+
+      a {
+        color: v.$primary;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: v.$radius-md;
+        cursor: default;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0 0 0.75em;
+
+        th, td {
+          border: 1px solid v.$border-color;
+          padding: v.$spacing-2 v.$spacing-3;
+          text-align: left;
+        }
+
+        th {
+          background: v.$bg-muted;
+          font-weight: v.$font-weight-semibold;
+        }
+
+        .selectedCell:after {
+          background: rgba(v.$primary, 0.1);
+          content: '';
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          pointer-events: none;
+          position: absolute;
+          z-index: 2;
+        }
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid v.$border-color;
+        margin: 1em 0;
+      }
+    }
+  }
+
+  // Dialogs
+  &__dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  &__dialog {
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    padding: v.$spacing-5;
+    width: 360px;
+    box-shadow: v.$shadow-xl;
+  }
+
+  &__dialog-title {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-3;
+  }
+
+  &__dialog-input {
+    width: 100%;
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-input;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    background: v.$bg-input;
+    outline: none;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: v.$primary;
+      box-shadow: 0 0 0 2px rgba(v.$primary, 0.15);
+    }
+  }
+
+  &__dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: v.$spacing-2;
+    margin-top: v.$spacing-4;
+  }
+
+  &__dialog-btn {
+    padding: v.$spacing-2 v.$spacing-4;
+    border-radius: v.$radius-sm;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    cursor: pointer;
+    border: none;
+    transition: all v.$transition-fast;
+
+    &--cancel {
+      background: v.$bg-muted;
+      color: v.$text-secondary;
+
+      &:hover {
+        background: v.$border-color;
+      }
+    }
+
+    &--apply {
+      background: v.$primary;
+      color: v.$primary-foreground;
+
+      &:hover {
+        background: v.$primary-hover;
+      }
+    }
+  }
+}

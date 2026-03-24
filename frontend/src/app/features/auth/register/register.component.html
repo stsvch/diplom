@@ -1,0 +1,207 @@
+<div class="auth-layout">
+  <!-- Left Panel -->
+  <div class="auth-layout__left">
+    <div class="auth-layout__left-inner">
+      <div class="auth-brand">
+        <div class="auth-brand__icon">
+          <lucide-icon [img]="BookOpenIcon" [size]="32" />
+        </div>
+        <span class="auth-brand__name">LearnHub</span>
+      </div>
+
+      <div class="auth-hero">
+        <h1 class="auth-hero__title">Начните свой путь к знаниям сегодня</h1>
+        <p class="auth-hero__subtitle">
+          Зарегистрируйтесь и получите доступ к лучшим образовательным ресурсам
+        </p>
+      </div>
+
+      <ul class="auth-benefits">
+        @for (benefit of benefits; track benefit) {
+          <li class="auth-benefits__item">
+            <span class="auth-benefits__icon">
+              <lucide-icon [img]="CheckCircleIcon" [size]="20" />
+            </span>
+            <span>{{ benefit }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-layout__right">
+    <div class="auth-form-card">
+      <div class="auth-form-card__header">
+        <h2 class="auth-form-card__title">Создать аккаунт</h2>
+        <p class="auth-form-card__subtitle">Заполните форму для регистрации</p>
+      </div>
+
+      <!-- Role selector -->
+      <div class="role-selector">
+        <button
+          type="button"
+          class="role-selector__btn"
+          [class.role-selector__btn--active]="selectedRole() === 'Student'"
+          (click)="selectRole('Student')"
+        >
+          Студент
+        </button>
+        <button
+          type="button"
+          class="role-selector__btn"
+          [class.role-selector__btn--active]="selectedRole() === 'Teacher'"
+          (click)="selectRole('Teacher')"
+        >
+          Преподаватель
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+        <!-- Name row -->
+        <div class="form-row">
+          <div class="form-group" [class.form-group--error]="firstNameError">
+            <label class="form-label" for="reg-first-name">Имя</label>
+            <div class="form-input-wrap">
+              <span class="form-input-icon">
+                <lucide-icon [img]="UserIcon" [size]="18" />
+              </span>
+              <input
+                id="reg-first-name"
+                class="form-input form-input--icon"
+                type="text"
+                placeholder="Иван"
+                formControlName="firstName"
+                autocomplete="given-name"
+              />
+            </div>
+            @if (firstNameError) {
+              <span class="form-error">{{ firstNameError }}</span>
+            }
+          </div>
+
+          <div class="form-group" [class.form-group--error]="lastNameError">
+            <label class="form-label" for="reg-last-name">Фамилия</label>
+            <div class="form-input-wrap">
+              <span class="form-input-icon">
+                <lucide-icon [img]="UserIcon" [size]="18" />
+              </span>
+              <input
+                id="reg-last-name"
+                class="form-input form-input--icon"
+                type="text"
+                placeholder="Иванов"
+                formControlName="lastName"
+                autocomplete="family-name"
+              />
+            </div>
+            @if (lastNameError) {
+              <span class="form-error">{{ lastNameError }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group" [class.form-group--error]="emailError">
+          <label class="form-label" for="reg-email">Email</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <lucide-icon [img]="MailIcon" [size]="18" />
+            </span>
+            <input
+              id="reg-email"
+              class="form-input form-input--icon"
+              type="email"
+              placeholder="your@email.com"
+              formControlName="email"
+              autocomplete="email"
+            />
+          </div>
+          @if (emailError) {
+            <span class="form-error">{{ emailError }}</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" [class.form-group--error]="passwordError">
+          <label class="form-label" for="reg-password">Пароль</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <lucide-icon [img]="LockIcon" [size]="18" />
+            </span>
+            <input
+              id="reg-password"
+              class="form-input form-input--icon form-input--suffix"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="Минимум 6 символов"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="form-input-suffix" (click)="togglePassword()" tabindex="-1">
+              @if (showPassword()) {
+                <lucide-icon [img]="EyeOffIcon" [size]="18" />
+              } @else {
+                <lucide-icon [img]="EyeIcon" [size]="18" />
+              }
+            </button>
+          </div>
+          @if (passwordError) {
+            <span class="form-error">{{ passwordError }}</span>
+          }
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group" [class.form-group--error]="confirmPasswordError">
+          <label class="form-label" for="reg-confirm-password">Подтвердите пароль</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <lucide-icon [img]="LockIcon" [size]="18" />
+            </span>
+            <input
+              id="reg-confirm-password"
+              class="form-input form-input--icon form-input--suffix"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              placeholder="Повторите пароль"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+            <button type="button" class="form-input-suffix" (click)="toggleConfirmPassword()" tabindex="-1">
+              @if (showConfirmPassword()) {
+                <lucide-icon [img]="EyeOffIcon" [size]="18" />
+              } @else {
+                <lucide-icon [img]="EyeIcon" [size]="18" />
+              }
+            </button>
+          </div>
+          @if (confirmPasswordError) {
+            <span class="form-error">{{ confirmPasswordError }}</span>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="auth-submit-btn"
+          [class.auth-submit-btn--loading]="loading()"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="auth-submit-btn__spinner"></span>
+          }
+          Создать аккаунт
+        </button>
+
+        <p class="auth-terms">
+          Регистрируясь, вы соглашаетесь с
+          <a href="#" class="auth-link">условиями использования</a>
+          и
+          <a href="#" class="auth-link">политикой конфиденциальности</a>
+        </p>
+      </form>
+
+      <p class="auth-form-card__footer">
+        Уже есть аккаунт?
+        <a routerLink="/login" class="auth-link">Войти</a>
+      </p>
+    </div>
+  </div>
+</div>

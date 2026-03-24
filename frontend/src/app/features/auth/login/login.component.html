@@ -1,0 +1,120 @@
+<div class="auth-layout">
+  <!-- Left Panel -->
+  <div class="auth-layout__left">
+    <div class="auth-layout__left-inner">
+      <div class="auth-brand">
+        <div class="auth-brand__icon">
+          <lucide-icon [img]="BookOpenIcon" [size]="32" />
+        </div>
+        <span class="auth-brand__name">LearnHub</span>
+      </div>
+
+      <div class="auth-hero">
+        <h1 class="auth-hero__title">Добро пожаловать в мир знаний</h1>
+        <p class="auth-hero__subtitle">
+          Присоединяйтесь к тысячам студентов и преподавателей на нашей платформе
+        </p>
+      </div>
+
+      <div class="auth-stats">
+        <div class="auth-stats__item">
+          <span class="auth-stats__number">50 000+</span>
+          <span class="auth-stats__label">студентов</span>
+        </div>
+        <div class="auth-stats__item">
+          <span class="auth-stats__number">200+</span>
+          <span class="auth-stats__label">курсов</span>
+        </div>
+        <div class="auth-stats__item">
+          <span class="auth-stats__number">85+</span>
+          <span class="auth-stats__label">преподавателей</span>
+        </div>
+        <div class="auth-stats__item">
+          <span class="auth-stats__number">4.8★</span>
+          <span class="auth-stats__label">рейтинг</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-layout__right">
+    <div class="auth-form-card">
+      <div class="auth-form-card__header">
+        <h2 class="auth-form-card__title">Вход в аккаунт</h2>
+        <p class="auth-form-card__subtitle">Введите данные для входа в систему</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+        <!-- Email -->
+        <div class="form-group" [class.form-group--error]="emailError">
+          <label class="form-label" for="login-email">Email</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <lucide-icon [img]="MailIcon" [size]="18" />
+            </span>
+            <input
+              id="login-email"
+              class="form-input form-input--icon"
+              type="email"
+              placeholder="your@email.com"
+              formControlName="email"
+              autocomplete="email"
+            />
+          </div>
+          @if (emailError) {
+            <span class="form-error">{{ emailError }}</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group" [class.form-group--error]="passwordError">
+          <div class="form-label-row">
+            <label class="form-label" for="login-password">Пароль</label>
+            <a routerLink="/forgot-password" class="form-forgot-link">Забыли пароль?</a>
+          </div>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <lucide-icon [img]="LockIcon" [size]="18" />
+            </span>
+            <input
+              id="login-password"
+              class="form-input form-input--icon form-input--suffix"
+              [type]="showPassword() ? 'text' : 'password'"
+              placeholder="••••••••"
+              formControlName="password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="form-input-suffix" (click)="togglePassword()" tabindex="-1">
+              @if (showPassword()) {
+                <lucide-icon [img]="EyeOffIcon" [size]="18" />
+              } @else {
+                <lucide-icon [img]="EyeIcon" [size]="18" />
+              }
+            </button>
+          </div>
+          @if (passwordError) {
+            <span class="form-error">{{ passwordError }}</span>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="auth-submit-btn"
+          [class.auth-submit-btn--loading]="loading()"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="auth-submit-btn__spinner"></span>
+          }
+          Войти
+        </button>
+      </form>
+
+      <p class="auth-form-card__footer">
+        Нет аккаунта?
+        <a routerLink="/register" class="auth-link">Зарегистрироваться</a>
+      </p>
+    </div>
+  </div>
+</div>

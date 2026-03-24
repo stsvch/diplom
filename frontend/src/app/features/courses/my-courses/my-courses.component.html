@@ -1,0 +1,62 @@
+<div class="my-courses">
+  <div class="my-courses__header">
+    <div>
+      <h1 class="my-courses__title">Мои курсы</h1>
+      <p class="my-courses__subtitle">Курсы, на которые вы записались</p>
+    </div>
+    <a routerLink="/student/catalog">
+      <app-button variant="primary">
+        Найти курсы
+      </app-button>
+    </a>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="my-courses__tabs">
+    @for (f of filters; track f.value) {
+      <button
+        class="my-courses__tab"
+        [class.my-courses__tab--active]="activeFilter() === f.value"
+        (click)="setFilter(f.value)"
+      >
+        {{ f.label }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="my-courses__grid">
+      @for (item of skeletonItems; track $index) {
+        <div class="my-courses__skeleton">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-line--sm"></div>
+            <div class="skeleton-line skeleton-line--lg"></div>
+            <div class="skeleton-line skeleton-line--md"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (filteredCourses().length === 0) {
+    <div class="my-courses__empty">
+      @if (courses().length === 0) {
+        <lucide-icon [img]="BookOpenIcon" [size]="64" class="my-courses__empty-icon" />
+        <h3 class="my-courses__empty-title">Вы ещё не записаны ни на один курс</h3>
+        <p class="my-courses__empty-text">Откройте каталог и начните обучение прямо сейчас</p>
+        <a routerLink="/student/catalog">
+          <app-button variant="primary">Перейти в каталог</app-button>
+        </a>
+      } @else {
+        <lucide-icon [img]="GraduationCapIcon" [size]="64" class="my-courses__empty-icon" />
+        <h3 class="my-courses__empty-title">Нет курсов в этой категории</h3>
+        <p class="my-courses__empty-text">Попробуйте выбрать другой фильтр</p>
+      }
+    </div>
+  } @else {
+    <div class="my-courses__grid">
+      @for (course of filteredCourses(); track course.id) {
+        <app-course-card [course]="course" [showProgress]="true" linkPrefix="/student/course" />
+      }
+    </div>
+  }
+</div>

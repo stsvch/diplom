@@ -1,0 +1,160 @@
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  LucideAngularModule,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Star,
+  Clock,
+  Users,
+  BookOpen,
+  PlayCircle,
+  FileText,
+  Download,
+  CheckCircle2,
+  Lock,
+  Tag,
+  GraduationCap,
+  Award,
+} from 'lucide-angular';
+import { CoursesService } from '../services/courses.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
+import { ApiError } from '../../../core/models/api-error.model';
+import { CourseDetailDto, CourseModuleDetailDto } from '../models/course.model';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
+import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
+import { DurationPipe } from '../../../shared/pipes/duration.pipe';
+
+@Component({
+  selector: 'app-course-detail',
+  standalone: true,
+  imports: [
+    RouterLink,
+    LucideAngularModule,
+    BadgeComponent,
+    ProgressBarComponent,
+    ButtonComponent,
+    AvatarComponent,
+    DurationPipe,
+  ],
+  templateUrl: './course-detail.component.html',
+  styleUrl: './course-detail.component.scss',
+})
+export class CourseDetailComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly coursesService = inject(CoursesService);
+  private readonly toastService = inject(ToastService);
+
+  readonly ChevronLeftIcon = ChevronLeft;
+  readonly ChevronDownIcon = ChevronDown;
+  readonly ChevronUpIcon = ChevronUp;
+  readonly StarIcon = Star;
+  readonly ClockIcon = Clock;
+  readonly UsersIcon = Users;
+  readonly BookOpenIcon = BookOpen;
+  readonly PlayCircleIcon = PlayCircle;
+  readonly FileTextIcon = FileText;
+  readonly DownloadIcon = Download;
+  readonly CheckCircleIcon = CheckCircle2;
+  readonly LockIcon = Lock;
+  readonly TagIcon = Tag;
+  readonly GraduationCapIcon = GraduationCap;
+  readonly AwardIcon = Award;
+
+  readonly loading = signal(true);
+  readonly enrolling = signal(false);
+  readonly course = signal<CourseDetailDto | null>(null);
+  readonly expandedModules = signal<Set<string>>(new Set());
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) this.loadCourse(id);
+  }
+
+  loadCourse(id: string): void {
+    this.loading.set(true);
+    this.coursesService.getCourseById(id).subscribe({
+      next: (data) => {
+        this.course.set(data);
+        this.loading.set(false);
+        // expand first module by default
+        if (data.modules.length > 0) {
+          this.expandedModules.set(new Set([data.modules[0].id]));
+        }
+      },
+      error: (err: ApiError) => {
+        this.loading.set(false);
+        this.toastService.error(err.message);
+      },
+    });
+  }
+
+  toggleModule(id: string): void {
+    this.expandedModules.update((set) => {
+      const next = new Set(set);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  isModuleExpanded(id: string): boolean {
+    return this.expandedModules().has(id);
+  }
+
+  enroll(): void {
+    const c = this.course();
+    if (!c) return;
+    this.enrolling.set(true);
+    this.coursesService.enrollCourse(c.id).subscribe({
+      next: () => {
+        this.enrolling.set(false);
+        this.toastService.success('Вы успешно записались на курс!');
+      },
+      error: (err: ApiError) => {
+        this.enrolling.set(false);
+        this.toastService.error(err.message);
+      },
+    });
+  }
+
+  get levelLabel(): string {
+    const map: Record<string, string> = {
+      Beginner: 'Начальный',
+      Intermediate: 'Средний',
+      Advanced: 'Продвинутый',
+    };
+    return map[this.course()?.level ?? ''] ?? (this.course()?.level ?? '');
+  }
+
+  get levelVariant(): 'primary' | 'success' | 'warning' | 'danger' | 'neutral' {
+    const map: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'neutral'> = {
+      Beginner: 'success',
+      Intermediate: 'warning',
+      Advanced: 'danger',
+    };
+    return map[this.course()?.level ?? ''] ?? 'neutral';
+  }
+
+  get tags(): string[] {
+    return (this.course()?.tags ?? '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }
+
+  get totalLessons(): number {
+    return this.course()?.modules.reduce((sum, m) => sum + m.lessons.length, 0) ?? 0;
+  }
+
+  isEnrolled(): boolean {
+    return (this.course()?.progress ?? undefined) !== undefined;
+  }
+
+  getLessonIcon(lesson: { blocksCount: number }): any {
+    return lesson.blocksCount > 0 ? this.PlayCircleIcon : this.FileTextIcon;
+  }
+}

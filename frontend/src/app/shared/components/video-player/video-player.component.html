@@ -1,0 +1,30 @@
+<div class="video-player">
+  @if (!_url()) {
+    <div class="video-player__placeholder">
+      <lucide-icon [img]="PlayIcon" [size]="48" class="video-player__play-icon" />
+      <p class="video-player__placeholder-text">Видео не указано</p>
+    </div>
+  } @else if (videoType() === 'youtube' || videoType() === 'vimeo') {
+    <div class="video-player__embed-wrap">
+      <iframe
+        [src]="embedUrl()!"
+        frameborder="0"
+        allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        class="video-player__iframe"
+        loading="lazy"
+      ></iframe>
+    </div>
+  } @else {
+    <div class="video-player__direct-wrap">
+      <video
+        [src]="directUrl()"
+        controls
+        class="video-player__video"
+        preload="metadata"
+      >
+        Ваш браузер не поддерживает воспроизведение видео.
+      </video>
+    </div>
+  }
+</div>

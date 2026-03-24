@@ -1,0 +1,205 @@
+@use '../../../../styles/variables' as v;
+
+.teacher-courses {
+  padding: v.$spacing-6;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: v.$spacing-6;
+    gap: v.$spacing-4;
+
+    @media (max-width: v.$breakpoint-sm) {
+      flex-direction: column;
+    }
+  }
+
+  &__title {
+    font-size: v.$font-size-3xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-base;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__table-wrap {
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    border: 1px solid v.$border-color;
+    overflow: auto;
+    box-shadow: v.$shadow-sm;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+
+    thead tr {
+      border-bottom: 1px solid v.$border-color;
+    }
+
+    th {
+      padding: v.$spacing-3 v.$spacing-4;
+      text-align: left;
+      font-size: v.$font-size-xs;
+      font-weight: v.$font-weight-semibold;
+      color: v.$text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: v.$bg-muted;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: v.$spacing-3 v.$spacing-4;
+      border-bottom: 1px solid v.$border-color;
+      vertical-align: middle;
+    }
+  }
+
+  &__row {
+    transition: background v.$transition-fast;
+
+    &:last-child td {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: v.$bg-muted;
+    }
+  }
+
+  &__skeleton-row td {
+    padding: v.$spacing-4;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    text-align: center;
+    gap: v.$spacing-4;
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    border: 1px solid v.$border-color;
+  }
+
+  &__empty-icon {
+    color: v.$text-placeholder;
+  }
+
+  &__empty-title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__empty-text {
+    font-size: v.$font-size-base;
+    color: v.$text-muted;
+    margin: 0;
+  }
+}
+
+// Course cell
+.course-cell {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+
+  &__img {
+    width: 48px;
+    height: 48px;
+    border-radius: v.$radius-md;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  &__img-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: v.$radius-md;
+    background: v.$primary-light;
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    min-width: 0;
+  }
+
+  &__title {
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+    font-size: v.$font-size-sm;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+  }
+
+  &__discipline {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin: 0;
+  }
+}
+
+// Stats
+.tc-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+
+  lucide-icon {
+    color: v.$text-muted;
+  }
+}
+
+.tc-level {
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+}
+
+// Actions
+.tc-actions {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+}
+
+// Skeleton
+.skeleton-cell {
+  height: 14px;
+  border-radius: v.$radius-sm;
+  background: linear-gradient(90deg, v.$bg-muted 25%, #e2e8f0 50%, v.$bg-muted 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+
+  &--sm { width: 60px; }
+  &--md { width: 100px; }
+  &--lg { width: 200px; }
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

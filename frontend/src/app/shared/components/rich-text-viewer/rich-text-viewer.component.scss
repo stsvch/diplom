@@ -1,0 +1,174 @@
+@use '../../../../styles/variables' as v;
+
+.rtv {
+  font-size: v.$font-size-base;
+  line-height: 1.75;
+  color: v.$text-foreground;
+
+  :global(h1),
+  h1 {
+    font-size: v.$font-size-3xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 1.5em 0 0.5em;
+    line-height: 1.3;
+  }
+
+  :global(h2),
+  h2 {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 1.4em 0 0.5em;
+    line-height: 1.3;
+  }
+
+  :global(h3),
+  h3 {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 1.3em 0 0.4em;
+    line-height: 1.4;
+  }
+
+  :global(p),
+  p {
+    margin: 0 0 1em;
+  }
+
+  :global(p:last-child),
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  :global(ul),
+  ul {
+    list-style: disc;
+    padding-left: 1.5em;
+    margin: 0 0 1em;
+  }
+
+  :global(ol),
+  ol {
+    list-style: decimal;
+    padding-left: 1.5em;
+    margin: 0 0 1em;
+  }
+
+  :global(li),
+  li {
+    margin-bottom: 0.4em;
+  }
+
+  :global(strong),
+  strong {
+    font-weight: v.$font-weight-bold;
+  }
+
+  :global(em),
+  em {
+    font-style: italic;
+  }
+
+  :global(u),
+  u {
+    text-decoration: underline;
+  }
+
+  :global(s),
+  s {
+    text-decoration: line-through;
+  }
+
+  :global(a),
+  a {
+    color: v.$primary;
+    text-decoration: underline;
+    transition: color v.$transition-fast;
+
+    &:hover {
+      color: v.$primary-hover;
+    }
+  }
+
+  :global(code),
+  code {
+    background: v.$bg-muted;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.875em;
+    color: v.$primary;
+  }
+
+  :global(pre),
+  pre {
+    background: #1E293B;
+    color: #86EFAC;
+    padding: v.$spacing-4;
+    border-radius: v.$radius-md;
+    overflow-x: auto;
+    margin: 0 0 1em;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 0.875em;
+
+    :global(code),
+    code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      border-radius: 0;
+      font-size: 1em;
+    }
+  }
+
+  :global(blockquote),
+  blockquote {
+    border-left: 4px solid v.$primary;
+    padding-left: v.$spacing-4;
+    margin: 0 0 1em;
+    color: v.$text-secondary;
+    font-style: italic;
+  }
+
+  :global(img),
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: v.$radius-md;
+    margin: 0.5em 0;
+  }
+
+  :global(table),
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 0 1em;
+    font-size: v.$font-size-sm;
+  }
+
+  :global(th),
+  th {
+    background: v.$bg-muted;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-color;
+    text-align: left;
+  }
+
+  :global(td),
+  td {
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-color;
+    color: v.$text-secondary;
+  }
+
+  :global(hr),
+  hr {
+    border: none;
+    border-top: 1px solid v.$border-color;
+    margin: 1.5em 0;
+  }
+}

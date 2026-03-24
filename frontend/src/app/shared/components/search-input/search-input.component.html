@@ -1,0 +1,10 @@
+<div class="search-input">
+  <lucide-icon class="search-input__icon" [img]="SearchIcon" [size]="16" />
+  <input
+    class="search-input__input"
+    type="text"
+    [placeholder]="placeholder"
+    [value]="value()"
+    (input)="onInput($event)"
+  />
+</div>

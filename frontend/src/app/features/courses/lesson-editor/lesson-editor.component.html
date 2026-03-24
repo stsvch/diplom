@@ -1,0 +1,223 @@
+<div class="lesson-editor">
+  <!-- Header -->
+  <div class="lesson-editor__header">
+    <a [routerLink]="backUrl" class="lesson-editor__back">
+      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+      Назад к курсу
+    </a>
+
+    <div class="lesson-editor__title-wrap">
+      <input
+        type="text"
+        class="lesson-editor__title-input"
+        [value]="lessonTitle()"
+        (input)="lessonTitle.set($any($event.target).value)"
+        placeholder="Название урока"
+      />
+    </div>
+
+    <app-button
+      variant="primary"
+      size="md"
+      [loading]="saving()"
+      (click)="saveAll()"
+    >
+      <lucide-icon [img]="SaveIcon" [size]="16" />
+      Сохранить
+    </app-button>
+  </div>
+
+  @if (loading()) {
+    <div class="lesson-editor__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="lesson-editor__spinner" />
+      <p>Загрузка...</p>
+    </div>
+  } @else {
+    <div class="lesson-editor__body">
+      <!-- Blocks list -->
+      @if (blocks().length === 0) {
+        <div class="lesson-editor__empty">
+          <p>Блоки ещё не добавлены. Нажмите "Добавить блок" чтобы начать.</p>
+        </div>
+      }
+
+      @for (block of blocks(); track block.id; let i = $index) {
+        <div class="lesson-block-card">
+          <!-- Block header -->
+          <div class="lesson-block-card__header">
+            <app-badge [variant]="getBlockTypeBadgeVariant(block.type)" size="sm">
+              @switch (block.type) {
+                @case ('Text') { <lucide-icon [img]="TypeIcon" [size]="12" /> }
+                @case ('Video') { <lucide-icon [img]="VideoIcon" [size]="12" /> }
+                @case ('File') { <lucide-icon [img]="PaperclipIcon" [size]="12" /> }
+              }
+              {{ getBlockTypeLabel(block.type) }}
+            </app-badge>
+
+            <span class="lesson-block-card__order">Блок {{ i + 1 }}</span>
+
+            <div class="lesson-block-card__controls">
+              <button
+                type="button"
+                class="lesson-block-card__ctrl-btn"
+                (click)="moveBlock(i, 'up')"
+                [disabled]="i === 0"
+                title="Вверх"
+              >
+                <lucide-icon [img]="ArrowUpIcon" [size]="16" />
+              </button>
+              <button
+                type="button"
+                class="lesson-block-card__ctrl-btn"
+                (click)="moveBlock(i, 'down')"
+                [disabled]="i === blocks().length - 1"
+                title="Вниз"
+              >
+                <lucide-icon [img]="ArrowDownIcon" [size]="16" />
+              </button>
+              <button
+                type="button"
+                class="lesson-block-card__ctrl-btn lesson-block-card__ctrl-btn--danger"
+                (click)="deleteBlock(block.id)"
+                title="Удалить блок"
+              >
+                <lucide-icon [img]="TrashIcon" [size]="16" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Block content -->
+          <div class="lesson-block-card__content">
+            @switch (block.type) {
+              @case ('Text') {
+                <app-rich-text-editor
+                  [content]="block.textContent ?? ''"
+                  placeholder="Введите текст урока..."
+                  (contentChange)="onTextChange(block.id, $event)"
+                />
+              }
+
+              @case ('Video') {
+                <div class="block-video">
+                  <!-- Mode toggle -->
+                  <div class="block-video__mode-tabs">
+                    <button
+                      type="button"
+                      class="block-video__mode-tab"
+                      [class.block-video__mode-tab--active]="block.videoInputMode === 'url'"
+                      (click)="setVideoMode(block.id, 'url')"
+                    >
+                      Ссылка (YouTube / Vimeo / URL)
+                    </button>
+                    <button
+                      type="button"
+                      class="block-video__mode-tab"
+                      [class.block-video__mode-tab--active]="block.videoInputMode === 'upload'"
+                      (click)="setVideoMode(block.id, 'upload')"
+                    >
+                      Загрузить файл
+                    </button>
+                  </div>
+
+                  @if (block.videoInputMode === 'url') {
+                    <div class="block-video__url-row">
+                      <input
+                        type="url"
+                        class="block-video__url-input"
+                        [value]="block.pendingVideoUrl ?? ''"
+                        (input)="onVideoUrlChange(block.id, $any($event.target).value)"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                      />
+                      <app-button
+                        variant="outline"
+                        size="sm"
+                        (click)="applyVideoUrl(block)"
+                      >
+                        Применить
+                      </app-button>
+                    </div>
+                  } @else {
+                    <app-file-uploader
+                      accept="video/*"
+                      [entityType]="'LessonBlock'"
+                      [entityId]="block.id"
+                      (fileUploaded)="onVideoFileUploaded(block.id, $event)"
+                    />
+                  }
+
+                  @if (block.videoUrl) {
+                    <div class="block-video__preview">
+                      <p class="block-video__preview-label">Предпросмотр:</p>
+                      <app-video-player [url]="block.videoUrl" />
+                    </div>
+                  }
+                </div>
+              }
+
+              @case ('File') {
+                <div class="block-files">
+                  <app-file-uploader
+                    accept="*/*"
+                    [multiple]="true"
+                    [entityType]="'LessonBlock'"
+                    [entityId]="block.id"
+                    (fileUploaded)="onFileUploaded(block.id, $event)"
+                  />
+
+                  @if (block.filesLoading) {
+                    <div class="block-files__loading">
+                      <lucide-icon [img]="Loader2Icon" [size]="20" class="lesson-editor__spinner" />
+                      Загрузка файлов...
+                    </div>
+                  } @else if (block.files && block.files.length > 0) {
+                    <div class="block-files__list">
+                      @for (file of block.files; track file.id) {
+                        <app-file-card
+                          [attachment]="file"
+                          [deletable]="true"
+                          (deleted)="deleteAttachment(block.id, $event)"
+                        />
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Add block button -->
+      <div class="lesson-editor__add-wrap">
+        <div class="lesson-editor__add-menu-host">
+          <app-button
+            variant="outline"
+            size="md"
+            (click)="toggleAddMenu()"
+          >
+            <lucide-icon [img]="PlusIcon" [size]="16" />
+            Добавить блок
+            <lucide-icon [img]="ChevronDownIcon" [size]="14" />
+          </app-button>
+
+          @if (showAddMenu()) {
+            <div class="add-menu" (clickOutside)="closeAddMenu()">
+              <button type="button" class="add-menu__item" (click)="addBlock('Text')">
+                <lucide-icon [img]="TypeIcon" [size]="16" />
+                <span>Текст</span>
+              </button>
+              <button type="button" class="add-menu__item" (click)="addBlock('Video')">
+                <lucide-icon [img]="VideoIcon" [size]="16" />
+                <span>Видео</span>
+              </button>
+              <button type="button" class="add-menu__item" (click)="addBlock('File')">
+                <lucide-icon [img]="PaperclipIcon" [size]="16" />
+                <span>Файл</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

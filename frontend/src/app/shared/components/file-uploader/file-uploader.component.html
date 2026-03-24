@@ -1,0 +1,64 @@
+<div class="file-uploader">
+  <input
+    #fileInput
+    type="file"
+    [accept]="accept"
+    [multiple]="multiple"
+    class="file-uploader__input"
+    (change)="onFileSelect($event)"
+  />
+
+  @if (!uploadedFile()) {
+    <div
+      class="file-uploader__zone"
+      [class.file-uploader__zone--dragover]="isDragOver()"
+      [class.file-uploader__zone--uploading]="uploading()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      (click)="openFilePicker()"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="openFilePicker()"
+      (keydown.space)="openFilePicker()"
+    >
+      @if (uploading()) {
+        <div class="file-uploader__uploading">
+          <lucide-icon [img]="Loader2Icon" [size]="32" class="file-uploader__spinner" />
+          <p class="file-uploader__text">Загрузка...</p>
+        </div>
+      } @else {
+        <lucide-icon [img]="UploadIcon" [size]="32" class="file-uploader__icon" />
+        <p class="file-uploader__text">Перетащите файл или нажмите для загрузки</p>
+        <p class="file-uploader__hint">
+          {{ accept !== '*/*' && accept !== '*' ? accept : 'Любые файлы' }}
+          · До {{ (maxSize / 1024 / 1024).toFixed(0) }} MB
+        </p>
+      }
+    </div>
+  } @else {
+    <div class="file-uploader__preview">
+      @if (previewIsImage() && previewUrl()) {
+        <img [src]="previewUrl()!" class="file-uploader__preview-img" alt="Preview" />
+      } @else {
+        <div class="file-uploader__preview-icon">
+          <lucide-icon [img]="FileTextIcon" [size]="32" />
+        </div>
+      }
+      <div class="file-uploader__preview-info">
+        <p class="file-uploader__preview-name">{{ uploadedFile()!.fileName }}</p>
+        <p class="file-uploader__preview-size">Загружено успешно</p>
+      </div>
+      <button class="file-uploader__clear" (click)="clearUpload()" type="button">
+        <lucide-icon [img]="XIcon" [size]="16" />
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="file-uploader__error">
+      <lucide-icon [img]="AlertCircleIcon" [size]="14" />
+      {{ errorMessage() }}
+    </div>
+  }
+</div>

@@ -1,0 +1,110 @@
+<header class="header">
+  <!-- Left: Page Title -->
+  <div class="header__left">
+    <h1 class="header__title">{{ currentPageTitle() }}</h1>
+  </div>
+
+  <!-- Center: Search -->
+  <div class="header__search">
+    <div class="header__search-wrapper">
+      <lucide-icon class="header__search-icon" [img]="icons.Search" [size]="16" />
+      <input
+        type="text"
+        class="header__search-input"
+        placeholder="Поиск курсов, заданий..."
+      />
+    </div>
+  </div>
+
+  <!-- Right: Actions -->
+  <div class="header__actions">
+    <!-- Notifications -->
+    <div class="header__action-group">
+      <button class="header__icon-btn" (click)="toggleNotifications()">
+        <lucide-icon [img]="icons.Bell" [size]="20" />
+        @if (unreadCount() > 0) {
+          <span class="header__badge">{{ unreadCount() }}</span>
+        }
+      </button>
+
+      @if (notificationsOpen()) {
+        <div class="header__dropdown header__dropdown--notifications">
+          <div class="header__dropdown-header">
+            <span class="header__dropdown-title">Уведомления</span>
+            @if (unreadCount() > 0) {
+              <button class="header__dropdown-action" (click)="markAllRead()">
+                Отметить все
+              </button>
+            }
+          </div>
+          <div class="header__dropdown-body">
+            @for (notif of notifications(); track notif.id) {
+              <div class="header__notif" [class.header__notif--unread]="!notif.read">
+                <div class="header__notif-icon" [attr.data-type]="notif.type">
+                  @switch (notif.type) {
+                    @case ('success') {
+                      <lucide-icon [img]="icons.CheckCircle" [size]="16" />
+                    }
+                    @case ('warning') {
+                      <lucide-icon [img]="icons.AlertTriangle" [size]="16" />
+                    }
+                    @default {
+                      <lucide-icon [img]="icons.Info" [size]="16" />
+                    }
+                  }
+                </div>
+                <div class="header__notif-content">
+                  <p class="header__notif-title">{{ notif.title }}</p>
+                  <p class="header__notif-message">{{ notif.message }}</p>
+                  <span class="header__notif-time">{{ notif.time }}</span>
+                </div>
+                <button
+                  class="header__notif-close"
+                  (click)="dismissNotification(notif.id)"
+                >
+                  <lucide-icon [img]="icons.X" [size]="14" />
+                </button>
+              </div>
+            }
+            @if (notifications().length === 0) {
+              <div class="header__dropdown-empty">Нет уведомлений</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Profile -->
+    <div class="header__action-group">
+      <button class="header__profile-btn" (click)="toggleProfile()">
+        <div class="header__avatar">
+          @if (currentUser()?.avatarUrl) {
+            <img [src]="currentUser()!.avatarUrl" [alt]="userFullName()" />
+          } @else {
+            <span>{{ userInitials() }}</span>
+          }
+        </div>
+        <span class="header__user-name">{{ userFullName() }}</span>
+        <lucide-icon [img]="icons.ChevronDown" [size]="16" />
+      </button>
+
+      @if (profileOpen()) {
+        <div class="header__dropdown header__dropdown--profile">
+          <a class="header__dropdown-item" routerLink="profile" (click)="profileOpen.set(false)">
+            <lucide-icon [img]="icons.UserCircle" [size]="16" />
+            <span>Профиль</span>
+          </a>
+          <a class="header__dropdown-item" routerLink="settings" (click)="profileOpen.set(false)">
+            <lucide-icon [img]="icons.Settings" [size]="16" />
+            <span>Настройки</span>
+          </a>
+          <div class="header__dropdown-divider"></div>
+          <button class="header__dropdown-item header__dropdown-item--danger" (click)="logout()">
+            <lucide-icon [img]="icons.LogOut" [size]="16" />
+            <span>Выйти</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

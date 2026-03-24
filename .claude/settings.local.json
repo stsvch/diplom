@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet add:*)",
+      "Bash(dotnet remove:*)",
+      "Bash(dotnet build:*)",
+      "Bash(ng new:*)",
+      "Bash(mkdir -p core/services core/guards core/interceptors core/models)",
+      "Bash(mkdir -p shared/components shared/pipes shared/directives shared/utils)",
+      "Bash(mkdir -p features)",
+      "Bash(mkdir -p layouts/guest-layout layouts/student-layout layouts/teacher-layout layouts/admin-layout)",
+      "Bash(cd:*)",
+      "Bash(npx ng:*)",
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(docker compose:*)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_screenshot",
+      "Bash(dotnet ef:*)",
+      "Bash(tr '>' '\\\\n')",
+      "Bash(tr '<' '\\\\n')"
+    ]
+  }
+}

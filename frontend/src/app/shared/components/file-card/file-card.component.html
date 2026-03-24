@@ -1,0 +1,33 @@
+<div class="file-card">
+  <div class="file-card__icon-wrap" [class]="iconColorClass">
+    <lucide-icon [img]="fileIcon" [size]="22" />
+  </div>
+
+  <div class="file-card__info">
+    <p class="file-card__name" [title]="attachment.fileName">{{ attachment.fileName }}</p>
+    <p class="file-card__size">{{ formatSize(attachment.fileSize) }}</p>
+  </div>
+
+  <div class="file-card__actions">
+    <a
+      [href]="downloadUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="file-card__action file-card__action--download"
+      [title]="'Скачать ' + attachment.fileName"
+    >
+      <lucide-icon [img]="DownloadIcon" [size]="16" />
+    </a>
+
+    @if (deletable) {
+      <button
+        type="button"
+        class="file-card__action file-card__action--delete"
+        (click)="onDelete()"
+        title="Удалить файл"
+      >
+        <lucide-icon [img]="TrashIcon" [size]="16" />
+      </button>
+    }
+  </div>
+</div>

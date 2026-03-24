@@ -1,0 +1,104 @@
+@use '../../../../styles/variables' as *;
+
+.toast-container {
+  position: fixed;
+  top: $spacing-4;
+  right: $spacing-4;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background-color: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  min-width: 300px;
+  max-width: 420px;
+  pointer-events: all;
+  animation: toast-in 0.2s ease;
+  border-left: 4px solid transparent;
+
+  &--success {
+    border-left-color: $success;
+
+    .toast__icon {
+      color: $success;
+    }
+  }
+
+  &--error {
+    border-left-color: $danger;
+
+    .toast__icon {
+      color: $danger;
+    }
+  }
+
+  &--warning {
+    border-left-color: $warning;
+
+    .toast__icon {
+      color: $warning;
+    }
+  }
+
+  &--info {
+    border-left-color: $info;
+
+    .toast__icon {
+      color: $info;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__message {
+    flex: 1;
+    font-size: $font-size-sm;
+    color: $text-foreground;
+    line-height: 1.4;
+  }
+
+  &__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    color: $text-muted;
+    cursor: pointer;
+    border-radius: $radius-sm;
+    flex-shrink: 0;
+    transition: background-color $transition-fast;
+
+    &:hover {
+      background-color: $bg-muted;
+      color: $text-foreground;
+    }
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

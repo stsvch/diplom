@@ -1,0 +1,82 @@
+@use '../../../../styles/variables' as *;
+
+.stats-card {
+  background-color: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-5;
+
+  &__body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-4;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-muted;
+  }
+
+  &__value {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $text-foreground;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    font-size: $font-size-xs;
+    color: $text-muted;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-lg;
+    flex-shrink: 0;
+  }
+
+  &__footer {
+    margin-top: $spacing-3;
+    padding-top: $spacing-3;
+    border-top: 1px solid $border-color;
+  }
+
+  &__change {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    border-radius: $radius-full;
+    padding: 2px 8px;
+
+    &--positive {
+      background-color: $success-light;
+      color: $success-dark;
+    }
+
+    &--negative {
+      background-color: $danger-light;
+      color: $danger-dark;
+    }
+
+    &--neutral {
+      background-color: $bg-muted;
+      color: $text-muted;
+    }
+  }
+}

@@ -1,0 +1,12 @@
+<div class="progress-bar">
+  <div class="progress-bar__track">
+    <div
+      class="progress-bar__fill"
+      [class]="'progress-bar__fill--' + barColor()"
+      [style.width.%]="clampedValue()"
+    ></div>
+  </div>
+  @if (showLabel) {
+    <span class="progress-bar__label">{{ clampedValue() }}%</span>
+  }
+</div>

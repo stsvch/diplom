@@ -1,0 +1,145 @@
+<div class="teacher-courses">
+  <div class="teacher-courses__header">
+    <div>
+      <h1 class="teacher-courses__title">Мои курсы</h1>
+      <p class="teacher-courses__subtitle">Управляйте созданными вами курсами</p>
+    </div>
+    <a routerLink="/teacher/courses/create">
+      <app-button variant="primary">
+        <lucide-icon [img]="PlusIcon" [size]="18" />
+        Создать курс
+      </app-button>
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="teacher-courses__table-wrap">
+      <table class="teacher-courses__table">
+        <thead>
+          <tr>
+            <th>Курс</th>
+            <th>Статус</th>
+            <th>Студенты</th>
+            <th>Уроки</th>
+            <th>Уровень</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of skeletonItems; track $index) {
+            <tr class="teacher-courses__skeleton-row">
+              <td><div class="skeleton-cell skeleton-cell--lg"></div></td>
+              <td><div class="skeleton-cell skeleton-cell--sm"></div></td>
+              <td><div class="skeleton-cell skeleton-cell--sm"></div></td>
+              <td><div class="skeleton-cell skeleton-cell--sm"></div></td>
+              <td><div class="skeleton-cell skeleton-cell--md"></div></td>
+              <td><div class="skeleton-cell skeleton-cell--md"></div></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (courses().length === 0) {
+    <div class="teacher-courses__empty">
+      <lucide-icon [img]="BookOpenIcon" [size]="64" class="teacher-courses__empty-icon" />
+      <h3 class="teacher-courses__empty-title">У вас ещё нет курсов</h3>
+      <p class="teacher-courses__empty-text">Создайте свой первый курс и начните обучать студентов</p>
+      <a routerLink="/teacher/courses/create">
+        <app-button variant="primary">
+          <lucide-icon [img]="PlusIcon" [size]="18" />
+          Создать курс
+        </app-button>
+      </a>
+    </div>
+  } @else {
+    <div class="teacher-courses__table-wrap">
+      <table class="teacher-courses__table">
+        <thead>
+          <tr>
+            <th>Курс</th>
+            <th>Статус</th>
+            <th>Студенты</th>
+            <th>Уроки</th>
+            <th>Уровень</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (course of courses(); track course.id) {
+            <tr class="teacher-courses__row">
+              <td>
+                <div class="course-cell">
+                  @if (course.imageUrl) {
+                    <img [src]="course.imageUrl" [alt]="course.title" class="course-cell__img" />
+                  } @else {
+                    <div class="course-cell__img-placeholder">
+                      <lucide-icon [img]="BookOpenIcon" [size]="20" />
+                    </div>
+                  }
+                  <div class="course-cell__info">
+                    <p class="course-cell__title">{{ course.title }}</p>
+                    <p class="course-cell__discipline">{{ course.disciplineName }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <app-badge variant="warning" size="sm">Черновик</app-badge>
+              </td>
+              <td>
+                <span class="tc-stat">
+                  <lucide-icon [img]="UsersIcon" [size]="14" />
+                  {{ course.studentsCount }}
+                </span>
+              </td>
+              <td>
+                <span class="tc-stat">
+                  <lucide-icon [img]="BookOpenIcon" [size]="14" />
+                  {{ course.lessonsCount }}
+                </span>
+              </td>
+              <td>
+                <span class="tc-level">{{ getLevelLabel(course.level) }}</span>
+              </td>
+              <td>
+                <div class="tc-actions">
+                  <a [routerLink]="'/teacher/courses/edit/' + course.id">
+                    <app-button variant="ghost" size="sm">
+                      <lucide-icon [img]="EditIcon" [size]="16" />
+                    </app-button>
+                  </a>
+                  <app-button
+                    variant="outline"
+                    size="sm"
+                    [loading]="publishing() === course.id"
+                    (click)="publish(course.id)"
+                    title="Опубликовать"
+                  >
+                    <lucide-icon [img]="EyeIcon" [size]="16" />
+                  </app-button>
+                  <app-button
+                    variant="ghost"
+                    size="sm"
+                    [loading]="archiving() === course.id"
+                    (click)="archive(course.id)"
+                    title="Архивировать"
+                  >
+                    <lucide-icon [img]="ArchiveIcon" [size]="16" />
+                  </app-button>
+                  <app-button
+                    variant="danger"
+                    size="sm"
+                    [loading]="deleting() === course.id"
+                    (click)="deleteCourse(course.id)"
+                    title="Удалить"
+                  >
+                    <lucide-icon [img]="TrashIcon" [size]="16" />
+                  </app-button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

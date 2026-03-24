@@ -1,0 +1,132 @@
+<div class="disciplines">
+  <div class="disciplines__header">
+    <div>
+      <h1 class="disciplines__title">Дисциплины</h1>
+      <p class="disciplines__subtitle">Управление учебными дисциплинами</p>
+    </div>
+    <app-button variant="primary" (click)="openCreateModal()">
+      <lucide-icon [img]="PlusIcon" [size]="18" />
+      Добавить дисциплину
+    </app-button>
+  </div>
+
+  @if (loading()) {
+    <div class="disciplines__grid">
+      @for (item of skeletonItems; track $index) {
+        <div class="discipline-skeleton">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line skeleton-line--md"></div>
+            <div class="skeleton-line skeleton-line--sm"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (disciplines().length === 0) {
+    <div class="disciplines__empty">
+      <lucide-icon [img]="BookOpenIcon" [size]="64" class="disciplines__empty-icon" />
+      <h3 class="disciplines__empty-title">Дисциплины не найдены</h3>
+      <p class="disciplines__empty-text">Создайте первую дисциплину</p>
+      <app-button variant="primary" (click)="openCreateModal()">
+        <lucide-icon [img]="PlusIcon" [size]="16" />
+        Добавить дисциплину
+      </app-button>
+    </div>
+  } @else {
+    <div class="disciplines__grid">
+      @for (disc of disciplines(); track disc.id) {
+        <div class="discipline-card" [class.discipline-card--deleting]="deleting() === disc.id">
+          <!-- Delete confirm overlay -->
+          @if (showDeleteConfirm() === disc.id) {
+            <div class="discipline-card__confirm">
+              <div class="confirm-content">
+                <lucide-icon [img]="AlertIcon" [size]="24" class="confirm-icon" />
+                <p class="confirm-text">Удалить «{{ disc.name }}»?</p>
+                <p class="confirm-hint">Это действие нельзя отменить</p>
+                <div class="confirm-actions">
+                  <app-button variant="outline" size="sm" (click)="cancelDelete()">Отмена</app-button>
+                  <app-button
+                    variant="danger"
+                    size="sm"
+                    [loading]="deleting() === disc.id"
+                    (click)="deleteDiscipline(disc.id)"
+                  >
+                    Удалить
+                  </app-button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="discipline-card__icon">
+            <lucide-icon [img]="BookOpenIcon" [size]="28" />
+          </div>
+          <div class="discipline-card__content">
+            <h3 class="discipline-card__name">{{ disc.name }}</h3>
+            @if (disc.description) {
+              <p class="discipline-card__desc">{{ disc.description }}</p>
+            }
+            <app-badge variant="neutral" size="sm">{{ disc.courseCount }} курсов</app-badge>
+          </div>
+          <div class="discipline-card__actions">
+            <app-button variant="ghost" size="sm" (click)="openEditModal(disc)">
+              <lucide-icon [img]="EditIcon" [size]="16" />
+            </app-button>
+            <app-button variant="danger" size="sm" (click)="confirmDelete(disc.id)">
+              <lucide-icon [img]="TrashIcon" [size]="16" />
+            </app-button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <h2 class="modal__title">
+          {{ modalMode() === 'create' ? 'Новая дисциплина' : 'Редактировать дисциплину' }}
+        </h2>
+        <button class="modal__close" (click)="closeModal()">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <form [formGroup]="form" class="modal__body" (ngSubmit)="saveModal()">
+        <div class="form-group">
+          <label class="form-label">Название <span class="required">*</span></label>
+          <input
+            formControlName="name"
+            type="text"
+            class="form-input"
+            [class.form-input--error]="form.get('name')?.touched && form.get('name')?.invalid"
+            placeholder="Например: Математика"
+          />
+          @if (getNameError()) {
+            <p class="form-error">{{ getNameError() }}</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Описание</label>
+          <textarea
+            formControlName="description"
+            class="form-textarea"
+            rows="3"
+            placeholder="Краткое описание дисциплины"
+          ></textarea>
+        </div>
+      </form>
+
+      <div class="modal__footer">
+        <app-button variant="outline" (click)="closeModal()">Отмена</app-button>
+        <app-button variant="primary" [loading]="saving()" (click)="saveModal()">
+          {{ modalMode() === 'create' ? 'Создать' : 'Сохранить' }}
+        </app-button>
+      </div>
+    </div>
+  </div>
+}

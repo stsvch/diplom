@@ -1,0 +1,228 @@
+<div class="rte">
+  <!-- Toolbar -->
+  <div class="rte__toolbar">
+    <!-- History -->
+    <div class="rte__group">
+      <button type="button" class="rte__btn" (click)="undo()" title="Отменить">
+        <lucide-icon [img]="UndoIcon" [size]="15" />
+      </button>
+      <button type="button" class="rte__btn" (click)="redo()" title="Повторить">
+        <lucide-icon [img]="RedoIcon" [size]="15" />
+      </button>
+    </div>
+
+    <div class="rte__divider"></div>
+
+    <!-- Text formatting -->
+    <div class="rte__group">
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('bold')"
+        (click)="toggleBold()"
+        title="Жирный"
+      >
+        <lucide-icon [img]="BoldIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('italic')"
+        (click)="toggleItalic()"
+        title="Курсив"
+      >
+        <lucide-icon [img]="ItalicIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('underline')"
+        (click)="toggleUnderline()"
+        title="Подчёркнутый"
+      >
+        <lucide-icon [img]="UnderlineIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('strike')"
+        (click)="toggleStrike()"
+        title="Зачёркнутый"
+      >
+        <lucide-icon [img]="StrikeIcon" [size]="15" />
+      </button>
+    </div>
+
+    <div class="rte__divider"></div>
+
+    <!-- Headings -->
+    <div class="rte__group">
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('heading', {level: 1})"
+        (click)="setH1()"
+        title="Заголовок 1"
+      >
+        <lucide-icon [img]="H1Icon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('heading', {level: 2})"
+        (click)="setH2()"
+        title="Заголовок 2"
+      >
+        <lucide-icon [img]="H2Icon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('heading', {level: 3})"
+        (click)="setH3()"
+        title="Заголовок 3"
+      >
+        <lucide-icon [img]="H3Icon" [size]="15" />
+      </button>
+    </div>
+
+    <div class="rte__divider"></div>
+
+    <!-- Lists -->
+    <div class="rte__group">
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('bulletList')"
+        (click)="toggleBulletList()"
+        title="Маркированный список"
+      >
+        <lucide-icon [img]="BulletListIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('orderedList')"
+        (click)="toggleOrderedList()"
+        title="Нумерованный список"
+      >
+        <lucide-icon [img]="OrderedListIcon" [size]="15" />
+      </button>
+    </div>
+
+    <div class="rte__divider"></div>
+
+    <!-- Blocks -->
+    <div class="rte__group">
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('blockquote')"
+        (click)="toggleBlockquote()"
+        title="Цитата"
+      >
+        <lucide-icon [img]="BlockquoteIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('code')"
+        (click)="toggleCode()"
+        title="Код"
+      >
+        <lucide-icon [img]="CodeIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('codeBlock')"
+        (click)="toggleCodeBlock()"
+        title="Блок кода"
+      >
+        <lucide-icon [img]="CodeBlockIcon" [size]="15" />
+      </button>
+    </div>
+
+    <div class="rte__divider"></div>
+
+    <!-- Inserts -->
+    <div class="rte__group">
+      <button
+        type="button"
+        class="rte__btn"
+        [class.rte__btn--active]="isActive('link')"
+        (click)="openLinkDialog()"
+        title="Ссылка"
+      >
+        <lucide-icon [img]="LinkIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        (click)="openImageDialog()"
+        title="Изображение"
+      >
+        <lucide-icon [img]="ImageIcon" [size]="15" />
+      </button>
+      <button
+        type="button"
+        class="rte__btn"
+        (click)="insertTable()"
+        title="Таблица"
+      >
+        <lucide-icon [img]="TableIcon" [size]="15" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor area -->
+  <div
+    tiptap
+    [editor]="editor"
+    class="rte__content"
+  ></div>
+
+  <!-- Link dialog -->
+  @if (showLinkDialog()) {
+    <div class="rte__dialog-overlay" (click)="cancelLink()">
+      <div class="rte__dialog" (click)="$event.stopPropagation()">
+        <p class="rte__dialog-title">Вставить ссылку</p>
+        <input
+          type="url"
+          class="rte__dialog-input"
+          placeholder="https://example.com"
+          [(ngModel)]="linkUrl"
+          (keydown.enter)="applyLink()"
+          (keydown.escape)="cancelLink()"
+          autofocus
+        />
+        <div class="rte__dialog-actions">
+          <button type="button" class="rte__dialog-btn rte__dialog-btn--cancel" (click)="cancelLink()">Отмена</button>
+          <button type="button" class="rte__dialog-btn rte__dialog-btn--apply" (click)="applyLink()">Применить</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Image dialog -->
+  @if (showImageDialog()) {
+    <div class="rte__dialog-overlay" (click)="cancelImage()">
+      <div class="rte__dialog" (click)="$event.stopPropagation()">
+        <p class="rte__dialog-title">Вставить изображение</p>
+        <input
+          type="url"
+          class="rte__dialog-input"
+          placeholder="https://example.com/image.png"
+          [(ngModel)]="imageUrl"
+          (keydown.enter)="applyImage()"
+          (keydown.escape)="cancelImage()"
+          autofocus
+        />
+        <div class="rte__dialog-actions">
+          <button type="button" class="rte__dialog-btn rte__dialog-btn--cancel" (click)="cancelImage()">Отмена</button>
+          <button type="button" class="rte__dialog-btn rte__dialog-btn--apply" (click)="applyImage()">Вставить</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,32 @@
+@use '../../../../styles/variables' as *;
+
+.card {
+  background-color: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  transition: box-shadow $transition-fast;
+
+  &--hoverable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: $shadow-md;
+    }
+  }
+
+  &--padding-none {
+    padding: 0;
+  }
+
+  &--padding-sm {
+    padding: $spacing-3;
+  }
+
+  &--padding-md {
+    padding: $spacing-5;
+  }
+
+  &--padding-lg {
+    padding: $spacing-6;
+  }
+}

@@ -1,0 +1,8 @@
+@use '../../../styles/variables' as *;
+
+.guest-layout {
+  min-height: 100vh;
+  background-color: $bg-page;
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,42 @@
+<div class="confirm-page">
+  <div class="confirm-card">
+    <div class="confirm-card__brand">
+      <div class="confirm-card__brand-icon">
+        <lucide-icon [img]="BookOpenIcon" [size]="28" />
+      </div>
+      <span class="confirm-card__brand-name">LearnHub</span>
+    </div>
+
+    @if (status() === 'loading') {
+      <div class="confirm-state">
+        <div class="confirm-state__icon confirm-state__icon--loading">
+          <lucide-icon [img]="LoaderIcon" [size]="36" />
+        </div>
+        <h2 class="confirm-state__title">Подтверждение email...</h2>
+        <p class="confirm-state__text">Пожалуйста, подождите</p>
+      </div>
+    }
+
+    @if (status() === 'success') {
+      <div class="confirm-state">
+        <div class="confirm-state__icon confirm-state__icon--success">
+          <lucide-icon [img]="CheckCircleIcon" [size]="36" />
+        </div>
+        <h2 class="confirm-state__title">Email подтверждён!</h2>
+        <p class="confirm-state__text">{{ message() }}</p>
+        <a routerLink="/login" class="confirm-btn">Войти в аккаунт</a>
+      </div>
+    }
+
+    @if (status() === 'error') {
+      <div class="confirm-state">
+        <div class="confirm-state__icon confirm-state__icon--error">
+          <lucide-icon [img]="XCircleIcon" [size]="36" />
+        </div>
+        <h2 class="confirm-state__title">Ошибка подтверждения</h2>
+        <p class="confirm-state__text">{{ message() }}</p>
+        <a routerLink="/login" class="confirm-btn confirm-btn--outline">Вернуться к входу</a>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,142 @@
+<div class="lesson-view">
+  <!-- Breadcrumb -->
+  <nav class="lesson-view__breadcrumb">
+    <a routerLink="/student/courses" class="breadcrumb-link">
+      <lucide-icon [img]="HomeIcon" [size]="14" />
+      Мои курсы
+    </a>
+    <span class="breadcrumb-sep">/</span>
+    @if (course()) {
+      <a [routerLink]="'/student/course/' + courseId" class="breadcrumb-link">
+        {{ course()!.title }}
+      </a>
+      <span class="breadcrumb-sep">/</span>
+    }
+    <span class="breadcrumb-current">
+      {{ currentLesson()?.title ?? 'Урок' }}
+    </span>
+  </nav>
+
+  @if (loading()) {
+    <div class="lesson-view__skeleton">
+      <div class="skeleton-title"></div>
+      <div class="skeleton-block skeleton-block--video"></div>
+      <div class="skeleton-block skeleton-block--text"></div>
+    </div>
+  } @else {
+    <div class="lesson-view__content">
+      <!-- Title -->
+      <div class="lesson-view__header">
+        <h1 class="lesson-view__title">{{ currentLesson()?.title ?? 'Урок' }}</h1>
+        @if (completed()) {
+          <app-badge variant="success" size="md">
+            <lucide-icon [img]="CheckCircleIcon" [size]="14" />
+            Пройдено
+          </app-badge>
+        }
+      </div>
+
+      <!-- Blocks -->
+      @if (blocks().length === 0) {
+        <div class="lesson-view__empty">
+          <lucide-icon [img]="FileTextIcon" [size]="48" class="lesson-view__empty-icon" />
+          <p>Содержимое урока ещё не добавлено</p>
+        </div>
+      } @else {
+        <div class="lesson-view__blocks">
+          @for (block of blocks(); track block.id) {
+            @switch (block.type) {
+              @case ('Video') {
+                <div class="lesson-block lesson-block--video">
+                  @if (block.videoUrl) {
+                    <app-video-player [url]="block.videoUrl" />
+                  } @else {
+                    <div class="lesson-block__video-placeholder">
+                      <lucide-icon [img]="PlayIcon" [size]="48" />
+                      <p>Видео не доступно</p>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('Text') {
+                <div class="lesson-block lesson-block--text">
+                  @if (block.textContent) {
+                    <app-rich-text-viewer [content]="block.textContent" />
+                  }
+                </div>
+              }
+              @case ('File') {
+                <div class="lesson-block lesson-block--file">
+                  @if (block.files && block.files.length > 0) {
+                    <div class="lesson-block__files">
+                      @for (file of block.files; track file.id) {
+                        <app-file-card [attachment]="file" [deletable]="false" />
+                      }
+                    </div>
+                  } @else {
+                    <div class="lesson-block__file-card">
+                      <lucide-icon [img]="DownloadIcon" [size]="24" class="lesson-block__file-icon" />
+                      <div class="lesson-block__file-info">
+                        <p class="lesson-block__file-name">Прикреплённые файлы</p>
+                        <p class="lesson-block__file-hint">Файлы ещё не загружены</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              @default {
+                <div class="lesson-block lesson-block--text">
+                  @if (block.textContent) {
+                    <app-rich-text-viewer [content]="block.textContent" />
+                  }
+                </div>
+              }
+            }
+          }
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="lesson-view__actions">
+        @if (!completed()) {
+          <app-button variant="primary" size="lg" (click)="markCompleted()">
+            <lucide-icon [img]="CheckCircleIcon" [size]="18" />
+            Отметить как пройденное
+          </app-button>
+        } @else {
+          <app-button variant="secondary" size="lg" [disabled]="true">
+            <lucide-icon [img]="CheckCircleIcon" [size]="18" />
+            Урок пройден
+          </app-button>
+        }
+      </div>
+
+      <!-- Navigation -->
+      <div class="lesson-view__navigation">
+        @if (prevLesson) {
+          <a [routerLink]="getLessonUrl(prevLesson.id)" class="lesson-nav lesson-nav--prev">
+            <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+            <div>
+              <span class="lesson-nav__label">Предыдущий урок</span>
+              <span class="lesson-nav__title">{{ prevLesson.title }}</span>
+            </div>
+          </a>
+        } @else {
+          <div></div>
+        }
+
+        @if (nextLesson) {
+          <a [routerLink]="getLessonUrl(nextLesson.id)" class="lesson-nav lesson-nav--next">
+            <div>
+              <span class="lesson-nav__label">Следующий урок</span>
+              <span class="lesson-nav__title">{{ nextLesson.title }}</span>
+            </div>
+            <lucide-icon [img]="ChevronRightIcon" [size]="18" />
+          </a>
+        } @else {
+          <div></div>
+        }
+      </div>
+    </div>
+  }
+</div>

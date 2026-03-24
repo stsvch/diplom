@@ -1,0 +1,324 @@
+@use '../../../../styles/variables' as v;
+
+.lesson-view {
+  padding: v.$spacing-6;
+  max-width: 900px;
+  margin: 0 auto;
+
+  &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+    flex: 1;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-6;
+  }
+
+  &__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-5;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    text-align: center;
+    background: v.$bg-muted;
+    border-radius: v.$radius-lg;
+    color: v.$text-muted;
+  }
+
+  &__empty-icon {
+    color: v.$text-placeholder;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-3;
+    padding-top: v.$spacing-4;
+    border-top: 1px solid v.$border-color;
+  }
+
+  &__navigation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: v.$spacing-4;
+    padding-top: v.$spacing-4;
+    border-top: 1px solid v.$border-color;
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-5;
+  }
+}
+
+// Breadcrumb
+.breadcrumb-link {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  color: v.$text-muted;
+  text-decoration: none;
+  font-size: v.$font-size-sm;
+  transition: color v.$transition-fast;
+
+  &:hover {
+    color: v.$primary;
+  }
+}
+
+.breadcrumb-sep {
+  color: v.$text-placeholder;
+  font-size: v.$font-size-sm;
+}
+
+.breadcrumb-current {
+  font-size: v.$font-size-sm;
+  color: v.$text-foreground;
+  font-weight: v.$font-weight-medium;
+}
+
+// Blocks
+.lesson-block {
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &--video {
+    background: #000;
+  }
+
+  &--text {
+    background: v.$bg-card;
+    border: 1px solid v.$border-color;
+    padding: v.$spacing-6;
+  }
+
+  &--file {
+    background: v.$bg-card;
+    border: 1px solid v.$border-color;
+    padding: v.$spacing-4;
+  }
+
+  &__video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: v.$spacing-3;
+    height: 300px;
+    background: #1a1a2e;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &__text {
+    font-size: v.$font-size-base;
+    line-height: 1.7;
+    color: v.$text-foreground;
+
+    h1, h2, h3 { font-weight: v.$font-weight-bold; margin: 1.5em 0 0.5em; }
+    p { margin: 0 0 1em; }
+    ul, ol { padding-left: 1.5em; margin: 0 0 1em; }
+    li { margin-bottom: 0.4em; }
+    code {
+      background: v.$bg-muted;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      color: v.$primary;
+    }
+    pre {
+      background: #1E1B4B;
+      color: #C7D2FE;
+      padding: v.$spacing-4;
+      border-radius: v.$radius-md;
+      overflow-x: auto;
+      margin: 0 0 1em;
+
+      code {
+        background: none;
+        color: inherit;
+        padding: 0;
+      }
+    }
+    blockquote {
+      border-left: 4px solid v.$primary;
+      padding-left: v.$spacing-4;
+      margin: 0 0 1em;
+      color: v.$text-secondary;
+      font-style: italic;
+    }
+    a {
+      color: v.$primary;
+      text-decoration: underline;
+    }
+    img {
+      max-width: 100%;
+      border-radius: v.$radius-md;
+    }
+  }
+
+  &__files {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__file-card {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+  }
+
+  &__file-icon {
+    color: v.$primary;
+    flex-shrink: 0;
+  }
+
+  &__file-info {
+    flex: 1;
+  }
+
+  &__file-name {
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+    font-size: v.$font-size-sm;
+  }
+
+  &__file-hint {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin: 0;
+  }
+}
+
+// Navigation
+.lesson-nav {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-4;
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  text-decoration: none;
+  color: inherit;
+  transition: all v.$transition-fast;
+
+  &:hover {
+    border-color: v.$primary;
+    box-shadow: v.$shadow-sm;
+  }
+
+  &--prev {
+    flex-direction: row;
+
+    lucide-icon {
+      color: v.$text-muted;
+      flex-shrink: 0;
+    }
+  }
+
+  &--next {
+    flex-direction: row-reverse;
+    text-align: right;
+
+    lucide-icon {
+      color: v.$text-muted;
+      flex-shrink: 0;
+    }
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__title {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Skeletons
+.skeleton-title {
+  height: 36px;
+  width: 70%;
+  background: v.$bg-muted;
+  border-radius: v.$radius-sm;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+.skeleton-block {
+  border-radius: v.$radius-lg;
+  background: v.$bg-muted;
+  animation: skeleton-pulse 1.5s infinite;
+
+  &--video { height: 400px; }
+  &--text { height: 200px; }
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
