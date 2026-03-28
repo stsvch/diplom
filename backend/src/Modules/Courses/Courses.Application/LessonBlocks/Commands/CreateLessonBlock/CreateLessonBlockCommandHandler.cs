@@ -35,6 +35,8 @@ public class CreateLessonBlockCommandHandler : IRequestHandler<CreateLessonBlock
             Type = request.Type,
             TextContent = request.TextContent,
             VideoUrl = request.VideoUrl,
+            TestId = request.TestId,
+            AssignmentId = request.AssignmentId,
             OrderIndex = maxOrder + 1
         };
 

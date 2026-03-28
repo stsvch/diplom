@@ -20,7 +20,10 @@
       "mcp__figma__get_screenshot",
       "Bash(dotnet ef:*)",
       "Bash(tr '>' '\\\\n')",
-      "Bash(tr '<' '\\\\n')"
+      "Bash(tr '<' '\\\\n')",
+      "Bash(for proj:*)",
+      "Bash(do dotnet:*)",
+      "Bash(done)"
     ]
   }
 }

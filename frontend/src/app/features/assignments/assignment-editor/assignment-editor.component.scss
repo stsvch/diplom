@@ -1,0 +1,125 @@
+@use '../../../../styles/variables' as v;
+
+.assignment-editor {
+  padding: v.$spacing-6;
+  max-width: 860px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    color: v.$text-muted;
+    text-decoration: none;
+    font-size: v.$font-size-sm;
+    white-space: nowrap;
+    transition: color v.$transition-fast;
+    &:hover { color: v.$primary; }
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    flex: 1;
+  }
+
+  &__title-icon {
+    color: v.$primary;
+  }
+
+  &__title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-5;
+  }
+
+  &__settings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: v.$spacing-4;
+
+    @media (max-width: v.$breakpoint-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+}
+
+.form-label {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: v.$text-secondary;
+}
+
+.form-input {
+  padding: v.$spacing-2 v.$spacing-3;
+  border: 1px solid v.$border-input;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-base;
+  color: v.$text-foreground;
+  background: v.$bg-input;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color v.$transition-fast;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.12);
+  }
+
+  &::placeholder {
+    color: v.$text-placeholder;
+  }
+}
+
+.form-textarea {
+  @extend .form-input;
+  resize: vertical;
+  line-height: 1.6;
+  min-height: 100px;
+}
+
+.spin {
+  color: v.$primary;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,186 @@
+<div class="messages-page">
+  <!-- Left panel: chat list -->
+  <aside class="messages-page__sidebar" [class.messages-page__sidebar--hidden]="selectedChat()">
+    <div class="messages-page__sidebar-header">
+      <h2 class="messages-page__title">Сообщения</h2>
+    </div>
+
+    <div class="messages-page__search">
+      <div class="search-wrapper">
+        <i-lucide [img]="SearchIcon" class="search-icon" [size]="16"></i-lucide>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Поиск чатов..."
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    <div class="messages-page__chat-list">
+      @if (loadingChats()) {
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <span>Загрузка...</span>
+        </div>
+      } @else if (filteredChats().length === 0) {
+        <div class="empty-state">
+          <i-lucide [img]="MessageCircleIcon" [size]="48" class="empty-icon"></i-lucide>
+          <p>Нет чатов</p>
+        </div>
+      } @else {
+        @for (chat of filteredChats(); track chat.id) {
+          <div
+            class="chat-item"
+            [class.chat-item--active]="selectedChat()?.id === chat.id"
+            (click)="selectChat(chat)"
+          >
+            <app-avatar
+              [fallback]="getChatInitials(chat)"
+              size="md"
+            ></app-avatar>
+
+            <div class="chat-item__content">
+              <div class="chat-item__header">
+                <span class="chat-item__name">{{ getChatName(chat) }}</span>
+                @if (chat.lastMessageAt) {
+                  <span class="chat-item__time">{{ formatLastMessageTime(chat.lastMessageAt) }}</span>
+                }
+              </div>
+              <div class="chat-item__footer">
+                <span class="chat-item__last-message">{{ chat.lastMessage || 'Нет сообщений' }}</span>
+                @if (chat.unreadCount > 0) {
+                  <span class="chat-item__badge">{{ chat.unreadCount }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </aside>
+
+  <!-- Right panel: chat window -->
+  <main class="messages-page__chat" [class.messages-page__chat--visible]="selectedChat()">
+    @if (!selectedChat()) {
+      <div class="messages-page__empty">
+        <i-lucide [img]="MessageCircleIcon" [size]="64" class="empty-icon"></i-lucide>
+        <h3>Выберите чат</h3>
+        <p>Выберите беседу из списка слева, чтобы начать общение</p>
+      </div>
+    } @else {
+      <!-- Chat header -->
+      <div class="chat-header">
+        <button class="chat-header__back" (click)="deselectChat()">
+          <i-lucide [img]="ChevronLeftIcon" [size]="20"></i-lucide>
+        </button>
+
+        <app-avatar
+          [fallback]="getChatInitials(selectedChat()!)"
+          size="md"
+        ></app-avatar>
+
+        <div class="chat-header__info">
+          <span class="chat-header__name">{{ getChatName(selectedChat()!) }}</span>
+          @if (selectedChat()!.type === 'CourseChat') {
+            <span class="chat-header__subtitle">Групповой чат курса</span>
+          }
+        </div>
+      </div>
+
+      <!-- Messages area -->
+      <div class="messages-area" #messagesContainer>
+        @if (loadingMessages()) {
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+          </div>
+        } @else if (messages().length === 0) {
+          <div class="messages-empty">
+            <p>Нет сообщений. Начните беседу!</p>
+          </div>
+        } @else {
+          @for (message of messages(); track message.id) {
+            <div
+              class="message"
+              [class.message--own]="isOwnMessage(message)"
+              [class.message--other]="!isOwnMessage(message)"
+            >
+              @if (!isOwnMessage(message)) {
+                <app-avatar
+                  [fallback]="getMessageInitials(message.senderName)"
+                  size="sm"
+                ></app-avatar>
+              }
+
+              <div class="message__bubble">
+                @if (!isOwnMessage(message) && selectedChat()!.type === 'CourseChat') {
+                  <span class="message__sender-name">{{ message.senderName }}</span>
+                }
+
+                <p class="message__text">{{ message.text }}</p>
+
+                @if (message.attachments && message.attachments.length > 0) {
+                  <div class="message__attachments">
+                    @for (att of message.attachments; track att.fileUrl) {
+                      <a [href]="att.fileUrl" target="_blank" class="message__attachment">
+                        <i-lucide [img]="PaperclipIcon" [size]="14"></i-lucide>
+                        <span>{{ att.fileName }}</span>
+                      </a>
+                    }
+                  </div>
+                }
+
+                <div class="message__meta">
+                  <span class="message__time">{{ formatTime(message.sentAt) }}</span>
+                  @if (message.isEdited) {
+                    <span class="message__edited">изменено</span>
+                  }
+                  @if (isOwnMessage(message)) {
+                    <button
+                      class="message__delete"
+                      (click)="deleteMessage(message.id, $event)"
+                      title="Удалить"
+                    >
+                      <i-lucide [img]="Trash2Icon" [size]="12"></i-lucide>
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Input bar -->
+      <div class="input-bar">
+        <textarea
+          #messageInput
+          class="input-bar__textarea"
+          placeholder="Напишите сообщение..."
+          rows="1"
+          [value]="messageText()"
+          (input)="messageText.set($any($event.target).value)"
+          (keydown)="onKeyDown($event)"
+        ></textarea>
+
+        <button
+          class="input-bar__send"
+          [disabled]="!messageText().trim() || sendingMessage()"
+          (click)="sendMessage()"
+        >
+          <i-lucide [img]="SendIcon" [size]="20"></i-lucide>
+        </button>
+      </div>
+    }
+  </main>
+</div>
+
+@if (error()) {
+  <div class="error-toast">
+    <span>{{ error() }}</span>
+    <button (click)="error.set(null)">
+      <i-lucide [img]="XIcon" [size]="16"></i-lucide>
+    </button>
+  </div>
+}

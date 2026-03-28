@@ -77,6 +77,8 @@ export interface LessonBlockDto {
   type: string;
   textContent?: string;
   videoUrl?: string;
+  testId?: string;
+  assignmentId?: string;
 }
 
 export interface PagedResult<T> {

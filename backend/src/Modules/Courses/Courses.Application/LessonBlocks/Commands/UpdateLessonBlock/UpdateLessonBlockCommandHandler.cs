@@ -25,6 +25,8 @@ public class UpdateLessonBlockCommandHandler : IRequestHandler<UpdateLessonBlock
 
         block.TextContent = request.TextContent;
         block.VideoUrl = request.VideoUrl;
+        block.TestId = request.TestId;
+        block.AssignmentId = request.AssignmentId;
 
         await _context.SaveChangesAsync(cancellationToken);
 

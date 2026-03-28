@@ -78,9 +78,11 @@
               <div class="course-detail__progress-section">
                 <div class="course-detail__progress-header">
                   <span>Ваш прогресс</span>
-                  <span class="course-detail__progress-pct">{{ course()!.progress }}%</span>
+                  <span class="course-detail__progress-pct">
+                    {{ (actualProgress() ?? course()!.progress ?? 0).toFixed(0) }}%
+                  </span>
                 </div>
-                <app-progress-bar [value]="course()!.progress ?? 0" [showLabel]="false" />
+                <app-progress-bar [value]="actualProgress() ?? course()!.progress ?? 0" [showLabel]="false" />
               </div>
               <a routerLink="/student/courses" class="enroll-btn enroll-btn--continue">
                 Продолжить обучение

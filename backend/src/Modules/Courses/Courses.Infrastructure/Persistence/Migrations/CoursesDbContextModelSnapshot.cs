@@ -232,11 +232,17 @@ namespace Courses.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AssignmentId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("LessonId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("OrderIndex")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("TestId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("TextContent")
                         .HasColumnType("text");

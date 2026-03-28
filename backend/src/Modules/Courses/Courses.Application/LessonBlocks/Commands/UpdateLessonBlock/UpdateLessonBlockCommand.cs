@@ -7,5 +7,7 @@ namespace Courses.Application.LessonBlocks.Commands.UpdateLessonBlock;
 public record UpdateLessonBlockCommand(
     Guid Id,
     string? TextContent,
-    string? VideoUrl
+    string? VideoUrl,
+    Guid? TestId = null,
+    Guid? AssignmentId = null
 ) : IRequest<Result<LessonBlockDto>>;

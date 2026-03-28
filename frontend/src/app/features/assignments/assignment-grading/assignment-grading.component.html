@@ -1,0 +1,204 @@
+<div class="grading-page">
+
+  <!-- Left panel -->
+  <div class="grading-page__left">
+    <div class="grading-page__left-header">
+      <h2 class="grading-page__panel-title">
+        <lucide-icon [img]="ClipboardListIcon" [size]="20" />
+        Работы на проверку
+      </h2>
+      <span class="grading-page__count">{{ filteredSubmissions().length }}</span>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+      <button
+        type="button"
+        class="filter-tabs__btn"
+        [class.filter-tabs__btn--active]="activeTab() === 'all'"
+        (click)="setTab('all')"
+      >Все</button>
+      <button
+        type="button"
+        class="filter-tabs__btn"
+        [class.filter-tabs__btn--active]="activeTab() === 'pending'"
+        (click)="setTab('pending')"
+      >Ожидают</button>
+      <button
+        type="button"
+        class="filter-tabs__btn"
+        [class.filter-tabs__btn--active]="activeTab() === 'overdue'"
+        (click)="setTab('overdue')"
+      >Просрочено</button>
+    </div>
+
+    @if (loading()) {
+      <div class="grading-page__loading">
+        <lucide-icon [img]="Loader2Icon" [size]="28" class="spin" />
+        <p>Загрузка...</p>
+      </div>
+    } @else if (filteredSubmissions().length === 0) {
+      <div class="grading-page__empty">
+        <lucide-icon [img]="CheckCircleIcon" [size]="40" class="grading-page__empty-icon" />
+        <p>Нет работ для проверки</p>
+      </div>
+    } @else {
+      <div class="submission-list">
+        @for (sub of filteredSubmissions(); track sub.id) {
+          <button
+            type="button"
+            class="submission-card"
+            [class.submission-card--selected]="selectedSubmission()?.id === sub.id"
+            (click)="selectSubmission(sub)"
+          >
+            <div class="submission-card__top">
+              <div class="submission-card__student">
+                <div class="submission-card__avatar">
+                  <lucide-icon [img]="UserIcon" [size]="16" />
+                </div>
+                <span class="submission-card__student-id">{{ sub.studentId.slice(0, 8) }}...</span>
+              </div>
+              <app-badge [variant]="getStatusVariant(sub.status)" size="sm">
+                {{ getStatusLabel(sub.status) }}
+              </app-badge>
+            </div>
+
+            <div class="submission-card__assignment">
+              Попытка {{ sub.attemptNumber }}
+            </div>
+
+            <div class="submission-card__time">
+              <lucide-icon [img]="ClockIcon" [size]="12" />
+              {{ formatDate(sub.submittedAt) }}
+            </div>
+
+            @if (sub.score !== null && sub.score !== undefined) {
+              <div class="submission-card__score">
+                <lucide-icon [img]="StarIcon" [size]="12" />
+                {{ sub.score }} / {{ sub.maxScore }}
+              </div>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Right panel -->
+  <div class="grading-page__right">
+    @if (!selectedSubmission()) {
+      <div class="grading-page__placeholder">
+        <lucide-icon [img]="ClipboardListIcon" [size]="56" class="grading-page__placeholder-icon" />
+        <h3>Выберите работу для проверки</h3>
+        <p>Нажмите на карточку слева, чтобы открыть работу студента</p>
+      </div>
+    } @else {
+      <div class="review-panel">
+        <!-- Review header -->
+        <div class="review-panel__header">
+          <div class="review-panel__student-info">
+            <div class="review-panel__avatar">
+              <lucide-icon [img]="UserIcon" [size]="20" />
+            </div>
+            <div>
+              <div class="review-panel__student-id">
+                Студент: {{ selectedSubmission()!.studentId.slice(0, 12) }}...
+              </div>
+              <div class="review-panel__meta">
+                Попытка {{ selectedSubmission()!.attemptNumber }} &bull;
+                {{ formatDate(selectedSubmission()!.submittedAt) }}
+              </div>
+            </div>
+          </div>
+          <app-badge [variant]="getStatusVariant(selectedSubmission()!.status)" size="md">
+            {{ getStatusLabel(selectedSubmission()!.status) }}
+          </app-badge>
+        </div>
+
+        <!-- Student work -->
+        <div class="review-panel__work">
+          <h3 class="review-panel__section-title">Работа студента</h3>
+          @if (selectedSubmission()!.content) {
+            <div class="review-panel__content">
+              <app-rich-text-viewer [content]="selectedSubmission()!.content!" />
+            </div>
+          } @else {
+            <div class="review-panel__no-content">
+              <lucide-icon [img]="AlertCircleIcon" [size]="24" />
+              <p>Студент не добавил текстовый ответ</p>
+            </div>
+          }
+        </div>
+
+        <!-- Grading form -->
+        <div class="grading-form">
+          <h3 class="review-panel__section-title">Оценивание</h3>
+
+          <div class="grading-form__score-row">
+            <div class="grading-form__score-field">
+              <label class="grading-form__label">
+                Балл (0 — {{ selectedSubmission()!.maxScore }})
+              </label>
+              <input
+                type="number"
+                class="grading-form__input"
+                [(ngModel)]="score"
+                [min]="0"
+                [max]="selectedSubmission()!.maxScore"
+              />
+            </div>
+
+            <div class="grading-form__quick-scores">
+              <label class="grading-form__label">Быстрая оценка</label>
+              <div class="grading-form__quick-btns">
+                @for (pct of quickScores; track pct) {
+                  <button
+                    type="button"
+                    class="grading-form__quick-btn"
+                    (click)="setQuickScore(pct)"
+                  >{{ pct }}%</button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="grading-form__comment-field">
+            <label class="grading-form__label">
+              <lucide-icon [img]="MessageIcon" [size]="14" />
+              Комментарий преподавателя
+            </label>
+            <textarea
+              class="grading-form__textarea"
+              [(ngModel)]="comment"
+              placeholder="Напишите комментарий для студента (необязательно)..."
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="grading-form__actions">
+            <app-button
+              variant="primary"
+              size="md"
+              [loading]="grading()"
+              (click)="accept()"
+            >
+              <lucide-icon [img]="CheckCircleIcon" [size]="16" />
+              Принять и выставить оценку
+            </app-button>
+
+            <app-button
+              variant="outline"
+              size="md"
+              [loading]="grading()"
+              (click)="returnForRevision()"
+            >
+              <lucide-icon [img]="XCircleIcon" [size]="16" />
+              Вернуть на доработку
+            </app-button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+</div>

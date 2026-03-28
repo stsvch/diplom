@@ -1,0 +1,106 @@
+<div class="test-submissions">
+  <!-- Header -->
+  <div class="test-submissions__header">
+    <a [routerLink]="backUrl" class="test-submissions__back">
+      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+      Назад
+    </a>
+    <div>
+      <h1 class="test-submissions__title">Ответы студентов</h1>
+      @if (test()) {
+        <p class="test-submissions__subtitle">{{ test()!.title }}</p>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="test-submissions__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка...</p>
+    </div>
+  } @else {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <lucide-icon [img]="UsersIcon" [size]="22" class="stat-card__icon" />
+        <div>
+          <p class="stat-card__label">Всего попыток</p>
+          <p class="stat-card__value">{{ totalAttempts() }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <lucide-icon [img]="ChartIcon" [size]="22" class="stat-card__icon" />
+        <div>
+          <p class="stat-card__label">Средний балл</p>
+          <p class="stat-card__value">{{ averageScore() }} / {{ test()?.maxScore ?? 0 }}</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <lucide-icon [img]="CheckIcon" [size]="22" class="stat-card__icon stat-card__icon--success" />
+        <div>
+          <p class="stat-card__label">Процент прохождения</p>
+          <p class="stat-card__value">{{ passRate() }}%</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    @if (submissions().length === 0) {
+      <div class="submissions-empty">
+        <lucide-icon [img]="UsersIcon" [size]="40" />
+        <p>Попыток прохождения пока нет</p>
+      </div>
+    } @else {
+      <div class="submissions-table-wrap">
+        <table class="submissions-table">
+          <thead>
+            <tr>
+              <th>Попытка №</th>
+              <th>Студент</th>
+              <th>Балл</th>
+              <th>Статус</th>
+              <th>Дата</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sub of submissions(); track sub.id) {
+              <tr>
+                <td class="attempt-num">{{ sub.attemptNumber }}</td>
+                <td class="student-id">
+                  <span class="student-id__text">{{ sub.studentId.slice(0, 8) }}...</span>
+                </td>
+                <td class="score">
+                  @if (sub.score !== undefined && sub.score !== null) {
+                    <span class="score__value">{{ sub.score }} / {{ sub.maxScore }}</span>
+                  } @else {
+                    <span class="score__pending">—</span>
+                  }
+                </td>
+                <td>
+                  <app-badge [variant]="getStatusVariant(sub.status)" size="sm">
+                    {{ getStatusLabel(sub.status) }}
+                  </app-badge>
+                </td>
+                <td class="date">{{ formatDate(sub.startedAt) }}</td>
+                <td>
+                  @if (sub.status === 'NeedsReview') {
+                    <app-button variant="primary" size="sm" (click)="viewAttempt(sub.id)">
+                      <lucide-icon [img]="EditIcon" [size]="14" />
+                      Проверить
+                    </app-button>
+                  } @else {
+                    <app-button variant="outline" size="sm" (click)="viewAttempt(sub.id)">
+                      <lucide-icon [img]="EyeIcon" [size]="14" />
+                      Просмотр
+                    </app-button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

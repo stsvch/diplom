@@ -5,10 +5,11 @@ import {
   signal,
   HostListener,
   ElementRef,
+  OnInit,
 } from '@angular/core';
 import { RouterLink, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import {
   Bell,
   Search,
@@ -17,22 +18,18 @@ import {
   UserCircle,
   Settings,
   X,
-  Info,
-  CheckCircle,
-  AlertTriangle,
+  Star,
+  Clock,
+  MessageCircle,
+  BookOpen,
+  Trophy,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { SidebarService } from '../../core/services/sidebar.service';
+import { SignalRService } from '../../core/services/signalr.service';
+import { NotificationsService } from '../../features/notifications/services/notifications.service';
+import { NotificationDto, NotificationType } from '../../features/notifications/models/notification.model';
 import { toSignal } from '@angular/core/rxjs-interop';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-  type: 'info' | 'success' | 'warning';
-}
 
 @Component({
   selector: 'app-header',
@@ -41,11 +38,13 @@ interface Notification {
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private sidebarService = inject(SidebarService);
   private router = inject(Router);
   private elementRef = inject(ElementRef);
+  private signalRService = inject(SignalRService);
+  private notificationsService = inject(NotificationsService);
 
   readonly icons = {
     Bell,
@@ -55,9 +54,11 @@ export class HeaderComponent {
     UserCircle,
     Settings,
     X,
-    Info,
-    CheckCircle,
-    AlertTriangle,
+    Star,
+    Clock,
+    MessageCircle,
+    BookOpen,
+    Trophy,
   };
 
   readonly currentUser = this.authService.currentUser;
@@ -66,36 +67,8 @@ export class HeaderComponent {
   notificationsOpen = signal(false);
   profileOpen = signal(false);
 
-  readonly notifications = signal<Notification[]>([
-    {
-      id: 1,
-      title: 'Новое задание',
-      message: 'Преподаватель добавил новое задание по курсу «Angular»',
-      time: '5 мин назад',
-      read: false,
-      type: 'info',
-    },
-    {
-      id: 2,
-      title: 'Оценка выставлена',
-      message: 'Ваша работа проверена. Оценка: 95/100',
-      time: '1 час назад',
-      read: false,
-      type: 'success',
-    },
-    {
-      id: 3,
-      title: 'Напоминание',
-      message: 'Дедлайн по курсу «TypeScript» через 2 дня',
-      time: '3 часа назад',
-      read: true,
-      type: 'warning',
-    },
-  ]);
-
-  readonly unreadCount = computed(
-    () => this.notifications().filter((n) => !n.read).length,
-  );
+  readonly recentNotifications = signal<NotificationDto[]>([]);
+  readonly unreadCount = this.signalRService.unreadCount;
 
   readonly pageTitle = toSignal(
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
@@ -118,6 +91,23 @@ export class HeaderComponent {
     if (!user) return 'Гость';
     return `${user.firstName} ${user.lastName}`;
   });
+
+  ngOnInit(): void {
+    if (this.authService.isAuthenticated()) {
+      this.loadUnreadCount();
+      this.loadRecentNotifications();
+    }
+  }
+
+  private loadUnreadCount(): void {
+    this.notificationsService.getUnreadCount().subscribe();
+  }
+
+  private loadRecentNotifications(): void {
+    this.notificationsService.getNotifications({ page: 1, pageSize: 5, isRead: false }).subscribe({
+      next: (result) => this.recentNotifications.set(result.items),
+    });
+  }
 
   private getTitleFromUrl(url: string): string {
     const segments = url.split('/').filter(Boolean);
@@ -145,9 +135,23 @@ export class HeaderComponent {
     return map[last] ?? 'EduPlatform';
   }
 
+  getNotificationIcon(type: NotificationType): LucideIconData {
+    switch (type) {
+      case NotificationType.Grade: return this.icons.Star;
+      case NotificationType.Deadline: return this.icons.Clock;
+      case NotificationType.Message: return this.icons.MessageCircle;
+      case NotificationType.Course: return this.icons.BookOpen;
+      case NotificationType.Achievement: return this.icons.Trophy;
+      default: return this.icons.Bell;
+    }
+  }
+
   toggleNotifications(): void {
     this.notificationsOpen.update((v) => !v);
     this.profileOpen.set(false);
+    if (this.notificationsOpen()) {
+      this.loadRecentNotifications();
+    }
   }
 
   toggleProfile(): void {
@@ -156,17 +160,32 @@ export class HeaderComponent {
   }
 
   markAllRead(): void {
-    this.notifications.update((list) => list.map((n) => ({ ...n, read: true })));
+    this.notificationsService.markAllAsRead().subscribe({
+      next: () => {
+        this.recentNotifications.update((list) => list.map((n) => ({ ...n, isRead: true })));
+      },
+    });
   }
 
-  dismissNotification(id: number): void {
-    this.notifications.update((list) => list.filter((n) => n.id !== id));
+  dismissNotification(id: string, event: Event): void {
+    event.stopPropagation();
+    this.notificationsService.deleteNotification(id).subscribe({
+      next: () => {
+        this.recentNotifications.update((list) => list.filter((n) => n.id !== id));
+      },
+    });
+  }
+
+  navigateToNotifications(): void {
+    this.notificationsOpen.set(false);
+    const role = this.authService.userRole();
+    const prefix = role === 'Teacher' ? 'teacher' : 'student';
+    this.router.navigate([`/${prefix}/notifications`]);
   }
 
   logout(): void {
     this.authService.logout();
     this.profileOpen.set(false);
-    this.router.navigate(['/login']);
   }
 
   @HostListener('document:click', ['$event'])

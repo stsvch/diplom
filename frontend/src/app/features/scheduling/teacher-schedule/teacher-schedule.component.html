@@ -1,0 +1,291 @@
+<div class="teacher-schedule">
+  <div class="teacher-schedule__header">
+    <div>
+      <h1 class="teacher-schedule__title">Расписание занятий</h1>
+      <p class="teacher-schedule__subtitle">Управляйте своими занятиями и записями</p>
+    </div>
+    <app-button variant="primary" (click)="openCreateModal()">
+      <lucide-icon [img]="PlusIcon" [size]="18" />
+      Создать занятие
+    </app-button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="teacher-schedule__tabs">
+    <button
+      class="teacher-schedule__tab"
+      [class.teacher-schedule__tab--active]="activeTab() === 'upcoming'"
+      (click)="setTab('upcoming')"
+    >
+      Предстоящие
+      @if (upcomingSlots().length > 0) {
+        <span class="teacher-schedule__tab-count">{{ upcomingSlots().length }}</span>
+      }
+    </button>
+    <button
+      class="teacher-schedule__tab"
+      [class.teacher-schedule__tab--active]="activeTab() === 'completed'"
+      (click)="setTab('completed')"
+    >
+      Завершённые
+      @if (completedSlots().length > 0) {
+        <span class="teacher-schedule__tab-count">{{ completedSlots().length }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- Slot list -->
+  @if (loading()) {
+    <div class="teacher-schedule__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка расписания...</p>
+    </div>
+  } @else if (displayedSlots().length === 0) {
+    <div class="teacher-schedule__empty">
+      <lucide-icon [img]="CalendarIcon" [size]="56" class="teacher-schedule__empty-icon" />
+      <h3>Занятий нет</h3>
+      @if (activeTab() === 'upcoming') {
+        <p>Создайте своё первое занятие</p>
+        <app-button variant="primary" (click)="openCreateModal()">
+          <lucide-icon [img]="PlusIcon" [size]="16" />
+          Создать занятие
+        </app-button>
+      } @else {
+        <p>Завершённые занятия появятся здесь</p>
+      }
+    </div>
+  } @else {
+    <div class="teacher-schedule__grid">
+      @for (slot of displayedSlots(); track slot.id) {
+        <div class="slot-card" [class.slot-card--completed]="slot.status === SlotStatus.Completed" [class.slot-card--cancelled]="slot.status === SlotStatus.Cancelled">
+          <div class="slot-card__header">
+            <div class="slot-card__icon-wrap" [class.slot-card__icon-wrap--group]="slot.isGroupSession">
+              <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="20" />
+            </div>
+            <div class="slot-card__title-wrap">
+              <span class="slot-card__type">{{ slot.isGroupSession ? 'Групповое' : 'Индивидуальное' }}</span>
+              <h3 class="slot-card__title">{{ slot.title }}</h3>
+            </div>
+            <app-badge [variant]="getStatusVariant(slot.status)">
+              {{ getStatusLabel(slot.status) }}
+            </app-badge>
+          </div>
+
+          @if (slot.courseName) {
+            <div class="slot-card__course">
+              <lucide-icon [img]="BookOpenIcon" [size]="14" />
+              {{ slot.courseName }}
+            </div>
+          }
+
+          <div class="slot-card__meta">
+            <div class="slot-card__meta-item">
+              <lucide-icon [img]="CalendarIcon" [size]="14" />
+              {{ formatDate(slot.startTime) }}
+            </div>
+            <div class="slot-card__meta-item">
+              <lucide-icon [img]="ClockIcon" [size]="14" />
+              {{ formatTime(slot.startTime) }} — {{ formatTime(slot.endTime) }}
+            </div>
+            <div class="slot-card__meta-item">
+              <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="14" />
+              @if (slot.isGroupSession) {
+                {{ slot.bookedCount }} / {{ slot.maxStudents }} записей
+              } @else {
+                @if (slot.bookedCount > 0 && slot.bookings.length > 0) {
+                  {{ slot.bookings[0].studentName }}
+                } @else {
+                  Нет записей
+                }
+              }
+            </div>
+          </div>
+
+          @if (slot.status === SlotStatus.Completed) {
+            <div class="slot-card__completed-badge">
+              <lucide-icon [img]="CheckCircleIcon" [size]="16" />
+              Занятие завершено
+            </div>
+          }
+
+          @if (slot.status !== SlotStatus.Cancelled && slot.status !== SlotStatus.Completed) {
+            <div class="slot-card__actions">
+              @if (slot.meetingLink) {
+                <button class="slot-card__action-btn slot-card__action-btn--link" (click)="copyLink(slot.meetingLink!, $event)">
+                  <lucide-icon [img]="CopyIcon" [size]="14" />
+                  Ссылка
+                </button>
+              }
+              <button
+                class="slot-card__action-btn slot-card__action-btn--complete"
+                (click)="completeSlot(slot, $event)"
+                [disabled]="completing() === slot.id"
+              >
+                @if (completing() === slot.id) {
+                  <lucide-icon [img]="Loader2Icon" [size]="14" class="spin" />
+                } @else {
+                  <lucide-icon [img]="CheckIcon" [size]="14" />
+                }
+                Завершить
+              </button>
+              <button
+                class="slot-card__action-btn slot-card__action-btn--cancel"
+                (click)="cancelSlot(slot, $event)"
+                [disabled]="cancelling() === slot.id"
+              >
+                @if (cancelling() === slot.id) {
+                  <lucide-icon [img]="Loader2Icon" [size]="14" class="spin" />
+                } @else {
+                  <lucide-icon [img]="XIcon" [size]="14" />
+                }
+                Отменить
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Create Modal -->
+@if (showCreateModal()) {
+  <div class="modal-backdrop" (click)="closeCreateModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__header">
+        <h2 class="modal__title">Создать занятие</h2>
+        <button class="modal__close" (click)="closeCreateModal()">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <div class="modal__body">
+        <!-- Type toggle -->
+        <div class="form-group">
+          <label class="form-label">Тип занятия</label>
+          <div class="type-toggle">
+            <button
+              class="type-toggle__btn"
+              [class.type-toggle__btn--active]="!form().isGroupSession"
+              (click)="updateForm('isGroupSession', false)"
+            >
+              <lucide-icon [img]="UserIcon" [size]="16" />
+              Индивидуальное
+            </button>
+            <button
+              class="type-toggle__btn"
+              [class.type-toggle__btn--active]="form().isGroupSession"
+              (click)="updateForm('isGroupSession', true)"
+            >
+              <lucide-icon [img]="UsersIcon" [size]="16" />
+              Групповое
+            </button>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div class="form-group">
+          <label class="form-label">Название занятия *</label>
+          <input
+            class="form-input"
+            type="text"
+            placeholder="Например: Консультация по React"
+            [value]="form().title"
+            (input)="updateForm('title', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+          <label class="form-label">Дата *</label>
+          <input
+            class="form-input"
+            type="date"
+            [value]="form().date"
+            (input)="updateForm('date', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Time -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Начало *</label>
+            <input
+              class="form-input"
+              type="time"
+              [value]="form().startTime"
+              (input)="updateForm('startTime', $any($event.target).value)"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Конец *</label>
+            <input
+              class="form-input"
+              type="time"
+              [value]="form().endTime"
+              (input)="updateForm('endTime', $any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <!-- Course (optional) -->
+        <div class="form-group">
+          <label class="form-label">Курс (необязательно)</label>
+          <input
+            class="form-input"
+            type="text"
+            placeholder="Название курса"
+            [value]="form().courseName"
+            (input)="updateForm('courseName', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Max students (group only) -->
+        @if (form().isGroupSession) {
+          <div class="form-group">
+            <label class="form-label">Максимум студентов</label>
+            <input
+              class="form-input"
+              type="number"
+              min="2"
+              max="100"
+              [value]="form().maxStudents"
+              (input)="updateForm('maxStudents', +$any($event.target).value)"
+            />
+          </div>
+        }
+
+        <!-- Meeting link -->
+        <div class="form-group">
+          <label class="form-label">Ссылка на видеозвонок (необязательно)</label>
+          <input
+            class="form-input"
+            type="url"
+            placeholder="https://meet.google.com/..."
+            [value]="form().meetingLink"
+            (input)="updateForm('meetingLink', $any($event.target).value)"
+          />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label">Описание (необязательно)</label>
+          <textarea
+            class="form-input form-input--textarea"
+            rows="3"
+            placeholder="Дополнительная информация о занятии"
+            [value]="form().description"
+            (input)="updateForm('description', $any($event.target).value)"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <app-button variant="outline" (click)="closeCreateModal()">Отмена</app-button>
+        <app-button variant="primary" [loading]="creating()" (click)="createSlot()">
+          Создать занятие
+        </app-button>
+      </div>
+    </div>
+  </div>
+}

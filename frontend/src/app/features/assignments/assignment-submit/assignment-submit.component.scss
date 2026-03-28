@@ -1,0 +1,286 @@
+@use '../../../../styles/variables' as v;
+
+.assignment-submit {
+  padding: v.$spacing-6;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-5;
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    color: v.$text-muted;
+    text-decoration: none;
+    font-size: v.$font-size-sm;
+    width: fit-content;
+    transition: color v.$transition-fast;
+    &:hover { color: v.$primary; }
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+}
+
+// Assignment info card
+.assignment-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-3;
+    padding: v.$spacing-5;
+    background: v.$primary-light;
+    border-bottom: 1px solid v.$border-color;
+  }
+
+  &__icon {
+    color: v.$primary;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__title-area {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__description {
+    padding: v.$spacing-5;
+    border-bottom: 1px solid v.$border-color;
+    line-height: 1.6;
+  }
+
+  &__criteria {
+    padding: v.$spacing-4 v.$spacing-5;
+    border-bottom: 1px solid v.$border-color;
+    background: v.$bg-muted;
+  }
+
+  &__section-title {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-secondary;
+    margin: 0 0 v.$spacing-2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__criteria-text {
+    font-size: v.$font-size-sm;
+    color: v.$text-secondary;
+    line-height: 1.6;
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  &__meta {
+    padding: v.$spacing-4 v.$spacing-5;
+    display: flex;
+    gap: v.$spacing-5;
+    flex-wrap: wrap;
+  }
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-2;
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+
+  lucide-icon { color: v.$text-muted; }
+
+  &--danger {
+    color: v.$danger;
+    lucide-icon { color: v.$danger; }
+  }
+}
+
+// Previous submissions
+.submissions-section {
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-3;
+  }
+}
+
+.submissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+}
+
+.submission-item {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    flex-wrap: wrap;
+  }
+
+  &__attempt {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+  }
+
+  &__date {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin-left: auto;
+  }
+
+  &__score {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    font-size: v.$font-size-sm;
+    color: v.$success-dark;
+
+    lucide-icon { color: v.$warning; }
+  }
+
+  &__comment {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-2;
+    font-size: v.$font-size-sm;
+    color: v.$text-secondary;
+    background: v.$bg-muted;
+    padding: v.$spacing-2 v.$spacing-3;
+    border-radius: v.$radius-md;
+
+    lucide-icon { color: v.$text-muted; flex-shrink: 0; margin-top: 1px; }
+    span { line-height: 1.5; }
+  }
+}
+
+// Submit form
+.submit-form {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__label {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-secondary;
+  }
+
+  &__textarea {
+    padding: v.$spacing-3;
+    border: 1px solid v.$border-input;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-base;
+    color: v.$text-foreground;
+    background: v.$bg-input;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: border-color v.$transition-fast;
+
+    &:focus {
+      outline: none;
+      border-color: v.$primary;
+      box-shadow: 0 0 0 2px rgba(v.$primary, 0.12);
+    }
+
+    &::placeholder { color: v.$text-placeholder; }
+  }
+
+  &__files {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+    margin-top: v.$spacing-2;
+  }
+
+  &__actions {
+    padding-top: v.$spacing-2;
+  }
+
+  &--disabled {
+    background: v.$bg-muted;
+  }
+}
+
+.submit-blocked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-8;
+  text-align: center;
+  color: v.$text-muted;
+
+  h3 {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-secondary;
+    margin: 0;
+  }
+  p { font-size: v.$font-size-sm; margin: 0; }
+
+  &__icon {
+    &--danger { color: v.$danger; opacity: 0.7; }
+  }
+}
+
+.spin {
+  color: v.$primary;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

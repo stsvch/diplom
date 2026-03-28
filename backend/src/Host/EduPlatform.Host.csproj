@@ -22,6 +22,14 @@
     <ProjectReference Include="..\Modules\Auth\Auth.Infrastructure\Auth.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Courses\Courses.Infrastructure\Courses.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Content\Content.Infrastructure\Content.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Tests\Tests.Infrastructure\Tests.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Assignments\Assignments.Infrastructure\Assignments.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Grading\Grading.Infrastructure\Grading.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Progress\Progress.Infrastructure\Progress.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Calendar\Calendar.Infrastructure\Calendar.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Messaging\Messaging.Infrastructure\Messaging.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Scheduling\Scheduling.Infrastructure\Scheduling.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

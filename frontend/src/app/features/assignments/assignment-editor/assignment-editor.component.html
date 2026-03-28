@@ -1,0 +1,113 @@
+<div class="assignment-editor">
+  <!-- Header -->
+  <div class="assignment-editor__header">
+    <a [routerLink]="backUrl" class="assignment-editor__back">
+      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+      Назад
+    </a>
+
+    <div class="assignment-editor__title-row">
+      <lucide-icon [img]="FileEditIcon" [size]="22" class="assignment-editor__title-icon" />
+      <h1 class="assignment-editor__title">{{ pageTitle }}</h1>
+    </div>
+
+    <app-button
+      variant="primary"
+      size="md"
+      [loading]="saving()"
+      (click)="save()"
+    >
+      <lucide-icon [img]="SaveIcon" [size]="16" />
+      Сохранить
+    </app-button>
+  </div>
+
+  @if (loading()) {
+    <div class="assignment-editor__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка...</p>
+    </div>
+  } @else {
+    <div class="assignment-editor__form">
+
+      <!-- Title -->
+      <div class="form-group">
+        <label class="form-label" for="assignment-title">Название задания *</label>
+        <input
+          id="assignment-title"
+          type="text"
+          class="form-input"
+          [value]="title()"
+          (input)="title.set($any($event.target).value)"
+          placeholder="Введите название задания"
+        />
+      </div>
+
+      <!-- Description (rich text) -->
+      <div class="form-group">
+        <label class="form-label">Описание задания *</label>
+        <app-rich-text-editor
+          [content]="description()"
+          placeholder="Опишите задание подробно..."
+          (contentChange)="description.set($event)"
+        />
+      </div>
+
+      <!-- Criteria -->
+      <div class="form-group">
+        <label class="form-label">Критерии оценивания</label>
+        <textarea
+          class="form-textarea"
+          [value]="criteria()"
+          (input)="criteria.set($any($event.target).value)"
+          placeholder="Опишите критерии оценки (необязательно)"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- Settings row -->
+      <div class="assignment-editor__settings">
+        <!-- Deadline -->
+        <div class="form-group">
+          <label class="form-label" for="assignment-deadline">Дедлайн</label>
+          <input
+            id="assignment-deadline"
+            type="datetime-local"
+            class="form-input"
+            [value]="deadline()"
+            (input)="deadline.set($any($event.target).value)"
+          />
+        </div>
+
+        <!-- Max Score -->
+        <div class="form-group">
+          <label class="form-label" for="assignment-max-score">Максимальный балл *</label>
+          <input
+            id="assignment-max-score"
+            type="number"
+            class="form-input"
+            [value]="maxScore()"
+            (input)="maxScore.set(+$any($event.target).value)"
+            min="1"
+            max="1000"
+          />
+        </div>
+
+        <!-- Max Attempts -->
+        <div class="form-group">
+          <label class="form-label" for="assignment-max-attempts">Макс. попыток</label>
+          <input
+            id="assignment-max-attempts"
+            type="number"
+            class="form-input"
+            [value]="maxAttempts() ?? ''"
+            (input)="maxAttempts.set($any($event.target).value ? +$any($event.target).value : null)"
+            placeholder="Без ограничений"
+            min="1"
+          />
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

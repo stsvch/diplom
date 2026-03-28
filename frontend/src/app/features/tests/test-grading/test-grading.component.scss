@@ -1,0 +1,214 @@
+@use '../../../../styles/variables' as v;
+
+.test-grading {
+  padding: v.$spacing-6;
+  max-width: 760px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    color: v.$text-muted;
+    text-decoration: none;
+    font-size: v.$font-size-sm;
+    transition: color v.$transition-fast;
+    white-space: nowrap;
+    &:hover { color: v.$primary; }
+  }
+
+  &__title {
+    flex: 1;
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+}
+
+// Attempt info
+.attempt-info {
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-4;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-6;
+  flex-wrap: wrap;
+  margin-bottom: v.$spacing-5;
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+
+    lucide-icon { color: v.$text-muted; }
+  }
+}
+
+.no-open-answers {
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-8;
+  text-align: center;
+  color: v.$text-muted;
+  font-size: v.$font-size-base;
+}
+
+// Grade list
+.grade-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-5;
+}
+
+.grade-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &__question {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: v.$spacing-3;
+    padding: v.$spacing-4 v.$spacing-5;
+    background: v.$bg-muted;
+    border-bottom: 1px solid v.$border-color;
+  }
+
+  &__question-text {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+    flex: 1;
+    line-height: 1.5;
+  }
+
+  &__max-points {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  &__answer {
+    padding: v.$spacing-4 v.$spacing-5;
+    border-bottom: 1px solid v.$border-color;
+  }
+
+  &__answer-label {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-muted;
+    margin: 0 0 v.$spacing-2;
+  }
+
+  &__answer-text {
+    font-size: v.$font-size-base;
+    color: v.$text-foreground;
+    line-height: 1.6;
+    background: v.$bg-muted;
+    border-radius: v.$radius-md;
+    padding: v.$spacing-3 v.$spacing-4;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__grading {
+    padding: v.$spacing-4 v.$spacing-5;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: v.$spacing-4;
+    align-items: start;
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.grade-field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-1;
+
+  &--full {
+    grid-column: 2 / -1;
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-column: 1;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-secondary;
+
+    lucide-icon { color: v.$text-muted; }
+  }
+}
+
+.grade-input {
+  padding: v.$spacing-2 v.$spacing-3;
+  border: 1px solid v.$border-input;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-base;
+  color: v.$text-foreground;
+  background: v.$bg-input;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color v.$transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+  }
+}
+
+.grade-textarea {
+  @extend .grade-input;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.grade-actions {
+  margin-top: v.$spacing-6;
+  display: flex;
+  justify-content: center;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,74 @@
+<div class="calendar-page">
+  <!-- Main Calendar -->
+  <div class="calendar-page__main">
+    <!-- Navigation -->
+    <div class="calendar-page__nav">
+      <button class="calendar-page__nav-btn" (click)="prevMonth()">
+        <lucide-icon [img]="icons.ChevronLeft" [size]="20" />
+      </button>
+      <h2 class="calendar-page__month-label">{{ currentMonthLabel() }}</h2>
+      <button class="calendar-page__nav-btn" (click)="nextMonth()">
+        <lucide-icon [img]="icons.ChevronRight" [size]="20" />
+      </button>
+    </div>
+
+    <!-- Week days header -->
+    <div class="calendar-grid__header">
+      @for (day of weekDays; track day) {
+        <div class="calendar-grid__weekday">{{ day }}</div>
+      }
+    </div>
+
+    <!-- Calendar grid -->
+    @if (loading()) {
+      <div class="calendar-page__loading">Загрузка...</div>
+    } @else {
+      <div class="calendar-grid">
+        @for (day of calendarDays(); track day.date.toISOString()) {
+          <div
+            class="calendar-grid__cell"
+            [class.calendar-grid__cell--other-month]="!day.isCurrentMonth"
+            [class.calendar-grid__cell--today]="day.isToday"
+          >
+            <span class="calendar-grid__date">{{ day.date.getDate() }}</span>
+            @if (day.events.length > 0) {
+              <div class="calendar-grid__dots">
+                @for (event of day.events.slice(0, 3); track event.id) {
+                  <span class="event-dot" [class]="'event-dot ' + getEventDotClass(event.type)" [title]="event.title"></span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Sidebar: Upcoming Events -->
+  <div class="calendar-page__sidebar">
+    <h3 class="calendar-page__sidebar-title">Предстоящие события</h3>
+    @if (upcomingEvents().length === 0) {
+      <div class="calendar-page__no-events">
+        <lucide-icon [img]="icons.Calendar" [size]="32" />
+        <p>Нет предстоящих событий</p>
+      </div>
+    } @else {
+      <div class="upcoming-list">
+        @for (event of upcomingEvents(); track event.id) {
+          <div class="upcoming-card">
+            <div class="upcoming-card__icon" [attr.data-type]="event.type">
+              <lucide-icon [img]="icons.Calendar" [size]="16" />
+            </div>
+            <div class="upcoming-card__content">
+              <p class="upcoming-card__title">{{ event.title }}</p>
+              <span class="upcoming-card__date">{{ formatEventDate(event.eventDate, event.eventTime) }}</span>
+              <app-badge [variant]="getTypeBadgeVariant(event.type)" size="sm">
+                {{ getTypeLabel(event.type) }}
+              </app-badge>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

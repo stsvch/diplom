@@ -1,0 +1,381 @@
+@use '../../../../styles/variables' as v;
+
+.test-player {
+  min-height: 100vh;
+  background: v.$bg-page;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: v.$spacing-6 v.$spacing-4;
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-4;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+
+  &__layout {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-5;
+  }
+}
+
+// Header
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-4;
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-4;
+
+  &__progress-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-1;
+  }
+
+  &__progress-text {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    font-weight: v.$font-weight-medium;
+  }
+}
+
+.player-timer {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  font-size: v.$font-size-lg;
+  font-weight: v.$font-weight-bold;
+  color: v.$text-foreground;
+  white-space: nowrap;
+  padding: v.$spacing-2 v.$spacing-3;
+  background: v.$bg-muted;
+  border-radius: v.$radius-md;
+  min-width: 80px;
+  justify-content: center;
+
+  &--warning {
+    color: v.$danger;
+    background: v.$danger-light;
+    animation: pulse 1s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+// Question pane
+.question-pane {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-5;
+  min-height: 320px;
+
+  &__points {
+    font-size: v.$font-size-sm;
+    color: v.$primary;
+    font-weight: v.$font-weight-semibold;
+    margin: 0;
+  }
+
+  &__text {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__answer {
+    flex: 1;
+  }
+}
+
+// Choice cards
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+}
+
+.choice-card {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-4;
+  border: 2px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  background: v.$bg-card;
+  cursor: pointer;
+  text-align: left;
+  transition: all v.$transition-fast;
+  width: 100%;
+
+  &:hover {
+    border-color: v.$primary;
+    background: v.$primary-light;
+  }
+
+  &--selected {
+    border-color: v.$primary;
+    background: v.$primary-light;
+  }
+
+  &__radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid v.$border-color;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color v.$transition-fast;
+
+    .choice-card--selected & {
+      border-color: v.$primary;
+    }
+  }
+
+  &__radio-dot {
+    width: 8px;
+    height: 8px;
+    background: v.$primary;
+    border-radius: 50%;
+  }
+
+  &__checkbox {
+    width: 18px;
+    height: 18px;
+    border: 2px solid v.$border-color;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all v.$transition-fast;
+    color: white;
+
+    .choice-card--selected & {
+      border-color: v.$primary;
+      background: v.$primary;
+    }
+  }
+
+  &__text {
+    font-size: v.$font-size-base;
+    color: v.$text-foreground;
+    line-height: 1.4;
+  }
+}
+
+// Text answer
+.text-answer-input {
+  width: 100%;
+  padding: v.$spacing-3 v.$spacing-4;
+  border: 2px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  font-size: v.$font-size-base;
+  color: v.$text-foreground;
+  background: v.$bg-input;
+  transition: border-color v.$transition-fast;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+  }
+}
+
+.text-answer-textarea {
+  @extend .text-answer-input;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+// Matching
+.matching-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+
+  &__header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: v.$spacing-4;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-muted;
+    padding: 0 v.$spacing-1;
+  }
+}
+
+.matching-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$spacing-4;
+  align-items: center;
+}
+
+.matching-pair__left {
+  font-size: v.$font-size-base;
+  color: v.$text-foreground;
+  padding: v.$spacing-3;
+  background: v.$bg-muted;
+  border-radius: v.$radius-md;
+}
+
+.matching-select {
+  padding: v.$spacing-2 v.$spacing-3;
+  border: 2px solid v.$border-color;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-sm;
+  color: v.$text-foreground;
+  background: v.$bg-input;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color v.$transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+  }
+}
+
+// Navigation
+.player-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__right {
+    display: flex;
+    gap: v.$spacing-3;
+  }
+}
+
+// Question navigator
+.question-navigator {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-2;
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-4;
+  justify-content: center;
+}
+
+.nav-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid v.$border-color;
+  background: v.$bg-muted;
+  color: v.$text-muted;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-semibold;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { border-color: v.$primary; color: v.$primary; }
+
+  &--current {
+    border-color: v.$primary;
+    background: v.$primary;
+    color: white;
+  }
+
+  &--answered:not(.nav-circle--current) {
+    border-color: v.$success;
+    background: v.$success-light;
+    color: v.$success-dark;
+  }
+}
+
+.player-answered-hint {
+  text-align: center;
+  font-size: v.$font-size-sm;
+  color: v.$text-muted;
+}
+
+// Dialog
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: v.$spacing-4;
+}
+
+.dialog {
+  background: v.$bg-card;
+  border-radius: v.$radius-xl;
+  padding: v.$spacing-8;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+  box-shadow: v.$shadow-xl;
+
+  &__icon {
+    color: v.$warning;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__body {
+    font-size: v.$font-size-base;
+    color: v.$text-secondary;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-3;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

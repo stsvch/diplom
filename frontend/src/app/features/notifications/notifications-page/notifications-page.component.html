@@ -1,0 +1,104 @@
+<div class="notifications-page">
+  <!-- Header -->
+  <div class="notifications-page__header">
+    <div class="notifications-page__title-row">
+      <h1 class="notifications-page__title">Уведомления</h1>
+      @if (unreadCount() > 0) {
+        <span class="notifications-page__unread-badge">{{ unreadCount() }} непрочитанных уведомлений</span>
+      }
+    </div>
+    @if (unreadCount() > 0) {
+      <app-button variant="outline" size="sm" (click)="markAllRead()">
+        Прочитать все
+      </app-button>
+    }
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="notifications-page__tabs">
+    <button
+      class="notifications-page__tab"
+      [class.notifications-page__tab--active]="activeTab() === 'all'"
+      (click)="setTab('all')"
+    >
+      Все
+    </button>
+    <button
+      class="notifications-page__tab"
+      [class.notifications-page__tab--active]="activeTab() === 'unread'"
+      (click)="setTab('unread')"
+    >
+      Непрочитанные
+      @if (unreadCount() > 0) {
+        <span class="notifications-page__tab-badge">{{ unreadCount() }}</span>
+      }
+    </button>
+    <button
+      class="notifications-page__tab"
+      [class.notifications-page__tab--active]="activeTab() === 'read'"
+      (click)="setTab('read')"
+    >
+      Прочитанные
+    </button>
+  </div>
+
+  <!-- Type Filter Pills -->
+  <div class="notifications-page__type-filters">
+    @for (filter of typeFilters; track filter.label) {
+      <button
+        class="notifications-page__type-pill"
+        [class.notifications-page__type-pill--active]="activeTypeFilter() === filter.value"
+        (click)="setTypeFilter(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Content -->
+  @if (loading()) {
+    <div class="notifications-page__loading">Загрузка...</div>
+  } @else if (error()) {
+    <div class="notifications-page__error">{{ error() }}</div>
+  } @else if (filteredNotifications().length === 0) {
+    <div class="notifications-page__empty">
+      <lucide-icon [img]="icons.Bell" [size]="48" />
+      <p>Нет уведомлений</p>
+    </div>
+  } @else {
+    <div class="notifications-page__list">
+      @for (notification of filteredNotifications(); track notification.id) {
+        <div
+          class="notif-card"
+          [class.notif-card--unread]="!notification.isRead"
+          (click)="onNotificationClick(notification)"
+        >
+          <!-- Icon -->
+          <div class="notif-card__icon" [attr.data-type]="notification.type">
+            <lucide-icon [img]="getTypeIcon(notification.type)" [size]="20" />
+          </div>
+
+          <!-- Content -->
+          <div class="notif-card__content">
+            <div class="notif-card__title-row">
+              @if (!notification.isRead) {
+                <span class="notif-card__unread-dot"></span>
+              }
+              <span class="notif-card__title">{{ notification.title }}</span>
+              <app-badge [variant]="getTypeBadgeVariant(notification.type)" size="sm">
+                {{ getTypeLabel(notification.type) }}
+              </app-badge>
+            </div>
+            <p class="notif-card__message">{{ notification.message }}</p>
+            <span class="notif-card__time">{{ formatTimeAgo(notification.createdAt) }}</span>
+          </div>
+
+          <!-- Delete button -->
+          <button class="notif-card__delete" (click)="deleteNotification(notification.id, $event)">
+            &times;
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

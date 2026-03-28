@@ -102,24 +102,59 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'test/:testId/play',
+        loadComponent: () =>
+          import('./features/tests/test-player/test-player.component').then(
+            (m) => m.TestPlayerComponent,
+          ),
+      },
+      {
+        path: 'test/:testId/result/:attemptId',
+        loadComponent: () =>
+          import('./features/tests/test-result/test-result.component').then(
+            (m) => m.TestResultComponent,
+          ),
+      },
+      {
+        path: 'assignment/:id',
+        loadComponent: () =>
+          import('./features/assignments/assignment-submit/assignment-submit.component').then(
+            (m) => m.AssignmentSubmitComponent,
+          ),
+      },
+      {
+        path: 'grades',
+        loadComponent: () =>
+          import('./features/grading/student-grades/student-grades.component').then(
+            (m) => m.StudentGradesComponent,
+          ),
+      },
+      {
         path: 'calendar',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/calendar/calendar-page/calendar-page.component').then(
+            (m) => m.CalendarPageComponent,
+          ),
+      },
+      {
+        path: 'schedule',
+        loadComponent: () =>
+          import('./features/scheduling/student-schedule/student-schedule.component').then(
+            (m) => m.StudentScheduleComponent,
           ),
       },
       {
         path: 'messages',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/messaging/messages-page/messages-page.component').then(
+            (m) => m.MessagesPageComponent,
           ),
       },
       {
         path: 'notifications',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/notifications/notifications-page/notifications-page.component').then(
+            (m) => m.NotificationsPageComponent,
           ),
       },
       {
@@ -188,24 +223,66 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'test/new',
+        loadComponent: () =>
+          import('./features/tests/test-editor/test-editor.component').then(
+            (m) => m.TestEditorComponent,
+          ),
+      },
+      {
+        path: 'test/:id/edit',
+        loadComponent: () =>
+          import('./features/tests/test-editor/test-editor.component').then(
+            (m) => m.TestEditorComponent,
+          ),
+      },
+      {
+        path: 'test/:testId/submissions',
+        loadComponent: () =>
+          import('./features/tests/test-submissions/test-submissions.component').then(
+            (m) => m.TestSubmissionsComponent,
+          ),
+      },
+      {
+        path: 'test/:testId/grade/:attemptId',
+        loadComponent: () =>
+          import('./features/tests/test-grading/test-grading.component').then(
+            (m) => m.TestGradingComponent,
+          ),
+      },
+      {
         path: 'assignments',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/assignments/assignment-grading/assignment-grading.component').then(
+            (m) => m.AssignmentGradingComponent,
+          ),
+      },
+      {
+        path: 'assignment/new',
+        loadComponent: () =>
+          import('./features/assignments/assignment-editor/assignment-editor.component').then(
+            (m) => m.AssignmentEditorComponent,
+          ),
+      },
+      {
+        path: 'assignment/:id/edit',
+        loadComponent: () =>
+          import('./features/assignments/assignment-editor/assignment-editor.component').then(
+            (m) => m.AssignmentEditorComponent,
           ),
       },
       {
         path: 'gradebook',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/grading/gradebook/gradebook.component').then(
+            (m) => m.GradebookComponent,
           ),
       },
       {
         path: 'schedule',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/scheduling/teacher-schedule/teacher-schedule.component').then(
+            (m) => m.TeacherScheduleComponent,
           ),
       },
       {
@@ -218,15 +295,15 @@ export const routes: Routes = [
       {
         path: 'messages',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/messaging/messages-page/messages-page.component').then(
+            (m) => m.MessagesPageComponent,
           ),
       },
       {
         path: 'notifications',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/notifications/notifications-page/notifications-page.component').then(
+            (m) => m.NotificationsPageComponent,
           ),
       },
       {

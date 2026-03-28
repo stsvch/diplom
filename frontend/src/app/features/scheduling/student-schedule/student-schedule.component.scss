@@ -1,0 +1,414 @@
+@use '../../../../styles/variables' as v;
+
+.student-schedule {
+  padding: v.$spacing-6;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: v.$spacing-6;
+  }
+
+  &__title {
+    font-size: v.$font-size-3xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-base;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: v.$spacing-1;
+    border-bottom: 2px solid v.$border-color;
+    margin-bottom: v.$spacing-5;
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-muted;
+    cursor: pointer;
+    transition: color v.$transition-fast, border-color v.$transition-fast;
+
+    &:hover {
+      color: v.$text-foreground;
+    }
+
+    &--active {
+      color: v.$primary;
+      border-bottom-color: v.$primary;
+    }
+  }
+
+  &__tab-count {
+    background: v.$primary-light;
+    color: v.$primary;
+    border-radius: v.$radius-full;
+    padding: 0 v.$spacing-2;
+    font-size: v.$font-size-xs;
+    font-weight: v.$font-weight-semibold;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  &__search {
+    margin-bottom: v.$spacing-5;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    gap: v.$spacing-4;
+    color: v.$text-muted;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    gap: v.$spacing-4;
+    text-align: center;
+
+    h3 {
+      font-size: v.$font-size-xl;
+      font-weight: v.$font-weight-semibold;
+      color: v.$text-foreground;
+      margin: 0;
+    }
+
+    p {
+      color: v.$text-muted;
+      margin: 0;
+    }
+  }
+
+  &__empty-icon {
+    color: v.$text-placeholder;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: v.$spacing-4;
+  }
+
+  &__section {
+    margin-bottom: v.$spacing-8;
+  }
+
+  &__section-title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-4;
+  }
+}
+
+// Search input
+.search-wrap {
+  position: relative;
+  max-width: 400px;
+
+  &__icon {
+    position: absolute;
+    left: v.$spacing-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: v.$text-muted;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    padding: v.$spacing-3 v.$spacing-4 v.$spacing-3 calc(v.$spacing-3 * 2 + 16px);
+    border: 1px solid v.$border-input;
+    border-radius: v.$radius-sm;
+    background: v.$bg-input;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    box-sizing: border-box;
+    transition: border-color v.$transition-fast;
+
+    &:focus {
+      outline: none;
+      border-color: v.$primary;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    &::placeholder {
+      color: v.$text-placeholder;
+    }
+  }
+}
+
+// Slot card (available)
+.slot-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+  box-shadow: v.$shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+  transition: box-shadow v.$transition-fast, transform v.$transition-fast;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-3;
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-md;
+    background: v.$primary-light;
+    color: v.$primary;
+    flex-shrink: 0;
+
+    &--group {
+      background: #EDE9FE;
+      color: #7C3AED;
+    }
+  }
+
+  &__title-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__type {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    font-weight: v.$font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__title {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__teacher,
+  &__course {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: 0;
+
+    lucide-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    font-size: v.$font-size-sm;
+    color: v.$text-secondary;
+
+    lucide-icon {
+      color: v.$text-muted;
+      flex-shrink: 0;
+    }
+
+    &--warn {
+      color: v.$warning-dark;
+
+      lucide-icon {
+        color: v.$warning;
+      }
+    }
+  }
+
+  &__description {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__footer {
+    margin-top: auto;
+    padding-top: v.$spacing-3;
+    border-top: 1px solid v.$border-color;
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+// Booking card (my bookings)
+.booking-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+  box-shadow: v.$shadow-sm;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-3;
+
+  &--upcoming {
+    border-left: 3px solid v.$primary;
+  }
+
+  &--past {
+    opacity: 0.8;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-3;
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-md;
+    background: v.$primary-light;
+    color: v.$primary;
+    flex-shrink: 0;
+
+    &--group {
+      background: #EDE9FE;
+      color: #7C3AED;
+    }
+
+    &--muted {
+      background: v.$bg-muted;
+      color: v.$text-muted;
+    }
+  }
+
+  &__title-wrap {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__type {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    font-weight: v.$font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__title {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__teacher,
+  &__course {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: 0;
+
+    lucide-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    font-size: v.$font-size-sm;
+    color: v.$text-secondary;
+
+    lucide-icon {
+      color: v.$text-muted;
+      flex-shrink: 0;
+    }
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-sm;
+    color: v.$primary;
+    text-decoration: none;
+    font-weight: v.$font-weight-medium;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__actions {
+    padding-top: v.$spacing-3;
+    border-top: 1px solid v.$border-color;
+  }
+}
+
+// Spin animation
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

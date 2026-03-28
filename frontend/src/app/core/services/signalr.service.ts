@@ -1,0 +1,65 @@
+import { Injectable, inject, signal, effect } from '@angular/core';
+import * as signalR from '@microsoft/signalr';
+import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
+import { NotificationDto } from '../../features/notifications/models/notification.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class SignalRService {
+  private readonly authService = inject(AuthService);
+  private hubConnection: signalR.HubConnection | null = null;
+
+  readonly unreadCount = signal<number>(0);
+  readonly lastNotification = signal<NotificationDto | null>(null);
+
+  constructor() {
+    effect(() => {
+      const isAuthenticated = this.authService.isAuthenticated();
+      if (isAuthenticated) {
+        this.startConnection();
+      } else {
+        this.stopConnection();
+      }
+    });
+  }
+
+  private startConnection(): void {
+    if (this.hubConnection && this.hubConnection.state !== signalR.HubConnectionState.Disconnected) {
+      return;
+    }
+
+    const baseUrl = environment.apiUrl.replace('/api', '');
+
+    this.hubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${baseUrl}/hubs/notifications`, {
+        accessTokenFactory: () => this.authService.getAccessToken()!,
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    this.hubConnection.on('ReceiveNotification', (notification: NotificationDto) => {
+      this.lastNotification.set(notification);
+      this.unreadCount.update((count) => count + 1);
+    });
+
+    this.hubConnection.start().catch((err) => console.error('SignalR connection error:', err));
+  }
+
+  private stopConnection(): void {
+    if (this.hubConnection) {
+      this.hubConnection.stop();
+      this.hubConnection = null;
+    }
+    this.unreadCount.set(0);
+  }
+
+  setUnreadCount(count: number): void {
+    this.unreadCount.set(count);
+  }
+
+  decrementUnreadCount(): void {
+    this.unreadCount.update((count) => Math.max(0, count - 1));
+  }
+}

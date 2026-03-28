@@ -1,0 +1,464 @@
+@use '../../../../styles/variables' as v;
+
+.test-editor {
+  padding: v.$spacing-6;
+  max-width: 860px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    color: v.$text-muted;
+    text-decoration: none;
+    font-size: v.$font-size-sm;
+    transition: color v.$transition-fast;
+    white-space: nowrap;
+    &:hover { color: v.$primary; }
+  }
+
+  &__title-wrap {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-6;
+  }
+}
+
+// Settings card
+.settings-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: v.$spacing-4 v.$spacing-5;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    transition: background v.$transition-fast;
+
+    &:hover { background: v.$bg-muted; }
+  }
+
+  &__toggle-left {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    lucide-icon { color: v.$primary; }
+  }
+
+  &__body {
+    padding: v.$spacing-5;
+    border-top: 1px solid v.$border-color;
+  }
+}
+
+// Form
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$spacing-4;
+
+  @media (max-width: v.$breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-1;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  &--flex {
+    flex: 1;
+  }
+
+  &--points {
+    width: 80px;
+    flex-shrink: 0;
+  }
+}
+
+.form-label {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  color: v.$text-secondary;
+}
+
+.form-input {
+  padding: v.$spacing-2 v.$spacing-3;
+  border: 1px solid v.$border-input;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-sm;
+  color: v.$text-foreground;
+  background: v.$bg-input;
+  transition: border-color v.$transition-fast;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+  }
+}
+
+.form-textarea {
+  @extend .form-input;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+// Toggles
+.toggles-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$spacing-4;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+  cursor: pointer;
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+  user-select: none;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+
+    &:checked + .toggle-slider {
+      background: v.$primary;
+      &::before { transform: translateX(20px); }
+    }
+  }
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: v.$switch-bg;
+  border-radius: v.$radius-full;
+  transition: background v.$transition-fast;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform v.$transition-fast;
+  }
+}
+
+// Questions section
+.questions-section {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+}
+
+.questions-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-10;
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  color: v.$text-muted;
+  text-align: center;
+}
+
+// Question card
+.question-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: v.$bg-muted;
+    border-bottom: 1px solid v.$border-color;
+    gap: v.$spacing-3;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+  }
+
+  &__num {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-muted;
+    min-width: 20px;
+  }
+
+  &__points-info {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin-left: v.$spacing-1;
+  }
+
+  &__controls {
+    display: flex;
+    gap: v.$spacing-1;
+  }
+
+  &__body {
+    padding: v.$spacing-4;
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-4;
+  }
+
+  &__save-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: v.$spacing-2;
+    border-top: 1px solid v.$border-color;
+  }
+}
+
+.question-row {
+  display: flex;
+  gap: v.$spacing-3;
+  align-items: flex-start;
+}
+
+// Control buttons
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-sm;
+  background: v.$bg-card;
+  color: v.$text-muted;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+
+  &:hover:not(:disabled) {
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &--danger:hover:not(:disabled) {
+    border-color: v.$danger;
+    color: v.$danger;
+    background: v.$danger-light;
+  }
+}
+
+// Options
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+}
+
+.options-label {
+  font-size: v.$font-size-sm;
+  color: v.$text-muted;
+  margin: 0 0 v.$spacing-1;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-2;
+}
+
+.option-radio,
+.option-checkbox {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: v.$primary;
+}
+
+.option-input {
+  flex: 1;
+}
+
+.matching-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 28px;
+  gap: v.$spacing-2;
+  font-size: v.$font-size-xs;
+  color: v.$text-muted;
+  font-weight: v.$font-weight-medium;
+  padding: 0 v.$spacing-1;
+}
+
+.matching-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 28px;
+  gap: v.$spacing-2;
+  align-items: center;
+}
+
+.add-option-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  padding: v.$spacing-1 v.$spacing-2;
+  border: 1px dashed v.$border-color;
+  border-radius: v.$radius-sm;
+  background: none;
+  color: v.$primary;
+  font-size: v.$font-size-sm;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  align-self: flex-start;
+
+  &:hover {
+    background: v.$primary-light;
+    border-color: v.$primary;
+  }
+}
+
+.open-answer-note {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-2;
+  padding: v.$spacing-3 v.$spacing-4;
+  background: v.$bg-muted;
+  border-radius: v.$radius-md;
+  font-size: v.$font-size-sm;
+  color: v.$text-muted;
+  font-style: italic;
+}
+
+// Add question
+.add-question-wrap {
+  display: flex;
+  justify-content: center;
+  padding: v.$spacing-4 0;
+}
+
+.add-menu-host {
+  position: relative;
+}
+
+.add-menu {
+  position: absolute;
+  top: calc(100% + v.$spacing-1);
+  left: 0;
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-md;
+  box-shadow: v.$shadow-md;
+  z-index: v.$z-dropdown;
+  min-width: 200px;
+  overflow: hidden;
+
+  &__item {
+    display: block;
+    width: 100%;
+    padding: v.$spacing-2 v.$spacing-4;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    cursor: pointer;
+    transition: background v.$transition-fast;
+
+    &:hover { background: v.$bg-muted; }
+  }
+}
+
+.new-test-hint {
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-6;
+  text-align: center;
+  color: v.$text-muted;
+  font-size: v.$font-size-sm;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

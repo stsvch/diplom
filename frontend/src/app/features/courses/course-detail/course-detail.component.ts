@@ -22,6 +22,8 @@ import { CoursesService } from '../services/courses.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
 import { CourseDetailDto, CourseModuleDetailDto } from '../models/course.model';
+import { ProgressService } from '../../progress/services/progress.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
@@ -47,6 +49,10 @@ export class CourseDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly coursesService = inject(CoursesService);
   private readonly toastService = inject(ToastService);
+  private readonly progressService = inject(ProgressService);
+  private readonly authService = inject(AuthService);
+
+  readonly actualProgress = signal<number | null>(null);
 
   readonly ChevronLeftIcon = ChevronLeft;
   readonly ChevronDownIcon = ChevronDown;
@@ -84,10 +90,25 @@ export class CourseDetailComponent implements OnInit {
         if (data.modules.length > 0) {
           this.expandedModules.set(new Set([data.modules[0].id]));
         }
+        // Load real progress only for students
+        if (this.authService.userRole() === 'Student') {
+          this.loadCourseProgress(id);
+        }
       },
       error: (err: ApiError) => {
         this.loading.set(false);
         this.toastService.error(err.message);
+      },
+    });
+  }
+
+  loadCourseProgress(courseId: string): void {
+    this.progressService.getCourseProgress(courseId).subscribe({
+      next: (progress) => {
+        this.actualProgress.set(progress.progressPercent);
+      },
+      error: () => {
+        // silently ignore — falls back to course.progress
       },
     });
   }

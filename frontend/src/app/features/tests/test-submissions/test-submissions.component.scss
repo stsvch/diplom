@@ -1,0 +1,178 @@
+@use '../../../../styles/variables' as v;
+
+.test-submissions {
+  padding: v.$spacing-6;
+  max-width: 960px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    color: v.$text-muted;
+    text-decoration: none;
+    font-size: v.$font-size-sm;
+    transition: color v.$transition-fast;
+    white-space: nowrap;
+    margin-top: 4px;
+    &:hover { color: v.$primary; }
+  }
+
+  &__title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: 0;
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+  }
+}
+
+// Stats
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: v.$spacing-4;
+  margin-bottom: v.$spacing-6;
+}
+
+.stat-card {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-4;
+
+  &__icon {
+    color: v.$primary;
+    flex-shrink: 0;
+
+    &--success { color: v.$success; }
+  }
+
+  &__label {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__value {
+    font-size: v.$font-size-xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+}
+
+.submissions-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$spacing-3;
+  padding: v.$spacing-12;
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  color: v.$text-muted;
+  text-align: center;
+}
+
+.submissions-table-wrap {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.submissions-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    padding: v.$spacing-3 v.$spacing-4;
+    text-align: left;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-muted;
+    background: v.$bg-muted;
+    border-bottom: 1px solid v.$border-color;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: v.$spacing-3 v.$spacing-4;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    border-bottom: 1px solid v.$border-color;
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: v.$bg-muted;
+  }
+}
+
+.attempt-num {
+  font-weight: v.$font-weight-bold;
+  color: v.$primary;
+}
+
+.student-id {
+  &__text {
+    font-family: monospace;
+    font-size: v.$font-size-xs;
+    color: v.$text-secondary;
+  }
+}
+
+.score {
+  &__value {
+    font-weight: v.$font-weight-semibold;
+  }
+
+  &__pending {
+    color: v.$text-placeholder;
+  }
+}
+
+.date {
+  white-space: nowrap;
+  color: v.$text-secondary;
+  font-size: v.$font-size-xs;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

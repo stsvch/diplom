@@ -84,6 +84,128 @@
                   }
                 </div>
               }
+              @case ('Quiz') {
+                <div class="lesson-block lesson-block--quiz">
+                  @if (block.testData) {
+                    <div class="quiz-block">
+                      <div class="quiz-block__header">
+                        <lucide-icon [img]="ClipboardListIcon" [size]="24" class="quiz-block__icon" />
+                        <div class="quiz-block__info">
+                          <h3 class="quiz-block__title">{{ block.testData.title }}</h3>
+                          @if (block.testData.description) {
+                            <p class="quiz-block__desc">{{ block.testData.description }}</p>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="quiz-block__stats">
+                        <div class="quiz-stat">
+                          <span class="quiz-stat__label">Вопросов:</span>
+                          <span class="quiz-stat__value">{{ block.testData.questionsCount }}</span>
+                        </div>
+                        <div class="quiz-stat">
+                          <span class="quiz-stat__label">Макс. баллов:</span>
+                          <span class="quiz-stat__value">{{ block.testData.maxScore }}</span>
+                        </div>
+                        @if (block.testData.timeLimitMinutes) {
+                          <div class="quiz-stat">
+                            <lucide-icon [img]="ClockIcon" [size]="14" />
+                            <span class="quiz-stat__value">{{ block.testData.timeLimitMinutes }} мин</span>
+                          </div>
+                        }
+                        @if (block.testData.maxAttempts) {
+                          <div class="quiz-stat">
+                            <lucide-icon [img]="RefreshIcon" [size]="14" />
+                            <span class="quiz-stat__value">{{ block.testAttempts?.length ?? 0 }} / {{ block.testData.maxAttempts }} попыток</span>
+                          </div>
+                        }
+                      </div>
+
+                      @if (getLastAttempt(block); as lastAttempt) {
+                        <div class="quiz-block__last-result">
+                          <lucide-icon [img]="ChartIcon" [size]="16" />
+                          <span>Последний результат: <strong>{{ lastAttempt.score ?? '—' }} / {{ lastAttempt.maxScore }}</strong></span>
+                          <app-button variant="outline" size="sm" (click)="viewTestResult(block.testId!, lastAttempt.id)">
+                            Посмотреть результат
+                          </app-button>
+                        </div>
+                      }
+
+                      <div class="quiz-block__actions">
+                        @if (!block.testData.maxAttempts || (block.testAttempts?.length ?? 0) < block.testData.maxAttempts) {
+                          <app-button variant="primary" size="md" (click)="startTest(block.testId!)">
+                            <lucide-icon [img]="PlayIcon" [size]="16" />
+                            {{ getLastAttempt(block) ? 'Пройти снова' : 'Начать тест' }}
+                          </app-button>
+                        } @else {
+                          <app-badge variant="neutral" size="md">Попытки исчерпаны</app-badge>
+                        }
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="quiz-block quiz-block--empty">
+                      <lucide-icon [img]="ClipboardListIcon" [size]="32" />
+                      <p>Тест недоступен</p>
+                    </div>
+                  }
+                </div>
+              }
+              @case ('Assignment') {
+                <div class="lesson-block lesson-block--assignment">
+                  @if (block.assignmentData) {
+                    <div class="assignment-block">
+                      <div class="assignment-block__header">
+                        <lucide-icon [img]="FileEditIcon" [size]="24" class="assignment-block__icon" />
+                        <div class="assignment-block__info">
+                          <h3 class="assignment-block__title">{{ block.assignmentData.title }}</h3>
+                        </div>
+                      </div>
+
+                      <div class="assignment-block__stats">
+                        <div class="assignment-stat">
+                          <lucide-icon [img]="StarIcon" [size]="14" />
+                          <span>Макс. балл: <strong>{{ block.assignmentData.maxScore }}</strong></span>
+                        </div>
+                        @if (block.assignmentData.deadline) {
+                          <div class="assignment-stat" [class.assignment-stat--danger]="isDeadlinePassed(block.assignmentData.deadline)">
+                            <lucide-icon [img]="ClockIcon" [size]="14" />
+                            <span>Дедлайн: <strong>{{ formatDate(block.assignmentData.deadline) }}</strong></span>
+                          </div>
+                        }
+                        @if (block.assignmentData.maxAttempts) {
+                          <div class="assignment-stat">
+                            <lucide-icon [img]="RefreshIcon" [size]="14" />
+                            <span>{{ block.mySubmissions?.length ?? 0 }} / {{ block.assignmentData.maxAttempts }} попыток</span>
+                          </div>
+                        }
+                      </div>
+
+                      @if (getLastSubmission(block); as lastSub) {
+                        <div class="assignment-block__last-result">
+                          <lucide-icon [img]="ChartIcon" [size]="16" />
+                          @if (lastSub.score !== null && lastSub.score !== undefined) {
+                            <span>Последняя оценка: <strong>{{ lastSub.score }} / {{ lastSub.maxScore }}</strong></span>
+                          } @else {
+                            <span>Последняя попытка: <strong>на проверке</strong></span>
+                          }
+                        </div>
+                      }
+
+                      <div class="assignment-block__actions">
+                        <app-button variant="primary" size="md" (click)="navigateToAssignment(block.assignmentId!)">
+                          <lucide-icon [img]="SendIcon" [size]="16" />
+                          Перейти к заданию
+                        </app-button>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="assignment-block assignment-block--empty">
+                      <lucide-icon [img]="FileEditIcon" [size]="32" />
+                      <p>Задание недоступно</p>
+                    </div>
+                  }
+                </div>
+              }
               @default {
                 <div class="lesson-block lesson-block--text">
                   @if (block.textContent) {

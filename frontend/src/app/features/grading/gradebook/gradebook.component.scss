@@ -1,0 +1,382 @@
+@use '../../../../styles/variables' as v;
+
+.gradebook {
+  padding: v.$spacing-6;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: v.$spacing-6;
+    gap: v.$spacing-4;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: v.$spacing-1 0 0;
+  }
+
+  &__header-right {
+    display: flex;
+    gap: v.$spacing-3;
+    align-items: center;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+
+    @media (max-width: v.$breakpoint-lg) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__filters {
+    margin-bottom: v.$spacing-4;
+    overflow-x: auto;
+    padding-bottom: v.$spacing-2;
+  }
+
+  &__search {
+    margin-bottom: v.$spacing-4;
+    max-width: 360px;
+  }
+
+  &__loading {
+    padding: v.$spacing-6 0;
+  }
+
+  &__table-wrapper {
+    overflow-x: auto;
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    box-shadow: v.$shadow-sm;
+    border: 1px solid v.$border-color;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: v.$spacing-4;
+    flex-wrap: wrap;
+    gap: v.$spacing-3;
+  }
+
+  &__note {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    font-style: italic;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+    gap: v.$spacing-3;
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    border: 1px solid v.$border-color;
+
+    p {
+      font-size: v.$font-size-base;
+    }
+  }
+
+  &__empty-icon {
+    opacity: 0.4;
+  }
+}
+
+// Export dropdown
+.export-menu {
+  position: relative;
+
+  &__dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: v.$bg-card;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-md;
+    box-shadow: v.$shadow-md;
+    min-width: 220px;
+    z-index: v.$z-dropdown;
+    overflow: hidden;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    width: 100%;
+    padding: v.$spacing-3 v.$spacing-4;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    transition: background v.$transition-fast;
+
+    &:hover {
+      background: v.$bg-muted;
+    }
+  }
+}
+
+// Course pills
+.course-pills {
+  display: flex;
+  gap: v.$spacing-2;
+  flex-wrap: wrap;
+}
+
+.course-pill {
+  padding: v.$spacing-2 v.$spacing-4;
+  border-radius: v.$radius-full;
+  border: 1px solid v.$border-color;
+  background: v.$bg-card;
+  color: v.$text-secondary;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+
+  &--active {
+    background: v.$primary;
+    border-color: v.$primary;
+    color: #fff;
+  }
+}
+
+// Table
+.gradebook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: v.$font-size-sm;
+
+  &__th {
+    padding: v.$spacing-3 v.$spacing-4;
+    text-align: left;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-secondary;
+    background: v.$bg-muted;
+    border-bottom: 1px solid v.$border-color;
+    white-space: nowrap;
+
+    &--name {
+      min-width: 200px;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+    }
+
+    &--avg {
+      background: #EEF2FF;
+      color: v.$primary;
+      font-weight: v.$font-weight-bold;
+    }
+  }
+
+  &__td {
+    padding: v.$spacing-3 v.$spacing-4;
+    border-bottom: 1px solid v.$border-color;
+    text-align: left;
+    vertical-align: middle;
+
+    &--name {
+      position: sticky;
+      left: 0;
+      background: v.$bg-card;
+      z-index: 1;
+    }
+
+    &--avg {
+      background: #F8F9FF;
+    }
+  }
+
+  &__row {
+    transition: background v.$transition-fast;
+
+    &:hover .gradebook-table__td {
+      background: v.$bg-muted;
+    }
+
+    &:hover .gradebook-table__td--name {
+      background: v.$bg-muted;
+    }
+
+    &--avg {
+      background: v.$bg-muted;
+
+      .gradebook-table__td {
+        background: v.$bg-muted !important;
+        font-weight: v.$font-weight-semibold;
+      }
+    }
+  }
+}
+
+.col-header {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-1;
+  min-width: 100px;
+  max-width: 160px;
+}
+
+// Score badges
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px v.$spacing-2;
+  border-radius: v.$radius-sm;
+  font-size: v.$font-size-xs;
+  font-weight: v.$font-weight-medium;
+  min-width: 52px;
+
+  &--empty {
+    color: v.$text-placeholder;
+  }
+
+  &.score--green {
+    background: #DCFCE7;
+    color: #166534;
+  }
+
+  &.score--yellow {
+    background: #FEF3C7;
+    color: #92400E;
+  }
+
+  &.score--orange {
+    background: #FFEDD5;
+    color: #9A3412;
+  }
+
+  &.score--red {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
+}
+
+.avg-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px v.$spacing-2;
+  border-radius: v.$radius-sm;
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-bold;
+  min-width: 56px;
+
+  &.score--green { background: #DCFCE7; color: #166534; }
+  &.score--yellow { background: #FEF3C7; color: #92400E; }
+  &.score--orange { background: #FFEDD5; color: #9A3412; }
+  &.score--red { background: #FEE2E2; color: #991B1B; }
+}
+
+// Student cell
+.student-cell {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-3;
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: v.$radius-full;
+    background: v.$primary-light;
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-bold;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-weight: v.$font-weight-medium;
+    color: v.$text-foreground;
+  }
+
+  &__id {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+  }
+}
+
+// Score legend
+.score-legend {
+  display: flex;
+  gap: v.$spacing-4;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  font-size: v.$font-size-xs;
+  color: v.$text-secondary;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: v.$radius-full;
+  flex-shrink: 0;
+
+  &--green { background: #10B981; }
+  &--yellow { background: #F59E0B; }
+  &--orange { background: #F97316; }
+  &--red { background: #EF4444; }
+}
+
+// Skeleton
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+}
+
+.skeleton-row {
+  height: 48px;
+  background: v.$bg-muted;
+  border-radius: v.$radius-sm;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

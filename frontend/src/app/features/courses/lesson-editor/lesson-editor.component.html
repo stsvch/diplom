@@ -50,6 +50,8 @@
                 @case ('Text') { <lucide-icon [img]="TypeIcon" [size]="12" /> }
                 @case ('Video') { <lucide-icon [img]="VideoIcon" [size]="12" /> }
                 @case ('File') { <lucide-icon [img]="PaperclipIcon" [size]="12" /> }
+                @case ('Quiz') { <lucide-icon [img]="ClipboardListIcon" [size]="12" /> }
+                @case ('Assignment') { <lucide-icon [img]="FileEditIcon" [size]="12" /> }
               }
               {{ getBlockTypeLabel(block.type) }}
             </app-badge>
@@ -182,6 +184,54 @@
                   }
                 </div>
               }
+
+              @case ('Quiz') {
+                <div class="block-quiz">
+                  @if (block.testId) {
+                    <div class="block-quiz__info">
+                      <lucide-icon [img]="ClipboardListIcon" [size]="20" />
+                      <span>Тест привязан (ID: {{ block.testId }})</span>
+                    </div>
+                    <app-button variant="outline" size="sm" (click)="navigateToTestEditor(block)">
+                      <lucide-icon [img]="ExternalLinkIcon" [size]="14" />
+                      Редактировать тест
+                    </app-button>
+                  } @else {
+                    <div class="block-quiz__empty">
+                      <lucide-icon [img]="ClipboardListIcon" [size]="32" />
+                      <p>Тест не создан</p>
+                    </div>
+                    <app-button variant="primary" size="sm" (click)="navigateToTestEditor(block)">
+                      <lucide-icon [img]="PlusIcon" [size]="14" />
+                      Создать тест
+                    </app-button>
+                  }
+                </div>
+              }
+
+              @case ('Assignment') {
+                <div class="block-quiz">
+                  @if (block.assignmentId) {
+                    <div class="block-quiz__info">
+                      <lucide-icon [img]="FileEditIcon" [size]="20" />
+                      <span>Задание привязано (ID: {{ block.assignmentId }})</span>
+                    </div>
+                    <app-button variant="outline" size="sm" (click)="navigateToAssignmentEditor(block)">
+                      <lucide-icon [img]="ExternalLinkIcon" [size]="14" />
+                      Редактировать задание
+                    </app-button>
+                  } @else {
+                    <div class="block-quiz__empty">
+                      <lucide-icon [img]="FileEditIcon" [size]="32" />
+                      <p>Задание не создано</p>
+                    </div>
+                    <app-button variant="primary" size="sm" (click)="navigateToAssignmentEditor(block)">
+                      <lucide-icon [img]="PlusIcon" [size]="14" />
+                      Создать задание
+                    </app-button>
+                  }
+                </div>
+              }
             }
           </div>
         </div>
@@ -213,6 +263,14 @@
               <button type="button" class="add-menu__item" (click)="addBlock('File')">
                 <lucide-icon [img]="PaperclipIcon" [size]="16" />
                 <span>Файл</span>
+              </button>
+              <button type="button" class="add-menu__item" (click)="addBlock('Quiz')">
+                <lucide-icon [img]="ClipboardListIcon" [size]="16" />
+                <span>Тест</span>
+              </button>
+              <button type="button" class="add-menu__item" (click)="addBlock('Assignment')">
+                <lucide-icon [img]="FileEditIcon" [size]="16" />
+                <span>Задание</span>
               </button>
             </div>
           }

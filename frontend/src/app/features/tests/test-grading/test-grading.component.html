@@ -1,0 +1,89 @@
+<div class="test-grading">
+  <!-- Header -->
+  <div class="test-grading__header">
+    <a [routerLink]="backUrl" class="test-grading__back">
+      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+      Назад к попыткам
+    </a>
+    <h1 class="test-grading__title">Проверка ответов</h1>
+    <app-button variant="primary" size="md" [loading]="saving()" (click)="saveGrades()">
+      <lucide-icon [img]="SaveIcon" [size]="16" />
+      Сохранить оценки
+    </app-button>
+  </div>
+
+  @if (loading()) {
+    <div class="test-grading__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка...</p>
+    </div>
+  } @else if (attempt(); as a) {
+    <!-- Attempt info -->
+    <div class="attempt-info">
+      <div class="attempt-info__row">
+        <lucide-icon [img]="UserIcon" [size]="16" />
+        <span>Студент: <strong>{{ a.studentId }}</strong></span>
+      </div>
+      <div class="attempt-info__row">
+        <span>Попытка №{{ a.attemptNumber }}</span>
+        <app-badge variant="warning" size="sm">На проверке</app-badge>
+      </div>
+    </div>
+
+    @if (gradeEntries().length === 0) {
+      <div class="no-open-answers">
+        <p>Нет вопросов с открытым ответом для проверки.</p>
+      </div>
+    } @else {
+      <div class="grade-list">
+        @for (entry of gradeEntries(); track entry.responseId) {
+          <div class="grade-card">
+            <div class="grade-card__question">
+              <h3 class="grade-card__question-text">{{ entry.questionText }}</h3>
+              <span class="grade-card__max-points">Макс. {{ entry.maxPoints }} б.</span>
+            </div>
+
+            <div class="grade-card__answer">
+              <p class="grade-card__answer-label">Ответ студента:</p>
+              <div class="grade-card__answer-text">{{ entry.studentAnswer || 'Нет ответа' }}</div>
+            </div>
+
+            <div class="grade-card__grading">
+              <div class="grade-field">
+                <label class="grade-field__label">Баллы (0 – {{ entry.maxPoints }})</label>
+                <input
+                  type="number"
+                  class="grade-input"
+                  [value]="entry.points"
+                  (input)="updatePoints(entry.responseId, +$any($event.target).value)"
+                  [min]="0"
+                  [max]="entry.maxPoints"
+                />
+              </div>
+              <div class="grade-field grade-field--full">
+                <label class="grade-field__label">
+                  <lucide-icon [img]="MessageIcon" [size]="14" />
+                  Комментарий (необязательно)
+                </label>
+                <textarea
+                  class="grade-textarea"
+                  [value]="entry.comment"
+                  (input)="updateComment(entry.responseId, $any($event.target).value)"
+                  placeholder="Добавьте комментарий к ответу..."
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="grade-actions">
+        <app-button variant="primary" size="lg" [loading]="saving()" (click)="saveGrades()">
+          <lucide-icon [img]="SaveIcon" [size]="16" />
+          Сохранить и завершить проверку
+        </app-button>
+      </div>
+    }
+  }
+</div>

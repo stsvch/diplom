@@ -1,0 +1,244 @@
+<div class="student-schedule">
+  <div class="student-schedule__header">
+    <div>
+      <h1 class="student-schedule__title">Расписание занятий</h1>
+      <p class="student-schedule__subtitle">Запишитесь на занятие с преподавателем</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="student-schedule__tabs">
+    <button
+      class="student-schedule__tab"
+      [class.student-schedule__tab--active]="activeTab() === 'available'"
+      (click)="setTab('available')"
+    >
+      Доступные занятия
+      @if (filteredSlots().length > 0) {
+        <span class="student-schedule__tab-count">{{ filteredSlots().length }}</span>
+      }
+    </button>
+    <button
+      class="student-schedule__tab"
+      [class.student-schedule__tab--active]="activeTab() === 'myBookings'"
+      (click)="setTab('myBookings')"
+    >
+      Мои записи
+      @if (upcomingBookings().length > 0) {
+        <span class="student-schedule__tab-count">{{ upcomingBookings().length }}</span>
+      }
+    </button>
+  </div>
+
+  @if (activeTab() === 'available') {
+    <!-- Search/filter -->
+    <div class="student-schedule__search">
+      <div class="search-wrap">
+        <lucide-icon [img]="SearchIcon" [size]="16" class="search-wrap__icon" />
+        <input
+          class="search-wrap__input"
+          type="text"
+          placeholder="Поиск по названию, преподавателю, курсу..."
+          [value]="courseFilter()"
+          (input)="courseFilter.set($any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    @if (loadingAvailable()) {
+      <div class="student-schedule__loading">
+        <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+        <p>Загрузка занятий...</p>
+      </div>
+    } @else if (filteredSlots().length === 0) {
+      <div class="student-schedule__empty">
+        <lucide-icon [img]="CalendarIcon" [size]="56" class="student-schedule__empty-icon" />
+        <h3>Нет доступных занятий</h3>
+        <p>Попробуйте изменить фильтр или зайдите позже</p>
+      </div>
+    } @else {
+      <div class="student-schedule__grid">
+        @for (slot of filteredSlots(); track slot.id) {
+          <div class="slot-card">
+            <div class="slot-card__header">
+              <div class="slot-card__icon-wrap" [class.slot-card__icon-wrap--group]="slot.isGroupSession">
+                <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="20" />
+              </div>
+              <div class="slot-card__title-wrap">
+                <span class="slot-card__type">{{ slot.isGroupSession ? 'Групповое' : 'Индивидуальное' }}</span>
+                <h3 class="slot-card__title">{{ slot.title }}</h3>
+              </div>
+            </div>
+
+            <p class="slot-card__teacher">
+              <lucide-icon [img]="UserIcon" [size]="14" />
+              {{ slot.teacherName }}
+            </p>
+
+            @if (slot.courseName) {
+              <p class="slot-card__course">
+                <lucide-icon [img]="BookOpenIcon" [size]="14" />
+                {{ slot.courseName }}
+              </p>
+            }
+
+            <div class="slot-card__meta">
+              <div class="slot-card__meta-item">
+                <lucide-icon [img]="CalendarIcon" [size]="14" />
+                {{ formatDate(slot.startTime) }}
+              </div>
+              <div class="slot-card__meta-item">
+                <lucide-icon [img]="ClockIcon" [size]="14" />
+                {{ formatTime(slot.startTime) }} — {{ formatTime(slot.endTime) }}
+              </div>
+              @if (slot.isGroupSession) {
+                <div class="slot-card__meta-item" [class.slot-card__meta-item--warn]="getSpotsLeft(slot) <= 2">
+                  <lucide-icon [img]="UsersIcon" [size]="14" />
+                  Свободных мест: {{ getSpotsLeft(slot) }} / {{ slot.maxStudents }}
+                </div>
+              }
+            </div>
+
+            @if (slot.description) {
+              <p class="slot-card__description">{{ slot.description }}</p>
+            }
+
+            <div class="slot-card__footer">
+              <app-button
+                variant="primary"
+                size="sm"
+                [loading]="booking() === slot.id"
+                (click)="bookSlot(slot)"
+              >
+                Записаться
+              </app-button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  @if (activeTab() === 'myBookings') {
+    @if (loadingBookings()) {
+      <div class="student-schedule__loading">
+        <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+        <p>Загрузка записей...</p>
+      </div>
+    } @else if (myBookings().length === 0) {
+      <div class="student-schedule__empty">
+        <lucide-icon [img]="BookmarkCheckIcon" [size]="56" class="student-schedule__empty-icon" />
+        <h3>Нет активных записей</h3>
+        <p>Перейдите на вкладку «Доступные занятия», чтобы записаться</p>
+        <app-button variant="primary" (click)="setTab('available')">Найти занятие</app-button>
+      </div>
+    } @else {
+      <!-- Upcoming bookings -->
+      @if (upcomingBookings().length > 0) {
+        <div class="student-schedule__section">
+          <h2 class="student-schedule__section-title">Предстоящие</h2>
+          <div class="student-schedule__grid">
+            @for (slot of upcomingBookings(); track slot.id) {
+              <div class="booking-card booking-card--upcoming">
+                <div class="booking-card__header">
+                  <div class="booking-card__icon-wrap" [class.booking-card__icon-wrap--group]="slot.isGroupSession">
+                    <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="20" />
+                  </div>
+                  <div class="booking-card__title-wrap">
+                    <span class="booking-card__type">{{ slot.isGroupSession ? 'Групповое' : 'Индивидуальное' }}</span>
+                    <h3 class="booking-card__title">{{ slot.title }}</h3>
+                  </div>
+                  <app-badge variant="primary">Предстоит</app-badge>
+                </div>
+
+                <p class="booking-card__teacher">
+                  <lucide-icon [img]="UserIcon" [size]="14" />
+                  {{ slot.teacherName }}
+                </p>
+
+                @if (slot.courseName) {
+                  <p class="booking-card__course">
+                    <lucide-icon [img]="BookOpenIcon" [size]="14" />
+                    {{ slot.courseName }}
+                  </p>
+                }
+
+                <div class="booking-card__meta">
+                  <div class="booking-card__meta-item">
+                    <lucide-icon [img]="CalendarIcon" [size]="14" />
+                    {{ formatDate(slot.startTime) }}
+                  </div>
+                  <div class="booking-card__meta-item">
+                    <lucide-icon [img]="ClockIcon" [size]="14" />
+                    {{ formatTime(slot.startTime) }} — {{ formatTime(slot.endTime) }}
+                  </div>
+                </div>
+
+                @if (slot.meetingLink) {
+                  <a [href]="slot.meetingLink" target="_blank" class="booking-card__link">
+                    Открыть видеозвонок
+                  </a>
+                }
+
+                <div class="booking-card__actions">
+                  <app-button
+                    variant="danger"
+                    size="sm"
+                    [loading]="cancelling() === slot.id"
+                    (click)="cancelBooking(slot)"
+                  >
+                    <lucide-icon [img]="XIcon" [size]="14" />
+                    Отменить запись
+                  </app-button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Past bookings -->
+      @if (pastBookings().length > 0) {
+        <div class="student-schedule__section">
+          <h2 class="student-schedule__section-title">История</h2>
+          <div class="student-schedule__grid">
+            @for (slot of pastBookings(); track slot.id) {
+              <div class="booking-card booking-card--past">
+                <div class="booking-card__header">
+                  <div class="booking-card__icon-wrap booking-card__icon-wrap--muted">
+                    <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="20" />
+                  </div>
+                  <div class="booking-card__title-wrap">
+                    <span class="booking-card__type">{{ slot.isGroupSession ? 'Групповое' : 'Индивидуальное' }}</span>
+                    <h3 class="booking-card__title">{{ slot.title }}</h3>
+                  </div>
+                  @if (slot.status === SlotStatus.Completed) {
+                    <app-badge variant="success">Завершено</app-badge>
+                  } @else {
+                    <app-badge variant="danger">Отменено</app-badge>
+                  }
+                </div>
+
+                <p class="booking-card__teacher">
+                  <lucide-icon [img]="UserIcon" [size]="14" />
+                  {{ slot.teacherName }}
+                </p>
+
+                <div class="booking-card__meta">
+                  <div class="booking-card__meta-item">
+                    <lucide-icon [img]="CalendarIcon" [size]="14" />
+                    {{ formatDate(slot.startTime) }}
+                  </div>
+                  <div class="booking-card__meta-item">
+                    <lucide-icon [img]="ClockIcon" [size]="14" />
+                    {{ formatTime(slot.startTime) }} — {{ formatTime(slot.endTime) }}
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</div>

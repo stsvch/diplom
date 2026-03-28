@@ -1,0 +1,188 @@
+<div class="gradebook">
+  <!-- Header -->
+  <div class="gradebook__header">
+    <div class="gradebook__header-left">
+      <h1 class="gradebook__title">Журнал оценок</h1>
+      <p class="gradebook__subtitle">Просмотр и экспорт успеваемости студентов</p>
+    </div>
+    <div class="gradebook__header-right">
+      <div class="export-menu">
+        <app-button variant="primary" (click)="toggleExportMenu()">
+          <lucide-icon [img]="DownloadIcon" [size]="16" />
+          Экспорт
+          <lucide-icon [img]="ChevronDownIcon" [size]="14" />
+        </app-button>
+        @if (exportMenuOpen()) {
+          <div class="export-menu__dropdown">
+            <button class="export-menu__item" (click)="exportExcel()">
+              <lucide-icon [img]="FileSpreadsheetIcon" [size]="16" />
+              Экспорт в Excel (.xlsx)
+            </button>
+            <button class="export-menu__item" (click)="exportPdf()">
+              <lucide-icon [img]="FilePdfIcon" [size]="16" />
+              Экспорт в PDF
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="gradebook__stats">
+    <app-stats-card
+      title="Студентов"
+      [value]="stats()?.studentCount ?? 0"
+      [iconName]="UsersIcon"
+      iconBg="#EEF2FF"
+      iconColor="#4F46E5"
+    />
+    <app-stats-card
+      title="Средний балл"
+      [value]="stats() ? (stats()!.averageScore.toFixed(1) + '/100') : '—'"
+      [iconName]="ChartIcon"
+      iconBg="#DCFCE7"
+      iconColor="#10B981"
+    />
+    <app-stats-card
+      title="Сдано работ"
+      [value]="stats()?.totalSubmissions ?? 0"
+      [iconName]="ClipboardIcon"
+      iconBg="#FEF3C7"
+      iconColor="#F59E0B"
+    />
+    <app-stats-card
+      title="Успевающих"
+      [value]="stats()?.passingCount ?? 0"
+      [iconName]="CheckIcon"
+      iconBg="#DCFCE7"
+      iconColor="#10B981"
+    />
+  </div>
+
+  <!-- Course Filter Pills -->
+  @if (courses().length > 0) {
+    <div class="gradebook__filters">
+      <div class="course-pills">
+        @for (course of courses(); track course.id) {
+          <button
+            class="course-pill"
+            [class.course-pill--active]="selectedCourseId() === course.id"
+            (click)="selectCourse(course.id)"
+          >
+            {{ course.title }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Search -->
+  <div class="gradebook__search">
+    <app-search-input
+      placeholder="Поиск студента..."
+      [value]="searchQuery()"
+      (valueChange)="searchQuery.set($event)"
+    />
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="gradebook__loading">
+      <div class="skeleton-table">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton-row"></div>
+        }
+      </div>
+    </div>
+  } @else if (gradebook() && filteredStudents().length > 0) {
+    <div class="gradebook__table-wrapper">
+      <table class="gradebook-table">
+        <thead>
+          <tr>
+            <th class="gradebook-table__th gradebook-table__th--name">Студент</th>
+            @for (col of getUniqueTitlesWithTypes(); track col.title) {
+              <th class="gradebook-table__th">
+                <div class="col-header">
+                  <span>{{ col.title }}</span>
+                  <app-badge
+                    [variant]="getSourceTypeVariant(col.type)"
+                    size="sm"
+                  >{{ getSourceTypeLabel(col.type) }}</app-badge>
+                </div>
+              </th>
+            }
+            <th class="gradebook-table__th gradebook-table__th--avg">Средний</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of filteredStudents(); track student.studentId) {
+            <tr class="gradebook-table__row">
+              <td class="gradebook-table__td gradebook-table__td--name">
+                <div class="student-cell">
+                  <div class="student-cell__avatar">
+                    {{ student.studentName.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="student-cell__name">{{ student.studentName }}</div>
+                    <div class="student-cell__id">ID: {{ student.studentId.substring(0, 8) }}…</div>
+                  </div>
+                </div>
+              </td>
+              @for (col of getUniqueTitlesWithTypes(); track col.title) {
+                <td class="gradebook-table__td">
+                  @if (getGrade(student, col.title); as grade) {
+                    <span class="score-badge" [class]="getScoreClass(grade.score, grade.maxScore)">
+                      {{ grade.score }}/{{ grade.maxScore }}
+                    </span>
+                  } @else {
+                    <span class="score-badge score-badge--empty">—</span>
+                  }
+                </td>
+              }
+              <td class="gradebook-table__td gradebook-table__td--avg">
+                <span class="avg-badge" [class]="getScoreClass(student.averageScore, 100)">
+                  {{ student.averageScore.toFixed(1) }}%
+                </span>
+              </td>
+            </tr>
+          }
+          <!-- Average row -->
+          <tr class="gradebook-table__row gradebook-table__row--avg">
+            <td class="gradebook-table__td gradebook-table__td--name">
+              <strong>Средний балл</strong>
+            </td>
+            @for (avg of columnAverages(); track $index) {
+              <td class="gradebook-table__td">
+                <span class="score-badge" [class]="getScoreClass(avg, 100)">
+                  {{ avg }}%
+                </span>
+              </td>
+            }
+            <td class="gradebook-table__td gradebook-table__td--avg">
+              <span class="avg-badge" [class]="getScoreClass(stats()?.averageScore ?? 0, 100)">
+                {{ (stats()?.averageScore ?? 0).toFixed(1) }}%
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer note + legend -->
+    <div class="gradebook__footer">
+      <p class="gradebook__note">Нажмите на оценку, чтобы отредактировать её</p>
+      <div class="score-legend">
+        <span class="legend-item"><span class="legend-dot legend-dot--green"></span>90%+ (Отлично)</span>
+        <span class="legend-item"><span class="legend-dot legend-dot--yellow"></span>75–89% (Хорошо)</span>
+        <span class="legend-item"><span class="legend-dot legend-dot--orange"></span>60–74% (Удовл.)</span>
+        <span class="legend-item"><span class="legend-dot legend-dot--red"></span>&lt;60% (Неудовл.)</span>
+      </div>
+    </div>
+  } @else if (!loading()) {
+    <div class="gradebook__empty">
+      <lucide-icon [img]="ClipboardIcon" [size]="48" class="gradebook__empty-icon" />
+      <p>Нет данных об оценках для выбранного курса</p>
+    </div>
+  }
+</div>

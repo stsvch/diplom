@@ -1,0 +1,27 @@
+using Messaging.Application.Interfaces;
+using Messaging.Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+
+namespace Messaging.Infrastructure.Configuration;
+
+public static class MessagingModuleRegistration
+{
+    public static IServiceCollection AddMessagingModule(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("MongoDB")
+            ?? "mongodb://localhost:27017";
+
+        services.AddSingleton<IMongoClient>(_ => new MongoClient(connectionString));
+        services.AddSingleton<IMongoDatabase>(sp =>
+        {
+            var client = sp.GetRequiredService<IMongoClient>();
+            return client.GetDatabase("eduplatform");
+        });
+
+        services.AddScoped<IMessagingRepository, MongoMessagingRepository>();
+
+        return services;
+    }
+}

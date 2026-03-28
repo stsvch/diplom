@@ -1,0 +1,179 @@
+<div class="assignment-submit">
+
+  <a [routerLink]="backUrl" class="assignment-submit__back">
+    <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+    Назад к курсам
+  </a>
+
+  @if (loading()) {
+    <div class="assignment-submit__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка задания...</p>
+    </div>
+  } @else if (!assignment()) {
+    <div class="assignment-submit__loading">
+      <lucide-icon [img]="AlertCircleIcon" [size]="32" />
+      <p>Задание не найдено</p>
+    </div>
+  } @else {
+    <!-- Assignment info card -->
+    <div class="assignment-card">
+      <div class="assignment-card__header">
+        <lucide-icon [img]="ClipboardListIcon" [size]="24" class="assignment-card__icon" />
+        <div class="assignment-card__title-area">
+          <h1 class="assignment-card__title">{{ assignment()!.title }}</h1>
+        </div>
+      </div>
+
+      <div class="assignment-card__description">
+        @if (assignment()!.description) {
+          <app-rich-text-viewer [content]="assignment()!.description" />
+        }
+      </div>
+
+      @if (assignment()!.criteria) {
+        <div class="assignment-card__criteria">
+          <h3 class="assignment-card__section-title">Критерии оценивания</h3>
+          <p class="assignment-card__criteria-text">{{ assignment()!.criteria }}</p>
+        </div>
+      }
+
+      <div class="assignment-card__meta">
+        <div class="meta-item">
+          <lucide-icon [img]="StarIcon" [size]="16" />
+          <span>Макс. балл: <strong>{{ assignment()!.maxScore }}</strong></span>
+        </div>
+
+        @if (assignment()!.deadline) {
+          <div class="meta-item" [class.meta-item--danger]="isDeadlinePassed()">
+            <lucide-icon [img]="ClockIcon" [size]="16" />
+            <span>Дедлайн: <strong>{{ formatDate(assignment()!.deadline!) }}</strong></span>
+            @if (isDeadlinePassed()) {
+              <app-badge variant="danger" size="sm">Просрочено</app-badge>
+            }
+          </div>
+        }
+
+        @if (assignment()!.maxAttempts) {
+          <div class="meta-item" [class.meta-item--danger]="(attemptsRemaining() ?? 1) <= 0">
+            <lucide-icon [img]="RefreshIcon" [size]="16" />
+            <span>Попытки: <strong>{{ attemptsUsed() }} / {{ assignment()!.maxAttempts }}</strong></span>
+            @if ((attemptsRemaining() ?? 1) <= 0) {
+              <app-badge variant="danger" size="sm">Исчерпаны</app-badge>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Previous submissions -->
+    @if (mySubmissions().length > 0) {
+      <div class="submissions-section">
+        <h2 class="submissions-section__title">Мои попытки</h2>
+        <div class="submissions-list">
+          @for (sub of mySubmissions(); track sub.id) {
+            <div class="submission-item">
+              <div class="submission-item__header">
+                <span class="submission-item__attempt">Попытка {{ sub.attemptNumber }}</span>
+                <app-badge [variant]="getStatusVariant(sub.status)" size="sm">
+                  {{ getStatusLabel(sub.status) }}
+                </app-badge>
+                <span class="submission-item__date">{{ formatDate(sub.submittedAt) }}</span>
+              </div>
+
+              @if (sub.score !== null && sub.score !== undefined) {
+                <div class="submission-item__score">
+                  <lucide-icon [img]="StarIcon" [size]="14" />
+                  Оценка: <strong>{{ sub.score }} / {{ sub.maxScore }}</strong>
+                </div>
+              }
+
+              @if (sub.teacherComment) {
+                <div class="submission-item__comment">
+                  <lucide-icon [img]="MessageIcon" [size]="14" />
+                  <span>{{ sub.teacherComment }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Submit form -->
+    @if (canSubmit()) {
+      <div class="submit-form">
+        <h2 class="submit-form__title">
+          @if (mySubmissions().length > 0) {
+            Отправить повторную попытку
+          } @else {
+            Отправить задание
+          }
+        </h2>
+
+        <!-- Text answer -->
+        <div class="submit-form__group">
+          <label class="submit-form__label">Ответ / работа (текст)</label>
+          <textarea
+            class="submit-form__textarea"
+            [(ngModel)]="content"
+            placeholder="Введите ваш ответ или описание выполненной работы..."
+            rows="8"
+          ></textarea>
+        </div>
+
+        <!-- File attachments -->
+        <div class="submit-form__group">
+          <label class="submit-form__label">Прикрепить файлы</label>
+          <app-file-uploader
+            accept="*/*"
+            [multiple]="true"
+            [entityType]="'Submission'"
+            [entityId]="assignmentId"
+            (fileUploaded)="onFileUploaded($event)"
+          />
+
+          @if (uploadedFiles().length > 0) {
+            <div class="submit-form__files">
+              @for (file of uploadedFiles(); track file.id) {
+                <app-file-card
+                  [attachment]="file"
+                  [deletable]="true"
+                  (deleted)="deleteFile($event)"
+                />
+              }
+            </div>
+          }
+        </div>
+
+        <div class="submit-form__actions">
+          <app-button
+            variant="primary"
+            size="lg"
+            [loading]="submitting()"
+            (click)="submit()"
+          >
+            <lucide-icon [img]="SendIcon" [size]="18" />
+            Отправить задание
+          </app-button>
+        </div>
+      </div>
+    } @else {
+      <div class="submit-form submit-form--disabled">
+        @if (isDeadlinePassed()) {
+          <div class="submit-blocked">
+            <lucide-icon [img]="ClockIcon" [size]="32" class="submit-blocked__icon submit-blocked__icon--danger" />
+            <h3>Дедлайн истёк</h3>
+            <p>Срок сдачи задания прошёл. Отправка недоступна.</p>
+          </div>
+        } @else {
+          <div class="submit-blocked">
+            <lucide-icon [img]="XCircleIcon" [size]="32" class="submit-blocked__icon submit-blocked__icon--danger" />
+            <h3>Попытки исчерпаны</h3>
+            <p>Вы использовали все доступные попытки для этого задания.</p>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

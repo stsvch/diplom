@@ -1,0 +1,389 @@
+<div class="test-editor">
+  <!-- Header -->
+  <div class="test-editor__header">
+    <a [routerLink]="backUrl" class="test-editor__back">
+      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
+      Назад
+    </a>
+    <div class="test-editor__title-wrap">
+      <h1 class="test-editor__title">
+        {{ isNew() ? 'Новый тест' : (title() || 'Редактор теста') }}
+      </h1>
+    </div>
+    <app-button variant="primary" size="md" [loading]="saving()" (click)="saveTest()">
+      <lucide-icon [img]="SaveIcon" [size]="16" />
+      Сохранить
+    </app-button>
+  </div>
+
+  @if (loading()) {
+    <div class="test-editor__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
+      <p>Загрузка...</p>
+    </div>
+  } @else {
+    <div class="test-editor__body">
+
+      <!-- Settings Card (collapsible) -->
+      <div class="settings-card">
+        <button type="button" class="settings-card__toggle" (click)="toggleSettings()">
+          <div class="settings-card__toggle-left">
+            <lucide-icon [img]="SettingsIcon" [size]="18" />
+            <span>Настройки теста</span>
+          </div>
+          @if (settingsCollapsed()) {
+            <lucide-icon [img]="ChevronDownIcon" [size]="18" />
+          } @else {
+            <lucide-icon [img]="ChevronUpIcon" [size]="18" />
+          }
+        </button>
+
+        @if (!settingsCollapsed()) {
+          <div class="settings-card__body">
+            <div class="settings-grid">
+              <div class="form-field form-field--full">
+                <label class="form-label">Название теста *</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  [value]="title()"
+                  (input)="title.set($any($event.target).value)"
+                  placeholder="Введите название теста"
+                />
+              </div>
+
+              <div class="form-field form-field--full">
+                <label class="form-label">Описание</label>
+                <textarea
+                  class="form-textarea"
+                  [value]="description()"
+                  (input)="description.set($any($event.target).value)"
+                  placeholder="Описание теста (необязательно)"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Ограничение по времени (мин)</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  [value]="timeLimitMinutes() ?? ''"
+                  (input)="timeLimitMinutes.set($any($event.target).value ? +$any($event.target).value : null)"
+                  placeholder="Без ограничения"
+                  min="1"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Макс. попыток</label>
+                <input
+                  type="number"
+                  class="form-input"
+                  [value]="maxAttempts() ?? ''"
+                  (input)="maxAttempts.set($any($event.target).value ? +$any($event.target).value : null)"
+                  placeholder="Неограниченно"
+                  min="1"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label">Дедлайн</label>
+                <input
+                  type="datetime-local"
+                  class="form-input"
+                  [value]="deadline()"
+                  (input)="deadline.set($any($event.target).value)"
+                />
+              </div>
+
+              <div class="form-field form-field--full">
+                <div class="toggles-row">
+                  <label class="toggle-label">
+                    <div class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        [checked]="shuffleQuestions()"
+                        (change)="shuffleQuestions.set($any($event.target).checked)"
+                      />
+                      <span class="toggle-slider"></span>
+                    </div>
+                    Перемешивать вопросы
+                  </label>
+                  <label class="toggle-label">
+                    <div class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        [checked]="shuffleAnswers()"
+                        (change)="shuffleAnswers.set($any($event.target).checked)"
+                      />
+                      <span class="toggle-slider"></span>
+                    </div>
+                    Перемешивать ответы
+                  </label>
+                  <label class="toggle-label">
+                    <div class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        [checked]="showCorrectAnswers()"
+                        (change)="showCorrectAnswers.set($any($event.target).checked)"
+                      />
+                      <span class="toggle-slider"></span>
+                    </div>
+                    Показывать правильные ответы после теста
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Questions -->
+      @if (!isNew()) {
+        <div class="questions-section">
+          <h2 class="questions-section__title">Вопросы</h2>
+
+          @if (questions().length === 0) {
+            <div class="questions-empty">
+              <lucide-icon [img]="HelpCircleIcon" [size]="40" />
+              <p>Вопросы ещё не добавлены</p>
+            </div>
+          }
+
+          @for (q of questions(); track q.id; let i = $index) {
+            <div class="question-card">
+              <!-- Question header -->
+              <div class="question-card__header">
+                <div class="question-card__header-left">
+                  <span class="question-card__num">{{ i + 1 }}</span>
+                  <app-badge [variant]="getQuestionTypeBadgeVariant(q.type)" size="sm">
+                    {{ getQuestionTypeLabel(q.type) }}
+                  </app-badge>
+                  <span class="question-card__points-info">{{ q.points }} б.</span>
+                </div>
+                <div class="question-card__controls">
+                  <button
+                    type="button"
+                    class="ctrl-btn"
+                    (click)="moveQuestion(i, 'up')"
+                    [disabled]="i === 0"
+                    title="Вверх"
+                  >
+                    <lucide-icon [img]="ArrowUpIcon" [size]="15" />
+                  </button>
+                  <button
+                    type="button"
+                    class="ctrl-btn"
+                    (click)="moveQuestion(i, 'down')"
+                    [disabled]="i === questions().length - 1"
+                    title="Вниз"
+                  >
+                    <lucide-icon [img]="ArrowDownIcon" [size]="15" />
+                  </button>
+                  <button
+                    type="button"
+                    class="ctrl-btn ctrl-btn--danger"
+                    (click)="deleteQuestion(q.id)"
+                    title="Удалить"
+                  >
+                    <lucide-icon [img]="TrashIcon" [size]="15" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Question body -->
+              <div class="question-card__body">
+                <div class="question-row">
+                  <div class="form-field form-field--flex">
+                    <label class="form-label">Текст вопроса</label>
+                    <textarea
+                      class="form-textarea"
+                      [value]="q.text"
+                      (input)="updateQuestionText(q.id, $any($event.target).value)"
+                      placeholder="Введите текст вопроса..."
+                      rows="2"
+                    ></textarea>
+                  </div>
+                  <div class="form-field form-field--points">
+                    <label class="form-label">Баллы</label>
+                    <input
+                      type="number"
+                      class="form-input"
+                      [value]="q.points"
+                      (input)="updateQuestionPoints(q.id, +$any($event.target).value || 1)"
+                      min="1"
+                    />
+                  </div>
+                </div>
+
+                <!-- Answer options by type -->
+                @switch (q.type) {
+                  @case ('SingleChoice') {
+                    <div class="options-list">
+                      <p class="options-label">Варианты ответа (выберите правильный)</p>
+                      @for (opt of q.answerOptions; track opt._localId) {
+                        <div class="option-row">
+                          <input
+                            type="radio"
+                            [checked]="opt.isCorrect"
+                            (change)="setSingleCorrect(q, opt._localId)"
+                            class="option-radio"
+                            title="Правильный ответ"
+                          />
+                          <input
+                            type="text"
+                            class="form-input option-input"
+                            [value]="opt.text"
+                            (input)="updateOptionText(q, opt._localId, $any($event.target).value)"
+                            placeholder="Вариант ответа"
+                          />
+                          <button
+                            type="button"
+                            class="ctrl-btn ctrl-btn--danger"
+                            (click)="removeOption(q, opt._localId)"
+                            [disabled]="q.answerOptions.length <= 2"
+                          >
+                            <lucide-icon [img]="TrashIcon" [size]="14" />
+                          </button>
+                        </div>
+                      }
+                      <button type="button" class="add-option-btn" (click)="addOption(q)">
+                        <lucide-icon [img]="PlusIcon" [size]="14" /> Добавить вариант
+                      </button>
+                    </div>
+                  }
+                  @case ('MultipleChoice') {
+                    <div class="options-list">
+                      <p class="options-label">Варианты ответа (отметьте все правильные)</p>
+                      @for (opt of q.answerOptions; track opt._localId) {
+                        <div class="option-row">
+                          <input
+                            type="checkbox"
+                            [checked]="opt.isCorrect"
+                            (change)="toggleMultiCorrect(q, opt._localId)"
+                            class="option-checkbox"
+                            title="Правильный ответ"
+                          />
+                          <input
+                            type="text"
+                            class="form-input option-input"
+                            [value]="opt.text"
+                            (input)="updateOptionText(q, opt._localId, $any($event.target).value)"
+                            placeholder="Вариант ответа"
+                          />
+                          <button
+                            type="button"
+                            class="ctrl-btn ctrl-btn--danger"
+                            (click)="removeOption(q, opt._localId)"
+                            [disabled]="q.answerOptions.length <= 2"
+                          >
+                            <lucide-icon [img]="TrashIcon" [size]="14" />
+                          </button>
+                        </div>
+                      }
+                      <button type="button" class="add-option-btn" (click)="addOption(q)">
+                        <lucide-icon [img]="PlusIcon" [size]="14" /> Добавить вариант
+                      </button>
+                    </div>
+                  }
+                  @case ('TextInput') {
+                    <div class="options-list">
+                      <p class="options-label">Правильный ответ</p>
+                      @if (q.answerOptions.length > 0) {
+                        <input
+                          type="text"
+                          class="form-input"
+                          [value]="q.answerOptions[0].text"
+                          (input)="updateOptionText(q, q.answerOptions[0]._localId, $any($event.target).value)"
+                          placeholder="Введите правильный ответ"
+                        />
+                      }
+                    </div>
+                  }
+                  @case ('Matching') {
+                    <div class="options-list">
+                      <p class="options-label">Пары для соответствия</p>
+                      <div class="matching-header">
+                        <span>Левая часть</span>
+                        <span>Правая часть</span>
+                        <span></span>
+                      </div>
+                      @for (opt of q.answerOptions; track opt._localId) {
+                        <div class="matching-row">
+                          <input
+                            type="text"
+                            class="form-input"
+                            [value]="opt.text"
+                            (input)="updateOptionText(q, opt._localId, $any($event.target).value)"
+                            placeholder="Левая часть"
+                          />
+                          <input
+                            type="text"
+                            class="form-input"
+                            [value]="opt.matchingPairValue ?? ''"
+                            (input)="updateMatchingPairValue(q, opt._localId, $any($event.target).value)"
+                            placeholder="Правая часть"
+                          />
+                          <button
+                            type="button"
+                            class="ctrl-btn ctrl-btn--danger"
+                            (click)="removeOption(q, opt._localId)"
+                            [disabled]="q.answerOptions.length <= 2"
+                          >
+                            <lucide-icon [img]="TrashIcon" [size]="14" />
+                          </button>
+                        </div>
+                      }
+                      <button type="button" class="add-option-btn" (click)="addMatchingOption(q)">
+                        <lucide-icon [img]="PlusIcon" [size]="14" /> Добавить пару
+                      </button>
+                    </div>
+                  }
+                  @case ('OpenAnswer') {
+                    <div class="open-answer-note">
+                      <lucide-icon [img]="AlignLeftIcon" [size]="16" />
+                      Проверяется вручную преподавателем
+                    </div>
+                  }
+                }
+
+                <div class="question-card__save-row">
+                  <app-button variant="outline" size="sm" (click)="saveQuestion(q)">
+                    <lucide-icon [img]="SaveIcon" [size]="14" />
+                    Сохранить вопрос
+                  </app-button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Add question -->
+          <div class="add-question-wrap">
+            <div class="add-menu-host">
+              <app-button variant="outline" size="md" (click)="toggleAddMenu()">
+                <lucide-icon [img]="PlusIcon" [size]="16" />
+                Добавить вопрос
+                <lucide-icon [img]="ChevronDownIcon" [size]="14" />
+              </app-button>
+
+              @if (showAddMenu()) {
+                <div class="add-menu">
+                  @for (type of questionTypes; track type) {
+                    <button type="button" class="add-menu__item" (click)="addQuestion(type)">
+                      {{ questionTypeLabels[type] }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="new-test-hint">
+          <p>Сохраните тест, чтобы начать добавлять вопросы.</p>
+        </div>
+      }
+    </div>
+  }
+</div>

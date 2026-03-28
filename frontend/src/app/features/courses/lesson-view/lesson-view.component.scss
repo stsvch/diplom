@@ -239,6 +239,196 @@
   }
 }
 
+// Quiz block
+.lesson-block--quiz {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+}
+
+.quiz-block {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+
+  &--empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-8;
+    color: v.$text-muted;
+    text-align: center;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-3;
+  }
+
+  &__icon {
+    color: v.$primary;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-1;
+  }
+
+  &__desc {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$spacing-4;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: v.$bg-muted;
+    border-radius: v.$radius-md;
+  }
+
+  &__last-result {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: v.$primary-light;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-sm;
+    color: v.$primary;
+    flex-wrap: wrap;
+
+    lucide-icon { flex-shrink: 0; }
+    span { flex: 1; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-3;
+  }
+}
+
+.quiz-stat {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  font-size: v.$font-size-sm;
+
+  &__label {
+    color: v.$text-muted;
+  }
+
+  &__value {
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+  }
+
+  lucide-icon { color: v.$text-muted; }
+}
+
+// Assignment block
+.lesson-block--assignment {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+}
+
+.assignment-block {
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+
+  &--empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-8;
+    color: v.$text-muted;
+    text-align: center;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: v.$spacing-3;
+  }
+
+  &__icon {
+    color: v.$primary;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__info { flex: 1; }
+
+  &__title {
+    font-size: v.$font-size-lg;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.$spacing-4;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: v.$bg-muted;
+    border-radius: v.$radius-md;
+  }
+
+  &__last-result {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-3 v.$spacing-4;
+    background: v.$primary-light;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-sm;
+    color: v.$primary;
+    flex-wrap: wrap;
+
+    lucide-icon { flex-shrink: 0; }
+    span { flex: 1; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-3;
+  }
+}
+
+.assignment-stat {
+  display: flex;
+  align-items: center;
+  gap: v.$spacing-1;
+  font-size: v.$font-size-sm;
+  color: v.$text-secondary;
+
+  lucide-icon { color: v.$text-muted; }
+
+  &--danger {
+    color: v.$danger;
+    lucide-icon { color: v.$danger; }
+  }
+}
+
 // Navigation
 .lesson-nav {
   display: flex;

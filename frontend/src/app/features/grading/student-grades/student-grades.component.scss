@@ -1,0 +1,232 @@
+@use '../../../../styles/variables' as v;
+
+.student-grades {
+  padding: v.$spacing-6;
+
+  &__header {
+    margin-bottom: v.$spacing-6;
+  }
+
+  &__title {
+    font-size: v.$font-size-2xl;
+    font-weight: v.$font-weight-bold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: v.$font-size-sm;
+    color: v.$text-muted;
+    margin: v.$spacing-1 0 0;
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: v.$spacing-4;
+    margin-bottom: v.$spacing-6;
+
+    @media (max-width: v.$breakpoint-lg) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-4;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: v.$spacing-12;
+    color: v.$text-muted;
+    gap: v.$spacing-3;
+    background: v.$bg-card;
+    border-radius: v.$radius-lg;
+    border: 1px solid v.$border-color;
+
+    p {
+      font-size: v.$font-size-base;
+    }
+  }
+
+  &__empty-icon {
+    opacity: 0.3;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-4;
+  }
+}
+
+.skeleton-card {
+  height: 200px;
+  background: v.$bg-muted;
+  border-radius: v.$radius-lg;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.grades-group {
+  background: v.$bg-card;
+  border-radius: v.$radius-lg;
+  border: 1px solid v.$border-color;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: v.$spacing-4 v.$spacing-5;
+    background: v.$bg-muted;
+    border-bottom: 1px solid v.$border-color;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+  }
+
+  &__icon {
+    color: v.$primary;
+  }
+
+  &__title {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+  }
+
+  &__count {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    background: v.$border-color;
+    padding: 2px v.$spacing-2;
+    border-radius: v.$radius-full;
+  }
+
+  &__avg {
+    display: flex;
+    align-items: center;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.avg-chip {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-medium;
+  padding: v.$spacing-1 v.$spacing-3;
+  border-radius: v.$radius-full;
+
+  &.score--green { background: #DCFCE7; color: #166534; }
+  &.score--yellow { background: #FEF3C7; color: #92400E; }
+  &.score--orange { background: #FFEDD5; color: #9A3412; }
+  &.score--red { background: #FEE2E2; color: #991B1B; }
+}
+
+.grade-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: v.$spacing-4 v.$spacing-5;
+  border-bottom: 1px solid v.$border-color;
+  transition: background v.$transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: v.$bg-muted;
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__type {
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-foreground;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__date {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    flex-shrink: 0;
+  }
+
+  &__comment {
+    cursor: default;
+    font-size: v.$font-size-base;
+    opacity: 0.7;
+  }
+
+  &__score {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+}
+
+.score-value {
+  font-size: v.$font-size-sm;
+  font-weight: v.$font-weight-bold;
+  padding: 2px v.$spacing-2;
+  border-radius: v.$radius-sm;
+
+  &.score--green { background: #DCFCE7; color: #166534; }
+  &.score--yellow { background: #FEF3C7; color: #92400E; }
+  &.score--orange { background: #FFEDD5; color: #9A3412; }
+  &.score--red { background: #FEE2E2; color: #991B1B; }
+}
+
+.score-pct {
+  font-size: v.$font-size-xs;
+  color: v.$text-muted;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

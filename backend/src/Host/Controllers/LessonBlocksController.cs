@@ -49,7 +49,7 @@ public class LessonBlocksController : ControllerBase
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLessonBlockRequest request, CancellationToken cancellationToken)
     {
-        var command = new UpdateLessonBlockCommand(id, request.TextContent, request.VideoUrl);
+        var command = new UpdateLessonBlockCommand(id, request.TextContent, request.VideoUrl, request.TestId, request.AssignmentId);
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "BLOCK_NOT_FOUND"));
@@ -83,4 +83,4 @@ public class LessonBlocksController : ControllerBase
     }
 }
 
-public record UpdateLessonBlockRequest(string? TextContent, string? VideoUrl);
+public record UpdateLessonBlockRequest(string? TextContent, string? VideoUrl, Guid? TestId, Guid? AssignmentId);

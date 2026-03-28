@@ -1,0 +1,144 @@
+<div class="test-result">
+  @if (loading()) {
+    <div class="test-result__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="40" class="spin" />
+      <p>Загрузка результатов...</p>
+    </div>
+  } @else if (attempt(); as a) {
+    <!-- Score card -->
+    <div class="score-card">
+      <div class="score-card__circle" [class.score-card__circle--passed]="isPassed()" [class.score-card__circle--failed]="!isPassed()">
+        <span class="score-card__number">{{ a.score ?? 0 }}</span>
+        <span class="score-card__max">/ {{ a.maxScore }}</span>
+      </div>
+
+      <div class="score-card__info">
+        <div class="score-card__percent">{{ scorePercent() }}%</div>
+        @if (isPassed()) {
+          <app-badge variant="success" size="md">
+            <lucide-icon [img]="CheckCircleIcon" [size]="14" />
+            Тест пройден
+          </app-badge>
+        } @else {
+          <app-badge variant="danger" size="md">
+            <lucide-icon [img]="XCircleIcon" [size]="14" />
+            Не пройден
+          </app-badge>
+        }
+        <div class="score-progress">
+          <app-progress-bar [value]="scorePercent()" [color]="isPassed() ? 'success' : 'primary'" [showLabel]="true" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <lucide-icon [img]="CheckCircleIcon" [size]="20" class="stat-card__icon stat-card__icon--success" />
+        <div>
+          <p class="stat-card__label">Правильных ответов</p>
+          <p class="stat-card__value">{{ correctCount() }} / {{ a.responses.length }}</p>
+        </div>
+      </div>
+      @if (timeTaken()) {
+        <div class="stat-card">
+          <lucide-icon [img]="ClockIcon" [size]="20" class="stat-card__icon" />
+          <div>
+            <p class="stat-card__label">Время прохождения</p>
+            <p class="stat-card__value">{{ timeTaken() }}</p>
+          </div>
+        </div>
+      }
+      <div class="stat-card">
+        <lucide-icon [img]="RefreshIcon" [size]="20" class="stat-card__icon" />
+        <div>
+          <p class="stat-card__label">Попытка №</p>
+          <p class="stat-card__value">{{ a.attemptNumber }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question breakdown -->
+    @if (a.questions && a.questions.length > 0 && a.responses && a.responses.length > 0) {
+      <div class="breakdown">
+        <h2 class="breakdown__title">Разбор ответов</h2>
+
+        @for (response of a.responses; track response.id) {
+          @if (getQuestion(response.questionId); as q) {
+            <div class="breakdown-item" [class.breakdown-item--correct]="response.isCorrect" [class.breakdown-item--wrong]="response.isCorrect === false">
+              <div class="breakdown-item__header">
+                <span class="breakdown-item__question">{{ q.text }}</span>
+                <div class="breakdown-item__status">
+                  @if (response.isCorrect === true) {
+                    <app-badge variant="success" size="sm">
+                      <lucide-icon [img]="CheckCircleIcon" [size]="12" /> Верно
+                    </app-badge>
+                  } @else if (response.isCorrect === false) {
+                    <app-badge variant="danger" size="sm">
+                      <lucide-icon [img]="XCircleIcon" [size]="12" /> Неверно
+                    </app-badge>
+                  } @else {
+                    <app-badge variant="neutral" size="sm">На проверке</app-badge>
+                  }
+                  <span class="breakdown-item__points">
+                    {{ response.points ?? 0 }} / {{ q.points }} б.
+                  </span>
+                </div>
+              </div>
+
+              <div class="breakdown-item__body">
+                <!-- Student's answer -->
+                <div class="answer-row">
+                  <span class="answer-row__label">Ваш ответ:</span>
+                  <span class="answer-row__value" [class.answer-row__value--correct]="response.isCorrect === true" [class.answer-row__value--wrong]="response.isCorrect === false">
+                    @if (response.textAnswer) {
+                      {{ response.textAnswer }}
+                    } @else if (response.selectedOptionIds && response.selectedOptionIds.length > 0) {
+                      @for (optId of response.selectedOptionIds; track optId) {
+                        <span class="answer-tag">{{ getOptionText(q, optId) }}</span>
+                      }
+                    } @else {
+                      <em>Нет ответа</em>
+                    }
+                  </span>
+                </div>
+
+                <!-- Correct answer (if applicable) -->
+                @if (response.isCorrect === false && q.type !== 'OpenAnswer') {
+                  <div class="answer-row">
+                    <span class="answer-row__label">Правильный ответ:</span>
+                    <span class="answer-row__value answer-row__value--hint">
+                      {{ getCorrectOptions(q) }}
+                    </span>
+                  </div>
+                }
+
+                <!-- Teacher comment -->
+                @if (response.teacherComment) {
+                  <div class="teacher-comment">
+                    <lucide-icon [img]="MessageIcon" [size]="14" />
+                    <span>{{ response.teacherComment }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="result-actions">
+      @if (canRetry()) {
+        <app-button variant="primary" size="lg" (click)="retryTest()">
+          <lucide-icon [img]="RefreshIcon" [size]="16" />
+          Пройти снова
+        </app-button>
+      }
+      <app-button variant="outline" size="lg" (click)="backToLesson()">
+        <lucide-icon [img]="BookOpenIcon" [size]="16" />
+        Назад к курсам
+      </app-button>
+    </div>
+  }
+</div>

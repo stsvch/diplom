@@ -1,0 +1,103 @@
+<div class="student-grades">
+  <!-- Header -->
+  <div class="student-grades__header">
+    <h1 class="student-grades__title">Мои оценки</h1>
+    <p class="student-grades__subtitle">Все ваши оценки за тесты и задания</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="student-grades__stats">
+    <app-stats-card
+      title="Всего работ"
+      [value]="totalGrades()"
+      [iconName]="ClipboardIcon"
+      iconBg="#EEF2FF"
+      iconColor="#4F46E5"
+    />
+    <app-stats-card
+      title="Средний балл"
+      [value]="overallAverage().toFixed(1) + '%'"
+      [iconName]="ChartIcon"
+      iconBg="#DCFCE7"
+      iconColor="#10B981"
+    />
+    <app-stats-card
+      title="Зачтено"
+      [value]="passingCount()"
+      [iconName]="CheckIcon"
+      iconBg="#DCFCE7"
+      iconColor="#10B981"
+    />
+    <app-stats-card
+      title="Не зачтено"
+      [value]="totalGrades() - passingCount()"
+      [iconName]="AlertIcon"
+      iconBg="#FEE2E2"
+      iconColor="#EF4444"
+    />
+  </div>
+
+  <!-- Grades by course -->
+  @if (loading()) {
+    <div class="student-grades__loading">
+      @for (i of [1,2]; track i) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+  } @else if (groupedGrades().length === 0) {
+    <div class="student-grades__empty">
+      <lucide-icon [img]="StarIcon" [size]="48" class="student-grades__empty-icon" />
+      <p>У вас пока нет оценок</p>
+    </div>
+  } @else {
+    <div class="student-grades__list">
+      @for (group of groupedGrades(); track group.courseId) {
+        <div class="grades-group">
+          <div class="grades-group__header">
+            <div class="grades-group__header-left">
+              <lucide-icon [img]="BookIcon" [size]="18" class="grades-group__icon" />
+              <h3 class="grades-group__title">Курс</h3>
+              <span class="grades-group__count">{{ group.grades.length }} работ</span>
+            </div>
+            <div class="grades-group__avg">
+              <span class="avg-chip" [class]="getScoreClass(group.averageScore, 100)">
+                Средний: {{ group.averageScore.toFixed(1) }}%
+              </span>
+            </div>
+          </div>
+
+          <div class="grades-group__items">
+            @for (grade of group.grades; track grade.id) {
+              <div class="grade-item">
+                <div class="grade-item__left">
+                  <div class="grade-item__type">
+                    <app-badge [variant]="getSourceTypeVariant(grade.sourceType)" size="sm">
+                      {{ getSourceTypeLabel(grade.sourceType) }}
+                    </app-badge>
+                  </div>
+                  <div class="grade-item__info">
+                    <span class="grade-item__title">{{ grade.title }}</span>
+                    <span class="grade-item__date">{{ formatDate(grade.gradedAt) }}</span>
+                  </div>
+                </div>
+                <div class="grade-item__right">
+                  @if (grade.comment) {
+                    <span class="grade-item__comment" [title]="grade.comment">💬</span>
+                  }
+                  <div class="grade-item__score">
+                    <span class="score-value" [class]="getScoreClass(grade.score, grade.maxScore)">
+                      {{ grade.score }}/{{ grade.maxScore }}
+                    </span>
+                    <span class="score-pct" [class]="getScoreClass(grade.score, grade.maxScore)">
+                      {{ getPctLabel(grade.score, grade.maxScore) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

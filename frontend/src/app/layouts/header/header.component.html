@@ -38,37 +38,31 @@
             }
           </div>
           <div class="header__dropdown-body">
-            @for (notif of notifications(); track notif.id) {
-              <div class="header__notif" [class.header__notif--unread]="!notif.read">
-                <div class="header__notif-icon" [attr.data-type]="notif.type">
-                  @switch (notif.type) {
-                    @case ('success') {
-                      <lucide-icon [img]="icons.CheckCircle" [size]="16" />
-                    }
-                    @case ('warning') {
-                      <lucide-icon [img]="icons.AlertTriangle" [size]="16" />
-                    }
-                    @default {
-                      <lucide-icon [img]="icons.Info" [size]="16" />
-                    }
-                  }
+            @for (notif of recentNotifications(); track notif.id) {
+              <div class="header__notif" [class.header__notif--unread]="!notif.isRead">
+                <div class="header__notif-icon">
+                  <lucide-icon [img]="getNotificationIcon(notif.type)" [size]="16" />
                 </div>
                 <div class="header__notif-content">
                   <p class="header__notif-title">{{ notif.title }}</p>
                   <p class="header__notif-message">{{ notif.message }}</p>
-                  <span class="header__notif-time">{{ notif.time }}</span>
                 </div>
                 <button
                   class="header__notif-close"
-                  (click)="dismissNotification(notif.id)"
+                  (click)="dismissNotification(notif.id, $event)"
                 >
                   <lucide-icon [img]="icons.X" [size]="14" />
                 </button>
               </div>
             }
-            @if (notifications().length === 0) {
-              <div class="header__dropdown-empty">Нет уведомлений</div>
+            @if (recentNotifications().length === 0) {
+              <div class="header__dropdown-empty">Нет новых уведомлений</div>
             }
+          </div>
+          <div class="header__dropdown-footer">
+            <button class="header__dropdown-link" (click)="navigateToNotifications()">
+              Все уведомления
+            </button>
           </div>
         </div>
       }

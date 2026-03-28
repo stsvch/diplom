@@ -1,0 +1,195 @@
+<div class="test-player">
+  @if (loading()) {
+    <div class="test-player__loading">
+      <lucide-icon [img]="Loader2Icon" [size]="40" class="spin" />
+      <p>Загрузка теста...</p>
+    </div>
+  } @else {
+    <div class="test-player__layout">
+      <!-- Header bar -->
+      <div class="player-header">
+        <div class="player-header__progress-wrap">
+          <span class="player-header__progress-text">
+            Вопрос {{ currentIndex() + 1 }} из {{ questions().length }}
+          </span>
+          <app-progress-bar [value]="progress()" color="primary" />
+        </div>
+
+        @if (timeLimitMinutes()) {
+          <div class="player-timer" [class.player-timer--warning]="timerWarning()">
+            <lucide-icon [img]="ClockIcon" [size]="16" />
+            {{ formattedTimer() }}
+          </div>
+        }
+      </div>
+
+      <!-- Question -->
+      @if (currentQuestion(); as q) {
+        <div class="question-pane">
+          <p class="question-pane__points">{{ q.points }} {{ q.points === 1 ? 'балл' : 'балла' }}</p>
+          <h2 class="question-pane__text">{{ q.text }}</h2>
+
+          <div class="question-pane__answer">
+            @switch (q.type) {
+              @case ('SingleChoice') {
+                <div class="choice-list">
+                  @for (opt of q.answerOptions; track opt.id) {
+                    <button
+                      type="button"
+                      class="choice-card"
+                      [class.choice-card--selected]="isOptionSelected(q.id, opt.id)"
+                      (click)="setSingleAnswer(q.id, opt.id)"
+                    >
+                      <span class="choice-card__radio">
+                        @if (isOptionSelected(q.id, opt.id)) {
+                          <span class="choice-card__radio-dot"></span>
+                        }
+                      </span>
+                      <span class="choice-card__text">{{ opt.text }}</span>
+                    </button>
+                  }
+                </div>
+              }
+
+              @case ('MultipleChoice') {
+                <div class="choice-list">
+                  @for (opt of q.answerOptions; track opt.id) {
+                    <button
+                      type="button"
+                      class="choice-card"
+                      [class.choice-card--selected]="isOptionSelected(q.id, opt.id)"
+                      (click)="toggleMultiAnswer(q.id, opt.id)"
+                    >
+                      <span class="choice-card__checkbox">
+                        @if (isOptionSelected(q.id, opt.id)) {
+                          <lucide-icon [img]="CheckIcon" [size]="12" />
+                        }
+                      </span>
+                      <span class="choice-card__text">{{ opt.text }}</span>
+                    </button>
+                  }
+                </div>
+              }
+
+              @case ('TextInput') {
+                <input
+                  type="text"
+                  class="text-answer-input"
+                  [value]="getAnswer(q.id).textAnswer"
+                  (input)="setTextAnswer(q.id, $any($event.target).value)"
+                  placeholder="Введите ваш ответ..."
+                />
+              }
+
+              @case ('Matching') {
+                <div class="matching-list">
+                  <div class="matching-list__header">
+                    <span>Утверждение</span>
+                    <span>Соответствие</span>
+                  </div>
+                  @for (opt of q.answerOptions; track opt.id) {
+                    <div class="matching-pair">
+                      <span class="matching-pair__left">{{ opt.text }}</span>
+                      <select
+                        class="matching-select"
+                        [value]="getMatchingSelection(q.id, opt.id)"
+                        (change)="setMatchingAnswer(q.id, opt.id, $any($event.target).value)"
+                      >
+                        <option value="">— выберите —</option>
+                        @for (pair of q.answerOptions; track pair.id) {
+                          <option [value]="pair.matchingPairValue">
+                            {{ pair.matchingPairValue }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                  }
+                </div>
+              }
+
+              @case ('OpenAnswer') {
+                <textarea
+                  class="text-answer-textarea"
+                  [value]="getAnswer(q.id).textAnswer"
+                  (input)="setTextAnswer(q.id, $any($event.target).value)"
+                  placeholder="Введите развёрнутый ответ..."
+                  rows="6"
+                ></textarea>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Navigation buttons -->
+      <div class="player-nav">
+        <app-button
+          variant="outline"
+          size="md"
+          [disabled]="currentIndex() === 0"
+          (click)="prevQuestion()"
+        >
+          <lucide-icon [img]="ChevronLeftIcon" [size]="16" />
+          Назад
+        </app-button>
+
+        <div class="player-nav__right">
+          @if (currentIndex() < questions().length - 1) {
+            <app-button variant="primary" size="md" (click)="nextQuestion()">
+              Далее
+              <lucide-icon [img]="ChevronRightIcon" [size]="16" />
+            </app-button>
+          } @else {
+            <app-button variant="primary" size="md" (click)="openConfirmDialog()">
+              Завершить тест
+            </app-button>
+          }
+        </div>
+      </div>
+
+      <!-- Question navigator -->
+      <div class="question-navigator">
+        @for (q of questions(); track q.id; let i = $index) {
+          <button
+            type="button"
+            class="nav-circle"
+            [class.nav-circle--current]="i === currentIndex()"
+            [class.nav-circle--answered]="isAnswered(q.id)"
+            (click)="goToQuestion(i)"
+            [title]="'Вопрос ' + (i + 1)"
+          >
+            {{ i + 1 }}
+          </button>
+        }
+      </div>
+
+      <div class="player-answered-hint">
+        Отвечено: {{ answeredCount() }} / {{ questions().length }}
+      </div>
+    </div>
+  }
+
+  <!-- Confirm submit dialog -->
+  @if (showConfirmDialog()) {
+    <div class="dialog-backdrop" (click)="closeConfirmDialog()">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog__icon">
+          <lucide-icon [img]="AlertIcon" [size]="32" />
+        </div>
+        <h3 class="dialog__title">Завершить тест?</h3>
+        <p class="dialog__body">
+          Вы ответили на {{ answeredCount() }} из {{ questions().length }} вопросов.
+          После отправки изменить ответы будет невозможно.
+        </p>
+        <div class="dialog__actions">
+          <app-button variant="outline" size="md" (click)="closeConfirmDialog()">
+            Отмена
+          </app-button>
+          <app-button variant="primary" size="md" [loading]="submitting()" (click)="doSubmit()">
+            Отправить тест
+          </app-button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

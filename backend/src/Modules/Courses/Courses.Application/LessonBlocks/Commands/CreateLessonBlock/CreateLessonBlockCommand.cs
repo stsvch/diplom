@@ -9,5 +9,7 @@ public record CreateLessonBlockCommand(
     Guid LessonId,
     LessonBlockType Type,
     string? TextContent,
-    string? VideoUrl
+    string? VideoUrl,
+    Guid? TestId = null,
+    Guid? AssignmentId = null
 ) : IRequest<Result<LessonBlockDto>>;

@@ -1,0 +1,447 @@
+@use '../../../../styles/variables' as v;
+
+.grading-page {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - v.$header-height);
+  overflow: hidden;
+
+  @media (max-width: v.$breakpoint-lg) {
+    grid-template-columns: 280px 1fr;
+  }
+
+  @media (max-width: v.$breakpoint-md) {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  // ── Left panel ──────────────────────────────────────────────────────────
+
+  &__left {
+    border-right: 1px solid v.$border-color;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: v.$bg-card;
+  }
+
+  &__left-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$spacing-2;
+    padding: v.$spacing-4 v.$spacing-4 v.$spacing-3;
+    border-bottom: 1px solid v.$border-color;
+    flex-shrink: 0;
+  }
+
+  &__panel-title {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0;
+
+    lucide-icon { color: v.$primary; }
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 v.$spacing-2;
+    background: v.$primary-light;
+    color: v.$primary;
+    border-radius: v.$radius-full;
+    font-size: v.$font-size-xs;
+    font-weight: v.$font-weight-bold;
+  }
+
+  &__loading,
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-10 v.$spacing-4;
+    color: v.$text-muted;
+    font-size: v.$font-size-sm;
+    text-align: center;
+  }
+
+  &__empty-icon {
+    color: v.$success;
+    opacity: 0.6;
+  }
+
+  // ── Right panel ─────────────────────────────────────────────────────────
+
+  &__right {
+    overflow-y: auto;
+    background: v.$bg-page;
+  }
+
+  &__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: v.$spacing-3;
+    height: 100%;
+    min-height: 300px;
+    color: v.$text-muted;
+    text-align: center;
+    padding: v.$spacing-8;
+
+    h3 {
+      font-size: v.$font-size-lg;
+      font-weight: v.$font-weight-semibold;
+      color: v.$text-secondary;
+      margin: 0;
+    }
+    p { font-size: v.$font-size-sm; margin: 0; }
+  }
+
+  &__placeholder-icon {
+    color: v.$text-placeholder;
+    opacity: 0.5;
+  }
+}
+
+// Filter tabs
+.filter-tabs {
+  display: flex;
+  padding: v.$spacing-3 v.$spacing-4;
+  gap: v.$spacing-1;
+  border-bottom: 1px solid v.$border-color;
+  flex-shrink: 0;
+
+  &__btn {
+    flex: 1;
+    padding: v.$spacing-2 v.$spacing-2;
+    font-size: v.$font-size-xs;
+    font-weight: v.$font-weight-medium;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-sm;
+    background: v.$bg-muted;
+    color: v.$text-muted;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+    white-space: nowrap;
+
+    &--active {
+      background: v.$primary;
+      color: v.$primary-foreground;
+      border-color: v.$primary;
+    }
+
+    &:not(&--active):hover {
+      background: v.$border-color;
+      color: v.$text-secondary;
+    }
+  }
+}
+
+// Submission list
+.submission-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: v.$spacing-3;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+}
+
+.submission-card {
+  width: 100%;
+  text-align: left;
+  padding: v.$spacing-3;
+  background: v.$bg-muted;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  cursor: pointer;
+  transition: all v.$transition-fast;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-2;
+
+  &:hover {
+    border-color: v.$primary;
+    background: v.$primary-light;
+  }
+
+  &--selected {
+    border-color: v.$primary;
+    background: v.$primary-light;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.15);
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: v.$spacing-2;
+  }
+
+  &__student {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+  }
+
+  &__avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: v.$radius-full;
+    background: v.$primary-light;
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__student-id {
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-foreground;
+  }
+
+  &__assignment {
+    font-size: v.$font-size-xs;
+    color: v.$text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__time,
+  &__score {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+  }
+
+  &__score {
+    color: v.$success-dark;
+    lucide-icon { color: v.$warning; }
+  }
+}
+
+// Review panel
+.review-panel {
+  padding: v.$spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-5;
+  max-width: 760px;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: v.$spacing-4;
+    flex-wrap: wrap;
+    background: v.$bg-card;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-lg;
+    padding: v.$spacing-4;
+  }
+
+  &__student-info {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-full;
+    background: v.$primary-light;
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__student-id {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+  }
+
+  &__meta {
+    font-size: v.$font-size-xs;
+    color: v.$text-muted;
+    margin-top: 2px;
+  }
+
+  &__work {
+    background: v.$bg-card;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-lg;
+    padding: v.$spacing-4;
+  }
+
+  &__section-title {
+    font-size: v.$font-size-base;
+    font-weight: v.$font-weight-semibold;
+    color: v.$text-foreground;
+    margin: 0 0 v.$spacing-4;
+  }
+
+  &__content {
+    line-height: 1.6;
+  }
+
+  &__no-content {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-3;
+    padding: v.$spacing-4;
+    background: v.$bg-muted;
+    border-radius: v.$radius-md;
+    color: v.$text-muted;
+    font-size: v.$font-size-sm;
+
+    lucide-icon { color: v.$warning; }
+  }
+}
+
+// Grading form
+.grading-form {
+  background: v.$bg-card;
+  border: 1px solid v.$border-color;
+  border-radius: v.$radius-lg;
+  padding: v.$spacing-5;
+  display: flex;
+  flex-direction: column;
+  gap: v.$spacing-4;
+
+  &__score-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: v.$spacing-4;
+    align-items: start;
+
+    @media (max-width: v.$breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__score-field {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-1;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-secondary;
+    lucide-icon { color: v.$text-muted; }
+  }
+
+  &__input {
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-input;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-base;
+    color: v.$text-foreground;
+    background: v.$bg-input;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color v.$transition-fast;
+
+    &:focus {
+      outline: none;
+      border-color: v.$primary;
+    }
+  }
+
+  &__quick-scores {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__quick-btns {
+    display: flex;
+    gap: v.$spacing-2;
+    flex-wrap: wrap;
+  }
+
+  &__quick-btn {
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-color;
+    border-radius: v.$radius-sm;
+    background: v.$bg-muted;
+    font-size: v.$font-size-sm;
+    font-weight: v.$font-weight-medium;
+    color: v.$text-secondary;
+    cursor: pointer;
+    transition: all v.$transition-fast;
+
+    &:hover {
+      background: v.$primary;
+      color: v.$primary-foreground;
+      border-color: v.$primary;
+    }
+  }
+
+  &__comment-field {
+    display: flex;
+    flex-direction: column;
+    gap: v.$spacing-2;
+  }
+
+  &__textarea {
+    padding: v.$spacing-2 v.$spacing-3;
+    border: 1px solid v.$border-input;
+    border-radius: v.$radius-md;
+    font-size: v.$font-size-sm;
+    color: v.$text-foreground;
+    background: v.$bg-input;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.6;
+    transition: border-color v.$transition-fast;
+
+    &:focus {
+      outline: none;
+      border-color: v.$primary;
+    }
+
+    &::placeholder { color: v.$text-placeholder; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: v.$spacing-3;
+    flex-wrap: wrap;
+  }
+}
+
+.spin {
+  color: v.$primary;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

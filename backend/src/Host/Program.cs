@@ -1,5 +1,7 @@
 using Auth.Infrastructure.Configuration;
 using Auth.Infrastructure.Persistence;
+using Calendar.Infrastructure.Configuration;
+using Calendar.Infrastructure.Persistence;
 using Content.Infrastructure.Configuration;
 using Content.Infrastructure.Persistence;
 using Courses.Infrastructure.Configuration;
@@ -7,9 +9,27 @@ using Courses.Infrastructure.Persistence;
 using EduPlatform.Host.Middleware;
 using EduPlatform.Shared.Application.Behaviors;
 using FluentValidation;
+using Grading.Infrastructure.Configuration;
+using Grading.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Notifications.Infrastructure.Configuration;
+using Notifications.Infrastructure.Hubs;
+using Notifications.Infrastructure.Persistence;
+using Progress.Infrastructure.Configuration;
+using Progress.Infrastructure.Persistence;
+using QuestPDF.Infrastructure;
 using Serilog;
+using Tests.Infrastructure.Configuration;
+using Tests.Infrastructure.Persistence;
+using Assignments.Infrastructure.Configuration;
+using Assignments.Infrastructure.Persistence;
+using Messaging.Infrastructure.Configuration;
+using Messaging.Infrastructure.Hubs;
+using Scheduling.Infrastructure.Configuration;
+using Scheduling.Infrastructure.Persistence;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +56,31 @@ builder.Services.AddCoursesModule(builder.Configuration);
 
 // Content Module
 builder.Services.AddContentModule(builder.Configuration);
+
+// Tests Module
+builder.Services.AddTestsModule(builder.Configuration);
+
+// Assignments Module
+builder.Services.AddAssignmentsModule(builder.Configuration);
+
+// Grading Module
+builder.Services.AddGradingModule(builder.Configuration);
+
+// Progress Module
+builder.Services.AddProgressModule(builder.Configuration);
+
+// Notifications Module
+builder.Services.AddNotificationsModule(builder.Configuration);
+builder.Services.AddSignalR();
+
+// Calendar Module
+builder.Services.AddCalendarModule(builder.Configuration);
+
+// Messaging Module
+builder.Services.AddMessagingModule(builder.Configuration);
+
+// Scheduling Module
+builder.Services.AddSchedulingModule(builder.Configuration);
 
 // Shared MediatR pipeline behavior (validation)
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -66,6 +111,27 @@ using (var scope = app.Services.CreateScope())
 
     var contentDb = scope.ServiceProvider.GetRequiredService<ContentDbContext>();
     await contentDb.Database.MigrateAsync();
+
+    var testsDb = scope.ServiceProvider.GetRequiredService<TestsDbContext>();
+    await testsDb.Database.MigrateAsync();
+
+    var assignmentsDb = scope.ServiceProvider.GetRequiredService<AssignmentsDbContext>();
+    await assignmentsDb.Database.MigrateAsync();
+
+    var gradingDb = scope.ServiceProvider.GetRequiredService<GradingDbContext>();
+    await gradingDb.Database.MigrateAsync();
+
+    var progressDb = scope.ServiceProvider.GetRequiredService<ProgressDbContext>();
+    await progressDb.Database.MigrateAsync();
+
+    var notificationsDb = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+    await notificationsDb.Database.MigrateAsync();
+
+    var calendarDb = scope.ServiceProvider.GetRequiredService<CalendarDbContext>();
+    await calendarDb.Database.MigrateAsync();
+
+    var schedulingDb = scope.ServiceProvider.GetRequiredService<SchedulingDbContext>();
+    await schedulingDb.Database.MigrateAsync();
 }
 
 // Middleware
@@ -82,5 +148,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

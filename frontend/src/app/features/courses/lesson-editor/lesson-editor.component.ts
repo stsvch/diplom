@@ -5,7 +5,7 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import {
@@ -21,6 +21,9 @@ import {
   Save,
   Loader2,
   ChevronDown,
+  ClipboardList,
+  ExternalLink,
+  FileEdit,
 } from 'lucide-angular';
 import { CoursesService } from '../services/courses.service';
 import { FileService } from '../../../core/services/file.service';
@@ -61,6 +64,7 @@ interface BlockWithFiles extends LessonBlockDto {
 })
 export class LessonEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly coursesService = inject(CoursesService);
   private readonly fileService = inject(FileService);
   private readonly toastService = inject(ToastService);
@@ -76,6 +80,9 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
   readonly SaveIcon = Save;
   readonly Loader2Icon = Loader2;
   readonly ChevronDownIcon = ChevronDown;
+  readonly ClipboardListIcon = ClipboardList;
+  readonly ExternalLinkIcon = ExternalLink;
+  readonly FileEditIcon = FileEdit;
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -148,7 +155,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  addBlock(type: 'Text' | 'Video' | 'File'): void {
+  addBlock(type: 'Text' | 'Video' | 'File' | 'Quiz' | 'Assignment'): void {
     this.showAddMenu.set(false);
     const currentBlocks = this.blocks();
     const orderIndex = currentBlocks.length;
@@ -256,6 +263,8 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
         orderIndex: block.orderIndex,
         textContent: block.textContent,
         videoUrl: block.videoUrl,
+        testId: block.testId,
+        assignmentId: block.assignmentId,
       })
       .subscribe({
         error: (err: ApiError) => {
@@ -280,6 +289,8 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
           orderIndex: block.orderIndex,
           textContent: block.textContent,
           videoUrl: block.videoUrl,
+          testId: block.testId,
+          assignmentId: block.assignmentId,
         })
         .subscribe({
           next: () => {
@@ -315,20 +326,53 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
     );
   }
 
+  navigateToTestEditor(block: BlockWithFiles): void {
+    if (block.testId) {
+      this.router.navigate(['/teacher/test', block.testId, 'edit']);
+    } else {
+      // Create new test, then link it to this block
+      this.router.navigate(['/teacher/test/new'], {
+        queryParams: { blockId: block.id },
+      });
+    }
+  }
+
+  navigateToAssignmentEditor(block: BlockWithFiles): void {
+    if (block.assignmentId) {
+      this.router.navigate(['/teacher/assignment', block.assignmentId, 'edit'], {
+        queryParams: { blockId: block.id },
+      });
+    } else {
+      this.router.navigate(['/teacher/assignment/new'], {
+        queryParams: { blockId: block.id },
+      });
+    }
+  }
+
+  onAssignmentLinked(blockId: string, assignmentId: string): void {
+    this.updateBlock(blockId, { assignmentId });
+    const block = this.blocks().find((b) => b.id === blockId);
+    if (block) this.saveBlock({ ...block, assignmentId });
+  }
+
   getBlockTypeLabel(type: string): string {
     switch (type) {
       case 'Text': return 'Текст';
       case 'Video': return 'Видео';
       case 'File': return 'Файл';
+      case 'Quiz': return 'Тест';
+      case 'Assignment': return 'Задание';
       default: return type;
     }
   }
 
-  getBlockTypeBadgeVariant(type: string): 'primary' | 'success' | 'warning' {
+  getBlockTypeBadgeVariant(type: string): 'primary' | 'success' | 'warning' | 'danger' | 'neutral' {
     switch (type) {
       case 'Text': return 'primary';
       case 'Video': return 'success';
       case 'File': return 'warning';
+      case 'Quiz': return 'danger';
+      case 'Assignment': return 'neutral';
       default: return 'primary';
     }
   }
