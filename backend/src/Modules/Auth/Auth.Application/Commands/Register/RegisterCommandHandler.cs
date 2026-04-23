@@ -3,6 +3,7 @@ using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.Register;
 
@@ -10,15 +11,23 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<st
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IEmailService _emailService;
+    private readonly IAuthDbContext _context;
 
-    public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IEmailService emailService)
+    public RegisterCommandHandler(UserManager<ApplicationUser> userManager, IEmailService emailService, IAuthDbContext context)
     {
         _userManager = userManager;
         _emailService = emailService;
+        _context = context;
     }
 
     public async Task<Result<string>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
+        var settings = await _context.PlatformSettings
+            .AsNoTracking()
+            .SingleOrDefaultAsync(s => s.Id == PlatformSetting.SingletonId, cancellationToken);
+        if (settings != null && !settings.RegistrationOpen)
+            return Result.Failure<string>("Регистрация временно закрыта.");
+
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
             return Result.Failure<string>("A user with this email already exists.");

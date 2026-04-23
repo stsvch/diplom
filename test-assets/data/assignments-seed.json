@@ -1,0 +1,77 @@
+{
+  "assignments": [
+    {
+      "title": "Калькулятор на Python",
+      "course": "Python для начинающих",
+      "description": "Напишите консольный калькулятор, поддерживающий 4 арифметические операции. Программа должна запрашивать у пользователя два числа и операцию, корректно обрабатывать деление на ноль.",
+      "deadlineDays": 7,
+      "maxAttempts": 3,
+      "maxScore": 10,
+      "acceptedFileTypes": [".py", ".txt"],
+      "criteria": [
+        "Программа работает без ошибок (3 балла)",
+        "Все 4 операции реализованы корректно (4 балла)",
+        "Обработано деление на ноль (2 балла)",
+        "Читаемый код и комментарии (1 балл)"
+      ]
+    },
+    {
+      "title": "Лендинг-страница на HTML/CSS",
+      "course": "Веб-разработка: HTML, CSS, JS",
+      "description": "Сверстайте одностраничный сайт с шапкой, баннером, блоком услуг и подвалом. Макет должен быть адаптивным (desktop + mobile).",
+      "deadlineDays": 14,
+      "maxAttempts": 3,
+      "maxScore": 20,
+      "acceptedFileTypes": [".html", ".css", ".zip"],
+      "criteria": [
+        "Семантическая вёрстка (5 баллов)",
+        "Адаптивность (5 баллов)",
+        "Flexbox/Grid использованы корректно (5 баллов)",
+        "Эстетика и читаемость кода (5 баллов)"
+      ]
+    },
+    {
+      "title": "Essay: My future profession",
+      "course": "English for beginners",
+      "description": "Write an essay (150–200 words) about your future profession. Use vocabulary from Units 1–3 and at least 3 different tenses.",
+      "deadlineDays": 10,
+      "maxAttempts": 2,
+      "maxScore": 10,
+      "acceptedFileTypes": [".docx", ".pdf", ".txt"],
+      "criteria": [
+        "Grammar accuracy (3 points)",
+        "Vocabulary range (3 points)",
+        "Task fulfilment (2 points)",
+        "Cohesion (2 points)"
+      ]
+    },
+    {
+      "title": "Решение 10 задач по производным",
+      "course": "Алгебра и начала анализа",
+      "description": "Решите прикреплённые 10 задач на нахождение производных. Решение должно быть оформлено с пояснениями.",
+      "deadlineDays": 5,
+      "maxAttempts": 2,
+      "maxScore": 10,
+      "acceptedFileTypes": [".pdf", ".jpg", ".png"],
+      "criteria": [
+        "Правильность ответов (по 1 баллу за задачу)"
+      ]
+    },
+    {
+      "title": "Прототип мобильного приложения в Figma",
+      "course": "UI/UX Design: от идеи до макета",
+      "description": "Создайте интерактивный прототип приложения для заказа еды: 5 экранов, переходы между ними, компоненты.",
+      "deadlineDays": 21,
+      "maxAttempts": 2,
+      "maxScore": 30,
+      "acceptedFileTypes": [".fig", ".pdf", ".zip"],
+      "criteria": [
+        "Полнота UI (10 баллов)",
+        "Использование компонентов (5 баллов)",
+        "Типографика и цвет (5 баллов)",
+        "Интерактивность прототипа (5 баллов)",
+        "Оригинальность решений (5 баллов)"
+      ]
+    }
+  ]
+}

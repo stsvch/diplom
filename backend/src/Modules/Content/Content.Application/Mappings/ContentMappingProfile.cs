@@ -9,5 +9,7 @@ public class ContentMappingProfile : Profile
     public ContentMappingProfile()
     {
         CreateMap<Attachment, AttachmentDto>();
+        CreateMap<LessonBlock, LessonBlockDto>();
+        CreateMap<LessonBlockAttempt, LessonBlockAttemptDto>();
     }
 }

@@ -7,6 +7,7 @@ namespace Assignments.Application.Assignments.Commands.UpdateAssignment;
 public record UpdateAssignmentCommand(
     Guid Id,
     string CreatedById,
+    Guid CourseId,
     string Title,
     string Description,
     string? Criteria,

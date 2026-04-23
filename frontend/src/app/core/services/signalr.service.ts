@@ -41,7 +41,7 @@ export class SignalRService {
 
     this.hubConnection.on('ReceiveNotification', (notification: NotificationDto) => {
       this.lastNotification.set(notification);
-      this.unreadCount.update((count) => count + 1);
+      this.adjustUnreadCount(1);
     });
 
     this.hubConnection.start().catch((err) => console.error('SignalR connection error:', err));
@@ -53,13 +53,18 @@ export class SignalRService {
       this.hubConnection = null;
     }
     this.unreadCount.set(0);
+    this.lastNotification.set(null);
   }
 
   setUnreadCount(count: number): void {
     this.unreadCount.set(count);
   }
 
+  adjustUnreadCount(delta: number): void {
+    this.unreadCount.update((count) => Math.max(0, count + delta));
+  }
+
   decrementUnreadCount(): void {
-    this.unreadCount.update((count) => Math.max(0, count - 1));
+    this.adjustUnreadCount(-1);
   }
 }

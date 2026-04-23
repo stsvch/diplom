@@ -3,6 +3,40 @@
 .course-detail {
   min-height: 100%;
 
+  &__preview-banner {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    padding: 10px 24px;
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: v.$font-size-sm;
+    border-bottom: 1px solid #FBBF24;
+  }
+
+  &__preview-back {
+    margin-left: auto;
+    color: #92400E;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  &__preview-notice {
+    display: flex;
+    align-items: center;
+    gap: v.$spacing-2;
+    padding: 12px;
+    background: #FEF3C7;
+    color: #92400E;
+    border-radius: 8px;
+    font-size: v.$font-size-sm;
+  }
+
   // Hero
   &__hero {
     background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%);
@@ -354,9 +388,18 @@
   padding: v.$spacing-3 v.$spacing-5 v.$spacing-3 v.$spacing-12;
   border-bottom: 1px solid v.$border-color;
   gap: v.$spacing-4;
+  text-decoration: none;
+  color: inherit;
 
   &:last-child {
     border-bottom: none;
+  }
+
+  &--clickable {
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover { background: v.$bg-muted; }
   }
 
   &__left {

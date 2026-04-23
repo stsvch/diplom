@@ -4,6 +4,7 @@ export interface GradeDto {
   id: string;
   studentId: string;
   courseId: string;
+  courseName?: string;
   sourceType: GradeSourceType;
   title: string;
   score: number;

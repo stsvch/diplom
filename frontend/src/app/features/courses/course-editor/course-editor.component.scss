@@ -1,0 +1,147 @@
+@use '../../../../styles/variables' as *;
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: $bg-page;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-6;
+    background: $bg-card;
+    border-bottom: 1px solid $border-color;
+    position: sticky;
+    top: 0;
+    z-index: $z-sticky;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    min-width: 120px;
+
+    &[data-status='saved'] { color: $success-dark; }
+    &[data-status='error'] { color: $danger; }
+    &[data-status='saving'] { color: $info; }
+  }
+
+  &__tools {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+
+  &__body {
+    flex: 1;
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+    padding: $spacing-6 $spacing-4;
+  }
+}
+
+.back {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-sm;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+
+  &:hover { background: $bg-muted; color: $primary; }
+}
+
+.title-input {
+  flex: 1;
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-foreground;
+  background: transparent;
+  border: 1px dashed transparent;
+  border-radius: $radius-sm;
+  outline: none;
+
+  &:hover { border-color: $border-color; }
+  &:focus { border-color: $primary; background: $bg-input; border-style: solid; }
+}
+
+.muted { color: $text-muted; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-md;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &--primary {
+    background: $primary;
+    color: $primary-foreground;
+    &:hover { background: $primary-hover; }
+  }
+
+  &--outline {
+    border-color: $border-color;
+    color: $text-foreground;
+    &:hover { background: $bg-muted; }
+  }
+
+  &--ghost {
+    color: $text-secondary;
+    &:hover { background: $bg-muted; color: $text-foreground; }
+  }
+}
+
+.badge {
+  padding: 2px $spacing-3;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+
+  &--published { background: $success-light; color: $success-dark; }
+  &--archived { background: $bg-muted; color: $text-muted; }
+}
+
+.settings-panel {
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  padding: $spacing-4 $spacing-6;
+  background: $bg-card;
+  border-bottom: 1px solid $border-color;
+
+  h3 { margin: 0 0 $spacing-3; font-size: $font-size-base; color: $text-foreground; }
+}
+
+.body__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-4;
+
+  h2 {
+    margin: 0;
+    font-size: $font-size-xl;
+    color: $text-foreground;
+  }
+}
+
+.state {
+  padding: $spacing-10;
+  text-align: center;
+  color: $text-muted;
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LucideAngularModule, LucideIconData, Star, Clock, MessageCircle, BookOpen, Trophy, Bell } from 'lucide-angular';
@@ -7,6 +7,7 @@ import { NotificationDto, NotificationType } from '../models/notification.model'
 import { parseApiError } from '../../../core/models/api-error.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { SignalRService } from '../../../core/services/signalr.service';
 
 type FilterTab = 'all' | 'unread' | 'read';
 
@@ -20,6 +21,7 @@ type FilterTab = 'all' | 'unread' | 'read';
 export class NotificationsPageComponent implements OnInit {
   private readonly notificationsService = inject(NotificationsService);
   private readonly router = inject(Router);
+  private readonly signalRService = inject(SignalRService);
 
   readonly icons = { Star, Clock, MessageCircle, BookOpen, Trophy, Bell };
 
@@ -55,6 +57,18 @@ export class NotificationsPageComponent implements OnInit {
 
   readonly NotificationType = NotificationType;
 
+  private readonly liveUpdatesEffect = effect(() => {
+    const notification = this.signalRService.lastNotification();
+    if (!notification) {
+      return;
+    }
+
+    this.notifications.update((list) => {
+      const next = [notification, ...list.filter((item) => item.id !== notification.id)];
+      return next.slice(0, 100);
+    });
+  });
+
   ngOnInit(): void {
     this.loadNotifications();
   }
@@ -84,13 +98,10 @@ export class NotificationsPageComponent implements OnInit {
   onNotificationClick(notification: NotificationDto): void {
     if (!notification.isRead) {
       this.notificationsService.markAsRead(notification.id).subscribe({
-        next: () => {
-          this.notifications.update((list) =>
-            list.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)),
-          );
-        },
+        next: () => this.markNotificationAsReadLocally(notification.id),
       });
     }
+
     if (notification.linkUrl) {
       this.router.navigateByUrl(notification.linkUrl);
     }
@@ -106,11 +117,22 @@ export class NotificationsPageComponent implements OnInit {
 
   deleteNotification(id: string, event: Event): void {
     event.stopPropagation();
+    const notification = this.notifications().find((item) => item.id === id);
+
     this.notificationsService.deleteNotification(id).subscribe({
       next: () => {
         this.notifications.update((list) => list.filter((n) => n.id !== id));
+        if (notification && !notification.isRead) {
+          this.signalRService.decrementUnreadCount();
+        }
       },
     });
+  }
+
+  private markNotificationAsReadLocally(id: string): void {
+    this.notifications.update((list) =>
+      list.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+    );
   }
 
   getTypeIcon(type: NotificationType): LucideIconData {

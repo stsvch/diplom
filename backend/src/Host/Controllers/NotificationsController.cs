@@ -8,7 +8,7 @@ using Notifications.Application.Notifications.Commands.MarkAllAsRead;
 using Notifications.Application.Notifications.Commands.MarkAsRead;
 using Notifications.Application.Notifications.Queries.GetUnreadCount;
 using Notifications.Application.Notifications.Queries.GetUserNotifications;
-using Notifications.Domain.Enums;
+using EduPlatform.Shared.Domain.Enums;
 using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;

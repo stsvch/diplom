@@ -79,21 +79,40 @@
 
 ---
 
-## Этап 4. Учебные материалы и вложения (Content)
+## Этап 4. Блочная система контента уроков (Content)
+
+**Архитектура:** модуль Content отвечает за всё наполнение урока — блоки разных типов, их автопроверку, попытки студентов, вложения (Attachment) в MinIO. Модуль Courses знает только про структуру (курс → модуль → урок). Связь через cross-schema FK + контракт `ILessonContentCleaner` в Shared.
 
 **Backend:**
-- Модуль Content: LessonContent, Attachment
-- CRUD контента урока (текст, видео, ссылки)
-- Загрузка файлов в S3/MinIO (универсальный Attachment)
-- Скачивание файлов
-- Привязка вложений к любым сущностям (EntityType + EntityId)
+- Модуль Content: LessonBlock (data jsonb + settings jsonb), LessonBlockAttempt, Attachment
+- Enum LessonBlockType из 18 типов:
+  - Контент: Text, Video, Audio, Image, Banner, File
+  - Авто-проверяемые: SingleChoice, MultipleChoice, TrueFalse, FillGap, Dropdown, WordBank, Reorder, Matching
+  - Ручная проверка: OpenText, CodeExercise
+  - Составные: Quiz, Assignment (ссылки на Tests / Assignments)
+- Типизированные value objects для data и answer каждого типа (JsonPolymorphic discriminator)
+- `IBlockGrader` registry — 10 реализаций автопроверки
+- `IBlockDataValidator` registry — 18 валидаторов корректности data перед публикацией
+- Commands: Create/Update/Delete/ReorderBlocks, SubmitAttempt, ReviewAttempt
+- Queries: GetLessonBlocks, GetMyAttempt, GetLessonProgress, GetLessonAttempts
+- Контракты в Shared: `ILessonContentCleaner`, `IContentReadService`, `ILessonProgressUpdater`
+- Интеграция с Progress: при сдаче последнего required-блока урока автоматически помечается Completed
+- Загрузка файлов в S3/MinIO (универсальный Attachment с EntityType + EntityId)
 
 **Frontend:**
-- Просмотр урока (student): текст, видео, файлы для скачивания
-- Редактор урока (teacher): WYSIWYG-редактор, загрузка файлов, вставка видео
-- Компонент загрузки файлов (shared, переиспользуемый)
+- ContentService + BlockAttemptsService (HTTP)
+- TS discriminated union на каждый тип блока (data + answer)
+- 18 viewer-компонентов (один блок → один компонент)
+- 18 editor-компонентов с inline-UX (radio для SingleChoice, чипы синонимов для FillGap, палитра для Banner и т.д.)
+- BlockHost, BlockInserter (линия + меню), BlockTypeMenu (4 категории с поиском)
+- BlockViewerHost / BlockEditorHost — ngSwitch по type
+- Lesson editor: добавление через `+`, автосохранение 1.5с, перемещение ↑↓, дублирование
+- Lesson view (scroll): sticky прогресс-бар, inline-фидбэк (зелёная/красная граница, баллы, осталось попыток)
+- Layout на Lesson (`Scroll` / `Stepper`)
 
-**Результат:** уроки содержат полноценный контент, файлы хранятся в S3.
+**Результат:** преподаватель собирает урок из 18 типов блоков; студент проходит, получает мгновенный фидбэк; урок автоматически помечается пройденным при выполнении всех обязательных блоков.
+
+См. `docs/lesson_blocks_design.md` и `docs/lesson_editor_ux_design.md`.
 
 ---
 
@@ -163,6 +182,7 @@
 - Уведомления: иконка с badge, dropdown/страница, фильтрация
 - Календарь: дедлайны, занятия
 - Real-time обновление через SignalR
+- Teacher calendar: ручные custom events, выбор дня, список событий дня, переходы по событиям
 
 **Результат:** пользователь не пропускает важные события.
 
@@ -175,6 +195,7 @@
 
 **Frontend:**
 - Список чатов, окно чата, отправка текста и файлов, индикатор непрочитанных, real-time
+- Deep-link в конкретный чат, read receipts, синхронизация unread через SignalR
 
 **Результат:** общение внутри платформы.
 
@@ -259,17 +280,25 @@
 | Этап | Название | Зависит от | Статус |
 |------|----------|------------|--------|
 | 1 | Инициализация проекта | — | Готов |
-| 2 | Аутентификация и пользователи | 1 | Готов |
+| 2 | Аутентификация и пользователи | 1 | Готов (+ сидирование админа) |
 | 3 | Дисциплины и курсы | 2 | Готов |
-| 4 | Учебные материалы и вложения | 3 | Готов |
+| 4 | Блочная система контента | 3 | Готов (18 типов, автопроверка, попытки, интеграция с Progress) |
 | 5 | Тестирование | 3, 4 | Готов |
 | 6 | Задания | 3, 4 | Готов |
-| 7 | Оценивание и прогресс | 5, 6 | Готов |
+| 7 | Оценивание и прогресс | 4, 5, 6 | Готов (Progress интегрирован с Content) |
 | 8 | Уведомления и календарь | 3 | Готов |
 | 9 | Чаты и сообщения | 2 | Готов |
 | 10 | Занятия с преподавателем | 2, 3 | Готов |
 | 11 | Подписки и оплата | 3 | Ожидает |
 | 12 | Инструменты по дисциплинам | 3, 4 | Ожидает |
 | 13 | Отчёты и аналитика | 7 | Ожидает |
-| 14 | Администрирование | 2, 3 | Ожидает |
+| 14 | Администрирование | 2, 3 | Частично (только Disciplines на фронте) |
 | 15 | Финализация | все | Ожидает |
+
+---
+
+## Артефакты проектирования
+
+- `docs/lesson_blocks_design.md` — полная спецификация 18 типов блоков
+- `docs/lesson_editor_ux_design.md` — UX/UI редактора и просмотра урока
+- `docs/payments_architecture_design.md` — архитектура оплат, выплат преподавателям и подписок

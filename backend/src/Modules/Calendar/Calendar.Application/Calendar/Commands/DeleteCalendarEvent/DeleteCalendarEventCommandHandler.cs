@@ -1,5 +1,6 @@
 using Calendar.Application.Interfaces;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,8 @@ public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarE
             return Result.Failure("Событие не найдено.");
         if (calendarEvent.UserId != request.RequesterId)
             return Result.Failure("Нет прав на удаление этого события.");
+        if (calendarEvent.Type != CalendarEventType.Custom || calendarEvent.SourceId.HasValue || !string.IsNullOrWhiteSpace(calendarEvent.SourceType))
+            return Result.Failure("Можно удалять только пользовательские события.");
 
         _context.CalendarEvents.Remove(calendarEvent);
         await _context.SaveChangesAsync(cancellationToken);

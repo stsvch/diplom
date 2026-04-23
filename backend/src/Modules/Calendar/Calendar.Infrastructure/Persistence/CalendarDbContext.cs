@@ -24,6 +24,9 @@ public class CalendarDbContext : BaseDbContext, ICalendarDbContext
             e.Property(x => x.Type).HasConversion<string>().HasMaxLength(50);
             e.Property(x => x.SourceType).HasMaxLength(100);
             e.Property(x => x.EventTime).HasMaxLength(10);
+            e.HasIndex(x => new { x.SourceType, x.SourceId, x.UserId });
+            e.HasIndex(x => x.CourseId);
+            e.HasIndex(x => new { x.UserId, x.EventDate });
         });
     }
 }

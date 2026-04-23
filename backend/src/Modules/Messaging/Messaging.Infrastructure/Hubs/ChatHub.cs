@@ -1,3 +1,5 @@
+using EduPlatform.Shared.Application.Contracts;
+using EduPlatform.Shared.Domain.Enums;
 using Messaging.Application.DTOs;
 using Messaging.Application.Interfaces;
 using Messaging.Domain.Documents;
@@ -11,10 +13,20 @@ namespace Messaging.Infrastructure.Hubs;
 public class ChatHub : Hub
 {
     private readonly IMessagingRepository _repository;
+    private readonly INotificationDispatcher _notifications;
+    private readonly IChatBroadcaster _broadcaster;
+    private readonly IChatConnectionTracker _connectionTracker;
 
-    public ChatHub(IMessagingRepository repository)
+    public ChatHub(
+        IMessagingRepository repository,
+        INotificationDispatcher notifications,
+        IChatBroadcaster broadcaster,
+        IChatConnectionTracker connectionTracker)
     {
         _repository = repository;
+        _notifications = notifications;
+        _broadcaster = broadcaster;
+        _connectionTracker = connectionTracker;
     }
 
     public override async Task OnConnectedAsync()
@@ -22,7 +34,9 @@ public class ChatHub : Hub
         var userId = GetUserId();
         if (!string.IsNullOrEmpty(userId))
         {
-            // Join groups for each user's chat
+            _connectionTracker.AddConnection(userId, Context.ConnectionId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
+
             var chats = await _repository.GetUserChatsAsync(userId);
             foreach (var chat in chats)
             {
@@ -34,6 +48,10 @@ public class ChatHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        var userId = GetUserId();
+        if (!string.IsNullOrEmpty(userId))
+            _connectionTracker.RemoveConnection(userId, Context.ConnectionId);
+
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -41,11 +59,11 @@ public class ChatHub : Hub
     {
         var userId = GetUserId();
         if (string.IsNullOrEmpty(userId))
-            return;
+            throw new HubException("Не авторизован.");
 
         var chat = await _repository.GetChatByIdAsync(chatId);
         if (chat == null || !chat.ParticipantIds.Contains(userId))
-            return;
+            throw new HubException("Чат недоступен.");
 
         await Groups.AddToGroupAsync(Context.ConnectionId, $"chat_{chatId}");
     }
@@ -56,18 +74,27 @@ public class ChatHub : Hub
         var userName = GetUserName();
 
         if (string.IsNullOrEmpty(userId))
-            return;
+            throw new HubException("Не авторизован.");
 
         var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null || !chat.ParticipantIds.Contains(userId))
-            return;
+        if (chat == null)
+            throw new HubException("Чат не найден.");
+        if (!chat.ParticipantIds.Contains(userId))
+            throw new HubException("Вы не участник чата.");
+        if (chat.IsArchived)
+            throw new HubException("Чат архивирован.");
+
+        var hasText = !string.IsNullOrWhiteSpace(text);
+        var hasAttachments = attachments is { Count: > 0 };
+        if (!hasText && !hasAttachments)
+            throw new HubException("Пустое сообщение.");
 
         var messageDoc = new MessageDocument
         {
             ChatId = chatId,
             SenderId = userId,
             SenderName = userName,
-            Text = text,
+            Text = text ?? string.Empty,
             Attachments = attachments?.Select(a => new MessageAttachment
             {
                 FileName = a.FileName,
@@ -80,44 +107,58 @@ public class ChatHub : Hub
         };
 
         var saved = await _repository.SendMessageAsync(messageDoc);
+        var messageDto = MapToDto(saved);
 
-        var messageDto = new MessageDto
+        await _broadcaster.MessageSentAsync(chatId, messageDto);
+
+        var recipients = chat.ParticipantIds.Where(id => id != userId).ToList();
+        if (recipients.Count > 0)
         {
-            Id = saved.Id,
-            ChatId = saved.ChatId,
-            SenderId = saved.SenderId,
-            SenderName = saved.SenderName,
-            Text = saved.Text,
-            Attachments = saved.Attachments.Select(a => new AttachmentDto
-            {
-                FileName = a.FileName,
-                FileUrl = a.FileUrl,
-                ContentType = a.ContentType,
-                FileSize = a.FileSize
-            }).ToList(),
-            SentAt = saved.SentAt,
-            ReadBy = saved.ReadBy,
-            IsEdited = saved.IsEdited
-        };
-
-        await Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessage", messageDto);
+            var safeText = text ?? string.Empty;
+            var preview = safeText.Length > 80 ? safeText.Substring(0, 80) + "…" : safeText;
+            if (string.IsNullOrEmpty(preview) && messageDoc.Attachments.Count > 0)
+                preview = $"[вложение: {messageDoc.Attachments.Count}]";
+            var notifications = recipients.Select(rid => new NotificationRequest(
+                rid, NotificationType.Message, "Новое сообщение",
+                $"{userName}: {preview}", $"/messages/{chatId}")).ToList();
+            await _notifications.PublishManyAsync(notifications);
+        }
     }
 
     public async Task MarkAsRead(string chatId)
     {
         var userId = GetUserId();
         if (string.IsNullOrEmpty(userId))
-            return;
+            throw new HubException("Не авторизован.");
 
         var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null || !chat.ParticipantIds.Contains(userId))
-            return;
+        if (chat == null)
+            throw new HubException("Чат не найден.");
+        if (!chat.ParticipantIds.Contains(userId))
+            throw new HubException("Вы не участник чата.");
 
         await _repository.MarkMessagesAsReadAsync(chatId, userId);
-
-        // Notify other participants
-        await Clients.OthersInGroup($"chat_{chatId}").SendAsync("MessagesRead", chatId, userId);
+        await _broadcaster.MessagesReadAsync(chatId, userId);
     }
+
+    private static MessageDto MapToDto(MessageDocument msg) => new()
+    {
+        Id = msg.Id,
+        ChatId = msg.ChatId,
+        SenderId = msg.SenderId,
+        SenderName = msg.SenderName,
+        Text = msg.Text,
+        Attachments = msg.Attachments.Select(a => new AttachmentDto
+        {
+            FileName = a.FileName,
+            FileUrl = a.FileUrl,
+            ContentType = a.ContentType,
+            FileSize = a.FileSize
+        }).ToList(),
+        SentAt = msg.SentAt,
+        ReadBy = msg.ReadBy,
+        IsEdited = msg.IsEdited
+    };
 
     private string GetUserId()
     {

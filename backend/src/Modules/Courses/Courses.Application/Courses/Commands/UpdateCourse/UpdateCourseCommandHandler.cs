@@ -43,6 +43,8 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
         course.Level = request.Level;
         course.ImageUrl = request.ImageUrl;
         course.Tags = request.Tags;
+        course.HasCertificate = request.HasCertificate;
+        course.Deadline = request.Deadline;
 
         await _context.SaveChangesAsync(cancellationToken);
 

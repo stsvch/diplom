@@ -87,7 +87,8 @@ public class CoursesController : ControllerBase
         var command = new CreateCourseCommand(
             userId, userName, request.DisciplineId, request.Title, request.Description,
             request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl, request.Tags);
+            request.Level, request.ImageUrl, request.Tags,
+            request.HasCertificate, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -109,7 +110,8 @@ public class CoursesController : ControllerBase
         var command = new UpdateCourseCommand(
             id, userId, request.DisciplineId, request.Title, request.Description,
             request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl, request.Tags);
+            request.Level, request.ImageUrl, request.Tags,
+            request.HasCertificate, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -120,19 +122,19 @@ public class CoursesController : ControllerBase
 
     [HttpPost("{id:guid}/publish")]
     [Authorize(Roles = "Teacher")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PublishValidationResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Publish(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Publish(Guid id, [FromQuery] bool force, CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized();
 
-        var result = await _mediator.Send(new PublishCourseCommand(id, userId), cancellationToken);
+        var result = await _mediator.Send(new PublishCourseCommand(id, userId, force), cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_PUBLISH_FAILED"));
 
-        return Ok(new { message = result.Value });
+        return Ok(result.Value!);
     }
 
     [HttpPost("{id:guid}/archive")]
@@ -179,7 +181,13 @@ public class CoursesController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized();
 
-        var result = await _mediator.Send(new EnrollCourseCommand(id, userId), cancellationToken);
+        var given = User.FindFirstValue(ClaimTypes.GivenName) ?? "";
+        var surname = User.FindFirstValue(ClaimTypes.Surname) ?? "";
+        var studentName = $"{given} {surname}".Trim();
+        if (string.IsNullOrEmpty(studentName))
+            studentName = User.FindFirstValue(ClaimTypes.Name) ?? "Студент";
+
+        var result = await _mediator.Send(new EnrollCourseCommand(id, userId, studentName), cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_ENROLL_FAILED"));
 
@@ -214,7 +222,9 @@ public record CreateCourseRequest(
     bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    string? Tags);
+    string? Tags,
+    bool HasCertificate = false,
+    DateTime? Deadline = null);
 
 public record UpdateCourseRequest(
     Guid DisciplineId,
@@ -226,4 +236,6 @@ public record UpdateCourseRequest(
     bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    string? Tags);
+    string? Tags,
+    bool HasCertificate = false,
+    DateTime? Deadline = null);

@@ -1,0 +1,130 @@
+<div class="admin-users">
+  <header class="admin-users__head">
+    <h1>Пользователи</h1>
+    <button class="btn btn--primary" (click)="openCreate()">
+      <lucide-icon [img]="UserPlusIcon" size="16"></lucide-icon>
+      Создать пользователя
+    </button>
+  </header>
+
+  <div class="admin-users__filters">
+    <div class="filter filter--search">
+      <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
+      <input
+        type="text"
+        placeholder="Поиск по имени или email"
+        [ngModel]="searchText()"
+        (ngModelChange)="searchText.set($event); onSearchChange()"
+      />
+    </div>
+    <select [ngModel]="roleFilter()" (ngModelChange)="roleFilter.set($event); onFilterChange()">
+      <option value="">Все роли</option>
+      <option value="Admin">Админ</option>
+      <option value="Teacher">Преподаватель</option>
+      <option value="Student">Студент</option>
+    </select>
+    <label class="filter-check">
+      <input type="checkbox" [ngModel]="onlyBlocked()" (ngModelChange)="onlyBlocked.set($event); onFilterChange()" />
+      Только заблокированные
+    </label>
+  </div>
+
+  @if (loading()) {
+    <div class="state">Загрузка...</div>
+  } @else if (data(); as d) {
+    <div class="admin-users__table-wrap">
+      <table class="admin-users__table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Имя</th>
+            <th>Роль</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of d.items; track u.id) {
+            <tr [class.row--blocked]="u.isBlocked">
+              <td>{{ u.email }}</td>
+              <td>{{ u.fullName || '—' }}</td>
+              <td>{{ roleLabel(u.role) }}</td>
+              <td>
+                @if (u.isBlocked) {
+                  <span class="badge badge--danger">Заблокирован</span>
+                } @else if (!u.emailConfirmed) {
+                  <span class="badge badge--warn">Email не подтверждён</span>
+                } @else {
+                  <span class="badge badge--ok">Активен</span>
+                }
+              </td>
+              <td>{{ formatDate(u.createdAt) }}</td>
+              <td class="actions">
+                @if (u.isBlocked) {
+                  <button class="icon-btn" (click)="unblockUser(u)" title="Разблокировать">
+                    <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
+                  </button>
+                } @else {
+                  <button class="icon-btn" (click)="blockUser(u)" title="Заблокировать">
+                    <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
+                  </button>
+                }
+                <button class="icon-btn" (click)="changeRole(u)" title="Сменить роль">
+                  <lucide-icon [img]="UserCogIcon" size="16"></lucide-icon>
+                </button>
+                <button class="icon-btn icon-btn--danger" (click)="deleteUser(u)" title="Удалить">
+                  <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+          @if (d.items.length === 0) {
+            <tr><td colspan="6" class="empty">Нет пользователей</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-users__pager">
+      <button class="btn btn--outline" (click)="prevPage()" [disabled]="page() === 1">Назад</button>
+      <span>Стр. {{ page() }} из {{ totalPages() }} · всего {{ d.totalCount }}</span>
+      <button class="btn btn--outline" (click)="nextPage()" [disabled]="page() >= totalPages()">Вперёд</button>
+    </div>
+  }
+</div>
+
+@if (createOpen()) {
+  <div class="modal-backdrop" (click)="cancelCreate()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__head">
+        <h2>Новый пользователь</h2>
+        <button class="icon-btn" (click)="cancelCreate()">
+          <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+        </button>
+      </header>
+      <div class="modal__body">
+        <label>Email *</label>
+        <input type="email" [ngModel]="createForm().email" (ngModelChange)="updateForm('email', $event)" />
+        <label>Имя *</label>
+        <input type="text" [ngModel]="createForm().firstName" (ngModelChange)="updateForm('firstName', $event)" />
+        <label>Фамилия</label>
+        <input type="text" [ngModel]="createForm().lastName" (ngModelChange)="updateForm('lastName', $event)" />
+        <label>Роль</label>
+        <select [ngModel]="createForm().role" (ngModelChange)="updateForm('role', $event)">
+          <option value="Student">Студент</option>
+          <option value="Teacher">Преподаватель</option>
+          <option value="Admin">Админ</option>
+        </select>
+        <label>Пароль *</label>
+        <input type="password" [ngModel]="createForm().password" (ngModelChange)="updateForm('password', $event)" />
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--outline" (click)="cancelCreate()">Отмена</button>
+        <button class="btn btn--primary" [disabled]="creating()" (click)="submitCreate()">
+          {{ creating() ? 'Создаём…' : 'Создать' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}

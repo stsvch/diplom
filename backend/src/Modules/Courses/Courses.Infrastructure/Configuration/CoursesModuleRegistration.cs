@@ -2,6 +2,8 @@ using Courses.Application.Interfaces;
 using Courses.Application.Mappings;
 using Courses.Domain.Entities;
 using Courses.Infrastructure.Persistence;
+using Courses.Infrastructure.Services;
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Application.Interfaces;
 using EduPlatform.Shared.Infrastructure.Persistence;
 using FluentValidation;
@@ -32,10 +34,10 @@ public static class CoursesModuleRegistration
             new BaseRepository<CourseModule>(provider.GetRequiredService<CoursesDbContext>()));
         services.AddScoped<IRepository<Lesson>>(provider =>
             new BaseRepository<Lesson>(provider.GetRequiredService<CoursesDbContext>()));
-        services.AddScoped<IRepository<LessonBlock>>(provider =>
-            new BaseRepository<LessonBlock>(provider.GetRequiredService<CoursesDbContext>()));
         services.AddScoped<IRepository<CourseEnrollment>>(provider =>
             new BaseRepository<CourseEnrollment>(provider.GetRequiredService<CoursesDbContext>()));
+
+        services.AddScoped<IEnrollmentReadService, EnrollmentReadService>();
 
         // MediatR
         services.AddMediatR(cfg =>
@@ -48,5 +50,32 @@ public static class CoursesModuleRegistration
         services.AddAutoMapper(cfg => { }, applicationAssembly);
 
         return services;
+    }
+
+    public static async Task SeedDisciplinesAsync(IServiceProvider serviceProvider)
+    {
+        var context = serviceProvider.GetRequiredService<CoursesDbContext>();
+
+        if (await context.Disciplines.AnyAsync())
+            return;
+
+        var defaults = new[]
+        {
+            new Discipline
+            {
+                Name = "Английский язык",
+                Description = "Изучение грамматики, лексики и разговорной практики английского языка.",
+                CreatedAt = DateTime.UtcNow,
+            },
+            new Discipline
+            {
+                Name = "Программирование",
+                Description = "Основы алгоритмов, языков программирования и разработки ПО.",
+                CreatedAt = DateTime.UtcNow,
+            },
+        };
+
+        context.Disciplines.AddRange(defaults);
+        await context.SaveChangesAsync();
     }
 }

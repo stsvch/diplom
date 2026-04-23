@@ -1,7 +1,5 @@
 <div class="calendar-page">
-  <!-- Main Calendar -->
   <div class="calendar-page__main">
-    <!-- Navigation -->
     <div class="calendar-page__nav">
       <button class="calendar-page__nav-btn" (click)="prevMonth()">
         <lucide-icon [img]="icons.ChevronLeft" [size]="20" />
@@ -12,23 +10,28 @@
       </button>
     </div>
 
-    <!-- Week days header -->
+    @if (error()) {
+      <div class="calendar-page__error">{{ error() }}</div>
+    }
+
     <div class="calendar-grid__header">
       @for (day of weekDays; track day) {
         <div class="calendar-grid__weekday">{{ day }}</div>
       }
     </div>
 
-    <!-- Calendar grid -->
     @if (loading()) {
       <div class="calendar-page__loading">Загрузка...</div>
     } @else {
       <div class="calendar-grid">
         @for (day of calendarDays(); track day.date.toISOString()) {
-          <div
+          <button
+            type="button"
             class="calendar-grid__cell"
             [class.calendar-grid__cell--other-month]="!day.isCurrentMonth"
             [class.calendar-grid__cell--today]="day.isToday"
+            [class.calendar-grid__cell--selected]="isSelectedDay(day)"
+            (click)="selectDay(day)"
           >
             <span class="calendar-grid__date">{{ day.date.getDate() }}</span>
             @if (day.events.length > 0) {
@@ -37,38 +40,204 @@
                   <span class="event-dot" [class]="'event-dot ' + getEventDotClass(event.type)" [title]="event.title"></span>
                 }
               </div>
+              <span class="calendar-grid__count">{{ formatEventCount(day.events.length) }}</span>
             }
-          </div>
+          </button>
         }
       </div>
     }
+
+    <section class="calendar-page__details">
+      <div class="calendar-page__section-header">
+        <div>
+          <h3 class="calendar-page__section-title">События на {{ selectedDayLabel() }}</h3>
+          <p class="calendar-page__section-subtitle">
+            Выберите день в сетке или откройте событие из списка справа.
+          </p>
+        </div>
+        @if (selectedDayEvents().length > 0) {
+          <span class="calendar-page__section-count">{{ selectedDayEvents().length }}</span>
+        }
+      </div>
+
+      @if (selectedDayEvents().length === 0) {
+        <div class="calendar-page__empty-state">
+          <lucide-icon [img]="icons.Calendar" [size]="32" />
+          <p>На выбранный день событий нет.</p>
+        </div>
+      } @else {
+        <div class="day-events">
+          @for (event of selectedDayEvents(); track event.id) {
+            <article class="day-event" [class]="getStatusClass(event.status)">
+              <div class="day-event__top">
+                <div class="day-event__meta">
+                  <app-badge [variant]="getTypeBadgeVariant(event.type)" size="sm">
+                    {{ getTypeLabel(event.type) }}
+                  </app-badge>
+                  @if (event.status) {
+                    <app-badge
+                      [variant]="event.status === DeadlineStatus.Completed ? 'success' : (event.status === DeadlineStatus.InProgress ? 'warning' : 'neutral')"
+                      size="sm">
+                      {{ getStatusLabel(event.status) }}
+                    </app-badge>
+                  }
+                  <span class="day-event__time">{{ formatEventTime(event.eventTime) }}</span>
+                </div>
+
+                <div class="day-event__actions">
+                  @if (hasEventRoute(event)) {
+                    <button type="button" class="calendar-page__ghost-btn" (click)="openEvent(event, $event)">
+                      <span>Открыть</span>
+                      <lucide-icon [img]="icons.ArrowUpRight" [size]="14" />
+                    </button>
+                  }
+                  @if (isTeacher() && isCustomEvent(event)) {
+                    <button
+                      type="button"
+                      class="calendar-page__ghost-btn calendar-page__ghost-btn--danger"
+                      (click)="deleteEvent(event, $event)">
+                      Удалить
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <h4 class="day-event__title">{{ event.title }}</h4>
+              @if (event.description) {
+                <p class="day-event__description">{{ event.description }}</p>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
   </div>
 
-  <!-- Sidebar: Upcoming Events -->
   <div class="calendar-page__sidebar">
-    <h3 class="calendar-page__sidebar-title">Предстоящие события</h3>
-    @if (upcomingEvents().length === 0) {
-      <div class="calendar-page__no-events">
-        <lucide-icon [img]="icons.Calendar" [size]="32" />
-        <p>Нет предстоящих событий</p>
-      </div>
-    } @else {
-      <div class="upcoming-list">
-        @for (event of upcomingEvents(); track event.id) {
-          <div class="upcoming-card">
-            <div class="upcoming-card__icon" [attr.data-type]="event.type">
-              <lucide-icon [img]="icons.Calendar" [size]="16" />
-            </div>
-            <div class="upcoming-card__content">
-              <p class="upcoming-card__title">{{ event.title }}</p>
-              <span class="upcoming-card__date">{{ formatEventDate(event.eventDate, event.eventTime) }}</span>
-              <app-badge [variant]="getTypeBadgeVariant(event.type)" size="sm">
-                {{ getTypeLabel(event.type) }}
-              </app-badge>
-            </div>
+    @if (isTeacher()) {
+      <section class="calendar-page__sidebar-section">
+        <div class="calendar-page__section-header">
+          <div>
+            <h3 class="calendar-page__section-title">Новое событие</h3>
+            <p class="calendar-page__section-subtitle">Ручное событие попадёт в ваш календарь.</p>
           </div>
-        }
-      </div>
+        </div>
+
+        <form class="calendar-form" (ngSubmit)="createCustomEvent()">
+          @if (actionError()) {
+            <div class="calendar-page__error calendar-page__error--inline">{{ actionError() }}</div>
+          }
+
+          <label class="calendar-form__field">
+            <span class="calendar-form__label">Название</span>
+            <input
+              type="text"
+              class="calendar-form__input"
+              name="title"
+              [(ngModel)]="createEventForm.title"
+              placeholder="Например, консультация"
+            />
+          </label>
+
+          <label class="calendar-form__field">
+            <span class="calendar-form__label">Описание</span>
+            <textarea
+              class="calendar-form__textarea"
+              name="description"
+              [(ngModel)]="createEventForm.description"
+              rows="3"
+              placeholder="Необязательно"
+            ></textarea>
+          </label>
+
+          <div class="calendar-form__row">
+            <label class="calendar-form__field">
+              <span class="calendar-form__label">Дата</span>
+              <input
+                type="date"
+                class="calendar-form__input"
+                name="eventDate"
+                [(ngModel)]="createEventForm.eventDate"
+              />
+            </label>
+
+            <label class="calendar-form__field">
+              <span class="calendar-form__label">Время</span>
+              <input
+                type="time"
+                class="calendar-form__input"
+                name="eventTime"
+                [(ngModel)]="createEventForm.eventTime"
+              />
+            </label>
+          </div>
+
+          <button type="submit" class="calendar-page__primary-btn" [disabled]="creating()">
+            <lucide-icon [img]="icons.Plus" [size]="16" />
+            <span>{{ creating() ? 'Сохраняем...' : 'Добавить событие' }}</span>
+          </button>
+        </form>
+      </section>
     }
+
+    <section class="calendar-page__sidebar-section">
+      <div class="calendar-page__section-header">
+        <div>
+          <h3 class="calendar-page__section-title">Предстоящие события</h3>
+          <p class="calendar-page__section-subtitle">Клик по карточке переносит к нужному дню.</p>
+        </div>
+      </div>
+
+      @if (upcomingEvents().length === 0) {
+        <div class="calendar-page__no-events">
+          <lucide-icon [img]="icons.Calendar" [size]="32" />
+          <p>Нет предстоящих событий</p>
+        </div>
+      } @else {
+        <div class="upcoming-list">
+          @for (event of upcomingEvents(); track event.id) {
+            <article class="upcoming-card" [class]="getStatusClass(event.status)" (click)="focusEvent(event)">
+              <div class="upcoming-card__icon" [attr.data-type]="event.type">
+                <lucide-icon [img]="icons.Calendar" [size]="16" />
+              </div>
+              <div class="upcoming-card__content">
+                <p class="upcoming-card__title">{{ event.title }}</p>
+                <span class="upcoming-card__date">{{ formatEventDate(event.eventDate, event.eventTime) }}</span>
+                <div class="upcoming-card__badges">
+                  <app-badge [variant]="getTypeBadgeVariant(event.type)" size="sm">
+                    {{ getTypeLabel(event.type) }}
+                  </app-badge>
+                  @if (event.status) {
+                    <app-badge
+                      [variant]="event.status === DeadlineStatus.Completed ? 'success' : (event.status === DeadlineStatus.InProgress ? 'warning' : 'neutral')"
+                      size="sm">
+                      {{ getStatusLabel(event.status) }}
+                    </app-badge>
+                  }
+                </div>
+
+                <div class="upcoming-card__actions">
+                  @if (hasEventRoute(event)) {
+                    <button type="button" class="calendar-page__ghost-btn" (click)="openEvent(event, $event)">
+                      Открыть
+                    </button>
+                  }
+                  @if (isTeacher() && isCustomEvent(event)) {
+                    <button
+                      type="button"
+                      class="calendar-page__ghost-btn calendar-page__ghost-btn--danger"
+                      [disabled]="deletingId() === event.id"
+                      (click)="deleteEvent(event, $event)">
+                      <lucide-icon [img]="icons.Trash2" [size]="14" />
+                      <span>{{ deletingId() === event.id ? 'Удаляем...' : 'Удалить' }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
   </div>
 </div>

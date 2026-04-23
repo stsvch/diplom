@@ -1,5 +1,5 @@
 using EduPlatform.Shared.Domain;
-using Notifications.Domain.Enums;
+using EduPlatform.Shared.Domain.Enums;
 
 namespace Notifications.Domain.Entities;
 

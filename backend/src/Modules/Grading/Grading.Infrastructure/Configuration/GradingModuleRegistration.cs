@@ -1,3 +1,4 @@
+using EduPlatform.Shared.Application.Contracts;
 using Grading.Application.Interfaces;
 using Grading.Infrastructure.Persistence;
 using Grading.Infrastructure.Services;
@@ -21,6 +22,7 @@ public static class GradingModuleRegistration
 
         services.AddScoped<IExportService, ExcelExportService>();
         services.AddScoped<PdfExportService>();
+        services.AddScoped<IGradeRecordWriter, GradeRecordWriter>();
 
         var applicationAssembly = typeof(IGradingDbContext).Assembly;
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));

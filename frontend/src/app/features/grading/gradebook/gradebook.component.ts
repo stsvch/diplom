@@ -150,6 +150,10 @@ export class GradebookComponent implements OnInit {
     const id = this.selectedCourseId();
     if (!id) return;
     this.exportMenuOpen.set(false);
+    if (!this.hasExportableData()) {
+      this.toastService.error('В журнале нет данных для экспорта');
+      return;
+    }
     this.gradingService.exportExcel(id);
   }
 
@@ -157,6 +161,10 @@ export class GradebookComponent implements OnInit {
     const id = this.selectedCourseId();
     if (!id) return;
     this.exportMenuOpen.set(false);
+    if (!this.hasExportableData()) {
+      this.toastService.error('В журнале нет данных для экспорта');
+      return;
+    }
     this.gradingService.exportPdf(id);
   }
 
@@ -166,6 +174,47 @@ export class GradebookComponent implements OnInit {
 
   getGrade(student: StudentGradesDto, title: string): GradeDto | null {
     return student.grades.find(g => g.title === title) ?? null;
+  }
+
+  editGrade(grade: GradeDto): void {
+    const rawScore = prompt('Новый балл', String(grade.score));
+    if (rawScore === null) return;
+
+    const rawMaxScore = prompt('Максимальный балл', String(grade.maxScore));
+    if (rawMaxScore === null) return;
+
+    const score = Number(rawScore.replace(',', '.'));
+    const maxScore = Number(rawMaxScore.replace(',', '.'));
+
+    if (!Number.isFinite(score) || !Number.isFinite(maxScore) || maxScore <= 0) {
+      this.toastService.error('Введите корректные числовые значения');
+      return;
+    }
+
+    if (score < 0 || score > maxScore) {
+      this.toastService.error('Балл должен быть в диапазоне от 0 до максимального');
+      return;
+    }
+
+    const comment = prompt('Комментарий (необязательно)', grade.comment ?? '');
+    if (comment === null) return;
+
+    this.gradingService.updateGrade(grade.id, {
+      score,
+      maxScore,
+      comment: comment.trim() || undefined,
+    }).subscribe({
+      next: () => {
+        this.toastService.success('Оценка обновлена');
+        const courseId = this.selectedCourseId();
+        if (!courseId) return;
+        this.loadGradebook(courseId);
+        this.loadStats(courseId);
+      },
+      error: (err) => {
+        this.toastService.error(parseApiError(err).message);
+      },
+    });
   }
 
   getScoreClass(score: number, maxScore: number): string {
@@ -203,5 +252,11 @@ export class GradebookComponent implements OnInit {
     const id = this.selectedCourseId();
     const course = this.courses().find(c => c.id === id);
     return course?.title ?? '';
+  }
+
+  private hasExportableData(): boolean {
+    const gb = this.gradebook();
+    if (!gb) return false;
+    return gb.students.some(student => student.grades.length > 0);
   }
 }

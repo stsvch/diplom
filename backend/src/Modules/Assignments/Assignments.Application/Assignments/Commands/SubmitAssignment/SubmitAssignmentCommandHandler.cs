@@ -3,7 +3,9 @@ using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
 using Assignments.Domain.Enums;
 using AutoMapper;
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +15,13 @@ public class SubmitAssignmentCommandHandler : IRequestHandler<SubmitAssignmentCo
 {
     private readonly IAssignmentsDbContext _db;
     private readonly IMapper _mapper;
+    private readonly INotificationDispatcher _notifications;
 
-    public SubmitAssignmentCommandHandler(IAssignmentsDbContext db, IMapper mapper)
+    public SubmitAssignmentCommandHandler(IAssignmentsDbContext db, IMapper mapper, INotificationDispatcher notifications)
     {
         _db = db;
         _mapper = mapper;
+        _notifications = notifications;
     }
 
     public async Task<Result<SubmissionDto>> Handle(SubmitAssignmentCommand request, CancellationToken cancellationToken)
@@ -50,6 +54,13 @@ public class SubmitAssignmentCommandHandler : IRequestHandler<SubmitAssignmentCo
 
         _db.AssignmentSubmissions.Add(submission);
         await _db.SaveChangesAsync(cancellationToken);
+
+        await _notifications.PublishAsync(new NotificationRequest(
+            assignment.CreatedById,
+            NotificationType.Message,
+            "Новая работа на проверку",
+            $"Студент отправил «{assignment.Title}»",
+            $"/teacher/assignment/{assignment.Id}"), cancellationToken);
 
         var dto = _mapper.Map<SubmissionDto>(submission);
         dto.MaxScore = assignment.MaxScore;

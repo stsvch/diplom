@@ -64,10 +64,15 @@ dist/
 # IDE
 .idea/
 .vscode/
+.vs/
 *.swp
+*.user
 
 # Temp
 .tmp/
+imgtemp/
+*.docx
+lesson.txt
 
 # OS
 Thumbs.db

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   ChatDto,
@@ -8,13 +8,18 @@ import {
   SendMessageRequest,
   CreateDirectChatRequest,
   CreateCourseChatRequest,
+  AddParticipantRequest,
+  EditMessageRequest,
+  UserSummaryDto,
 } from '../models/messaging.model';
+import { ChatSignalRService } from '../../../core/services/chat-signalr.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessagingService {
   private readonly http = inject(HttpClient);
+  private readonly chatSignalRService = inject(ChatSignalRService);
   private readonly base = `${environment.apiUrl}/chats`;
 
   getChats(): Observable<ChatDto[]> {
@@ -26,7 +31,9 @@ export class MessagingService {
   }
 
   getUnreadCount(): Observable<{ count: number }> {
-    return this.http.get<{ count: number }>(`${this.base}/unread-count`);
+    return this.http.get<{ count: number }>(`${this.base}/unread-count`).pipe(
+      tap((res) => this.chatSignalRService.setUnreadCount(res.count)),
+    );
   }
 
   createDirectChat(request: CreateDirectChatRequest): Observable<ChatDto> {
@@ -52,7 +59,35 @@ export class MessagingService {
     return this.http.put<{ message: string }>(`${this.base}/${chatId}/read`, {});
   }
 
+  hideChat(chatId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/${chatId}/hide`, {});
+  }
+
+  deleteChat(chatId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/${chatId}`);
+  }
+
+  addParticipant(chatId: string, request: AddParticipantRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/${chatId}/participants`, request);
+  }
+
+  removeParticipant(chatId: string, participantId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/${chatId}/participants/${participantId}`);
+  }
+
+  editMessage(messageId: string, text: string): Observable<MessageDto> {
+    const payload: EditMessageRequest = { text };
+    return this.http.put<MessageDto>(`${environment.apiUrl}/messages/${messageId}`, payload);
+  }
+
   deleteMessage(messageId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/messages/${messageId}`);
+  }
+
+  searchUsers(q: string, role?: string, limit = 20): Observable<UserSummaryDto[]> {
+    let params = new HttpParams().set('limit', String(limit));
+    if (q) params = params.set('q', q);
+    if (role) params = params.set('role', role);
+    return this.http.get<UserSummaryDto[]>(`${environment.apiUrl}/users/search`, { params });
   }
 }

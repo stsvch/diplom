@@ -1,0 +1,96 @@
+<div cdkDropListGroup class="tree">
+  <div cdkDropList [cdkDropListData]="modules" (cdkDropListDropped)="onModuleDrop($event)" class="tree__modules">
+    @for (mod of modules; track trackById($index, mod)) {
+      <div cdkDrag cdkDragLockAxis="y" class="mod">
+        <header class="mod__head">
+          <button class="mod__drag" cdkDragHandle type="button" aria-label="Перетащить модуль">
+            <lucide-icon name="grip-vertical" size="16"></lucide-icon>
+          </button>
+          <button class="mod__expand" type="button" (click)="toggleModule(mod.id)">
+            <lucide-icon [name]="isExpanded(mod.id) ? 'chevron-down' : 'chevron-right'" size="16"></lucide-icon>
+          </button>
+
+          @if (editingModuleId() === mod.id) {
+            <input
+              class="mod__title-input"
+              #moduleInput
+              [value]="mod.title"
+              autofocus
+              (keydown.enter)="finishEditModule(mod.id, moduleInput.value, mod.title)"
+              (keydown.escape)="editingModuleId.set(null)"
+              (blur)="finishEditModule(mod.id, moduleInput.value, mod.title)"
+            />
+          } @else {
+            <button class="mod__title" type="button" (click)="startEditModule(mod.id)" (dblclick)="toggleModule(mod.id)">
+              {{ mod.title }}
+            </button>
+          }
+
+          <span class="mod__count">{{ mod.lessons.length }} урок(ов)</span>
+
+          <button class="mod__action" type="button" (click)="addLesson(mod.id)" title="Добавить урок">
+            <lucide-icon name="plus" size="14"></lucide-icon>
+          </button>
+          <button class="mod__action mod__action--danger" type="button" (click)="deleteModule(mod.id)" title="Удалить модуль">
+            <lucide-icon name="trash-2" size="14"></lucide-icon>
+          </button>
+        </header>
+
+        @if (isExpanded(mod.id)) {
+          <div
+            cdkDropList
+            [cdkDropListData]="mod.lessons"
+            [attr.data-module-id]="mod.id"
+            (cdkDropListDropped)="onLessonDrop($event, mod.id)"
+            class="mod__lessons"
+          >
+            @for (lesson of mod.lessons; track trackById($index, lesson)) {
+              <div cdkDrag class="lesson">
+                <button class="lesson__drag" cdkDragHandle type="button" aria-label="Перетащить урок">
+                  <lucide-icon name="grip-vertical" size="14"></lucide-icon>
+                </button>
+                <lucide-icon class="lesson__icon" name="file-text" size="14"></lucide-icon>
+
+                @if (editingLessonId() === lesson.id) {
+                  <input
+                    class="lesson__title-input"
+                    #lessonInput
+                    [value]="lesson.title"
+                    autofocus
+                    (keydown.enter)="finishEditLesson(lesson.id, lessonInput.value, lesson.title)"
+                    (keydown.escape)="editingLessonId.set(null)"
+                    (blur)="finishEditLesson(lesson.id, lessonInput.value, lesson.title)"
+                  />
+                } @else {
+                  <button class="lesson__title" type="button" (click)="startEditLesson(lesson.id)">
+                    {{ lesson.title }}
+                  </button>
+                }
+
+                <span class="lesson__badge">{{ lesson.blocksCount }} блок(ов)</span>
+
+                <a class="lesson__action" [routerLink]="'/teacher/lesson/' + lesson.id + '/edit'" title="Редактировать блоки">
+                  <lucide-icon name="square-pen" size="14"></lucide-icon>
+                </a>
+                <button class="lesson__action" type="button" (click)="duplicateLesson(mod.id, lesson.id)" title="Дублировать">
+                  <lucide-icon name="copy" size="14"></lucide-icon>
+                </button>
+                <button class="lesson__action lesson__action--danger" type="button" (click)="deleteLesson(mod.id, lesson.id)" title="Удалить">
+                  <lucide-icon name="trash-2" size="14"></lucide-icon>
+                </button>
+              </div>
+            }
+
+            @if (mod.lessons.length === 0) {
+              <div class="mod__empty">Нет уроков. <button class="link" type="button" (click)="addLesson(mod.id)">Добавить первый</button></div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (modules.length === 0) {
+    <div class="tree__empty">В курсе пока нет модулей</div>
+  }
+</div>

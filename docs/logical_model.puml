@@ -1,0 +1,383 @@
+@startuml EduPlatform_Logical_Model
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 40
+
+title Логическая модель базы данных EduPlatform
+
+package "auth" #F0F4FF {
+  class ApplicationUser {
+    + Id : string <<PK>>
+    --
+    Email : string <<UNIQUE>>
+    PasswordHash : string
+    FirstName : string
+    LastName : string
+    Role : enum {Admin, Teacher, Student}
+    AvatarUrl : string [0..1]
+    IsActive : boolean
+    EmailConfirmed : boolean
+    CreatedAt : DateTime
+    UpdatedAt : DateTime [0..1]
+  }
+
+  class RefreshToken {
+    + Id : GUID <<PK>>
+    --
+    Token : string <<UNIQUE>>
+    # UserId : string <<FK>>
+    ExpiresAt : DateTime
+    CreatedAt : DateTime
+    IsRevoked : boolean
+  }
+
+  ApplicationUser "1" -- "0..*" RefreshToken : UserId >
+}
+
+package "courses" #F0FFF0 {
+  class Discipline {
+    + Id : GUID <<PK>>
+    --
+    Name : string <<UNIQUE>>
+    Description : string [0..1]
+    ImageUrl : string [0..1]
+    CreatedAt : DateTime
+  }
+
+  class Course {
+    + Id : GUID <<PK>>
+    --
+    # DisciplineId : GUID <<FK>>
+    # TeacherId : string <<FK>>
+    TeacherName : string
+    Title : string
+    Description : string
+    Price : decimal [0..1]
+    IsFree : boolean
+    IsPublished : boolean
+    IsArchived : boolean
+    OrderType : enum {Sequential, Free}
+    HasGrading : boolean
+    Level : enum {Beginner, Intermediate, Advanced}
+    ImageUrl : string [0..1]
+    Tags : string [0..1]
+    CreatedAt : DateTime
+    UpdatedAt : DateTime [0..1]
+  }
+
+  class CourseEnrollment {
+    + Id : GUID <<PK>>
+    --
+    # CourseId : GUID <<FK>>
+    # StudentId : string <<FK>>
+    EnrolledAt : DateTime
+    Status : enum {Active, Completed, Dropped}
+  }
+
+  class CourseModule {
+    + Id : GUID <<PK>>
+    --
+    # CourseId : GUID <<FK>>
+    Title : string
+    Description : string [0..1]
+    OrderIndex : int
+    IsPublished : boolean
+  }
+
+  class Lesson {
+    + Id : GUID <<PK>>
+    --
+    # ModuleId : GUID <<FK>>
+    Title : string
+    Description : string [0..1]
+    OrderIndex : int
+    IsPublished : boolean
+    Duration : int [0..1]
+  }
+
+  class LessonBlock {
+    + Id : GUID <<PK>>
+    --
+    # LessonId : GUID <<FK>>
+    OrderIndex : int
+    Type : enum {Text, Video, File, Quiz, Assignment, Exercise}
+    TextContent : string [0..1]
+    VideoUrl : string [0..1]
+    TestId : GUID [0..1]
+    AssignmentId : GUID [0..1]
+  }
+
+  Discipline "1" -- "0..*" Course : DisciplineId >
+  ApplicationUser "1" -- "0..*" Course : TeacherId >
+  Course "1" -- "0..*" CourseEnrollment : CourseId >
+  ApplicationUser "1" -- "0..*" CourseEnrollment : StudentId >
+  Course "1" -- "0..*" CourseModule : CourseId >
+  CourseModule "1" -- "0..*" Lesson : ModuleId >
+  Lesson "1" -- "0..*" LessonBlock : LessonId >
+}
+
+package "content" #FFFFF0 {
+  class Attachment {
+    + Id : GUID <<PK>>
+    --
+    FileName : string
+    StoragePath : string
+    FileUrl : string
+    ContentType : string
+    FileSize : long
+    EntityType : enum
+    EntityId : GUID
+    # UploadedById : string <<FK>>
+    CreatedAt : DateTime
+  }
+
+  ApplicationUser "1" -- "0..*" Attachment : UploadedById >
+}
+
+package "tests" #FFF0F0 {
+  class Test {
+    + Id : GUID <<PK>>
+    --
+    Title : string
+    Description : string [0..1]
+    # CreatedById : string <<FK>>
+    TimeLimitMinutes : int [0..1]
+    MaxAttempts : int [0..1]
+    Deadline : DateTime [0..1]
+    ShuffleQuestions : boolean
+    ShuffleAnswers : boolean
+    ShowCorrectAnswers : boolean
+    MaxScore : int
+    CreatedAt : DateTime
+    UpdatedAt : DateTime [0..1]
+  }
+
+  class Question {
+    + Id : GUID <<PK>>
+    --
+    # TestId : GUID <<FK>>
+    Type : enum {SingleChoice, MultipleChoice, TextInput, Matching, OpenAnswer}
+    Text : string
+    Points : int
+    OrderIndex : int
+  }
+
+  class AnswerOption {
+    + Id : GUID <<PK>>
+    --
+    # QuestionId : GUID <<FK>>
+    Text : string
+    IsCorrect : boolean
+    OrderIndex : int
+    MatchingPairValue : string [0..1]
+  }
+
+  class TestAttempt {
+    + Id : GUID <<PK>>
+    --
+    # TestId : GUID <<FK>>
+    # StudentId : string <<FK>>
+    AttemptNumber : int
+    StartedAt : DateTime
+    CompletedAt : DateTime [0..1]
+    Score : int [0..1]
+    Status : enum {InProgress, Completed, NeedsReview}
+  }
+
+  class TestResponse {
+    + Id : GUID <<PK>>
+    --
+    # AttemptId : GUID <<FK>>
+    # QuestionId : GUID <<FK>>
+    SelectedOptionIds : string [0..1]
+    TextAnswer : string [0..1]
+    IsCorrect : boolean [0..1]
+    Points : int [0..1]
+    TeacherComment : string [0..1]
+  }
+
+  ApplicationUser "1" -- "0..*" Test : CreatedById >
+  Test "1" -- "0..*" Question : TestId >
+  Question "1" -- "0..*" AnswerOption : QuestionId >
+  Test "1" -- "0..*" TestAttempt : TestId >
+  ApplicationUser "1" -- "0..*" TestAttempt : StudentId >
+  TestAttempt "1" -- "0..*" TestResponse : AttemptId >
+  Question "1" -- "0..*" TestResponse : QuestionId >
+}
+
+package "assignments" #F5F0FF {
+  class Assignment {
+    + Id : GUID <<PK>>
+    --
+    Title : string
+    Description : string
+    Criteria : string [0..1]
+    Deadline : DateTime [0..1]
+    MaxAttempts : int [0..1]
+    MaxScore : int
+    # CreatedById : string <<FK>>
+    CreatedAt : DateTime
+    UpdatedAt : DateTime [0..1]
+  }
+
+  class AssignmentSubmission {
+    + Id : GUID <<PK>>
+    --
+    # AssignmentId : GUID <<FK>>
+    # StudentId : string <<FK>>
+    AttemptNumber : int
+    Content : string [0..1]
+    SubmittedAt : DateTime
+    Status : enum {Submitted, UnderReview, Graded, ReturnedForRevision}
+    Score : int [0..1]
+    TeacherComment : string [0..1]
+    GradedAt : DateTime [0..1]
+    GradedById : string [0..1]
+  }
+
+  ApplicationUser "1" -- "0..*" Assignment : CreatedById >
+  Assignment "1" -- "0..*" AssignmentSubmission : AssignmentId >
+  ApplicationUser "1" -- "0..*" AssignmentSubmission : StudentId >
+}
+
+package "grading" #FFF5F0 {
+  class Grade {
+    + Id : GUID <<PK>>
+    --
+    # StudentId : string <<FK>>
+    CourseId : GUID
+    SourceType : enum {Test, Assignment}
+    TestAttemptId : GUID [0..1]
+    AssignmentSubmissionId : GUID [0..1]
+    Title : string
+    Score : decimal
+    MaxScore : decimal
+    Comment : string [0..1]
+    GradedAt : DateTime
+    GradedById : string [0..1]
+    CreatedAt : DateTime
+  }
+
+  ApplicationUser "1" -- "0..*" Grade : StudentId >
+}
+
+package "progress" #F0FFF5 {
+  class LessonProgress {
+    + Id : GUID <<PK>>
+    --
+    LessonId : GUID
+    # StudentId : string <<FK>>
+    IsCompleted : boolean
+    CompletedAt : DateTime [0..1]
+  }
+
+  ApplicationUser "1" -- "0..*" LessonProgress : StudentId >
+}
+
+package "notifications" #FFF0F5 {
+  class Notification {
+    + Id : GUID <<PK>>
+    --
+    # UserId : string <<FK>>
+    Type : enum {Grade, Deadline, Message, Course, Achievement}
+    Title : string
+    Message : string
+    IsRead : boolean
+    LinkUrl : string [0..1]
+    CreatedAt : DateTime
+  }
+
+  ApplicationUser "1" -- "0..*" Notification : UserId >
+}
+
+package "calendar" #F5FFF0 {
+  class CalendarEvent {
+    + Id : GUID <<PK>>
+    --
+    UserId : string [0..1]
+    CourseId : GUID [0..1]
+    Title : string
+    Description : string [0..1]
+    EventDate : DateTime
+    EventTime : string [0..1]
+    Type : enum {Deadline, Lesson, Quiz, Workshop, Custom}
+    SourceType : string [0..1]
+    SourceId : GUID [0..1]
+    CreatedAt : DateTime
+  }
+}
+
+package "scheduling" #F0F5FF {
+  class ScheduleSlot {
+    + Id : GUID <<PK>>
+    --
+    # TeacherId : string <<FK>>
+    TeacherName : string
+    CourseId : GUID [0..1]
+    CourseName : string [0..1]
+    Title : string
+    Description : string [0..1]
+    StartTime : DateTime
+    EndTime : DateTime
+    IsGroupSession : boolean
+    MaxStudents : int
+    Status : enum {Available, Booked, Completed, Cancelled}
+    MeetingLink : string [0..1]
+    CreatedAt : DateTime
+  }
+
+  class SessionBooking {
+    + Id : GUID <<PK>>
+    --
+    # SlotId : GUID <<FK>>
+    # StudentId : string <<FK>>
+    StudentName : string
+    BookedAt : DateTime
+    Status : enum {Booked, Completed, Cancelled}
+  }
+
+  ApplicationUser "1" -- "0..*" ScheduleSlot : TeacherId >
+  ScheduleSlot "1" -- "0..*" SessionBooking : SlotId >
+  ApplicationUser "1" -- "0..*" SessionBooking : StudentId >
+}
+
+package "messaging (MongoDB)" #F5F5F5 {
+  class ChatDocument <<document>> {
+    + _id : ObjectId <<PK>>
+    --
+    Type : string {DirectMessage, CourseChat}
+    CourseId : string [0..1]
+    CourseName : string [0..1]
+    ParticipantIds : string[]
+    Participants : ParticipantInfo[]
+    LastMessage : string [0..1]
+    LastMessageAt : DateTime [0..1]
+    CreatedAt : DateTime
+  }
+
+  class MessageDocument <<document>> {
+    + _id : ObjectId <<PK>>
+    --
+    ChatId : string
+    SenderId : string
+    SenderName : string
+    Text : string
+    Attachments : MessageAttachment[]
+    SentAt : DateTime
+    ReadBy : string[]
+    IsEdited : boolean
+  }
+
+  ChatDocument "1" -- "0..*" MessageDocument : ChatId >
+}
+
+' Межмодульные логические связи (без FK constraint)
+LessonBlock "0..1" ..> "0..1" Test : TestId (логическая)
+LessonBlock "0..1" ..> "0..1" Assignment : AssignmentId (логическая)
+
+@enduml

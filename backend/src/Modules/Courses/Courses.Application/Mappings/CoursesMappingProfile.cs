@@ -33,8 +33,6 @@ public class CoursesMappingProfile : Profile
             .ForMember(d => d.Lessons, opt => opt.MapFrom(s => s.Lessons.OrderBy(l => l.OrderIndex)));
 
         CreateMap<Lesson, LessonDto>()
-            .ForMember(d => d.BlocksCount, opt => opt.MapFrom(s => s.Blocks.Count));
-
-        CreateMap<LessonBlock, LessonBlockDto>();
+            .ForMember(d => d.BlocksCount, opt => opt.Ignore());
     }
 }

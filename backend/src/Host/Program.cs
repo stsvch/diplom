@@ -7,7 +7,9 @@ using Content.Infrastructure.Persistence;
 using Courses.Infrastructure.Configuration;
 using Courses.Infrastructure.Persistence;
 using EduPlatform.Host.Middleware;
+using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Behaviors;
+using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Grading.Infrastructure.Configuration;
 using Grading.Infrastructure.Persistence;
@@ -84,6 +86,7 @@ builder.Services.AddSchedulingModule(builder.Configuration);
 
 // Shared MediatR pipeline behavior (validation)
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddScoped<IUserDeletionGuard, UserDeletionGuard>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -105,9 +108,12 @@ using (var scope = app.Services.CreateScope())
     var authDb = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     await authDb.Database.MigrateAsync();
     await AuthModuleRegistration.SeedRolesAsync(scope.ServiceProvider);
+    await AuthModuleRegistration.SeedAdminAsync(scope.ServiceProvider, builder.Configuration);
+    await AuthModuleRegistration.SeedTestStudentsAsync(scope.ServiceProvider);
 
     var coursesDb = scope.ServiceProvider.GetRequiredService<CoursesDbContext>();
     await coursesDb.Database.MigrateAsync();
+    await CoursesModuleRegistration.SeedDisciplinesAsync(scope.ServiceProvider);
 
     var contentDb = scope.ServiceProvider.GetRequiredService<ContentDbContext>();
     await contentDb.Database.MigrateAsync();
@@ -147,6 +153,7 @@ app.UseSerilogRequestLogging();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<MaintenanceModeMiddleware>();
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<ChatHub>("/hubs/chat");

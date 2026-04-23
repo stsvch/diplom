@@ -12,6 +12,7 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>, IAuthDbContext
     }
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<PlatformSetting> PlatformSettings => Set<PlatformSetting>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -34,6 +35,13 @@ public class AuthDbContext : IdentityDbContext<ApplicationUser>, IAuthDbContext
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+        });
+
+        builder.Entity<PlatformSetting>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PlatformName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.SupportEmail).IsRequired().HasMaxLength(200);
         });
     }
 }

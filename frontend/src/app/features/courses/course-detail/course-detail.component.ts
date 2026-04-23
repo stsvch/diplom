@@ -19,6 +19,7 @@ import {
   Award,
 } from 'lucide-angular';
 import { CoursesService } from '../services/courses.service';
+import { PreviewModeService } from '../services/preview-mode.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
 import { CourseDetailDto, CourseModuleDetailDto } from '../models/course.model';
@@ -51,7 +52,9 @@ export class CourseDetailComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly progressService = inject(ProgressService);
   private readonly authService = inject(AuthService);
+  private readonly previewMode = inject(PreviewModeService);
 
+  readonly isPreview = this.previewMode.isPreview;
   readonly actualProgress = signal<number | null>(null);
 
   readonly ChevronLeftIcon = ChevronLeft;
@@ -90,8 +93,8 @@ export class CourseDetailComponent implements OnInit {
         if (data.modules.length > 0) {
           this.expandedModules.set(new Set([data.modules[0].id]));
         }
-        // Load real progress only for students
-        if (this.authService.userRole() === 'Student') {
+        // Load real progress only for students (not in preview)
+        if (!this.isPreview() && this.authService.userRole() === 'Student') {
           this.loadCourseProgress(id);
         }
       },
@@ -127,6 +130,10 @@ export class CourseDetailComponent implements OnInit {
   }
 
   enroll(): void {
+    if (this.isPreview()) {
+      this.toastService.info('Запись недоступна в режиме предпросмотра');
+      return;
+    }
     const c = this.course();
     if (!c) return;
     this.enrolling.set(true);

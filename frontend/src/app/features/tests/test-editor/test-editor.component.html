@@ -42,6 +42,20 @@
           <div class="settings-card__body">
             <div class="settings-grid">
               <div class="form-field form-field--full">
+                <label class="form-label">Курс *</label>
+                <select
+                  class="form-input"
+                  [value]="courseId()"
+                  (change)="courseId.set($any($event.target).value)"
+                >
+                  <option value="">— выберите курс —</option>
+                  @for (c of courses(); track c.id) {
+                    <option [value]="c.id">{{ c.title }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-field form-field--full">
                 <label class="form-label">Название теста *</label>
                 <input
                   type="text"

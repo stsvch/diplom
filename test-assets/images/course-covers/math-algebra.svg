@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#065f46"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g transform="translate(100,180)" fill="#ffffff" font-family="Cambria Math, Cambria, serif">
+    <text font-size="26" opacity="0.8" font-family="Segoe UI, sans-serif">Математика · 9–11 класс</text>
+    <text y="100" font-size="100" font-weight="700">Алгебра</text>
+    <text y="200" font-size="100" font-weight="700" font-style="italic">и начала анализа</text>
+    <text y="280" font-size="24" font-family="Segoe UI, sans-serif" opacity="0.85">Функции · Уравнения · Производные</text>
+  </g>
+  <g transform="translate(890,140)" fill="#fef3c7" font-family="Cambria Math, serif" font-size="66" opacity="0.85">
+    <text>∫ f(x) dx</text>
+    <text y="80">x² + y² = r²</text>
+    <text y="160">Σ aₙ</text>
+    <text y="240">f′(x)</text>
+  </g>
+</svg>

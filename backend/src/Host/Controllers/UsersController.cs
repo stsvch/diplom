@@ -1,6 +1,8 @@
+using Auth.Application.Commands.ChangePassword;
 using Auth.Application.Commands.UpdateProfile;
 using Auth.Application.DTOs;
 using Auth.Application.Queries.GetProfile;
+using Auth.Application.Queries.SearchUsers;
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -61,9 +63,42 @@ public class UsersController : ControllerBase
 
         return Ok(result.Value);
     }
+
+    [HttpGet("search")]
+    [ProducesResponseType(typeof(List<UserSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Search(
+        [FromQuery] string? q,
+        [FromQuery] string? role,
+        [FromQuery] int limit = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var callerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = await _mediator.Send(new SearchUsersQuery(q, role, callerId, limit), cancellationToken);
+        return result.IsFailure ? BadRequest(ApiError.FromMessage(result.Error!, "SEARCH_FAILED")) : Ok(result.Value);
+    }
+
+    [HttpPost("me/change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var command = new ChangePasswordCommand(userId, request.CurrentPassword, request.NewPassword);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+            return BadRequest(ApiError.FromMessage(result.Error!, "PASSWORD_CHANGE_FAILED"));
+
+        return Ok(new { message = result.Value });
+    }
 }
 
 public record UpdateProfileRequest(
     string FirstName,
     string LastName,
     string? AvatarUrl);
+
+public record ChangePasswordRequest(string CurrentPassword, string NewPassword);

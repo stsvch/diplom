@@ -99,4 +99,91 @@ public static class AuthModuleRegistration
             }
         }
     }
+
+    public static async Task SeedAdminAsync(IServiceProvider serviceProvider, IConfiguration configuration)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var email = configuration["AdminSeed:Email"]
+            ?? throw new InvalidOperationException("AdminSeed:Email is not configured.");
+        var password = configuration["AdminSeed:Password"]
+            ?? throw new InvalidOperationException("AdminSeed:Password is not configured.");
+        var firstName = configuration["AdminSeed:FirstName"] ?? "System";
+        var lastName = configuration["AdminSeed:LastName"] ?? "Admin";
+
+        var adminRole = UserRole.Admin.ToString();
+
+        var existing = await userManager.FindByEmailAsync(email);
+        if (existing is not null)
+        {
+            if (!await userManager.IsInRoleAsync(existing, adminRole))
+            {
+                await userManager.AddToRoleAsync(existing, adminRole);
+            }
+            return;
+        }
+
+        var admin = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            FirstName = firstName,
+            LastName = lastName,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        var createResult = await userManager.CreateAsync(admin, password);
+        if (!createResult.Succeeded)
+        {
+            var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Failed to seed admin user: {errors}");
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(admin, adminRole);
+        if (!roleResult.Succeeded)
+        {
+            var errors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Failed to assign Admin role: {errors}");
+        }
+    }
+
+    public static async Task SeedTestStudentsAsync(IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var studentRole = UserRole.Student.ToString();
+        const string password = "Test1234";
+
+        for (var i = 1; i <= 5; i++)
+        {
+            var email = $"student{i}@mail.ru";
+
+            if (await userManager.FindByEmailAsync(email) is not null)
+                continue;
+
+            var student = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                FirstName = "Student",
+                LastName = i.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await userManager.CreateAsync(student, password);
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to seed test student {email}: {errors}");
+            }
+
+            var roleResult = await userManager.AddToRoleAsync(student, studentRole);
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to assign Student role to {email}: {errors}");
+            }
+        }
+    }
 }

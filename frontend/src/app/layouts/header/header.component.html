@@ -39,13 +39,18 @@
           </div>
           <div class="header__dropdown-body">
             @for (notif of recentNotifications(); track notif.id) {
-              <div class="header__notif" [class.header__notif--unread]="!notif.isRead">
+              <div
+                class="header__notif"
+                [class.header__notif--unread]="!notif.isRead"
+                (click)="openNotification(notif)"
+              >
                 <div class="header__notif-icon">
                   <lucide-icon [img]="getNotificationIcon(notif.type)" [size]="16" />
                 </div>
                 <div class="header__notif-content">
                   <p class="header__notif-title">{{ notif.title }}</p>
                   <p class="header__notif-message">{{ notif.message }}</p>
+                  <span class="header__notif-time">{{ formatTimeAgo(notif.createdAt) }}</span>
                 </div>
                 <button
                   class="header__notif-close"

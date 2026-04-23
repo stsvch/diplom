@@ -1,5 +1,5 @@
-using Calendar.Domain.Enums;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 
 namespace Calendar.Domain.Entities;
 

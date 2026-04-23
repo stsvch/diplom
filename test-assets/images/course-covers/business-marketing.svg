@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g transform="translate(100,180)" fill="#ffffff" font-family="Segoe UI, sans-serif">
+    <text font-size="26" opacity="0.85">Business · Digital Marketing</text>
+    <text y="100" font-size="96" font-weight="700">Цифровой</text>
+    <text y="200" font-size="96" font-weight="700">маркетинг</text>
+    <text y="280" font-size="24" opacity="0.85">SMM · SEO · Контент · Аналитика</text>
+  </g>
+  <g transform="translate(860,160)" stroke="#fde047" stroke-width="4" fill="none" opacity="0.9">
+    <polyline points="0,280 50,240 100,260 160,180 220,200 280,100 340,140"/>
+    <line x1="0" y1="300" x2="340" y2="300" stroke="#fff" stroke-opacity="0.4"/>
+    <line x1="0" y1="0" x2="0" y2="300" stroke="#fff" stroke-opacity="0.4"/>
+  </g>
+</svg>

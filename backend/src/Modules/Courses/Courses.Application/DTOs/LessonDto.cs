@@ -1,3 +1,5 @@
+using Courses.Domain.Entities;
+
 namespace Courses.Application.DTOs;
 
 public class LessonDto
@@ -9,4 +11,5 @@ public class LessonDto
     public bool IsPublished { get; set; }
     public int? Duration { get; set; }
     public int BlocksCount { get; set; }
+    public LessonLayout Layout { get; set; }
 }

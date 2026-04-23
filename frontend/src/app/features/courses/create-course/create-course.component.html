@@ -96,14 +96,33 @@
             </div>
           </div>
 
-          <!-- Cover upload placeholder -->
+          <!-- Cover upload -->
           <div class="form-group">
             <label class="form-label">Обложка курса</label>
-            <div class="cover-upload">
-              <lucide-icon [img]="UploadIcon" [size]="32" class="cover-upload__icon" />
-              <p class="cover-upload__text">Нажмите или перетащите файл для загрузки</p>
-              <p class="cover-upload__hint">PNG, JPG до 5 МБ</p>
-            </div>
+            @if (coverPreviewUrl() || step1.value.imageUrl) {
+              <div class="cover-preview">
+                <img [src]="coverPreviewUrl() || step1.value.imageUrl" alt="Обложка курса" />
+                <button type="button" class="cover-preview__remove" (click)="removeCover()">Удалить</button>
+              </div>
+            } @else {
+              <label class="cover-upload"
+                (dragover)="onCoverDragOver($event)"
+                (drop)="onCoverDrop($event)"
+              >
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  (change)="onCoverFileSelected($event)"
+                  hidden
+                />
+                <lucide-icon [img]="UploadIcon" [size]="32" class="cover-upload__icon" />
+                <p class="cover-upload__text">
+                  @if (coverUploading()) { Загрузка... }
+                  @else { Нажмите или перетащите файл для загрузки }
+                </p>
+                <p class="cover-upload__hint">PNG, JPG до 5 МБ</p>
+              </label>
+            }
           </div>
 
           <!-- Price -->
@@ -130,138 +149,11 @@
       </app-card>
     }
 
-    <!-- Step 2: Структура -->
+    <!-- Step 2: Настройки -->
     @if (currentStep() === 1) {
-      <div class="step-structure">
-        <div class="step-structure__header">
-          <h2 class="step-title">Структура курса</h2>
-          <app-button variant="primary" size="sm" (click)="addModule()">
-            <lucide-icon [img]="PlusIcon" [size]="16" />
-            Добавить модуль
-          </app-button>
-        </div>
-
-        @if (modules().length === 0) {
-          <div class="structure-empty">
-            <lucide-icon [img]="BookOpenIcon" [size]="48" class="structure-empty__icon" />
-            <p class="structure-empty__text">Добавьте первый модуль для начала</p>
-            <app-button variant="outline" (click)="addModule()">
-              <lucide-icon [img]="PlusIcon" [size]="16" />
-              Добавить модуль
-            </app-button>
-          </div>
-        } @else {
-          <div class="modules-list">
-            @for (mod of modules(); track $index) {
-              <app-card padding="none">
-                <div class="module-card">
-                  <!-- Module header -->
-                  <div class="module-card__header">
-                    <div class="module-card__header-left">
-                      <button class="module-card__expand" (click)="toggleModule($index)">
-                        <lucide-icon [img]="mod.expanded ? ChevronLeftIcon : ChevronRightIcon" [size]="18" />
-                      </button>
-                      <input
-                        class="module-card__title-input"
-                        [value]="mod.title"
-                        (input)="updateModuleTitle($index, $any($event.target).value)"
-                        placeholder="Название модуля"
-                      />
-                    </div>
-                    <div class="module-card__actions">
-                      <span class="module-card__count">{{ mod.lessons.length }} уроков</span>
-                      <button class="icon-btn" (click)="moveModule($index, 'up')" [disabled]="$index === 0" title="Вверх">
-                        <lucide-icon [img]="ArrowUpIcon" [size]="16" />
-                      </button>
-                      <button class="icon-btn" (click)="moveModule($index, 'down')" [disabled]="$index === modules().length - 1" title="Вниз">
-                        <lucide-icon [img]="ArrowDownIcon" [size]="16" />
-                      </button>
-                      <button class="icon-btn icon-btn--danger" (click)="removeModule($index)" title="Удалить модуль">
-                        <lucide-icon [img]="TrashIcon" [size]="16" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Module description -->
-                  @if (mod.expanded) {
-                    <div class="module-card__body">
-                      <input
-                        class="module-card__desc-input"
-                        [value]="mod.description"
-                        (input)="updateModuleDesc($index, $any($event.target).value)"
-                        placeholder="Описание модуля (необязательно)"
-                      />
-
-                      <!-- Lessons -->
-                      <div class="lessons-list">
-                        @for (lesson of mod.lessons; track $index) {
-                          <div class="lesson-item">
-                            <div class="lesson-item__left">
-                              <lucide-icon [img]="FileTextIcon" [size]="16" class="lesson-item__icon" />
-                              <input
-                                class="lesson-item__input"
-                                [value]="lesson.title"
-                                (input)="updateLessonTitle($index, $index, $any($event.target).value)"
-                                placeholder="Название урока"
-                              />
-                            </div>
-                            <div class="lesson-item__actions">
-                              @if (lesson.id) {
-                                <a
-                                  [routerLink]="'/teacher/lesson/' + lesson.id + '/edit'"
-                                  class="icon-btn icon-btn--edit"
-                                  title="Редактировать содержимое"
-                                >
-                                  <lucide-icon [img]="EditIcon" [size]="14" />
-                                </a>
-                              }
-                              <button class="icon-btn" (click)="moveLessonUp($index, $index)" [disabled]="$index === 0">
-                                <lucide-icon [img]="ArrowUpIcon" [size]="14" />
-                              </button>
-                              <button class="icon-btn" (click)="moveLessonDown($index, $index)" [disabled]="$index === mod.lessons.length - 1">
-                                <lucide-icon [img]="ArrowDownIcon" [size]="14" />
-                              </button>
-                              <button class="icon-btn icon-btn--danger" (click)="removeLesson($index, $index)">
-                                <lucide-icon [img]="TrashIcon" [size]="14" />
-                              </button>
-                            </div>
-                          </div>
-                        }
-                      </div>
-
-                      <button class="add-lesson-btn" (click)="addLesson($index)">
-                        <lucide-icon [img]="PlusIcon" [size]="16" />
-                        Добавить урок
-                      </button>
-                    </div>
-                  }
-                </div>
-              </app-card>
-            }
-          </div>
-        }
-      </div>
-    }
-
-    <!-- Step 3: Настройки -->
-    @if (currentStep() === 2) {
       <app-card padding="lg">
         <h2 class="step-title">Настройки курса</h2>
-        <form [formGroup]="step3" class="step-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Количество попыток</label>
-              <input formControlName="maxAttempts" type="number" class="form-input" min="1" max="10" />
-              <p class="form-hint">Сколько раз студент может пересдать тест</p>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Проходной балл (%)</label>
-              <input formControlName="passingScore" type="number" class="form-input" min="0" max="100" />
-              <p class="form-hint">Минимальный процент для прохождения</p>
-            </div>
-          </div>
-
+        <form [formGroup]="step2" class="step-form">
           <div class="form-group">
             <label class="form-label">Дедлайн</label>
             <input formControlName="deadline" type="date" class="form-input" />
@@ -274,6 +166,7 @@
               <option value="Sequential">Последовательный</option>
               <option value="Free">Свободный</option>
             </select>
+            <p class="form-hint">«Последовательный» — открывается следующий урок только после завершения предыдущего</p>
           </div>
 
           <div class="settings-checkboxes">
@@ -283,15 +176,6 @@
               <div>
                 <span class="checkbox-text">Сертификат по завершении</span>
                 <p class="checkbox-hint">Студенты получат сертификат после прохождения курса</p>
-              </div>
-            </label>
-
-            <label class="checkbox-label">
-              <input type="checkbox" formControlName="shuffleQuestions" class="checkbox-input" />
-              <span class="checkbox-custom"></span>
-              <div>
-                <span class="checkbox-text">Перемешивать вопросы</span>
-                <p class="checkbox-hint">Вопросы теста будут показываться в случайном порядке</p>
               </div>
             </label>
 
@@ -308,8 +192,8 @@
       </app-card>
     }
 
-    <!-- Step 4: Публикация -->
-    @if (currentStep() === 3) {
+    <!-- Step 3: Публикация -->
+    @if (currentStep() === 2) {
       <div class="step-preview">
         <h2 class="step-title">Предпросмотр курса</h2>
 
@@ -330,30 +214,24 @@
         </app-card>
 
         <app-card padding="lg">
-          <h3 class="preview-section-title">Структура</h3>
-          @if (modules().length === 0) {
-            <p class="preview-empty">Модули не добавлены</p>
-          } @else {
-            <div class="preview-modules">
-              @for (mod of modules(); track $index) {
-                <div class="preview-module">
-                  <div class="preview-module__header">
-                    <span class="preview-module__num">Модуль {{ $index + 1 }}</span>
-                    <span class="preview-module__title">{{ mod.title }}</span>
-                    <app-badge variant="neutral" size="sm">{{ mod.lessons.length }} уроков</app-badge>
-                  </div>
-                  @if (mod.lessons.length > 0) {
-                    <ul class="preview-lessons">
-                      @for (lesson of mod.lessons; track $index) {
-                        <li>{{ lesson.title }}</li>
-                      }
-                    </ul>
-                  }
-                </div>
-              }
-            </div>
-            <p class="preview-total">Итого: {{ modules().length }} модулей, {{ totalLessons }} уроков</p>
-          }
+          <h3 class="preview-section-title">Настройки</h3>
+          <dl class="preview-list">
+            <dt>Дедлайн</dt>
+            <dd>{{ step2.value.deadline || '—' }}</dd>
+            <dt>Порядок</dt>
+            <dd>{{ step2.value.orderType === 'Sequential' ? 'Последовательный' : 'Свободный' }}</dd>
+            <dt>Сертификат</dt>
+            <dd>{{ step2.value.hasCertificate ? 'Да' : 'Нет' }}</dd>
+            <dt>Оценивание</dt>
+            <dd>{{ step2.value.hasGrading ? 'Включено' : 'Выключено' }}</dd>
+          </dl>
+        </app-card>
+
+        <app-card padding="lg">
+          <div class="next-step-hint">
+            <h3 class="preview-section-title">Что дальше</h3>
+            <p>После сохранения курса вы сможете добавить <b>модули</b> и <b>уроки</b> в редакторе курса. Там же наполните уроки блоками контента.</p>
+          </div>
         </app-card>
 
         <div class="publish-actions">
@@ -370,7 +248,7 @@
   </div>
 
   <!-- Footer navigation -->
-  @if (currentStep() < 3) {
+  @if (currentStep() < 2) {
     <div class="create-course__footer">
       <app-button variant="outline" [disabled]="currentStep() === 0" (click)="prevStep()">
         <lucide-icon [img]="ChevronLeftIcon" [size]="16" />

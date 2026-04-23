@@ -4,6 +4,7 @@ namespace Tests.Domain.Entities;
 
 public class Test : BaseEntity, IAuditableEntity
 {
+    public Guid? CourseId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string CreatedById { get; set; } = string.Empty;

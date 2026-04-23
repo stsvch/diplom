@@ -1,0 +1,64 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+  position: relative;
+}
+
+.inserter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-2 0;
+  position: relative;
+
+  &__line {
+    flex: 1;
+    height: 1px;
+    background: transparent;
+    transition: background-color $transition-fast;
+  }
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    border: 1px dashed transparent;
+    border-radius: $radius-full;
+    background: transparent;
+    color: $text-muted;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all $transition-fast;
+    opacity: 0;
+  }
+
+  &:hover,
+  &--open {
+    .inserter__line {
+      background: $border-color;
+    }
+    .inserter__button {
+      opacity: 1;
+      color: $primary;
+      border-color: $border-color;
+      background: $bg-card;
+    }
+  }
+
+  &__button:hover {
+    background: $primary-light;
+    border-color: $primary-ring;
+  }
+
+  &__menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: $spacing-2;
+    z-index: $z-dropdown;
+  }
+}

@@ -30,6 +30,22 @@
   } @else {
     <div class="assignment-editor__form">
 
+      <!-- Course -->
+      <div class="form-group">
+        <label class="form-label" for="assignment-course">Курс *</label>
+        <select
+          id="assignment-course"
+          class="form-input"
+          [value]="courseId()"
+          (change)="courseId.set($any($event.target).value)"
+        >
+          <option value="">— выберите курс —</option>
+          @for (c of courses(); track c.id) {
+            <option [value]="c.id">{{ c.title }}</option>
+          }
+        </select>
+      </div>
+
       <!-- Title -->
       <div class="form-group">
         <label class="form-label" for="assignment-title">Название задания *</label>

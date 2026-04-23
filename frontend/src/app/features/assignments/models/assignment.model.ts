@@ -1,5 +1,6 @@
 export interface AssignmentDto {
   id: string;
+  courseId?: string;
   title: string;
   description: string;
   criteria?: string;
@@ -29,6 +30,7 @@ export interface SubmissionDto {
 }
 
 export interface CreateAssignmentDto {
+  courseId: string;
   title: string;
   description: string;
   criteria?: string;

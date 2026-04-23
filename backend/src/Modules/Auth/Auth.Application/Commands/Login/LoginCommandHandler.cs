@@ -37,6 +37,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
         if (!user.EmailConfirmed)
             return Result.Failure<LoginResultDto>("Please confirm your email before logging in.");
 
+        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+            return Result.Failure<LoginResultDto>("Ваш аккаунт заблокирован. Обратитесь к администратору.");
+
         var roles = await _userManager.GetRolesAsync(user);
         var accessToken = _tokenService.GenerateAccessToken(user, roles);
         var refreshTokenValue = _tokenService.GenerateRefreshToken();

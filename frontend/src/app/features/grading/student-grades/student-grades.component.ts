@@ -17,6 +17,7 @@ import { StatsCardComponent } from '../../../shared/components/stats-card/stats-
 
 interface GradeGroup {
   courseId: string;
+  courseName: string;
   grades: GradeDto[];
   averageScore: number;
 }
@@ -56,6 +57,7 @@ export class StudentGradesComponent implements OnInit {
     });
     return Array.from(map.entries()).map(([courseId, grades]) => ({
       courseId,
+      courseName: grades[0]?.courseName?.trim() || `Курс ${courseId.slice(0, 8)}`,
       grades,
       averageScore: grades.length
         ? grades.reduce((sum, g) => sum + (g.maxScore > 0 ? (g.score / g.maxScore * 100) : 0), 0) / grades.length

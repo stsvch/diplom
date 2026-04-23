@@ -7,6 +7,7 @@ using Tests.Application.DTOs;
 using Tests.Application.Tests.Commands.CreateTest;
 using Tests.Application.Tests.Commands.DeleteTest;
 using Tests.Application.Tests.Commands.UpdateTest;
+using Tests.Application.Tests.Queries.GetMyTests;
 using Tests.Application.Tests.Queries.GetTestById;
 using Tests.Application.Tests.Queries.GetTestSubmissions;
 
@@ -23,6 +24,18 @@ public class TestsController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet("my")]
+    [Authorize(Roles = "Teacher")]
+    [ProducesResponseType(typeof(List<TestDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyTests(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var result = await _mediator.Send(new GetMyTestsQuery(userId), cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Teacher")]
     [ProducesResponseType(typeof(TestDetailDto), StatusCodes.Status201Created)]
@@ -34,11 +47,13 @@ public class TestsController : ControllerBase
             return Unauthorized();
 
         var command = new CreateTestCommand(
+            request.CourseId,
             request.Title,
             request.Description,
             userId,
             request.TimeLimitMinutes,
             request.MaxAttempts,
+            request.Deadline,
             request.ShuffleQuestions,
             request.ShuffleAnswers,
             request.ShowCorrectAnswers);
@@ -91,6 +106,7 @@ public class TestsController : ControllerBase
         var command = new UpdateTestCommand(
             id,
             userId,
+            request.CourseId,
             request.Title,
             request.Description,
             request.TimeLimitMinutes,
@@ -143,15 +159,18 @@ public class TestsController : ControllerBase
 }
 
 public record CreateTestRequest(
+    Guid CourseId,
     string Title,
     string? Description,
     int? TimeLimitMinutes,
     int? MaxAttempts,
+    DateTime? Deadline,
     bool ShuffleQuestions,
     bool ShuffleAnswers,
     bool ShowCorrectAnswers);
 
 public record UpdateTestRequest(
+    Guid CourseId,
     string Title,
     string? Description,
     int? TimeLimitMinutes,

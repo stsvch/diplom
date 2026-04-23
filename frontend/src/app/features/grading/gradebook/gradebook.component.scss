@@ -258,13 +258,25 @@
   align-items: center;
   justify-content: center;
   padding: 2px v.$spacing-2;
+  border: none;
   border-radius: v.$radius-sm;
   font-size: v.$font-size-xs;
   font-weight: v.$font-weight-medium;
   min-width: 52px;
+  background: transparent;
 
   &--empty {
     color: v.$text-placeholder;
+  }
+
+  &--interactive {
+    cursor: pointer;
+    transition: transform v.$transition-fast, box-shadow v.$transition-fast;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: v.$shadow-sm;
+    }
   }
 
   &.score--green {

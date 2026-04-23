@@ -19,8 +19,121 @@
     &-header {
       padding: 20px 16px 12px;
       border-bottom: 1px solid var(--color-border, #e5e7eb);
+      display: flex; align-items: center; justify-content: space-between;
     }
   }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px; border: none;
+    background: transparent; cursor: pointer; color: #475569;
+    transition: background 0.15s;
+  }
+  .icon-btn:hover:not(:disabled) { background: #F1F5F9; }
+  .icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .icon-btn--danger { color: #DC2626; }
+  .icon-btn--danger:hover:not(:disabled) { background: #FEE2E2; }
+
+  .chat-header__actions {
+    margin-left: auto;
+    display: flex; gap: 4px; align-items: center;
+  }
+
+  .archived-banner {
+    padding: 10px 20px;
+    background: #FEF3C7;
+    color: #92400E;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #FBBF24;
+  }
+
+  .chat-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .chat-body__main {
+    display: flex; flex-direction: column;
+    flex: 1; min-width: 0; min-height: 0;
+  }
+
+  .participants-sidebar {
+    width: 260px; border-left: 1px solid #E2E8F0;
+    background: #F8FAFC; display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .participants-sidebar__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid #E2E8F0;
+  }
+  .participants-sidebar__head h4 { margin: 0; font-size: 0.875rem; font-weight: 600; }
+  .participants-sidebar__list {
+    list-style: none; margin: 0; padding: 6px 0;
+    overflow-y: auto; flex: 1;
+  }
+  .participants-sidebar__item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px; font-size: 0.875rem;
+  }
+  .participants-sidebar__name {
+    flex: 1; display: flex; align-items: center; gap: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .participants-sidebar__owner-tag {
+    font-size: 0.7rem; color: #64748B; background: #E2E8F0;
+    padding: 2px 6px; border-radius: 999px;
+  }
+
+  .message__edit-input {
+    width: 100%; min-width: 240px;
+    padding: 6px 8px; border-radius: 6px; border: 1px solid #C7D2FE;
+    font-size: 0.875rem; resize: vertical; outline: none;
+  }
+  .message__edit-actions {
+    display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px;
+  }
+  .btn-xs {
+    font-size: 0.75rem; padding: 4px 10px; border-radius: 6px;
+    border: 1px solid #CBD5E1; background: #fff; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn-xs:hover { background: #F1F5F9; }
+  .btn-xs--primary { background: #4F46E5; color: #fff; border-color: #4F46E5; }
+  .btn-xs--primary:hover { background: #4338CA; }
+
+  .message__action {
+    width: 22px; height: 22px; border: none; background: transparent;
+    border-radius: 4px; cursor: pointer; color: #94A3B8;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .message__action:hover { color: #DC2626; background: rgba(220, 38, 38, 0.08); }
+
+  .pending-attachments {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding: 4px 0 6px;
+  }
+  .pending-attachment {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 999px;
+    background: #EEF2FF; color: #3730A3;
+    font-size: 0.75rem;
+  }
+  .pending-attachment__remove {
+    border: none; background: transparent; cursor: pointer;
+    color: #3730A3; padding: 0; line-height: 0;
+  }
+
+  .input-bar__attach {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 8px; border: none;
+    background: transparent; color: #475569; cursor: pointer;
+  }
+  .input-bar__attach:hover:not(:disabled) { background: #F1F5F9; }
+  .input-bar__attach:disabled { opacity: 0.5; cursor: not-allowed; }
+  .input-bar__center { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .message__attachment-size { color: #64748B; margin-left: 4px; }
 
   &__title {
     font-size: 1.125rem;

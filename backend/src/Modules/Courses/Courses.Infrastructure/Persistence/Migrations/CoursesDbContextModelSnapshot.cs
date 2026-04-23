@@ -32,6 +32,9 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(5000)
@@ -39,6 +42,11 @@ namespace Courses.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("DisciplineId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("HasCertificate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("HasGrading")
                         .HasColumnType("boolean");
@@ -208,6 +216,11 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Layout")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("uuid");
 
@@ -224,43 +237,6 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("Lessons", "courses");
-                });
-
-            modelBuilder.Entity("Courses.Domain.Entities.LessonBlock", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("AssignmentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("LessonId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid?>("TestId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("TextContent")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("VideoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LessonId");
-
-                    b.ToTable("LessonBlocks", "courses");
                 });
 
             modelBuilder.Entity("Courses.Domain.Entities.Course", b =>
@@ -307,17 +283,6 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.Navigation("Module");
                 });
 
-            modelBuilder.Entity("Courses.Domain.Entities.LessonBlock", b =>
-                {
-                    b.HasOne("Courses.Domain.Entities.Lesson", "Lesson")
-                        .WithMany("Blocks")
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Lesson");
-                });
-
             modelBuilder.Entity("Courses.Domain.Entities.Course", b =>
                 {
                     b.Navigation("Enrollments");
@@ -333,11 +298,6 @@ namespace Courses.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Courses.Domain.Entities.Discipline", b =>
                 {
                     b.Navigation("Courses");
-                });
-
-            modelBuilder.Entity("Courses.Domain.Entities.Lesson", b =>
-                {
-                    b.Navigation("Blocks");
                 });
 #pragma warning restore 612, 618
         }

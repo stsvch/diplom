@@ -1,281 +1,103 @@
-<div class="lesson-editor">
-  <!-- Header -->
-  <div class="lesson-editor__header">
-    <a [routerLink]="backUrl" class="lesson-editor__back">
-      <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
-      Назад к курсу
-    </a>
+<div class="editor-page">
+  <header class="editor-page__header">
+    <button class="back" [routerLink]="['../../']">
+      <lucide-icon name="chevron-left" size="20"></lucide-icon>
+      <span>К курсу</span>
+    </button>
 
-    <div class="lesson-editor__title-wrap">
+    @if (lesson(); as l) {
       <input
+        class="title-input"
         type="text"
-        class="lesson-editor__title-input"
-        [value]="lessonTitle()"
-        (input)="lessonTitle.set($any($event.target).value)"
+        [value]="l.title"
+        (input)="onTitleChange($any($event.target).value)"
         placeholder="Название урока"
       />
-    </div>
 
-    <app-button
-      variant="primary"
-      size="md"
-      [loading]="saving()"
-      (click)="saveAll()"
-    >
-      <lucide-icon [img]="SaveIcon" [size]="16" />
-      Сохранить
-    </app-button>
-  </div>
+      <button type="button" class="settings-btn" (click)="showLessonSettings.set(!showLessonSettings())">
+        <lucide-icon name="settings" size="16"></lucide-icon>
+      </button>
+    }
 
-  @if (loading()) {
-    <div class="lesson-editor__loading">
-      <lucide-icon [img]="Loader2Icon" [size]="32" class="lesson-editor__spinner" />
-      <p>Загрузка...</p>
-    </div>
-  } @else {
-    <div class="lesson-editor__body">
-      <!-- Blocks list -->
-      @if (blocks().length === 0) {
-        <div class="lesson-editor__empty">
-          <p>Блоки ещё не добавлены. Нажмите "Добавить блок" чтобы начать.</p>
-        </div>
+    <div class="editor-page__save" [attr.data-status]="saveStatus()">
+      @switch (saveStatus()) {
+        @case ('saving') { <lucide-icon name="loader" size="14" class="spin"></lucide-icon><span>Сохраняем…</span> }
+        @case ('saved') { <lucide-icon name="check" size="14"></lucide-icon><span>Сохранено</span> }
+        @case ('error') { <lucide-icon name="triangle-alert" size="14"></lucide-icon><span>{{ lastError() || 'Ошибка' }}</span> }
+        @default { <span class="muted">Автосохранение</span> }
       }
+    </div>
+  </header>
 
-      @for (block of blocks(); track block.id; let i = $index) {
-        <div class="lesson-block-card">
-          <!-- Block header -->
-          <div class="lesson-block-card__header">
-            <app-badge [variant]="getBlockTypeBadgeVariant(block.type)" size="sm">
-              @switch (block.type) {
-                @case ('Text') { <lucide-icon [img]="TypeIcon" [size]="12" /> }
-                @case ('Video') { <lucide-icon [img]="VideoIcon" [size]="12" /> }
-                @case ('File') { <lucide-icon [img]="PaperclipIcon" [size]="12" /> }
-                @case ('Quiz') { <lucide-icon [img]="ClipboardListIcon" [size]="12" /> }
-                @case ('Assignment') { <lucide-icon [img]="FileEditIcon" [size]="12" /> }
-              }
-              {{ getBlockTypeLabel(block.type) }}
-            </app-badge>
-
-            <span class="lesson-block-card__order">Блок {{ i + 1 }}</span>
-
-            <div class="lesson-block-card__controls">
-              <button
-                type="button"
-                class="lesson-block-card__ctrl-btn"
-                (click)="moveBlock(i, 'up')"
-                [disabled]="i === 0"
-                title="Вверх"
-              >
-                <lucide-icon [img]="ArrowUpIcon" [size]="16" />
-              </button>
-              <button
-                type="button"
-                class="lesson-block-card__ctrl-btn"
-                (click)="moveBlock(i, 'down')"
-                [disabled]="i === blocks().length - 1"
-                title="Вниз"
-              >
-                <lucide-icon [img]="ArrowDownIcon" [size]="16" />
-              </button>
-              <button
-                type="button"
-                class="lesson-block-card__ctrl-btn lesson-block-card__ctrl-btn--danger"
-                (click)="deleteBlock(block.id)"
-                title="Удалить блок"
-              >
-                <lucide-icon [img]="TrashIcon" [size]="16" />
-              </button>
-            </div>
-          </div>
-
-          <!-- Block content -->
-          <div class="lesson-block-card__content">
-            @switch (block.type) {
-              @case ('Text') {
-                <app-rich-text-editor
-                  [content]="block.textContent ?? ''"
-                  placeholder="Введите текст урока..."
-                  (contentChange)="onTextChange(block.id, $event)"
-                />
-              }
-
-              @case ('Video') {
-                <div class="block-video">
-                  <!-- Mode toggle -->
-                  <div class="block-video__mode-tabs">
-                    <button
-                      type="button"
-                      class="block-video__mode-tab"
-                      [class.block-video__mode-tab--active]="block.videoInputMode === 'url'"
-                      (click)="setVideoMode(block.id, 'url')"
-                    >
-                      Ссылка (YouTube / Vimeo / URL)
-                    </button>
-                    <button
-                      type="button"
-                      class="block-video__mode-tab"
-                      [class.block-video__mode-tab--active]="block.videoInputMode === 'upload'"
-                      (click)="setVideoMode(block.id, 'upload')"
-                    >
-                      Загрузить файл
-                    </button>
-                  </div>
-
-                  @if (block.videoInputMode === 'url') {
-                    <div class="block-video__url-row">
-                      <input
-                        type="url"
-                        class="block-video__url-input"
-                        [value]="block.pendingVideoUrl ?? ''"
-                        (input)="onVideoUrlChange(block.id, $any($event.target).value)"
-                        placeholder="https://www.youtube.com/watch?v=..."
-                      />
-                      <app-button
-                        variant="outline"
-                        size="sm"
-                        (click)="applyVideoUrl(block)"
-                      >
-                        Применить
-                      </app-button>
-                    </div>
-                  } @else {
-                    <app-file-uploader
-                      accept="video/*"
-                      [entityType]="'LessonBlock'"
-                      [entityId]="block.id"
-                      (fileUploaded)="onVideoFileUploaded(block.id, $event)"
-                    />
-                  }
-
-                  @if (block.videoUrl) {
-                    <div class="block-video__preview">
-                      <p class="block-video__preview-label">Предпросмотр:</p>
-                      <app-video-player [url]="block.videoUrl" />
-                    </div>
-                  }
-                </div>
-              }
-
-              @case ('File') {
-                <div class="block-files">
-                  <app-file-uploader
-                    accept="*/*"
-                    [multiple]="true"
-                    [entityType]="'LessonBlock'"
-                    [entityId]="block.id"
-                    (fileUploaded)="onFileUploaded(block.id, $event)"
-                  />
-
-                  @if (block.filesLoading) {
-                    <div class="block-files__loading">
-                      <lucide-icon [img]="Loader2Icon" [size]="20" class="lesson-editor__spinner" />
-                      Загрузка файлов...
-                    </div>
-                  } @else if (block.files && block.files.length > 0) {
-                    <div class="block-files__list">
-                      @for (file of block.files; track file.id) {
-                        <app-file-card
-                          [attachment]="file"
-                          [deletable]="true"
-                          (deleted)="deleteAttachment(block.id, $event)"
-                        />
-                      }
-                    </div>
-                  }
-                </div>
-              }
-
-              @case ('Quiz') {
-                <div class="block-quiz">
-                  @if (block.testId) {
-                    <div class="block-quiz__info">
-                      <lucide-icon [img]="ClipboardListIcon" [size]="20" />
-                      <span>Тест привязан (ID: {{ block.testId }})</span>
-                    </div>
-                    <app-button variant="outline" size="sm" (click)="navigateToTestEditor(block)">
-                      <lucide-icon [img]="ExternalLinkIcon" [size]="14" />
-                      Редактировать тест
-                    </app-button>
-                  } @else {
-                    <div class="block-quiz__empty">
-                      <lucide-icon [img]="ClipboardListIcon" [size]="32" />
-                      <p>Тест не создан</p>
-                    </div>
-                    <app-button variant="primary" size="sm" (click)="navigateToTestEditor(block)">
-                      <lucide-icon [img]="PlusIcon" [size]="14" />
-                      Создать тест
-                    </app-button>
-                  }
-                </div>
-              }
-
-              @case ('Assignment') {
-                <div class="block-quiz">
-                  @if (block.assignmentId) {
-                    <div class="block-quiz__info">
-                      <lucide-icon [img]="FileEditIcon" [size]="20" />
-                      <span>Задание привязано (ID: {{ block.assignmentId }})</span>
-                    </div>
-                    <app-button variant="outline" size="sm" (click)="navigateToAssignmentEditor(block)">
-                      <lucide-icon [img]="ExternalLinkIcon" [size]="14" />
-                      Редактировать задание
-                    </app-button>
-                  } @else {
-                    <div class="block-quiz__empty">
-                      <lucide-icon [img]="FileEditIcon" [size]="32" />
-                      <p>Задание не создано</p>
-                    </div>
-                    <app-button variant="primary" size="sm" (click)="navigateToAssignmentEditor(block)">
-                      <lucide-icon [img]="PlusIcon" [size]="14" />
-                      Создать задание
-                    </app-button>
-                  }
-                </div>
-              }
-            }
-          </div>
-        </div>
-      }
-
-      <!-- Add block button -->
-      <div class="lesson-editor__add-wrap">
-        <div class="lesson-editor__add-menu-host">
-          <app-button
-            variant="outline"
-            size="md"
-            (click)="toggleAddMenu()"
-          >
-            <lucide-icon [img]="PlusIcon" [size]="16" />
-            Добавить блок
-            <lucide-icon [img]="ChevronDownIcon" [size]="14" />
-          </app-button>
-
-          @if (showAddMenu()) {
-            <div class="add-menu" (clickOutside)="closeAddMenu()">
-              <button type="button" class="add-menu__item" (click)="addBlock('Text')">
-                <lucide-icon [img]="TypeIcon" [size]="16" />
-                <span>Текст</span>
-              </button>
-              <button type="button" class="add-menu__item" (click)="addBlock('Video')">
-                <lucide-icon [img]="VideoIcon" [size]="16" />
-                <span>Видео</span>
-              </button>
-              <button type="button" class="add-menu__item" (click)="addBlock('File')">
-                <lucide-icon [img]="PaperclipIcon" [size]="16" />
-                <span>Файл</span>
-              </button>
-              <button type="button" class="add-menu__item" (click)="addBlock('Quiz')">
-                <lucide-icon [img]="ClipboardListIcon" [size]="16" />
-                <span>Тест</span>
-              </button>
-              <button type="button" class="add-menu__item" (click)="addBlock('Assignment')">
-                <lucide-icon [img]="FileEditIcon" [size]="16" />
-                <span>Задание</span>
-              </button>
-            </div>
-          }
+  @if (showLessonSettings() && lesson(); as l) {
+    <div class="lesson-settings">
+      <div class="field">
+        <span class="label">Режим прохождения</span>
+        <div class="toggle">
+          <button type="button" [class.active]="l.layout === 'Scroll'" (click)="onLayoutChange('Scroll')">
+            Scroll (одна страница)
+          </button>
+          <button type="button" [class.active]="l.layout === 'Stepper'" (click)="onLayoutChange('Stepper')">
+            Stepper (пошагово)
+          </button>
         </div>
       </div>
     </div>
   }
+
+  <main class="editor-page__body">
+    @if (loading()) {
+      <div class="state">Загрузка...</div>
+    } @else if (showTemplates() && drafts().length === 0) {
+      <div class="templates">
+        <h3>Выберите шаблон</h3>
+        <div class="templates__grid">
+          @for (tpl of templates; track tpl.id) {
+            <button type="button" class="template" (click)="applyTemplate(tpl)">
+              <div class="template__name">{{ tpl.name }}</div>
+              <div class="template__desc">{{ tpl.description }}</div>
+              <div class="template__count">{{ tpl.blocks.length }} блок(ов)</div>
+            </button>
+          }
+        </div>
+      </div>
+    } @else if (drafts().length === 0) {
+      <div class="empty">
+        <h3>В этом уроке пока нет блоков</h3>
+        <p>Нажмите «+ Добавить блок», чтобы начать.</p>
+        <button class="link" type="button" (click)="showTemplates.set(true)">Или выбрать шаблон</button>
+      </div>
+      <app-block-inserter (insert)="insertBlock($event, -1)"></app-block-inserter>
+    } @else {
+      <app-block-inserter (insert)="insertBlock($event, -1)"></app-block-inserter>
+
+      <div cdkDropList class="drop-list" (cdkDropListDropped)="onDrop($event)">
+        @for (d of drafts(); track d.block.id; let i = $index) {
+          <div cdkDrag class="drop-item">
+            <div class="drag-handle" cdkDragHandle>
+              <lucide-icon name="grip-vertical" size="16"></lucide-icon>
+            </div>
+
+            <app-block-host
+              [type]="d.block.type"
+              (duplicate)="duplicateBlock(d.block.id)"
+              (remove)="removeBlock(d.block.id)"
+            >
+              <app-block-editor-host
+                [block]="d.block"
+                (dataChange)="onDataChange(d.block.id, $event)"
+                (settingsChange)="onSettingsChange(d.block.id, $event)"
+              ></app-block-editor-host>
+            </app-block-host>
+
+            @if (i < drafts().length - 1) {
+              <app-block-inserter (insert)="insertBlock($event, i)"></app-block-inserter>
+            }
+          </div>
+        }
+      </div>
+
+      <app-block-inserter (insert)="insertBlock($event, drafts().length - 1)"></app-block-inserter>
+    }
+  </main>
 </div>

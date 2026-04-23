@@ -15,6 +15,8 @@ export interface ChatDto {
   type: string; // 'DirectMessage' | 'CourseChat'
   courseId?: string;
   courseName?: string;
+  ownerId?: string;
+  isArchived: boolean;
   participants: ParticipantDto[];
   lastMessage?: string;
   lastMessageAt?: string;
@@ -48,4 +50,20 @@ export interface CreateCourseChatRequest {
   courseName: string;
   participantIds: string[];
   participantNames?: string[];
+}
+
+export interface EditMessageRequest {
+  text: string;
+}
+
+export interface AddParticipantRequest {
+  userId: string;
+  userName: string;
+}
+
+export interface UserSummaryDto {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
 }

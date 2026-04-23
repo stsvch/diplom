@@ -1,4 +1,6 @@
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Application.Interfaces;
@@ -9,10 +11,17 @@ namespace Scheduling.Application.Scheduling.Commands.CancelBooking;
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
+    private readonly ICalendarEventPublisher _calendar;
+    private readonly INotificationDispatcher _notifications;
 
-    public CancelBookingCommandHandler(ISchedulingDbContext context)
+    public CancelBookingCommandHandler(
+        ISchedulingDbContext context,
+        ICalendarEventPublisher calendar,
+        INotificationDispatcher notifications)
     {
         _context = context;
+        _calendar = calendar;
+        _notifications = notifications;
     }
 
     public async Task<Result<string>> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
@@ -38,6 +47,15 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _calendar.DeleteBySourceForUserAsync("ScheduleSlot", slot.Id, request.StudentId, cancellationToken);
+
+        await _notifications.PublishAsync(new NotificationRequest(
+            slot.TeacherId, NotificationType.Message,
+            "Запись отменена",
+            $"Студент отменил запись на «{slot.Title}»",
+            "/teacher/schedule"), cancellationToken);
+
         return Result.Success("Запись отменена.");
     }
 }

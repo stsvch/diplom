@@ -9,7 +9,7 @@ public class CourseByIdSpec : Specification<Course>
     {
         Query.Where(c => c.Id == id);
         Query.Include(c => c.Discipline);
-        Query.Include(c => c.Modules).ThenInclude(m => m.Lessons).ThenInclude(l => l.Blocks);
+        Query.Include(c => c.Modules).ThenInclude(m => m.Lessons);
         Query.Include(c => c.Enrollments);
     }
 }

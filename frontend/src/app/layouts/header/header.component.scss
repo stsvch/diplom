@@ -277,6 +277,7 @@
     padding: $spacing-3 $spacing-4;
     border-bottom: 1px solid $border-color;
     transition: background-color $transition-fast;
+    cursor: pointer;
 
     &:last-child {
       border-bottom: none;

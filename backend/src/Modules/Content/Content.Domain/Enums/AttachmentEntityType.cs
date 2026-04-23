@@ -8,5 +8,7 @@ public enum AttachmentEntityType
     Comment,
     Exercise,
     DictionaryWord,
-    UserAvatar
+    UserAvatar,
+    CourseCover,
+    ChatMessage
 }

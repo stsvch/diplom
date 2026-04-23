@@ -24,6 +24,8 @@ import {
   HelpCircle,
 } from 'lucide-angular';
 import { TestsService } from '../services/tests.service';
+import { CoursesService } from '../../courses/services/courses.service';
+import { CourseListDto } from '../../courses/models/course.model';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
 import { TestDetailDto, QuestionDto, AnswerOptionDto } from '../models/test.model';
@@ -58,6 +60,7 @@ export class TestEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly testsService = inject(TestsService);
+  private readonly coursesService = inject(CoursesService);
   private readonly toastService = inject(ToastService);
 
   readonly ChevronLeftIcon = ChevronLeft;
@@ -84,6 +87,8 @@ export class TestEditorComponent implements OnInit, OnDestroy {
   // Test settings form
   readonly title = signal('');
   readonly description = signal('');
+  readonly courseId = signal<string>('');
+  readonly courses = signal<CourseListDto[]>([]);
   readonly timeLimitMinutes = signal<number | null>(null);
   readonly maxAttempts = signal<number | null>(null);
   readonly deadline = signal('');
@@ -108,6 +113,10 @@ export class TestEditorComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this.coursesService.getMyCourses().subscribe({
+      next: (list) => this.courses.set(list),
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.testId.set(id);
@@ -131,6 +140,7 @@ export class TestEditorComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.title.set(data.title);
         this.description.set(data.description ?? '');
+        this.courseId.set((data as any).courseId ?? '');
         this.timeLimitMinutes.set(data.timeLimitMinutes ?? null);
         this.maxAttempts.set(data.maxAttempts ?? null);
         this.deadline.set(data.deadline ? data.deadline.slice(0, 16) : '');
@@ -162,9 +172,14 @@ export class TestEditorComponent implements OnInit, OnDestroy {
       this.toastService.error('Введите название теста');
       return;
     }
+    if (!this.courseId()) {
+      this.toastService.error('Выберите курс');
+      return;
+    }
     this.saving.set(true);
 
     const payload = {
+      courseId: this.courseId(),
       title: this.title().trim(),
       description: this.description() || undefined,
       timeLimitMinutes: this.timeLimitMinutes() ?? undefined,

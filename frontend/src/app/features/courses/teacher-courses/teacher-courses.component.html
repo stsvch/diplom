@@ -102,7 +102,7 @@
               </td>
               <td>
                 <div class="tc-actions">
-                  <a [routerLink]="'/teacher/courses/edit/' + course.id">
+                  <a [routerLink]="['/teacher/courses', course.id, 'editor']" title="Редактор структуры">
                     <app-button variant="ghost" size="sm">
                       <lucide-icon [img]="EditIcon" [size]="16" />
                     </app-button>

@@ -1,0 +1,187 @@
+{
+  "language": "en",
+  "translationLanguage": "ru",
+  "level": "A1-A2",
+  "words": [
+    {
+      "word": "hello",
+      "translation": "привет",
+      "transcription": "/həˈləʊ/",
+      "partOfSpeech": "interjection",
+      "example": "Hello, how are you?",
+      "exampleTranslation": "Привет, как дела?",
+      "audioUrl": "https://dictionary.cambridge.org/media/english/uk_pron/u/ukh/ukhel/ukhello018.mp3"
+    },
+    {
+      "word": "book",
+      "translation": "книга",
+      "transcription": "/bʊk/",
+      "partOfSpeech": "noun",
+      "example": "I am reading an interesting book.",
+      "exampleTranslation": "Я читаю интересную книгу.",
+      "audioUrl": ""
+    },
+    {
+      "word": "student",
+      "translation": "студент, ученик",
+      "transcription": "/ˈstjuːdənt/",
+      "partOfSpeech": "noun",
+      "example": "She is a student at Oxford.",
+      "exampleTranslation": "Она учится в Оксфорде.",
+      "audioUrl": ""
+    },
+    {
+      "word": "teacher",
+      "translation": "учитель",
+      "transcription": "/ˈtiːtʃə/",
+      "partOfSpeech": "noun",
+      "example": "My teacher speaks three languages.",
+      "exampleTranslation": "Мой учитель говорит на трёх языках.",
+      "audioUrl": ""
+    },
+    {
+      "word": "learn",
+      "translation": "учить, изучать",
+      "transcription": "/lɜːn/",
+      "partOfSpeech": "verb",
+      "example": "I want to learn Spanish.",
+      "exampleTranslation": "Я хочу выучить испанский.",
+      "audioUrl": ""
+    },
+    {
+      "word": "understand",
+      "translation": "понимать",
+      "transcription": "/ˌʌndəˈstænd/",
+      "partOfSpeech": "verb",
+      "example": "I don't understand this word.",
+      "exampleTranslation": "Я не понимаю это слово.",
+      "audioUrl": ""
+    },
+    {
+      "word": "difficult",
+      "translation": "сложный, трудный",
+      "transcription": "/ˈdɪfɪkəlt/",
+      "partOfSpeech": "adjective",
+      "example": "Math is difficult but interesting.",
+      "exampleTranslation": "Математика сложная, но интересная.",
+      "audioUrl": ""
+    },
+    {
+      "word": "interesting",
+      "translation": "интересный",
+      "transcription": "/ˈɪntrəstɪŋ/",
+      "partOfSpeech": "adjective",
+      "example": "This is an interesting article.",
+      "exampleTranslation": "Это интересная статья.",
+      "audioUrl": ""
+    },
+    {
+      "word": "computer",
+      "translation": "компьютер",
+      "transcription": "/kəmˈpjuːtə/",
+      "partOfSpeech": "noun",
+      "example": "My computer is too slow.",
+      "exampleTranslation": "Мой компьютер слишком медленный.",
+      "audioUrl": ""
+    },
+    {
+      "word": "friend",
+      "translation": "друг, подруга",
+      "transcription": "/frend/",
+      "partOfSpeech": "noun",
+      "example": "He is my best friend.",
+      "exampleTranslation": "Он мой лучший друг.",
+      "audioUrl": ""
+    },
+    {
+      "word": "family",
+      "translation": "семья",
+      "transcription": "/ˈfæməli/",
+      "partOfSpeech": "noun",
+      "example": "I love my family very much.",
+      "exampleTranslation": "Я очень люблю свою семью.",
+      "audioUrl": ""
+    },
+    {
+      "word": "work",
+      "translation": "работа, работать",
+      "transcription": "/wɜːk/",
+      "partOfSpeech": "noun/verb",
+      "example": "I work from Monday to Friday.",
+      "exampleTranslation": "Я работаю с понедельника по пятницу.",
+      "audioUrl": ""
+    },
+    {
+      "word": "study",
+      "translation": "учиться, учёба",
+      "transcription": "/ˈstʌdi/",
+      "partOfSpeech": "verb/noun",
+      "example": "I study at the university.",
+      "exampleTranslation": "Я учусь в университете.",
+      "audioUrl": ""
+    },
+    {
+      "word": "beautiful",
+      "translation": "красивый",
+      "transcription": "/ˈbjuːtɪfl/",
+      "partOfSpeech": "adjective",
+      "example": "What a beautiful day!",
+      "exampleTranslation": "Какой прекрасный день!",
+      "audioUrl": ""
+    },
+    {
+      "word": "important",
+      "translation": "важный",
+      "transcription": "/ɪmˈpɔːtənt/",
+      "partOfSpeech": "adjective",
+      "example": "It is important to practice every day.",
+      "exampleTranslation": "Важно практиковаться каждый день.",
+      "audioUrl": ""
+    },
+    {
+      "word": "remember",
+      "translation": "помнить, запоминать",
+      "transcription": "/rɪˈmembə/",
+      "partOfSpeech": "verb",
+      "example": "I can't remember her name.",
+      "exampleTranslation": "Я не могу вспомнить её имя.",
+      "audioUrl": ""
+    },
+    {
+      "word": "question",
+      "translation": "вопрос",
+      "transcription": "/ˈkwestʃən/",
+      "partOfSpeech": "noun",
+      "example": "Do you have any questions?",
+      "exampleTranslation": "У вас есть вопросы?",
+      "audioUrl": ""
+    },
+    {
+      "word": "answer",
+      "translation": "ответ, отвечать",
+      "transcription": "/ˈɑːnsə/",
+      "partOfSpeech": "noun/verb",
+      "example": "Please answer the question.",
+      "exampleTranslation": "Пожалуйста, ответьте на вопрос.",
+      "audioUrl": ""
+    },
+    {
+      "word": "word",
+      "translation": "слово",
+      "transcription": "/wɜːd/",
+      "partOfSpeech": "noun",
+      "example": "I don't know this word.",
+      "exampleTranslation": "Я не знаю этого слова.",
+      "audioUrl": ""
+    },
+    {
+      "word": "sentence",
+      "translation": "предложение",
+      "transcription": "/ˈsentəns/",
+      "partOfSpeech": "noun",
+      "example": "Make a sentence with this word.",
+      "exampleTranslation": "Составьте предложение с этим словом.",
+      "audioUrl": ""
+    }
+  ]
+}

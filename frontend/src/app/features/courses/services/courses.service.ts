@@ -9,8 +9,23 @@ import {
   PagedResult,
   CourseModuleDto,
   LessonDto,
-  LessonBlockDto,
+  LessonLayout,
 } from '../models/course.model';
+
+export interface PublishIssue {
+  type: 'error' | 'warning';
+  path: string;
+  code: string;
+  message: string;
+}
+
+export interface PublishValidationResponse {
+  success: boolean;
+  message: string;
+  issues: PublishIssue[];
+  hasErrors: boolean;
+  hasWarnings: boolean;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -49,8 +64,9 @@ export class CoursesService {
     return this.http.put<CourseDetailDto>(`${this.base}/courses/${id}`, data);
   }
 
-  publishCourse(id: string): Observable<void> {
-    return this.http.post<void>(`${this.base}/courses/${id}/publish`, {});
+  publishCourse(id: string, force = false): Observable<PublishValidationResponse> {
+    const params = force ? '?force=true' : '';
+    return this.http.post<PublishValidationResponse>(`${this.base}/courses/${id}/publish${params}`, {});
   }
 
   archiveCourse(id: string): Observable<void> {
@@ -97,11 +113,15 @@ export class CoursesService {
     return this.http.get<LessonDto[]>(`${this.base}/lessons/by-module/${moduleId}`);
   }
 
-  createLesson(moduleId: string, data: { title: string; description?: string; duration?: number }): Observable<LessonDto> {
+  getLessonById(id: string): Observable<LessonDto> {
+    return this.http.get<LessonDto>(`${this.base}/lessons/${id}`);
+  }
+
+  createLesson(moduleId: string, data: { title: string; description?: string; duration?: number; layout?: LessonLayout }): Observable<LessonDto> {
     return this.http.post<LessonDto>(`${this.base}/lessons`, { ...data, moduleId });
   }
 
-  updateLesson(id: string, data: { title: string; description?: string; duration?: number }): Observable<LessonDto> {
+  updateLesson(id: string, data: { title?: string; description?: string; duration?: number; layout?: LessonLayout; moduleId?: string }): Observable<LessonDto> {
     return this.http.put<LessonDto>(`${this.base}/lessons/${id}`, data);
   }
 
@@ -109,25 +129,7 @@ export class CoursesService {
     return this.http.delete<void>(`${this.base}/lessons/${id}`);
   }
 
-  // ── Lesson Blocks ─────────────────────────────────────────────────────────
-
-  getLessonBlocks(lessonId: string): Observable<LessonBlockDto[]> {
-    return this.http.get<LessonBlockDto[]>(`${this.base}/lesson-blocks/by-lesson/${lessonId}`);
-  }
-
-  createLessonBlock(lessonId: string, data: Partial<LessonBlockDto>): Observable<LessonBlockDto> {
-    return this.http.post<LessonBlockDto>(`${this.base}/lesson-blocks`, { ...data, lessonId });
-  }
-
-  updateLessonBlock(id: string, data: Partial<LessonBlockDto>): Observable<LessonBlockDto> {
-    return this.http.put<LessonBlockDto>(`${this.base}/lesson-blocks/${id}`, data);
-  }
-
-  deleteLessonBlock(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/lesson-blocks/${id}`);
-  }
-
-  reorderLessonBlocks(lessonId: string, ids: string[]): Observable<void> {
-    return this.http.post<void>(`${this.base}/lesson-blocks/reorder`, { lessonId, orderedIds: ids });
+  reorderLessons(moduleId: string, orderedIds: string[]): Observable<void> {
+    return this.http.post<void>(`${this.base}/lessons/reorder`, { moduleId, orderedIds });
   }
 }

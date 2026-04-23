@@ -2,6 +2,7 @@ using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Application.Interfaces;
 using Courses.Domain.Entities;
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
@@ -11,11 +12,13 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
 {
     private readonly ICoursesDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IChatAdmin _chatAdmin;
 
-    public CreateCourseCommandHandler(ICoursesDbContext context, IMapper mapper)
+    public CreateCourseCommandHandler(ICoursesDbContext context, IMapper mapper, IChatAdmin chatAdmin)
     {
         _context = context;
         _mapper = mapper;
+        _chatAdmin = chatAdmin;
     }
 
     public async Task<Result<CourseDetailDto>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
@@ -38,11 +41,20 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             Level = request.Level,
             ImageUrl = request.ImageUrl,
             Tags = request.Tags,
+            HasCertificate = request.HasCertificate,
+            Deadline = request.Deadline,
             Discipline = discipline
         };
 
         _context.Courses.Add(course);
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _chatAdmin.CreateCourseChatAsync(
+            course.Id.ToString(),
+            course.Title,
+            course.TeacherId,
+            course.TeacherName,
+            cancellationToken);
 
         return Result.Success(_mapper.Map<CourseDetailDto>(course));
     }

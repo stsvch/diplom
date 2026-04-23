@@ -1,0 +1,143 @@
+@use '../../../../styles/variables' as *;
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__main {
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: $spacing-8 $spacing-4 120px;
+  }
+
+  &__footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-4 $spacing-6;
+    background: $bg-card;
+    border-top: 1px solid $border-color;
+    z-index: $z-sticky;
+  }
+
+  &__status {
+    flex: 1;
+    text-align: center;
+  }
+
+  &__page {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+
+  &__score {
+    font-weight: 600;
+    color: $text-foreground;
+  }
+}
+
+.complete-toggle,
+.complete-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-2;
+  border-radius: $radius-full;
+  padding: $spacing-2 $spacing-4;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.complete-toggle {
+  border: 1px solid $border-color;
+  background: $bg-card;
+  color: $text-foreground;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &--active {
+    background: $primary-light;
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+.complete-badge {
+  background: $success-light;
+  color: $success-dark;
+}
+
+.nav {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-full;
+  border: 1px solid $border-color;
+  background: $bg-card;
+  color: $text-foreground;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.state {
+  padding: $spacing-10;
+  text-align: center;
+  color: $text-muted;
+}
+
+.final {
+  max-width: 500px;
+  margin: $spacing-12 auto;
+  padding: $spacing-8;
+  text-align: center;
+  background: $bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+
+  h2 { margin: 0 0 $spacing-4; color: $text-foreground; }
+  .score { font-size: $font-size-3xl; font-weight: 700; color: $primary; margin: 0; }
+  .pct { font-size: $font-size-lg; color: $text-secondary; margin: $spacing-2 0 $spacing-4; }
+  .muted { color: $text-muted; font-size: $font-size-sm; }
+  .badge {
+    display: inline-block;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $radius-full;
+    font-weight: 600;
+    &--done { background: $success-light; color: $success-dark; }
+  }
+}
+
+.feedback {
+  margin-top: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &--ok { background: $success-light; color: $success-dark; }
+  &--fail { background: $danger-light; color: $danger-dark; }
+  &--review { background: $warning-light; color: $warning-dark; }
+}

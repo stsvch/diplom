@@ -68,6 +68,12 @@ namespace Calendar.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId", "EventDate");
+
+                    b.HasIndex("SourceType", "SourceId", "UserId");
+
                     b.ToTable("CalendarEvents", "calendar");
                 });
 #pragma warning restore 612, 618

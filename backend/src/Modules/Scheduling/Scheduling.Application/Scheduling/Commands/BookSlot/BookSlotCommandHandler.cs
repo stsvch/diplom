@@ -1,4 +1,6 @@
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Application.Interfaces;
@@ -10,10 +12,17 @@ namespace Scheduling.Application.Scheduling.Commands.BookSlot;
 public class BookSlotCommandHandler : IRequestHandler<BookSlotCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
+    private readonly INotificationDispatcher _notifications;
+    private readonly ICalendarEventPublisher _calendar;
 
-    public BookSlotCommandHandler(ISchedulingDbContext context)
+    public BookSlotCommandHandler(
+        ISchedulingDbContext context,
+        INotificationDispatcher notifications,
+        ICalendarEventPublisher calendar)
     {
         _context = context;
+        _notifications = notifications;
+        _calendar = calendar;
     }
 
     public async Task<Result<string>> Handle(BookSlotCommand request, CancellationToken cancellationToken)
@@ -64,6 +73,19 @@ public class BookSlotCommandHandler : IRequestHandler<BookSlotCommand, Result<st
         }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        await _calendar.UpsertAsync(new CalendarEventUpsert(
+            request.StudentId, slot.CourseId, slot.Title, slot.Description,
+            DateTime.SpecifyKind(slot.StartTime.Date, DateTimeKind.Utc),
+            slot.StartTime.ToString("HH:mm"),
+            CalendarEventType.Workshop, "ScheduleSlot", slot.Id), cancellationToken);
+
+        await _notifications.PublishAsync(new NotificationRequest(
+            slot.TeacherId, NotificationType.Course,
+            "Запись на занятие",
+            $"{request.StudentName} записался на «{slot.Title}»",
+            "/teacher/schedule"), cancellationToken);
+
         return Result.Success("Вы успешно записались на занятие.");
     }
 }

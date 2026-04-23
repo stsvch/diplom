@@ -23,6 +23,10 @@ export class AssignmentsService {
     return this.http.post<AssignmentDto>(`${this.base}/assignments`, data);
   }
 
+  getMyAssignments(): Observable<AssignmentDto[]> {
+    return this.http.get<AssignmentDto[]>(`${this.base}/assignments/my`);
+  }
+
   getAssignment(id: string): Observable<AssignmentDetailDto> {
     return this.http.get<AssignmentDetailDto>(`${this.base}/assignments/${id}`);
   }

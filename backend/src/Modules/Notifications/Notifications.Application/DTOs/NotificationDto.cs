@@ -1,4 +1,4 @@
-using Notifications.Domain.Enums;
+using EduPlatform.Shared.Domain.Enums;
 
 namespace Notifications.Application.DTOs;
 

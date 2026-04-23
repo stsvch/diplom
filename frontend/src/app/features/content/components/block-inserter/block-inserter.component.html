@@ -1,0 +1,14 @@
+<div class="inserter" [class.inserter--open]="menuOpen()">
+  <div class="inserter__line"></div>
+  <button class="inserter__button" type="button" (click)="toggle()" aria-label="Добавить блок">
+    <lucide-icon name="plus" size="16"></lucide-icon>
+    <span>Добавить блок</span>
+  </button>
+  <div class="inserter__line"></div>
+
+  @if (menuOpen()) {
+    <div class="inserter__menu">
+      <app-block-type-menu (selected)="onSelect($event)" (closed)="close()"></app-block-type-menu>
+    </div>
+  }
+</div>

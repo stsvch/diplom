@@ -24,6 +24,7 @@ public class AssignmentsDbContext : BaseDbContext, IAssignmentsDbContext
             e.Property(x => x.Title).IsRequired().HasMaxLength(200);
             e.Property(x => x.Description).IsRequired();
             e.Property(x => x.CreatedById).IsRequired().HasMaxLength(450);
+            e.HasIndex(x => x.CourseId);
             e.HasMany(x => x.Submissions).WithOne(x => x.Assignment).HasForeignKey(x => x.AssignmentId).OnDelete(DeleteBehavior.Cascade);
         });
 

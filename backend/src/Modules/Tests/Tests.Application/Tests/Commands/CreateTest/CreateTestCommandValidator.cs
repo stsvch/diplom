@@ -6,6 +6,9 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
 {
     public CreateTestCommandValidator()
     {
+        RuleFor(x => x.CourseId)
+            .NotEmpty().WithMessage("Тест должен быть привязан к курсу.");
+
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Название теста обязательно.")
             .MaximumLength(200).WithMessage("Название теста не должно превышать 200 символов.");

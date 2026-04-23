@@ -4,6 +4,7 @@ namespace Assignments.Domain.Entities;
 
 public class Assignment : BaseEntity, IAuditableEntity
 {
+    public Guid? CourseId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string? Criteria { get; set; }

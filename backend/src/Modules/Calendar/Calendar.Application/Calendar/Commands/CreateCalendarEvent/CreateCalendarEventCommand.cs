@@ -1,6 +1,6 @@
 using Calendar.Application.DTOs;
-using Calendar.Domain.Enums;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 
 namespace Calendar.Application.Calendar.Commands.CreateCalendarEvent;

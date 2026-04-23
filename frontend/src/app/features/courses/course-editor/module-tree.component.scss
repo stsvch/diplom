@@ -1,0 +1,201 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+
+  &__modules {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  &__empty {
+    padding: $spacing-10;
+    text-align: center;
+    color: $text-muted;
+    background: $bg-card;
+    border: 1px dashed $border-color;
+    border-radius: $radius-lg;
+  }
+}
+
+.mod {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+
+  &.cdk-drag-preview { box-shadow: $shadow-xl; }
+  &.cdk-drag-placeholder { opacity: 0.3; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-4;
+    border-bottom: 1px solid transparent;
+  }
+
+  &__drag, &__expand, &__action {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    color: $text-muted;
+    transition: all $transition-fast;
+
+    &:hover { background: $bg-muted; color: $text-foreground; }
+  }
+
+  &__drag { cursor: grab; &:active { cursor: grabbing; } }
+
+  &__action--danger:hover { background: $danger-light; color: $danger; }
+
+  &__title {
+    flex: 1;
+    text-align: left;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+    border: none;
+    background: transparent;
+    padding: $spacing-1 $spacing-2;
+    cursor: text;
+    border-radius: $radius-sm;
+
+    &:hover { background: $bg-muted; }
+  }
+
+  &__title-input {
+    flex: 1;
+    padding: $spacing-1 $spacing-2;
+    border: 1px solid $primary;
+    border-radius: $radius-sm;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    outline: none;
+    background: $bg-card;
+  }
+
+  &__count {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    padding: 2px $spacing-2;
+    background: $bg-muted;
+    border-radius: $radius-full;
+  }
+
+  &__lessons {
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-2 $spacing-4 $spacing-3;
+    gap: $spacing-1;
+    min-height: 40px;
+  }
+
+  &__empty {
+    padding: $spacing-3;
+    color: $text-muted;
+    font-size: $font-size-sm;
+    text-align: center;
+
+    .link {
+      background: transparent;
+      border: none;
+      color: $primary;
+      cursor: pointer;
+      font: inherit;
+      text-decoration: underline;
+    }
+  }
+}
+
+.lesson {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $radius-md;
+  background: $bg-muted;
+
+  &:hover { background: $bg-input; }
+
+  &.cdk-drag-preview { box-shadow: $shadow-lg; background: $bg-card; }
+  &.cdk-drag-placeholder { opacity: 0.3; }
+
+  &__drag {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    cursor: grab;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    &:active { cursor: grabbing; }
+  }
+
+  &__icon { color: $text-muted; flex-shrink: 0; }
+
+  &__title {
+    flex: 1;
+    text-align: left;
+    font-size: $font-size-sm;
+    color: $text-foreground;
+    border: none;
+    background: transparent;
+    padding: 2px $spacing-1;
+    cursor: text;
+    border-radius: $radius-sm;
+
+    &:hover { background: $bg-card; }
+  }
+
+  &__title-input {
+    flex: 1;
+    padding: 2px $spacing-1;
+    border: 1px solid $primary;
+    border-radius: $radius-sm;
+    font-size: $font-size-sm;
+    outline: none;
+  }
+
+  &__badge {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__action {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-sm;
+    text-decoration: none;
+    transition: all $transition-fast;
+
+    &:hover { background: $bg-card; color: $primary; }
+    &--danger:hover { background: $danger-light; color: $danger; }
+  }
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

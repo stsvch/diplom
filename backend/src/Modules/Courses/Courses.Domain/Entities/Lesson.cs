@@ -10,7 +10,13 @@ public class Lesson : BaseEntity
     public int OrderIndex { get; set; }
     public bool IsPublished { get; set; }
     public int? Duration { get; set; }
+    public LessonLayout Layout { get; set; } = LessonLayout.Scroll;
 
     public CourseModule Module { get; set; } = null!;
-    public ICollection<LessonBlock> Blocks { get; set; } = new List<LessonBlock>();
+}
+
+public enum LessonLayout
+{
+    Scroll = 0,
+    Stepper = 1
 }

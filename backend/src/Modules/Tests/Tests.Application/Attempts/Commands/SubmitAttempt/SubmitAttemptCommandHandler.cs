@@ -1,6 +1,8 @@
 using System.Text.Json;
 using AutoMapper;
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Tests.Application.DTOs;
@@ -13,11 +15,19 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
 {
     private readonly ITestsDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IGradeRecordWriter _grades;
+    private readonly INotificationDispatcher _notifications;
 
-    public SubmitAttemptCommandHandler(ITestsDbContext context, IMapper mapper)
+    public SubmitAttemptCommandHandler(
+        ITestsDbContext context,
+        IMapper mapper,
+        IGradeRecordWriter grades,
+        INotificationDispatcher notifications)
     {
         _context = context;
         _mapper = mapper;
+        _grades = grades;
+        _notifications = notifications;
     }
 
     public async Task<Result<TestAttemptDetailDto>> Handle(SubmitAttemptCommand request, CancellationToken cancellationToken)
@@ -77,6 +87,39 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         attempt.Status = hasOpenAnswer ? AttemptStatus.NeedsReview : AttemptStatus.Completed;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        if (attempt.Status == AttemptStatus.NeedsReview)
+        {
+            await _notifications.PublishAsync(new NotificationRequest(
+                test.CreatedById, NotificationType.Message,
+                "Тест ждёт проверки",
+                $"«{test.Title}» — есть открытые вопросы",
+                $"/teacher/test/{test.Id}/grade/{attempt.Id}"), cancellationToken);
+        }
+        else
+        {
+            if (test.CourseId.HasValue)
+            {
+                await _grades.UpsertAsync(new GradeRecordUpsert(
+                    attempt.StudentId,
+                    test.CourseId.Value,
+                    "Test",
+                    attempt.Id,
+                    null,
+                    test.Title,
+                    attempt.Score ?? 0,
+                    test.MaxScore,
+                    null,
+                    attempt.CompletedAt ?? DateTime.UtcNow,
+                    null), cancellationToken);
+            }
+
+            await _notifications.PublishAsync(new NotificationRequest(
+                attempt.StudentId, NotificationType.Grade,
+                "Тест завершён",
+                $"«{test.Title}»: {attempt.Score} баллов",
+                $"/student/test/{test.Id}/result/{attempt.Id}"), cancellationToken);
+        }
 
         var dto = _mapper.Map<TestAttemptDetailDto>(attempt);
         dto.Responses = _mapper.Map<List<TestResponseDto>>(attempt.Responses);

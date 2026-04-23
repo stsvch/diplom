@@ -1,0 +1,109 @@
+<div class="admin-courses">
+  <header class="admin-courses__head">
+    <h1>Курсы</h1>
+  </header>
+
+  <div class="admin-courses__filters">
+    <div class="filter filter--search">
+      <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
+      <input
+        type="text"
+        placeholder="Поиск по названию или преподавателю"
+        [ngModel]="searchText()"
+        (ngModelChange)="searchText.set($event); onSearchChange()"
+      />
+    </div>
+    <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onFilterChange()">
+      <option value="">Все статусы</option>
+      <option value="published">Опубликованные</option>
+      <option value="draft">Черновики</option>
+      <option value="archived">В архиве</option>
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="state">Загрузка...</div>
+  } @else if (data(); as d) {
+    <div class="admin-courses__table-wrap">
+      <table class="admin-courses__table">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Преподаватель</th>
+            <th>Дисциплина</th>
+            <th>Статус</th>
+            <th>Студентов</th>
+            <th>Модулей</th>
+            <th>Создан</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of d.items; track c.id) {
+            <tr>
+              <td>{{ c.title }}</td>
+              <td>{{ c.teacherName }}</td>
+              <td>{{ c.disciplineName }}</td>
+              <td>
+                <span class="badge" [class]="statusClass(c)">{{ statusLabel(c) }}</span>
+                @if (c.isArchived && c.archiveReason) {
+                  <div class="reason" [title]="c.archiveReason">{{ c.archiveReason }}</div>
+                }
+              </td>
+              <td>{{ c.studentsCount }}</td>
+              <td>{{ c.modulesCount }}</td>
+              <td>{{ formatDate(c.createdAt) }}</td>
+              <td>
+                @if (!c.isArchived) {
+                  <button class="icon-btn icon-btn--danger" (click)="openArchive(c)" title="Архивировать">
+                    <lucide-icon [img]="ArchiveIcon" size="16"></lucide-icon>
+                  </button>
+                } @else {
+                  <span class="muted">—</span>
+                }
+              </td>
+            </tr>
+          }
+          @if (d.items.length === 0) {
+            <tr><td colspan="8" class="empty">Нет курсов</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-courses__pager">
+      <button class="btn btn--outline" (click)="prevPage()" [disabled]="page() === 1">Назад</button>
+      <span>Стр. {{ page() }} из {{ totalPages() }} · всего {{ d.totalCount }}</span>
+      <button class="btn btn--outline" (click)="nextPage()" [disabled]="page() >= totalPages()">Вперёд</button>
+    </div>
+  }
+</div>
+
+@if (archiveOpenFor(); as course) {
+  <div class="modal-backdrop" (click)="cancelArchive()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__head">
+        <h2>Архивировать курс</h2>
+        <button class="icon-btn" (click)="cancelArchive()">
+          <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+        </button>
+      </header>
+      <div class="modal__body">
+        <p>Курс «<strong>{{ course.title }}</strong>» будет архивирован для всех участников.</p>
+        <label>Причина *</label>
+        <textarea
+          rows="3"
+          placeholder="Укажите причину"
+          [ngModel]="archiveReason()"
+          (ngModelChange)="archiveReason.set($event)"
+        ></textarea>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--outline" (click)="cancelArchive()">Отмена</button>
+        <button class="btn btn--danger" [disabled]="archiving()" (click)="submitArchive()">
+          {{ archiving() ? 'Архивируем…' : 'Архивировать' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}

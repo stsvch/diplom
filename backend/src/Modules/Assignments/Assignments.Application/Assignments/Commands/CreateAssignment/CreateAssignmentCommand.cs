@@ -5,6 +5,7 @@ using MediatR;
 namespace Assignments.Application.Assignments.Commands.CreateAssignment;
 
 public record CreateAssignmentCommand(
+    Guid CourseId,
     string Title,
     string Description,
     string? Criteria,

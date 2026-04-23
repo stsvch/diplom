@@ -7,6 +7,12 @@
 - Общий (shared) код, используемый несколькими модулями, выносится в отдельную библиотеку (Shared).
 - Тесты на текущем этапе не пишутся.
 
+### Запрещённые практики
+
+- **Никаких магических Guid/id.** Не использовать `Guid.Empty`, `"00000000-0000-0000-0000-000000000000"` или другие литеральные «заглушки» как значение реальной связи. Если у сущности ещё нет id — файл/данные держатся в памяти до создания родителя, затем загружаются с настоящим id. Это гарантирует отсутствие orphan-записей и корректные FK.
+- **Никаких tacit defaults для обязательных ссылок.** Если поле в БД nullable — используй `null`, если не nullable — откладывай сохранение до появления настоящего id.
+- **Двухшаговое сохранение для вложений нового объекта:** (1) создать родителя → получить id, (2) загрузить вложение с этим id, (3) при необходимости — обновить родителя ссылкой на вложение.
+
 ---
 
 ## Backend (C# / ASP.NET Core)
@@ -156,14 +162,14 @@
 │   │   │   └── /Auth.Infrastructure           — EF конфигурация, репозитории, JWT-сервис
 │   │   │
 │   │   ├── /Courses                           — модуль курсов
-│   │   │   ├── /Courses.Domain                — Course, CourseModule, Lesson, Discipline, Enrollment
+│   │   │   ├── /Courses.Domain                — Course, CourseModule, Lesson (с layout Scroll/Stepper), Discipline, Enrollment
 │   │   │   ├── /Courses.Application           — CQRS, DTOs, Validators, маппинг
 │   │   │   └── /Courses.Infrastructure        — EF конфигурация, репозитории
 │   │   │
-│   │   ├── /Content                           — модуль учебных материалов
-│   │   │   ├── /Content.Domain                — LessonContent, Attachment
-│   │   │   ├── /Content.Application
-│   │   │   └── /Content.Infrastructure        — S3/MinIO интеграция
+│   │   ├── /Content                           — модуль блоков урока + вложений
+│   │   │   ├── /Content.Domain                — LessonBlock (data jsonb), LessonBlockAttempt, Attachment, 18 типов value objects (Blocks/Answers)
+│   │   │   ├── /Content.Application           — CQRS блоков + попыток, Graders (авто-проверка), Validators
+│   │   │   └── /Content.Infrastructure        — S3/MinIO, LessonContentCleaner, ContentReadService
 │   │   │
 │   │   ├── /Tests                             — модуль тестирования
 │   │   │   ├── /Tests.Domain                  — Test, Question, AnswerOption, TestAttempt, TestResponse

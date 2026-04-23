@@ -3,11 +3,14 @@ using Courses.Application.Lessons.Commands.CreateLesson;
 using Courses.Application.Lessons.Commands.DeleteLesson;
 using Courses.Application.Lessons.Commands.ReorderLessons;
 using Courses.Application.Lessons.Commands.UpdateLesson;
+using Courses.Application.Lessons.Queries.GetLessonById;
 using Courses.Application.Lessons.Queries.GetModuleLessons;
+using Courses.Domain.Entities;
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
@@ -30,6 +33,15 @@ public class LessonsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(LessonDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetLessonByIdQuery(id), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Teacher")]
     [ProducesResponseType(typeof(LessonDto), StatusCodes.Status201Created)]
@@ -46,13 +58,18 @@ public class LessonsController : ControllerBase
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Teacher")]
     [ProducesResponseType(typeof(LessonDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLessonRequest request, CancellationToken cancellationToken)
     {
-        var command = new UpdateLessonCommand(id, request.Title, request.Description, request.Duration, request.IsPublished);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var command = new UpdateLessonCommand(id, userId, request.Title, request.Description, request.Duration, request.IsPublished, request.Layout, request.ModuleId);
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
-            return NotFound(ApiError.FromMessage(result.Error!, "LESSON_NOT_FOUND"));
+            return BadRequest(ApiError.FromMessage(result.Error!, "LESSON_UPDATE_FAILED"));
 
         return Ok(result.Value);
     }
@@ -83,4 +100,4 @@ public class LessonsController : ControllerBase
     }
 }
 
-public record UpdateLessonRequest(string Title, string? Description, int? Duration, bool? IsPublished);
+public record UpdateLessonRequest(string Title, string? Description, int? Duration, bool? IsPublished, LessonLayout? Layout = null, Guid? ModuleId = null);

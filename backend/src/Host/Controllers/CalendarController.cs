@@ -2,8 +2,8 @@ using Calendar.Application.Calendar.Commands.CreateCalendarEvent;
 using Calendar.Application.Calendar.Commands.DeleteCalendarEvent;
 using Calendar.Application.Calendar.Queries.GetMonthEvents;
 using Calendar.Application.Calendar.Queries.GetUpcomingEvents;
-using Calendar.Domain.Enums;
 using EduPlatform.Shared.Application.Models;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +22,11 @@ public class CalendarController : ControllerBase
     [HttpGet("events")]
     public async Task<IActionResult> GetMonthEvents([FromQuery] int year, [FromQuery] int month, CancellationToken ct)
     {
+        if (year < 2000 || year > 2100)
+            return BadRequest(ApiError.FromMessage("Год должен быть в диапазоне 2000-2100.", "CALENDAR_INVALID_YEAR"));
+        if (month < 1 || month > 12)
+            return BadRequest(ApiError.FromMessage("Месяц должен быть от 1 до 12.", "CALENDAR_INVALID_MONTH"));
+
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var result = await _mediator.Send(new GetMonthEventsQuery(userId, year, month), ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "CALENDAR_FETCH_FAILED"));
@@ -31,6 +36,9 @@ public class CalendarController : ControllerBase
     [HttpGet("upcoming")]
     public async Task<IActionResult> GetUpcoming([FromQuery] int count = 10, CancellationToken ct = default)
     {
+        if (count < 1 || count > 50)
+            return BadRequest(ApiError.FromMessage("Количество событий должно быть от 1 до 50.", "CALENDAR_INVALID_COUNT"));
+
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var result = await _mediator.Send(new GetUpcomingEventsQuery(userId, count), ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "CALENDAR_FETCH_FAILED"));
@@ -55,7 +63,16 @@ public class CalendarController : ControllerBase
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var result = await _mediator.Send(new DeleteCalendarEventCommand(id, userId), ct);
-        if (result.IsFailure) return NotFound(ApiError.FromMessage(result.Error!, "CALENDAR_EVENT_NOT_FOUND"));
+        if (result.IsFailure)
+        {
+            if (result.Error == "Событие не найдено.")
+                return NotFound(ApiError.FromMessage(result.Error!, "CALENDAR_EVENT_NOT_FOUND"));
+            if (result.Error == "Нет прав на удаление этого события.")
+                return Forbid();
+
+            return BadRequest(ApiError.FromMessage(result.Error!, "CALENDAR_DELETE_FAILED"));
+        }
+
         return Ok(new { message = "Событие удалено." });
     }
 }

@@ -1,0 +1,96 @@
+<div class="profile-page">
+  <header class="profile-page__head">
+    <h1>Профиль</h1>
+    <p>Управление личными данными и безопасностью</p>
+  </header>
+
+  @if (user(); as u) {
+    <section class="profile-card">
+      <div class="avatar-block">
+        <div class="avatar">
+          @if (u.avatarUrl) {
+            <img [src]="u.avatarUrl" alt="Аватар" />
+          } @else {
+            <span>{{ initials() }}</span>
+          }
+        </div>
+        <label class="avatar-upload">
+          <input type="file" accept="image/png,image/jpeg" (change)="onAvatarSelected($event)" hidden />
+          @if (avatarUploading()) {
+            <span>Загрузка...</span>
+          } @else {
+            <lucide-icon name="upload" size="14"></lucide-icon>
+            <span>Сменить аватар</span>
+          }
+        </label>
+      </div>
+
+      <div class="user-summary">
+        <div class="name">{{ u.firstName }} {{ u.lastName }}</div>
+        <div class="email">{{ u.email }}</div>
+        <div class="role-chip">{{ roleLabel() }}</div>
+      </div>
+    </section>
+
+    <section class="form-card">
+      <h2>Личные данные</h2>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="form-row">
+          <label>
+            <span>Имя</span>
+            <input type="text" formControlName="firstName" />
+            @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
+              <em class="err">Минимум 2 символа</em>
+            }
+          </label>
+          <label>
+            <span>Фамилия</span>
+            <input type="text" formControlName="lastName" />
+            @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
+              <em class="err">Минимум 2 символа</em>
+            }
+          </label>
+        </div>
+        <label class="readonly">
+          <span>Email</span>
+          <input type="email" [value]="u.email" readonly />
+        </label>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary" [disabled]="savingProfile()">
+            @if (savingProfile()) { Сохранение... } @else { Сохранить изменения }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="form-card">
+      <h2>Смена пароля</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <label>
+          <span>Текущий пароль</span>
+          <input type="password" formControlName="currentPassword" autocomplete="current-password" />
+        </label>
+        <div class="form-row">
+          <label>
+            <span>Новый пароль</span>
+            <input type="password" formControlName="newPassword" autocomplete="new-password" />
+            @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+              <em class="err">Минимум 6 символов</em>
+            }
+          </label>
+          <label>
+            <span>Повторите пароль</span>
+            <input type="password" formControlName="repeatPassword" autocomplete="new-password" />
+          </label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary" [disabled]="savingPassword()">
+            @if (savingPassword()) { Сохранение... } @else { Изменить пароль }
+          </button>
+        </div>
+      </form>
+    </section>
+  } @else {
+    <div class="loading">Загрузка...</div>
+  }
+</div>

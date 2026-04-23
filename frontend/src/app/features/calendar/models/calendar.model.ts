@@ -6,6 +6,12 @@ export enum CalendarEventType {
   Custom = 'Custom',
 }
 
+export enum DeadlineStatus {
+  Pending = 'Pending',
+  InProgress = 'InProgress',
+  Completed = 'Completed',
+}
+
 export interface CalendarEventDto {
   id: string;
   title: string;
@@ -16,4 +22,5 @@ export interface CalendarEventDto {
   courseId?: string;
   sourceType?: string;
   sourceId?: string;
+  status?: DeadlineStatus;
 }

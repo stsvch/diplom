@@ -1,0 +1,84 @@
+@use '../../../../../styles/variables' as *;
+
+.menu {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  width: 380px;
+  max-height: 480px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-4;
+    border-bottom: 1px solid $border-color;
+    color: $text-muted;
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font: inherit;
+      color: $text-foreground;
+      font-size: $font-size-sm;
+    }
+  }
+
+  &__groups {
+    overflow-y: auto;
+    padding: $spacing-2 0;
+  }
+}
+
+.group {
+  padding: $spacing-2 0;
+
+  &__title {
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-muted;
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-2 $spacing-4;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-size: $font-size-sm;
+  color: $text-foreground;
+  transition: background-color $transition-fast;
+
+  &:hover,
+  &:focus-visible {
+    background: $bg-muted;
+  }
+
+  &__icon {
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    flex: 1;
+  }
+}

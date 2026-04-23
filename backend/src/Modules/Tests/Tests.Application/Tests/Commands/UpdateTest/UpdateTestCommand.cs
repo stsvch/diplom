@@ -7,6 +7,7 @@ namespace Tests.Application.Tests.Commands.UpdateTest;
 public record UpdateTestCommand(
     Guid Id,
     string CreatedById,
+    Guid CourseId,
     string Title,
     string? Description,
     int? TimeLimitMinutes,

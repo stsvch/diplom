@@ -31,6 +31,7 @@ public class TestsDbContext : BaseDbContext, ITestsDbContext
             entity.Property(e => e.Description).HasMaxLength(5000);
             entity.Property(e => e.CreatedById).IsRequired().HasMaxLength(450);
             entity.HasIndex(e => e.CreatedById);
+            entity.HasIndex(e => e.CourseId);
 
             entity.HasMany(e => e.Questions)
                   .WithOne(q => q.Test)

@@ -8,7 +8,7 @@
   background-color: $sidebar-bg;
   border-right: 1px solid $sidebar-border;
   transition: width $transition-slow;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   flex-shrink: 0;
 
@@ -171,23 +171,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    background-color: $sidebar-accent;
-    border: 1px solid $sidebar-border;
+    width: 24px;
+    height: 24px;
+    background-color: $bg-card;
+    border: 1px solid $border-color;
     border-radius: $radius-full;
-    color: $sidebar-text;
+    color: $text-secondary;
     cursor: pointer;
     position: absolute;
-    right: -14px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: background-color $transition-fast;
-    z-index: 10;
+    right: -12px;
+    top: 76px;
+    transition: all $transition-fast;
+    z-index: 11;
+    box-shadow: $shadow-md;
 
     &:hover {
       background-color: $primary;
       color: $primary-foreground;
+      border-color: $primary;
     }
   }
 

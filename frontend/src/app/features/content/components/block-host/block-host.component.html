@@ -1,0 +1,37 @@
+<article
+  class="block"
+  [class.block--readonly]="readonly"
+  [class.block--error]="hasError"
+  [attr.data-category]="category"
+>
+  <aside class="block__spine" aria-hidden="true"></aside>
+
+  <header class="block__head">
+    <div class="block__kind">
+      <lucide-icon [name]="icon" size="14"></lucide-icon>
+      <span>{{ label }}</span>
+    </div>
+
+    @if (!readonly) {
+      <div class="block__tools">
+        <button type="button" class="tool" (click)="duplicate.emit()" aria-label="Дублировать">
+          <lucide-icon name="copy" size="16"></lucide-icon>
+        </button>
+        <button type="button" class="tool tool--danger" (click)="remove.emit()" aria-label="Удалить">
+          <lucide-icon name="trash-2" size="16"></lucide-icon>
+        </button>
+      </div>
+    }
+  </header>
+
+  <div class="block__body">
+    <ng-content></ng-content>
+  </div>
+
+  @if (hasError) {
+    <div class="block__error">
+      <lucide-icon name="alert-triangle" size="14"></lucide-icon>
+      <ng-content select="[slot=error]"></ng-content>
+    </div>
+  }
+</article>

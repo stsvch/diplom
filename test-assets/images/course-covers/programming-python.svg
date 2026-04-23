@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e3a8a"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g transform="translate(100,180)" font-family="Consolas, monospace" fill="#ffffff">
+    <text font-size="28" opacity="0.7">&gt;_ course</text>
+    <text y="90" font-size="88" font-weight="700">Python</text>
+    <text y="170" font-size="88" font-weight="700">для начинающих</text>
+    <text y="260" font-size="26" opacity="0.8">Переменные · Функции · ООП · Проекты</text>
+  </g>
+  <g transform="translate(820,100)" font-family="Consolas, monospace" fill="#fde047" font-size="20" opacity="0.55">
+    <text y="0">def hello():</text>
+    <text y="30">    print("Привет!")</text>
+    <text y="80">for i in range(10):</text>
+    <text y="110">    print(i ** 2)</text>
+    <text y="160">class Course:</text>
+    <text y="190">    pass</text>
+  </g>
+</svg>

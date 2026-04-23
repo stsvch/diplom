@@ -4,45 +4,42 @@ import {
   signal,
   OnInit,
   OnDestroy,
+  computed,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
-import {
-  LucideAngularModule,
-  ChevronLeft,
-  Plus,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  Type,
-  Video,
-  Paperclip,
-  Save,
-  Loader2,
-  ChevronDown,
-  ClipboardList,
-  ExternalLink,
-  FileEdit,
-} from 'lucide-angular';
-import { CoursesService } from '../services/courses.service';
-import { FileService } from '../../../core/services/file.service';
+import { Subject, debounceTime, takeUntil, forkJoin, from, concatMap, toArray } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
-import { LessonBlockDto } from '../models/course.model';
-import { AttachmentDto } from '../../../core/models/attachment.model';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
-import { BadgeComponent } from '../../../shared/components/badge/badge.component';
-import { RichTextEditorComponent } from '../../../shared/components/rich-text-editor/rich-text-editor.component';
-import { VideoPlayerComponent } from '../../../shared/components/video-player/video-player.component';
-import { FileUploaderComponent } from '../../../shared/components/file-uploader/file-uploader.component';
-import { FileCardComponent } from '../../../shared/components/file-card/file-card.component';
+import {
+  BlockHostComponent,
+  BlockInserterComponent,
+  BlockEditorHostComponent,
+} from '../../content/components';
+import {
+  ContentService,
+  BlockAttemptsService,
+  LESSON_TEMPLATES,
+  LessonTemplate,
+} from '../../content/services';
+import {
+  LessonBlockDto,
+  LessonBlockData,
+  LessonBlockSettings,
+  LessonBlockType,
+  defaultBlockData,
+  defaultSettings,
+} from '../../content/models';
+import { CoursesService } from '../services/courses.service';
+import { LessonDto, LessonLayout } from '../models/course.model';
 
-interface BlockWithFiles extends LessonBlockDto {
-  files?: AttachmentDto[];
-  filesLoading?: boolean;
-  videoInputMode?: 'url' | 'upload';
-  pendingVideoUrl?: string;
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+interface BlockDraft {
+  block: LessonBlockDto;
+  dirty: boolean;
 }
 
 @Component({
@@ -52,12 +49,10 @@ interface BlockWithFiles extends LessonBlockDto {
     FormsModule,
     RouterLink,
     LucideAngularModule,
-    ButtonComponent,
-    BadgeComponent,
-    RichTextEditorComponent,
-    VideoPlayerComponent,
-    FileUploaderComponent,
-    FileCardComponent,
+    DragDropModule,
+    BlockHostComponent,
+    BlockInserterComponent,
+    BlockEditorHostComponent,
   ],
   templateUrl: './lesson-editor.component.html',
   styleUrl: './lesson-editor.component.scss',
@@ -65,327 +60,244 @@ interface BlockWithFiles extends LessonBlockDto {
 export class LessonEditorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly contentService = inject(ContentService);
   private readonly coursesService = inject(CoursesService);
-  private readonly fileService = inject(FileService);
-  private readonly toastService = inject(ToastService);
+  private readonly attemptsService = inject(BlockAttemptsService);
+  private readonly toast = inject(ToastService);
 
-  readonly ChevronLeftIcon = ChevronLeft;
-  readonly PlusIcon = Plus;
-  readonly TrashIcon = Trash2;
-  readonly ArrowUpIcon = ArrowUp;
-  readonly ArrowDownIcon = ArrowDown;
-  readonly TypeIcon = Type;
-  readonly VideoIcon = Video;
-  readonly PaperclipIcon = Paperclip;
-  readonly SaveIcon = Save;
-  readonly Loader2Icon = Loader2;
-  readonly ChevronDownIcon = ChevronDown;
-  readonly ClipboardListIcon = ClipboardList;
-  readonly ExternalLinkIcon = ExternalLink;
-  readonly FileEditIcon = FileEdit;
-
-  readonly loading = signal(true);
-  readonly saving = signal(false);
-  readonly showAddMenu = signal(false);
-
-  readonly blocks = signal<BlockWithFiles[]>([]);
-  readonly lessonTitle = signal('Урок');
-
-  lessonId = '';
-  courseId = '';
-
-  private readonly autoSave$ = new Subject<BlockWithFiles>();
   private readonly destroy$ = new Subject<void>();
+  private readonly autoSaveBlock$ = new Subject<string>();
+  private readonly autoSaveLesson$ = new Subject<void>();
 
-  ngOnInit(): void {
-    this.lessonId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.courseId = this.route.snapshot.queryParamMap.get('courseId') ?? '';
-    if (this.lessonId) {
-      this.loadBlocks();
-    }
+  lessonId = signal('');
+  lesson = signal<LessonDto | null>(null);
+  loading = signal(true);
+  drafts = signal<BlockDraft[]>([]);
+  saveStatus = signal<SaveStatus>('idle');
+  lastError = signal<string | null>(null);
+  showLessonSettings = signal(false);
+  showTemplates = signal(false);
 
-    this.autoSave$.pipe(debounceTime(1500), takeUntil(this.destroy$)).subscribe((block) => {
-      this.saveBlock(block);
+  templates = LESSON_TEMPLATES;
+
+  blocksCount = computed(() => this.drafts().length);
+
+  ngOnInit() {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const id = params.get('id');
+      if (!id) {
+        this.router.navigate(['/teacher/courses']);
+        return;
+      }
+      this.lessonId.set(id);
+      this.loadAll();
     });
+
+    this.autoSaveBlock$
+      .pipe(debounceTime(1500), takeUntil(this.destroy$))
+      .subscribe((blockId) => this.persistBlock(blockId));
+
+    this.autoSaveLesson$
+      .pipe(debounceTime(1000), takeUntil(this.destroy$))
+      .subscribe(() => this.persistLesson());
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  loadBlocks(): void {
+  private loadAll() {
     this.loading.set(true);
-    this.coursesService.getLessonBlocks(this.lessonId).subscribe({
-      next: (data) => {
-        const sorted = data.sort((a, b) => a.orderIndex - b.orderIndex);
-        const withExtras: BlockWithFiles[] = sorted.map((b) => ({
-          ...b,
-          files: [],
-          filesLoading: false,
-          videoInputMode: 'url',
-          pendingVideoUrl: b.videoUrl ?? '',
-        }));
-        this.blocks.set(withExtras);
+    forkJoin({
+      lesson: this.coursesService.getLessonById(this.lessonId()),
+      blocks: this.contentService.getByLesson(this.lessonId()),
+    }).subscribe({
+      next: ({ lesson, blocks }) => {
+        this.lesson.set(lesson);
+        this.drafts.set(blocks.map((b) => ({ block: b, dirty: false })));
         this.loading.set(false);
-
-        // Load files for File blocks
-        withExtras.forEach((block) => {
-          if (block.type === 'File') {
-            this.loadBlockFiles(block);
-          }
-        });
+        if (blocks.length === 0) this.showTemplates.set(true);
       },
-      error: (err: ApiError) => {
+      error: (err) => {
         this.loading.set(false);
-        this.toastService.error(err.message);
+        const e = err.error as ApiError | undefined;
+        this.toast.error(e?.message ?? 'Не удалось загрузить урок');
       },
     });
   }
 
-  loadBlockFiles(block: BlockWithFiles): void {
-    this.updateBlock(block.id, { filesLoading: true });
-    this.fileService.getEntityFiles('LessonBlock', block.id).subscribe({
-      next: (files) => {
-        this.updateBlock(block.id, { files, filesLoading: false });
-      },
-      error: () => {
-        this.updateBlock(block.id, { filesLoading: false });
-      },
-    });
+  onTitleChange(value: string) {
+    const l = this.lesson();
+    if (!l) return;
+    this.lesson.set({ ...l, title: value });
+    this.autoSaveLesson$.next();
   }
 
-  addBlock(type: 'Text' | 'Video' | 'File' | 'Quiz' | 'Assignment'): void {
-    this.showAddMenu.set(false);
-    const currentBlocks = this.blocks();
-    const orderIndex = currentBlocks.length;
+  onLayoutChange(layout: LessonLayout) {
+    const l = this.lesson();
+    if (!l) return;
+    this.lesson.set({ ...l, layout });
+    this.autoSaveLesson$.next();
+  }
 
+  private persistLesson() {
+    const l = this.lesson();
+    if (!l) return;
     this.coursesService
-      .createLessonBlock(this.lessonId, {
-        type,
-        orderIndex,
-        textContent: type === 'Text' ? '' : undefined,
-        videoUrl: type === 'Video' ? '' : undefined,
-      })
+      .updateLesson(l.id, { title: l.title, description: l.description, duration: l.duration, layout: l.layout })
       .subscribe({
-        next: (block) => {
-          const newBlock: BlockWithFiles = {
-            ...block,
-            files: [],
-            filesLoading: false,
-            videoInputMode: 'url',
-            pendingVideoUrl: block.videoUrl ?? '',
-          };
-          this.blocks.update((bs) => [...bs, newBlock]);
-          this.toastService.success('Блок добавлен');
-        },
-        error: (err: ApiError) => {
-          this.toastService.error(err.message);
+        error: (err) => {
+          const e = err.error as ApiError | undefined;
+          this.toast.error(e?.message ?? 'Не удалось сохранить настройки урока');
         },
       });
   }
 
-  deleteBlock(blockId: string): void {
-    this.coursesService.deleteLessonBlock(blockId).subscribe({
-      next: () => {
-        this.blocks.update((bs) => bs.filter((b) => b.id !== blockId));
-        this.toastService.success('Блок удалён');
-      },
-      error: (err: ApiError) => {
-        this.toastService.error(err.message);
-      },
-    });
-  }
-
-  moveBlock(index: number, direction: 'up' | 'down'): void {
-    const blocks = [...this.blocks()];
-    const target = direction === 'up' ? index - 1 : index + 1;
-    if (target < 0 || target >= blocks.length) return;
-    [blocks[index], blocks[target]] = [blocks[target], blocks[index]];
-    blocks.forEach((b, i) => (b.orderIndex = i));
-    this.blocks.set(blocks);
-    this.saveReorder();
-  }
-
-  onTextChange(blockId: string, content: string): void {
-    this.updateBlock(blockId, { textContent: content });
-    const block = this.blocks().find((b) => b.id === blockId);
-    if (block) this.autoSave$.next({ ...block, textContent: content });
-  }
-
-  onVideoUrlChange(blockId: string, url: string): void {
-    this.updateBlock(blockId, { pendingVideoUrl: url });
-  }
-
-  applyVideoUrl(block: BlockWithFiles): void {
-    const url = block.pendingVideoUrl ?? '';
-    this.updateBlock(block.id, { videoUrl: url });
-    this.saveBlock({ ...block, videoUrl: url });
-  }
-
-  setVideoMode(blockId: string, mode: 'url' | 'upload'): void {
-    this.updateBlock(blockId, { videoInputMode: mode });
-  }
-
-  onVideoFileUploaded(blockId: string, attachment: AttachmentDto): void {
-    const url = this.fileService.getDownloadUrl(attachment.id);
-    this.updateBlock(blockId, { videoUrl: url, pendingVideoUrl: url });
-    const block = this.blocks().find((b) => b.id === blockId);
-    if (block) this.saveBlock({ ...block, videoUrl: url });
-  }
-
-  onFileUploaded(blockId: string, attachment: AttachmentDto): void {
-    this.updateBlock(blockId, {
-      files: [...(this.blocks().find((b) => b.id === blockId)?.files ?? []), attachment],
-    });
-  }
-
-  deleteAttachment(blockId: string, fileId: string): void {
-    this.fileService.deleteFile(fileId).subscribe({
-      next: () => {
-        this.updateBlock(blockId, {
-          files: this.blocks()
-            .find((b) => b.id === blockId)
-            ?.files?.filter((f) => f.id !== fileId) ?? [],
-        });
-        this.toastService.success('Файл удалён');
-      },
-      error: (err: ApiError) => {
-        this.toastService.error(err.message);
-      },
-    });
-  }
-
-  saveBlock(block: BlockWithFiles): void {
-    this.coursesService
-      .updateLessonBlock(block.id, {
-        type: block.type,
-        orderIndex: block.orderIndex,
-        textContent: block.textContent,
-        videoUrl: block.videoUrl,
-        testId: block.testId,
-        assignmentId: block.assignmentId,
-      })
-      .subscribe({
-        error: (err: ApiError) => {
-          this.toastService.error(err.message);
-        },
-      });
-  }
-
-  saveAll(): void {
-    this.saving.set(true);
-    const blocks = this.blocks();
-    let pending = blocks.length;
-    if (pending === 0) {
-      this.saving.set(false);
-      this.toastService.success('Сохранено');
+  applyTemplate(tpl: LessonTemplate) {
+    if (tpl.blocks.length === 0) {
+      this.showTemplates.set(false);
       return;
     }
-    blocks.forEach((block) => {
-      this.coursesService
-        .updateLessonBlock(block.id, {
-          type: block.type,
-          orderIndex: block.orderIndex,
-          textContent: block.textContent,
-          videoUrl: block.videoUrl,
-          testId: block.testId,
-          assignmentId: block.assignmentId,
-        })
-        .subscribe({
-          next: () => {
-            pending--;
-            if (pending === 0) {
-              this.saving.set(false);
-              this.toastService.success('Все блоки сохранены');
-            }
-          },
-          error: (err: ApiError) => {
-            pending--;
-            if (pending === 0) this.saving.set(false);
-            this.toastService.error(err.message);
-          },
-        });
-    });
-  }
-
-  private saveReorder(): void {
-    const ids = this.blocks().map((b) => b.id);
-    this.coursesService
-      .reorderLessonBlocks(this.lessonId, ids)
+    from(tpl.blocks)
+      .pipe(
+        concatMap((b) =>
+          this.contentService.create({
+            lessonId: this.lessonId(),
+            type: b.type,
+            data: b.data,
+            settings: b.settings,
+          }),
+        ),
+        toArray(),
+      )
       .subscribe({
-        error: (err: ApiError) => {
-          this.toastService.error(err.message);
+        next: (created) => {
+          this.drafts.set(created.map((b) => ({ block: b, dirty: false })));
+          this.showTemplates.set(false);
+          this.toast.success('Шаблон применён');
+        },
+        error: (err) => {
+          const e = err.error as ApiError | undefined;
+          this.toast.error(e?.message ?? 'Не удалось применить шаблон');
         },
       });
   }
 
-  private updateBlock(id: string, changes: Partial<BlockWithFiles>): void {
-    this.blocks.update((bs) =>
-      bs.map((b) => (b.id === id ? { ...b, ...changes } : b)),
+  insertBlock(type: LessonBlockType, afterIndex: number) {
+    const data = defaultBlockData(type);
+    const settings = defaultSettings();
+
+    this.contentService
+      .create({ lessonId: this.lessonId(), type, data, settings })
+      .subscribe({
+        next: (created) => {
+          const next = [...this.drafts()];
+          next.splice(afterIndex + 1, 0, { block: created, dirty: false });
+          this.drafts.set(next);
+          if (afterIndex + 1 < next.length - 1) {
+            this.persistOrder();
+          }
+        },
+        error: (err) => {
+          const e = err.error as ApiError | undefined;
+          this.toast.error(e?.message ?? 'Не удалось создать блок');
+        },
+      });
+  }
+
+  onDataChange(blockId: string, data: LessonBlockData) {
+    this.drafts.update((arr) =>
+      arr.map((d) => (d.block.id === blockId ? { block: { ...d.block, data }, dirty: true } : d)),
     );
+    this.saveStatus.set('idle');
+    this.autoSaveBlock$.next(blockId);
   }
 
-  navigateToTestEditor(block: BlockWithFiles): void {
-    if (block.testId) {
-      this.router.navigate(['/teacher/test', block.testId, 'edit']);
-    } else {
-      // Create new test, then link it to this block
-      this.router.navigate(['/teacher/test/new'], {
-        queryParams: { blockId: block.id },
+  onSettingsChange(blockId: string, settings: LessonBlockSettings) {
+    this.drafts.update((arr) =>
+      arr.map((d) => (d.block.id === blockId ? { block: { ...d.block, settings }, dirty: true } : d)),
+    );
+    this.saveStatus.set('idle');
+    this.autoSaveBlock$.next(blockId);
+  }
+
+  private persistBlock(blockId: string) {
+    const draft = this.drafts().find((d) => d.block.id === blockId);
+    if (!draft || !draft.dirty) return;
+
+    this.saveStatus.set('saving');
+    this.contentService
+      .update(blockId, { data: draft.block.data, settings: draft.block.settings })
+      .subscribe({
+        next: (updated) => {
+          this.drafts.update((arr) =>
+            arr.map((d) => (d.block.id === blockId ? { block: updated, dirty: false } : d)),
+          );
+          this.saveStatus.set('saved');
+          this.lastError.set(null);
+          setTimeout(() => {
+            if (this.saveStatus() === 'saved') this.saveStatus.set('idle');
+          }, 2000);
+        },
+        error: (err) => {
+          this.saveStatus.set('error');
+          const e = err.error as ApiError | undefined;
+          this.lastError.set(e?.message ?? 'Не удалось сохранить блок');
+        },
       });
-    }
   }
 
-  navigateToAssignmentEditor(block: BlockWithFiles): void {
-    if (block.assignmentId) {
-      this.router.navigate(['/teacher/assignment', block.assignmentId, 'edit'], {
-        queryParams: { blockId: block.id },
+  removeBlock(blockId: string) {
+    if (!confirm('Удалить этот блок?')) return;
+    this.contentService.delete(blockId).subscribe({
+      next: () => {
+        this.drafts.update((arr) => arr.filter((d) => d.block.id !== blockId));
+      },
+      error: (err) => {
+        const e = err.error as ApiError | undefined;
+        this.toast.error(e?.message ?? 'Не удалось удалить блок');
+      },
+    });
+  }
+
+  duplicateBlock(blockId: string) {
+    const source = this.drafts().find((d) => d.block.id === blockId);
+    if (!source) return;
+    this.contentService
+      .create({
+        lessonId: this.lessonId(),
+        type: source.block.type,
+        data: source.block.data,
+        settings: { ...source.block.settings },
+      })
+      .subscribe({
+        next: (created) => {
+          const idx = this.drafts().findIndex((d) => d.block.id === blockId);
+          const next = [...this.drafts()];
+          next.splice(idx + 1, 0, { block: created, dirty: false });
+          this.drafts.set(next);
+          this.persistOrder();
+        },
+        error: (err) => {
+          const e = err.error as ApiError | undefined;
+          this.toast.error(e?.message ?? 'Не удалось дублировать');
+        },
       });
-    } else {
-      this.router.navigate(['/teacher/assignment/new'], {
-        queryParams: { blockId: block.id },
-      });
-    }
   }
 
-  onAssignmentLinked(blockId: string, assignmentId: string): void {
-    this.updateBlock(blockId, { assignmentId });
-    const block = this.blocks().find((b) => b.id === blockId);
-    if (block) this.saveBlock({ ...block, assignmentId });
+  onDrop(event: CdkDragDrop<BlockDraft[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+    const arr = [...this.drafts()];
+    moveItemInArray(arr, event.previousIndex, event.currentIndex);
+    this.drafts.set(arr);
+    this.persistOrder();
   }
 
-  getBlockTypeLabel(type: string): string {
-    switch (type) {
-      case 'Text': return 'Текст';
-      case 'Video': return 'Видео';
-      case 'File': return 'Файл';
-      case 'Quiz': return 'Тест';
-      case 'Assignment': return 'Задание';
-      default: return type;
-    }
-  }
-
-  getBlockTypeBadgeVariant(type: string): 'primary' | 'success' | 'warning' | 'danger' | 'neutral' {
-    switch (type) {
-      case 'Text': return 'primary';
-      case 'Video': return 'success';
-      case 'File': return 'warning';
-      case 'Quiz': return 'danger';
-      case 'Assignment': return 'neutral';
-      default: return 'primary';
-    }
-  }
-
-  toggleAddMenu(): void {
-    this.showAddMenu.update((v) => !v);
-  }
-
-  closeAddMenu(): void {
-    this.showAddMenu.set(false);
-  }
-
-  get backUrl(): string {
-    return this.courseId ? `/teacher/courses/edit/${this.courseId}` : '/teacher/courses';
+  private persistOrder() {
+    const ids = this.drafts().map((d) => d.block.id);
+    this.contentService.reorder(this.lessonId(), ids).subscribe({
+      error: () => this.toast.error('Не удалось сохранить порядок'),
+    });
   }
 }

@@ -1,0 +1,143 @@
+{
+  "tests": [
+    {
+      "title": "Python: основы синтаксиса",
+      "discipline": "programming",
+      "description": "Проверка базовых знаний по языку Python после изучения первого модуля курса.",
+      "timeLimitMinutes": 15,
+      "passingScore": 70,
+      "questions": [
+        {
+          "type": "single_choice",
+          "text": "Как в Python объявить переменную со значением 42?",
+          "points": 1,
+          "options": [
+            { "text": "var x = 42;", "isCorrect": false },
+            { "text": "x := 42", "isCorrect": false },
+            { "text": "x = 42", "isCorrect": true },
+            { "text": "let x = 42", "isCorrect": false }
+          ]
+        },
+        {
+          "type": "single_choice",
+          "text": "Какой тип данных вернёт выражение type(3.14)?",
+          "points": 1,
+          "options": [
+            { "text": "int", "isCorrect": false },
+            { "text": "float", "isCorrect": true },
+            { "text": "double", "isCorrect": false },
+            { "text": "decimal", "isCorrect": false }
+          ]
+        },
+        {
+          "type": "multiple_choice",
+          "text": "Какие из перечисленных типов являются изменяемыми (mutable)?",
+          "points": 2,
+          "options": [
+            { "text": "list", "isCorrect": true },
+            { "text": "tuple", "isCorrect": false },
+            { "text": "dict", "isCorrect": true },
+            { "text": "str", "isCorrect": false },
+            { "text": "set", "isCorrect": true }
+          ]
+        },
+        {
+          "type": "text_input",
+          "text": "Напишите встроенную функцию Python для вывода значения в консоль.",
+          "points": 1,
+          "correctAnswers": ["print", "print()"]
+        },
+        {
+          "type": "open_answer",
+          "text": "Объясните своими словами, что такое f-строка в Python и приведите пример её использования.",
+          "points": 3,
+          "manualCheck": true
+        }
+      ]
+    },
+    {
+      "title": "English Grammar: Present Simple",
+      "discipline": "languages",
+      "description": "Test on the Present Simple tense — forms, usage, and common mistakes.",
+      "timeLimitMinutes": 10,
+      "passingScore": 60,
+      "questions": [
+        {
+          "type": "single_choice",
+          "text": "Choose the correct form: 'She ___ coffee every morning.'",
+          "points": 1,
+          "options": [
+            { "text": "drink", "isCorrect": false },
+            { "text": "drinks", "isCorrect": true },
+            { "text": "is drinking", "isCorrect": false },
+            { "text": "drinking", "isCorrect": false }
+          ]
+        },
+        {
+          "type": "single_choice",
+          "text": "Which question is correct?",
+          "points": 1,
+          "options": [
+            { "text": "Where you live?", "isCorrect": false },
+            { "text": "Where do you live?", "isCorrect": true },
+            { "text": "Where lives you?", "isCorrect": false },
+            { "text": "Where are you live?", "isCorrect": false }
+          ]
+        },
+        {
+          "type": "text_input",
+          "text": "Write the 3rd person singular form of the verb 'go'.",
+          "points": 1,
+          "correctAnswers": ["goes"]
+        },
+        {
+          "type": "matching",
+          "text": "Match the pronouns with the correct form of 'to be'.",
+          "points": 2,
+          "pairs": [
+            { "left": "I", "right": "am" },
+            { "left": "You / We / They", "right": "are" },
+            { "left": "He / She / It", "right": "is" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Алгебра: квадратные уравнения",
+      "discipline": "math",
+      "description": "Проверка умения решать квадратные уравнения и использовать теорему Виета.",
+      "timeLimitMinutes": 20,
+      "passingScore": 70,
+      "questions": [
+        {
+          "type": "single_choice",
+          "text": "Чему равен дискриминант уравнения 2x² − 5x + 3 = 0?",
+          "points": 1,
+          "options": [
+            { "text": "1", "isCorrect": true },
+            { "text": "−1", "isCorrect": false },
+            { "text": "25", "isCorrect": false },
+            { "text": "49", "isCorrect": false }
+          ]
+        },
+        {
+          "type": "text_input",
+          "text": "Найдите меньший корень уравнения x² − 5x + 6 = 0.",
+          "points": 1,
+          "correctAnswers": ["2"]
+        },
+        {
+          "type": "single_choice",
+          "text": "Если x₁ и x₂ — корни уравнения x² + px + q = 0, то по теореме Виета:",
+          "points": 1,
+          "options": [
+            { "text": "x₁ · x₂ = p и x₁ + x₂ = q", "isCorrect": false },
+            { "text": "x₁ + x₂ = −p и x₁ · x₂ = q", "isCorrect": true },
+            { "text": "x₁ + x₂ = p и x₁ · x₂ = −q", "isCorrect": false },
+            { "text": "x₁ − x₂ = p", "isCorrect": false }
+          ]
+        }
+      ]
+    }
+  ]
+}

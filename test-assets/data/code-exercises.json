@@ -1,0 +1,92 @@
+{
+  "language": "python",
+  "exercises": [
+    {
+      "id": "py-001",
+      "title": "Hello, world!",
+      "difficulty": "easy",
+      "description": "Напишите программу, которая выводит на экран строку 'Hello, world!'.",
+      "starterCode": "# напишите ваш код здесь\n",
+      "solution": "print('Hello, world!')",
+      "testCases": [
+        { "input": "", "expectedOutput": "Hello, world!" }
+      ]
+    },
+    {
+      "id": "py-002",
+      "title": "Сумма двух чисел",
+      "difficulty": "easy",
+      "description": "Программа читает два числа со стандартного ввода и выводит их сумму.",
+      "starterCode": "a = int(input())\nb = int(input())\n# выведите сумму a и b\n",
+      "solution": "a = int(input())\nb = int(input())\nprint(a + b)",
+      "testCases": [
+        { "input": "2\n3", "expectedOutput": "5" },
+        { "input": "10\n-4", "expectedOutput": "6" },
+        { "input": "0\n0", "expectedOutput": "0" }
+      ]
+    },
+    {
+      "id": "py-003",
+      "title": "Чётное или нечётное",
+      "difficulty": "easy",
+      "description": "Считать целое число и вывести 'even', если оно чётное, иначе 'odd'.",
+      "starterCode": "n = int(input())\n",
+      "solution": "n = int(input())\nprint('even' if n % 2 == 0 else 'odd')",
+      "testCases": [
+        { "input": "4", "expectedOutput": "even" },
+        { "input": "7", "expectedOutput": "odd" },
+        { "input": "0", "expectedOutput": "even" }
+      ]
+    },
+    {
+      "id": "py-004",
+      "title": "Факториал",
+      "difficulty": "medium",
+      "description": "Вычислить n! для n ≥ 0.",
+      "starterCode": "def factorial(n):\n    # ваш код\n    pass\n\nn = int(input())\nprint(factorial(n))",
+      "solution": "def factorial(n):\n    result = 1\n    for i in range(2, n + 1):\n        result *= i\n    return result\n\nn = int(input())\nprint(factorial(n))",
+      "testCases": [
+        { "input": "0", "expectedOutput": "1" },
+        { "input": "5", "expectedOutput": "120" },
+        { "input": "10", "expectedOutput": "3628800" }
+      ]
+    },
+    {
+      "id": "py-005",
+      "title": "FizzBuzz",
+      "difficulty": "medium",
+      "description": "Для чисел от 1 до n: если число делится на 3 — вывести 'Fizz', если на 5 — 'Buzz', если на 15 — 'FizzBuzz', иначе само число. Каждое значение на новой строке.",
+      "starterCode": "n = int(input())\n# ваш код\n",
+      "solution": "n = int(input())\nfor i in range(1, n + 1):\n    if i % 15 == 0:\n        print('FizzBuzz')\n    elif i % 3 == 0:\n        print('Fizz')\n    elif i % 5 == 0:\n        print('Buzz')\n    else:\n        print(i)",
+      "testCases": [
+        { "input": "5", "expectedOutput": "1\n2\nFizz\n4\nBuzz" }
+      ]
+    },
+    {
+      "id": "py-006",
+      "title": "Палиндром",
+      "difficulty": "medium",
+      "description": "Проверить, является ли строка палиндромом (читается одинаково в обе стороны). Вывести 'yes' или 'no'.",
+      "starterCode": "s = input()\n",
+      "solution": "s = input()\nprint('yes' if s == s[::-1] else 'no')",
+      "testCases": [
+        { "input": "level", "expectedOutput": "yes" },
+        { "input": "hello", "expectedOutput": "no" },
+        { "input": "a", "expectedOutput": "yes" }
+      ]
+    },
+    {
+      "id": "py-007",
+      "title": "Сумма цифр",
+      "difficulty": "easy",
+      "description": "Для натурального числа вывести сумму его цифр.",
+      "starterCode": "n = int(input())\n",
+      "solution": "n = int(input())\nprint(sum(int(d) for d in str(n)))",
+      "testCases": [
+        { "input": "123", "expectedOutput": "6" },
+        { "input": "9999", "expectedOutput": "36" },
+        { "input": "0", "expectedOutput": "0" }
+      ]
+    }
+  ]
+}

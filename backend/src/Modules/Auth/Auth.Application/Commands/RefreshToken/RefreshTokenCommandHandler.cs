@@ -6,6 +6,7 @@ using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Auth.Application.Commands.RefreshToken;
 
@@ -14,15 +15,18 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IAuthDbContext _dbContext;
+    private readonly IConfiguration _configuration;
 
     public RefreshTokenCommandHandler(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
-        IAuthDbContext dbContext)
+        IAuthDbContext dbContext,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _dbContext = dbContext;
+        _configuration = configuration;
     }
 
     public async Task<Result<LoginResultDto>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -57,6 +61,20 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         if (user == null)
             return Result.Failure<LoginResultDto>("User not found.");
 
+        if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+        {
+            var activeTokens = await _dbContext.RefreshTokens
+                .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+                .ToListAsync(cancellationToken);
+
+            foreach (var token in activeTokens)
+                token.IsRevoked = true;
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Failure<LoginResultDto>("Ваш аккаунт заблокирован. Обратитесь к администратору.");
+        }
+
         var roles = await _userManager.GetRolesAsync(user);
         var newAccessToken = _tokenService.GenerateAccessToken(user, roles);
         var newRefreshTokenValue = _tokenService.GenerateRefreshToken();
@@ -75,12 +93,13 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         _dbContext.RefreshTokens.Add(newRefreshToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        var expirationMinutes = int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "60");
         var loginResult = new LoginResultDto
         {
             AuthResponse = new AuthResponseDto
             {
                 AccessToken = newAccessToken,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(15)
+                ExpiresAt = DateTime.UtcNow.AddMinutes(expirationMinutes)
             },
             RefreshToken = newRefreshTokenValue
         };

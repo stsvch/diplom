@@ -1,0 +1,101 @@
+{
+  "disciplines": [
+    { "name": "Программирование", "slug": "programming", "description": "Курсы по языкам программирования и веб-разработке" },
+    { "name": "Иностранные языки", "slug": "languages", "description": "Курсы по английскому и другим языкам" },
+    { "name": "Математика", "slug": "math", "description": "Школьная и высшая математика" },
+    { "name": "Дизайн", "slug": "design", "description": "UI/UX, графический дизайн, Figma" },
+    { "name": "Бизнес и маркетинг", "slug": "business", "description": "Маркетинг, SMM, предпринимательство" }
+  ],
+  "courses": [
+    {
+      "title": "Python для начинающих",
+      "discipline": "programming",
+      "description": "Полный курс по языку Python с нуля: переменные, функции, ООП, работа с файлами и библиотеками. Практические задания с автопроверкой.",
+      "coverImage": "test-assets/images/course-covers/programming-python.svg",
+      "isFree": true,
+      "estimatedHours": 40,
+      "modules": [
+        { "title": "Введение", "lessons": ["Знакомство с Python", "Установка и первая программа", "Переменные и типы данных"] },
+        { "title": "Управляющие конструкции", "lessons": ["Условия if/elif/else", "Циклы for и while", "Функции и область видимости"] },
+        { "title": "Структуры данных", "lessons": ["Списки и кортежи", "Словари и множества", "Строки: методы и форматирование"] },
+        { "title": "ООП", "lessons": ["Классы и объекты", "Наследование", "Магические методы"] },
+        { "title": "Практика", "lessons": ["Работа с файлами", "Модули и пакеты", "Итоговый проект"] }
+      ]
+    },
+    {
+      "title": "JavaScript с нуля до практики",
+      "discipline": "programming",
+      "description": "Основы JavaScript, работа с DOM, асинхронность, подготовка к изучению React. Упражнения с мгновенной проверкой.",
+      "coverImage": "test-assets/images/course-covers/programming-javascript.svg",
+      "isFree": false,
+      "price": 4900,
+      "estimatedHours": 30,
+      "modules": [
+        { "title": "Основы", "lessons": ["Введение в JS", "Переменные и типы", "Операторы и выражения"] },
+        { "title": "Функции и объекты", "lessons": ["Функции", "Объекты", "Массивы"] },
+        { "title": "DOM и события", "lessons": ["Работа с DOM", "События", "Формы"] },
+        { "title": "Асинхронность", "lessons": ["Promise", "async/await", "Fetch API"] }
+      ]
+    },
+    {
+      "title": "Веб-разработка: HTML, CSS, JS",
+      "discipline": "programming",
+      "description": "Полный путь от вёрстки статичной страницы до адаптивного сайта с интерактивом.",
+      "coverImage": "test-assets/images/course-covers/programming-web.svg",
+      "isFree": true,
+      "estimatedHours": 50
+    },
+    {
+      "title": "English for beginners",
+      "discipline": "languages",
+      "description": "Курс английского с нуля до уровня A2. Озвучка носителями, словарные карточки, тесты и занятия с преподавателем.",
+      "coverImage": "test-assets/images/course-covers/english-basics.svg",
+      "isFree": false,
+      "price": 6900,
+      "estimatedHours": 60
+    },
+    {
+      "title": "Business English",
+      "discipline": "languages",
+      "description": "Английский для работы: переговоры, деловые письма, презентации, собеседования.",
+      "coverImage": "test-assets/images/course-covers/english-business.svg",
+      "isFree": false,
+      "price": 8900,
+      "estimatedHours": 45
+    },
+    {
+      "title": "Алгебра и начала анализа",
+      "discipline": "math",
+      "description": "Подготовка к ЕГЭ: функции, уравнения, производные, интегралы.",
+      "coverImage": "test-assets/images/course-covers/math-algebra.svg",
+      "isFree": true,
+      "estimatedHours": 80
+    },
+    {
+      "title": "Геометрия: планиметрия",
+      "discipline": "math",
+      "description": "Фигуры, углы, теоремы. С визуальными иллюстрациями и задачами.",
+      "coverImage": "test-assets/images/course-covers/math-geometry.svg",
+      "isFree": true,
+      "estimatedHours": 40
+    },
+    {
+      "title": "UI/UX Design: от идеи до макета",
+      "discipline": "design",
+      "description": "Основы Figma, работа с типографикой и цветом, создание прототипов.",
+      "coverImage": "test-assets/images/course-covers/design-ui.svg",
+      "isFree": false,
+      "price": 7900,
+      "estimatedHours": 35
+    },
+    {
+      "title": "Цифровой маркетинг",
+      "discipline": "business",
+      "description": "SMM, SEO, контент-маркетинг, аналитика и реклама.",
+      "coverImage": "test-assets/images/course-covers/business-marketing.svg",
+      "isFree": false,
+      "price": 9900,
+      "estimatedHours": 40
+    }
+  ]
+}

@@ -6,6 +6,9 @@ public class CreateAssignmentCommandValidator : AbstractValidator<CreateAssignme
 {
     public CreateAssignmentCommandValidator()
     {
+        RuleFor(x => x.CourseId)
+            .NotEmpty().WithMessage("Задание должно быть привязано к курсу.");
+
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Название задания обязательно.")
             .MaximumLength(200).WithMessage("Название задания не должно превышать 200 символов.");

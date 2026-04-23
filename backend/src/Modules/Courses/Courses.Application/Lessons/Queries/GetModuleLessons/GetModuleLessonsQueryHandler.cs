@@ -21,7 +21,6 @@ public class GetModuleLessonsQueryHandler : IRequestHandler<GetModuleLessonsQuer
     {
         var lessons = await _context.Lessons
             .Where(l => l.ModuleId == request.ModuleId)
-            .Include(l => l.Blocks)
             .OrderBy(l => l.OrderIndex)
             .ToListAsync(cancellationToken);
 

@@ -82,6 +82,43 @@ EduPlatform — веб-платформа для организации учеб
 └── /docs               — документация проекта
 ```
 
+## Запуск для разработки
+
+Схема: **инфраструктура в Docker, backend — через Aspire AppHost, frontend — через Angular CLI.**
+
+### 1. Инфраструктура (PostgreSQL, MongoDB, MinIO)
+
+```bash
+docker compose up -d
+```
+
+Поднимает три сервиса на стандартных портах: 5432 (Postgres), 27017 (Mongo), 9000/9001 (MinIO).
+
+### 2. Backend через .NET Aspire
+
+```bash
+cd backend
+dotnet run --project src/AppHost
+```
+
+Откроется Aspire Dashboard (автоматически), в нём — ресурс `eduplatform-host`.
+Сам API доступен на порту, который назначит Aspire (ищите в логах
+`Now listening on: http://localhost:XXXX`). Порт можно зафиксировать
+в `src/AppHost/Properties/launchSettings.json`.
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install    # один раз
+npm start      # http://localhost:4200
+```
+
+### Остановка
+
+- Backend / frontend — `Ctrl+C` в соответствующем терминале.
+- Инфраструктура — `docker compose down` (с `-v` — вычистить данные).
+
 ## Документация
 
 - `project_discussion_log.md` — полное описание функциональных и нефункциональных требований, архитектуры и модели данных.

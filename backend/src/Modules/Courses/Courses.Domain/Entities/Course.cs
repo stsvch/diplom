@@ -14,8 +14,12 @@ public class Course : BaseEntity, IAuditableEntity
     public bool IsFree { get; set; }
     public bool IsPublished { get; set; }
     public bool IsArchived { get; set; }
+    public string? ArchiveReason { get; set; }
+    public string? ArchivedBy { get; set; }
     public CourseOrderType OrderType { get; set; }
     public bool HasGrading { get; set; }
+    public bool HasCertificate { get; set; }
+    public DateTime? Deadline { get; set; }
     public string? ImageUrl { get; set; }
     public CourseLevel Level { get; set; }
     public string? Tags { get; set; }

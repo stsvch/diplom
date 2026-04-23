@@ -132,9 +132,15 @@
               @for (col of getUniqueTitlesWithTypes(); track col.title) {
                 <td class="gradebook-table__td">
                   @if (getGrade(student, col.title); as grade) {
-                    <span class="score-badge" [class]="getScoreClass(grade.score, grade.maxScore)">
+                    <button
+                      type="button"
+                      class="score-badge score-badge--interactive"
+                      [class]="getScoreClass(grade.score, grade.maxScore)"
+                      [title]="'Редактировать: ' + grade.title"
+                      (click)="editGrade(grade)"
+                    >
                       {{ grade.score }}/{{ grade.maxScore }}
-                    </span>
+                    </button>
                   } @else {
                     <span class="score-badge score-badge--empty">—</span>
                   }

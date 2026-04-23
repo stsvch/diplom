@@ -1,5 +1,7 @@
 using Calendar.Application.Interfaces;
 using Calendar.Infrastructure.Persistence;
+using Calendar.Infrastructure.Services;
+using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +17,7 @@ public static class CalendarModuleRegistration
         services.AddDbContext<CalendarDbContext>(options =>
             options.UseNpgsql(connectionString));
         services.AddScoped<ICalendarDbContext>(sp => sp.GetRequiredService<CalendarDbContext>());
+        services.AddScoped<ICalendarEventPublisher, CalendarEventPublisher>();
 
         var applicationAssembly = typeof(ICalendarDbContext).Assembly;
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));

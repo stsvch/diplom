@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   signal,
   HostListener,
@@ -92,6 +93,18 @@ export class HeaderComponent implements OnInit {
     return `${user.firstName} ${user.lastName}`;
   });
 
+  private readonly liveUpdatesEffect = effect(() => {
+    const notification = this.signalRService.lastNotification();
+    if (!notification) {
+      return;
+    }
+
+    this.recentNotifications.update((list) => {
+      const next = [notification, ...list.filter((item) => item.id !== notification.id)];
+      return next.slice(0, 5);
+    });
+  });
+
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.loadUnreadCount();
@@ -110,8 +123,10 @@ export class HeaderComponent implements OnInit {
   }
 
   private getTitleFromUrl(url: string): string {
-    const segments = url.split('/').filter(Boolean);
-    const last = segments[segments.length - 1];
+    const segments = url
+      .split('?')[0]
+      .split('/')
+      .filter(Boolean);
     const map: Record<string, string> = {
       dashboard: 'Дашборд',
       courses: 'Мои курсы',
@@ -132,7 +147,9 @@ export class HeaderComponent implements OnInit {
       settings: 'Настройки',
       create: 'Создать курс',
     };
-    return map[last] ?? 'EduPlatform';
+
+    const matchedSegment = [...segments].reverse().find((segment) => map[segment]);
+    return matchedSegment ? map[matchedSegment] : 'EduPlatform';
   }
 
   getNotificationIcon(type: NotificationType): LucideIconData {
@@ -169,10 +186,43 @@ export class HeaderComponent implements OnInit {
 
   dismissNotification(id: string, event: Event): void {
     event.stopPropagation();
+    const notification = this.recentNotifications().find((item) => item.id === id);
+
     this.notificationsService.deleteNotification(id).subscribe({
       next: () => {
         this.recentNotifications.update((list) => list.filter((n) => n.id !== id));
+        if (notification && !notification.isRead) {
+          this.signalRService.decrementUnreadCount();
+        }
       },
+    });
+  }
+
+  openNotification(notification: NotificationDto): void {
+    const navigate = () => {
+      this.notificationsOpen.set(false);
+
+      if (notification.linkUrl) {
+        this.router.navigateByUrl(notification.linkUrl);
+        return;
+      }
+
+      this.navigateToNotifications();
+    };
+
+    if (notification.isRead) {
+      navigate();
+      return;
+    }
+
+    this.notificationsService.markAsRead(notification.id).subscribe({
+      next: () => {
+        this.recentNotifications.update((list) =>
+          list.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
+        );
+        navigate();
+      },
+      error: () => navigate(),
     });
   }
 
@@ -181,6 +231,21 @@ export class HeaderComponent implements OnInit {
     const role = this.authService.userRole();
     const prefix = role === 'Teacher' ? 'teacher' : 'student';
     this.router.navigate([`/${prefix}/notifications`]);
+  }
+
+  formatTimeAgo(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHrs = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHrs / 24);
+
+    if (diffMin < 1) return 'только что';
+    if (diffMin < 60) return `${diffMin} мин назад`;
+    if (diffHrs < 24) return `${diffHrs} ч назад`;
+    if (diffDays < 7) return `${diffDays} д назад`;
+    return date.toLocaleDateString('ru-RU');
   }
 
   logout(): void {

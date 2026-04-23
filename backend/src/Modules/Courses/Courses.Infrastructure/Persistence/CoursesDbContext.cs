@@ -16,7 +16,6 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<CourseModule> CourseModules => Set<CourseModule>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
-    public DbSet<LessonBlock> LessonBlocks => Set<LessonBlock>();
     public DbSet<CourseEnrollment> CourseEnrollments => Set<CourseEnrollment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,6 +48,7 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
             entity.Property(e => e.Tags).HasMaxLength(1000);
             entity.Property(e => e.Level).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.OrderType).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.HasCertificate).HasDefaultValue(false);
             entity.HasIndex(e => e.TeacherId);
             entity.HasIndex(e => e.DisciplineId);
 
@@ -81,21 +81,8 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.Layout).HasConversion<string>().HasMaxLength(30);
             entity.HasIndex(e => e.ModuleId);
-
-            entity.HasMany(e => e.Blocks)
-                  .WithOne(b => b.Lesson)
-                  .HasForeignKey(b => b.LessonId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<LessonBlock>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Type).HasConversion<string>().HasMaxLength(50);
-            entity.Property(e => e.TextContent).HasColumnType("text");
-            entity.Property(e => e.VideoUrl).HasMaxLength(500);
-            entity.HasIndex(e => e.LessonId);
         });
 
         modelBuilder.Entity<CourseEnrollment>(entity =>

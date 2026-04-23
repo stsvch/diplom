@@ -1,4 +1,4 @@
-using Calendar.Domain.Enums;
+using EduPlatform.Shared.Domain.Enums;
 
 namespace Calendar.Application.DTOs;
 
@@ -13,4 +13,5 @@ public class CalendarEventDto
     public Guid? CourseId { get; set; }
     public string? SourceType { get; set; }
     public Guid? SourceId { get; set; }
+    public DeadlineStatus? Status { get; set; }
 }

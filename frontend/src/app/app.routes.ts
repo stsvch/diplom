@@ -53,6 +53,14 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'messages/:chatId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/messaging/message-link-redirect/message-link-redirect.component').then(
+        (m) => m.MessageLinkRedirectComponent,
+      ),
+  },
+  {
     path: 'student',
     canActivate: [authGuard, roleGuard],
     data: { role: 'Student' },
@@ -97,8 +105,8 @@ export const routes: Routes = [
       {
         path: 'lesson/:id',
         loadComponent: () =>
-          import('./features/courses/lesson-view/lesson-view.component').then(
-            (m) => m.LessonViewComponent,
+          import('./features/courses/lesson-view-host/lesson-view-host.component').then(
+            (m) => m.LessonViewHostComponent,
           ),
       },
       {
@@ -151,6 +159,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'messages/:chatId',
+        loadComponent: () =>
+          import('./features/messaging/messages-page/messages-page.component').then(
+            (m) => m.MessagesPageComponent,
+          ),
+      },
+      {
         path: 'notifications',
         loadComponent: () =>
           import('./features/notifications/notifications-page/notifications-page.component').then(
@@ -167,9 +182,7 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
-          ),
+          import('./features/profile/profile.component').then((m) => m.ProfileComponent),
       },
     ],
   },
@@ -202,6 +215,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'courses/new',
+        loadComponent: () =>
+          import('./features/courses/course-new/course-new.component').then(
+            (m) => m.CourseNewComponent,
+          ),
+      },
+      {
         path: 'courses/create',
         loadComponent: () =>
           import('./features/courses/create-course/create-course.component').then(
@@ -213,6 +233,27 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/courses/create-course/create-course.component').then(
             (m) => m.CreateCourseComponent,
+          ),
+      },
+      {
+        path: 'courses/:id/editor',
+        loadComponent: () =>
+          import('./features/courses/course-editor/course-editor.component').then(
+            (m) => m.CourseEditorComponent,
+          ),
+      },
+      {
+        path: 'courses/:id/preview',
+        loadComponent: () =>
+          import('./features/courses/course-preview/course-preview-host.component').then(
+            (m) => m.CoursePreviewHostComponent,
+          ),
+      },
+      {
+        path: 'lesson-preview/:id',
+        loadComponent: () =>
+          import('./features/courses/course-preview/lesson-preview-host.component').then(
+            (m) => m.LessonPreviewHostComponent,
           ),
       },
       {
@@ -279,6 +320,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./features/calendar/calendar-page/calendar-page.component').then(
+            (m) => m.CalendarPageComponent,
+          ),
+      },
+      {
         path: 'schedule',
         loadComponent: () =>
           import('./features/scheduling/teacher-schedule/teacher-schedule.component').then(
@@ -294,6 +342,13 @@ export const routes: Routes = [
       },
       {
         path: 'messages',
+        loadComponent: () =>
+          import('./features/messaging/messages-page/messages-page.component').then(
+            (m) => m.MessagesPageComponent,
+          ),
+      },
+      {
+        path: 'messages/:chatId',
         loadComponent: () =>
           import('./features/messaging/messages-page/messages-page.component').then(
             (m) => m.MessagesPageComponent,
@@ -316,9 +371,7 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
-          ),
+          import('./features/profile/profile.component').then((m) => m.ProfileComponent),
       },
     ],
   },
@@ -339,22 +392,22 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent,
           ),
       },
       {
         path: 'users',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/users/admin-users.component').then(
+            (m) => m.AdminUsersComponent,
           ),
       },
       {
         path: 'courses',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/courses/admin-courses.component').then(
+            (m) => m.AdminCoursesComponent,
           ),
       },
       {
@@ -374,15 +427,15 @@ export const routes: Routes = [
       {
         path: 'analytics',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent,
           ),
       },
       {
         path: 'settings',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/settings/admin-settings.component').then(
+            (m) => m.AdminSettingsComponent,
           ),
       },
     ],

@@ -1,0 +1,69 @@
+@startuml
+
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 35
+skinparam roundcorner 10
+skinparam classFontSize 11
+
+title Концептуальная модель EduPlatform
+
+entity "Пользователь" as U #EEF2FF
+entity "Дисциплина" as D #E8F5E9
+entity "Курс" as C #E8F5E9
+entity "Запись на курс" as CE #E8F5E9
+entity "Модуль" as M #E8F5E9
+entity "Урок" as L #E8F5E9
+entity "Блок контента" as LB #E8F5E9
+entity "Тест" as T #FFEBEE
+entity "Вопрос" as Q #FFEBEE
+entity "Вариант ответа" as AO #FFEBEE
+entity "Попытка теста" as TA #FFEBEE
+entity "Ответ на вопрос" as TR #FFEBEE
+entity "Задание" as A #EDE7F6
+entity "Сдача задания" as AS #EDE7F6
+entity "Оценка" as G #FFF3E0
+entity "Прогресс" as P #E0F2F1
+entity "Уведомление" as N #FCE4EC
+entity "Событие календаря" as Cal #F1F8E9
+entity "Слот занятия" as SS #E3F2FD
+entity "Запись на занятие" as SB #E3F2FD
+entity "Чат" as Ch #F5F5F5
+entity "Сообщение" as Msg #F5F5F5
+entity "Вложение" as Att #FFFDE7
+
+U "1" -- "0..*" C : создаёт
+U "1" -- "0..*" CE : записывается
+U "1" -- "0..*" TA : проходит
+U "1" -- "0..*" AS : сдаёт
+U "1" -- "0..*" G : получает
+U "1" -- "0..*" P : отслеживает
+U "1" -- "0..*" N : получает
+U "1" -- "0..*" SS : создаёт
+U "1" -- "0..*" SB : бронирует
+U "0..*" -- "0..*" Ch : участвует
+
+D "1" -- "0..*" C : содержит
+C "1" -- "0..*" CE
+C "1" -- "0..*" M : состоит
+C "1" -- "0..*" G
+
+M "1" -- "0..*" L : содержит
+L "1" -- "0..*" LB : содержит
+
+LB "0..1" .. "0..1" T
+LB "0..1" .. "0..1" A
+
+T "1" -- "0..*" Q : содержит
+Q "1" -- "0..*" AO : имеет
+T "1" -- "0..*" TA
+TA "1" -- "0..*" TR : содержит
+Q "1" -- "0..*" TR
+
+A "1" -- "0..*" AS : сдаётся
+
+SS "1" -- "0..*" SB
+
+Ch "1" -- "0..*" Msg : содержит
+
+@enduml

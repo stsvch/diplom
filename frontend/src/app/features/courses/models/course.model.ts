@@ -30,6 +30,9 @@ export interface CourseDetailDto extends CourseListDto {
   isArchived: boolean;
   orderType: string;
   hasGrading: boolean;
+  hasCertificate: boolean;
+  deadline?: string | null;
+  disciplineId: string;
   createdAt: string;
 }
 
@@ -42,6 +45,8 @@ export interface CourseModuleDetailDto {
   lessons: LessonDetailDto[];
 }
 
+export type LessonLayout = 'Scroll' | 'Stepper';
+
 export interface LessonDetailDto {
   id: string;
   title: string;
@@ -50,6 +55,7 @@ export interface LessonDetailDto {
   isPublished: boolean;
   duration?: number;
   blocksCount: number;
+  layout: LessonLayout;
 }
 
 export interface CourseModuleDto {
@@ -69,16 +75,7 @@ export interface LessonDto {
   isPublished: boolean;
   duration?: number;
   blocksCount: number;
-}
-
-export interface LessonBlockDto {
-  id: string;
-  orderIndex: number;
-  type: string;
-  textContent?: string;
-  videoUrl?: string;
-  testId?: string;
-  assignmentId?: string;
+  layout: LessonLayout;
 }
 
 export interface PagedResult<T> {

@@ -13,6 +13,9 @@ public class ChatDocument
     public string? CourseName { get; set; }
     public List<string> ParticipantIds { get; set; } = new();
     public List<ParticipantInfo> Participants { get; set; } = new();
+    public string? OwnerId { get; set; }
+    public List<string> HiddenBy { get; set; } = new();
+    public bool IsArchived { get; set; }
     public string? LastMessage { get; set; }
     public DateTime? LastMessageAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

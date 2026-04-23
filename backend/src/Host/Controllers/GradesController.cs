@@ -1,3 +1,5 @@
+using Auth.Domain.Entities;
+using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Models;
 using Grading.Application.DTOs;
 using Grading.Application.Grades.Commands.CreateGrade;
@@ -10,7 +12,9 @@ using Grading.Application.Interfaces;
 using Grading.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
@@ -20,15 +24,21 @@ namespace EduPlatform.Host.Controllers;
 public class GradesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ICoursesDbContext _coursesDb;
     private readonly IExportService _excelExportService;
     private readonly Grading.Infrastructure.Services.PdfExportService _pdfExportService;
 
     public GradesController(
         IMediator mediator,
+        UserManager<ApplicationUser> userManager,
+        ICoursesDbContext coursesDb,
         IExportService excelExportService,
         Grading.Infrastructure.Services.PdfExportService pdfExportService)
     {
         _mediator = mediator;
+        _userManager = userManager;
+        _coursesDb = coursesDb;
         _excelExportService = excelExportService;
         _pdfExportService = pdfExportService;
     }
@@ -80,6 +90,7 @@ public class GradesController : ControllerBase
     public async Task<IActionResult> GetCourseGradebook(Guid courseId, CancellationToken ct)
     {
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
+        await EnrichGradebookAsync(gradebook, ct);
         return Ok(gradebook);
     }
 
@@ -96,6 +107,7 @@ public class GradesController : ControllerBase
     public async Task<IActionResult> GetStudentGrades(string studentId, CancellationToken ct)
     {
         var grades = await _mediator.Send(new GetStudentGradesQuery(studentId), ct);
+        await EnrichGradesAsync(grades, ct);
         return Ok(grades);
     }
 
@@ -105,6 +117,7 @@ public class GradesController : ControllerBase
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var grades = await _mediator.Send(new GetStudentGradesQuery(studentId), ct);
+        await EnrichGradesAsync(grades, ct);
         return Ok(grades);
     }
 
@@ -113,6 +126,10 @@ public class GradesController : ControllerBase
     public async Task<IActionResult> ExportExcel(Guid courseId, CancellationToken ct)
     {
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
+        await EnrichGradebookAsync(gradebook, ct);
+        if (!HasGrades(gradebook))
+            return NotFound(ApiError.FromMessage("В журнале нет данных для экспорта.", "GRADEBOOK_EMPTY"));
+
         var bytes = await _excelExportService.ExportToExcelAsync(gradebook, ct);
         return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             $"gradebook_{courseId:N}.xlsx");
@@ -123,9 +140,87 @@ public class GradesController : ControllerBase
     public async Task<IActionResult> ExportPdf(Guid courseId, CancellationToken ct)
     {
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
+        await EnrichGradebookAsync(gradebook, ct);
+        if (!HasGrades(gradebook))
+            return NotFound(ApiError.FromMessage("В журнале нет данных для экспорта.", "GRADEBOOK_EMPTY"));
+
         var bytes = await _pdfExportService.ExportToPdfAsync(gradebook, ct);
         return File(bytes, "application/pdf", $"gradebook_{courseId:N}.pdf");
     }
+
+    private async Task EnrichGradebookAsync(GradebookDto gradebook, CancellationToken ct)
+    {
+        var courseName = await _coursesDb.Courses
+            .Where(c => c.Id == gradebook.CourseId)
+            .Select(c => c.Title)
+            .FirstOrDefaultAsync(ct);
+
+        gradebook.CourseName = courseName ?? string.Empty;
+
+        var usersById = await LoadUserNamesAsync(
+            gradebook.Students.Select(s => s.StudentId),
+            ct);
+
+        foreach (var student in gradebook.Students)
+        {
+            student.StudentName = usersById.TryGetValue(student.StudentId, out var fullName)
+                ? fullName
+                : student.StudentName;
+        }
+    }
+
+    private async Task EnrichGradesAsync(List<GradeDto> grades, CancellationToken ct)
+    {
+        var courseIds = grades
+            .Select(g => g.CourseId)
+            .Distinct()
+            .ToList();
+
+        if (courseIds.Count == 0)
+            return;
+
+        var courses = await _coursesDb.Courses
+            .Where(c => courseIds.Contains(c.Id))
+            .Select(c => new { c.Id, c.Title })
+            .ToDictionaryAsync(c => c.Id, c => c.Title, ct);
+
+        foreach (var grade in grades)
+        {
+            if (courses.TryGetValue(grade.CourseId, out var courseName))
+            {
+                grade.CourseName = courseName;
+            }
+        }
+    }
+
+    private async Task<Dictionary<string, string>> LoadUserNamesAsync(IEnumerable<string> userIds, CancellationToken ct)
+    {
+        var ids = userIds
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .Distinct()
+            .ToList();
+
+        if (ids.Count == 0)
+            return new Dictionary<string, string>();
+
+        return await _userManager.Users
+            .Where(u => ids.Contains(u.Id))
+            .Select(u => new { u.Id, u.FirstName, u.LastName, u.Email, u.UserName })
+            .ToDictionaryAsync(
+                u => u.Id,
+                u =>
+                {
+                    var fullName = $"{u.FirstName} {u.LastName}".Trim();
+                    if (!string.IsNullOrWhiteSpace(fullName))
+                        return fullName;
+
+                    return u.Email ?? u.UserName ?? u.Id;
+                },
+                ct);
+    }
+
+    private static bool HasGrades(GradebookDto gradebook) =>
+        gradebook.Students.Any(student => student.Grades.Count > 0);
 }
 
 public record CreateGradeRequest(

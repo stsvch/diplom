@@ -1,7 +1,13 @@
+using Content.Application.CodeExecution;
+using Content.Application.Grading;
+using Content.Application.Grading.Graders;
 using Content.Application.Interfaces;
 using Content.Application.Mappings;
+using Content.Application.Validation;
+using Content.Application.Validation.Validators;
 using Content.Infrastructure.Persistence;
 using Content.Infrastructure.Services;
+using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +43,43 @@ public static class ContentModuleRegistration
 
         // Services
         services.AddScoped<IFileStorageService, MinioFileStorageService>();
+        services.AddScoped<ILessonContentCleaner, LessonContentCleaner>();
+        services.AddScoped<IContentReadService, ContentReadService>();
+        services.AddSingleton<ICodeExecutor, ProcessCodeExecutor>();
+
+        // Block graders
+        services.AddScoped<IBlockGrader, SingleChoiceGrader>();
+        services.AddScoped<IBlockGrader, MultipleChoiceGrader>();
+        services.AddScoped<IBlockGrader, TrueFalseGrader>();
+        services.AddScoped<IBlockGrader, FillGapGrader>();
+        services.AddScoped<IBlockGrader, DropdownGrader>();
+        services.AddScoped<IBlockGrader, WordBankGrader>();
+        services.AddScoped<IBlockGrader, ReorderGrader>();
+        services.AddScoped<IBlockGrader, MatchingGrader>();
+        services.AddScoped<IBlockGrader, OpenTextGrader>();
+        services.AddScoped<IBlockGrader, CodeExerciseGrader>();
+        services.AddScoped<IBlockGraderRegistry, BlockGraderRegistry>();
+
+        // Block data validators
+        services.AddScoped<IBlockDataValidator, TextBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, VideoBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, AudioBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, ImageBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, BannerBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, FileBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, SingleChoiceBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, MultipleChoiceBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, TrueFalseBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, FillGapBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, DropdownBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, WordBankBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, ReorderBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, MatchingBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, OpenTextBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, CodeExerciseBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, QuizBlockDataValidator>();
+        services.AddScoped<IBlockDataValidator, AssignmentBlockDataValidator>();
+        services.AddScoped<IBlockDataValidatorRegistry, BlockDataValidatorRegistry>();
 
         // MediatR
         services.AddMediatR(cfg =>

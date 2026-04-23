@@ -4,6 +4,7 @@ using Assignments.Application.Assignments.Commands.GradeSubmission;
 using Assignments.Application.Assignments.Commands.SubmitAssignment;
 using Assignments.Application.Assignments.Commands.UpdateAssignment;
 using Assignments.Application.Assignments.Queries.GetAssignmentById;
+using Assignments.Application.Assignments.Queries.GetMyAssignments;
 using Assignments.Application.Assignments.Queries.GetMySubmissions;
 using Assignments.Application.Assignments.Queries.GetPendingSubmissions;
 using Assignments.Application.Assignments.Queries.GetSubmissions;
@@ -24,12 +25,23 @@ public class AssignmentsController : ControllerBase
     private readonly IMediator _mediator;
     public AssignmentsController(IMediator mediator) => _mediator = mediator;
 
+    [HttpGet("assignments/my")]
+    [Authorize(Roles = "Teacher")]
+    [ProducesResponseType(typeof(List<AssignmentDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyAssignments(CancellationToken ct)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+        var result = await _mediator.Send(new GetMyAssignmentsQuery(userId), ct);
+        return Ok(result);
+    }
+
     [HttpPost("assignments")]
     [Authorize(Roles = "Teacher")]
     public async Task<IActionResult> Create([FromBody] CreateAssignmentRequest request, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var command = new CreateAssignmentCommand(request.Title, request.Description, request.Criteria,
+        var command = new CreateAssignmentCommand(request.CourseId, request.Title, request.Description, request.Criteria,
             request.Deadline, request.MaxAttempts, request.MaxScore, userId);
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "ASSIGNMENT_CREATE_FAILED"));
@@ -50,7 +62,7 @@ public class AssignmentsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentRequest request, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var command = new UpdateAssignmentCommand(id, userId, request.Title, request.Description,
+        var command = new UpdateAssignmentCommand(id, userId, request.CourseId, request.Title, request.Description,
             request.Criteria, request.Deadline, request.MaxAttempts, request.MaxScore);
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "ASSIGNMENT_UPDATE_FAILED"));
@@ -113,7 +125,7 @@ public class AssignmentsController : ControllerBase
     }
 }
 
-public record CreateAssignmentRequest(string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
-public record UpdateAssignmentRequest(string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
+public record CreateAssignmentRequest(Guid CourseId, string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
+public record UpdateAssignmentRequest(Guid CourseId, string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
 public record SubmitRequest(string? Content);
 public record GradeRequest(int Score, string? Comment, bool ReturnForRevision = false);

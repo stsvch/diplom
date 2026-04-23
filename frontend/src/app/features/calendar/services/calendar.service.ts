@@ -1,8 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, effect } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CalendarEventDto, CalendarEventType } from '../models/calendar.model';
+import { SignalRService } from '../../../core/services/signalr.service';
 
 export interface CreateCalendarEventDto {
   courseId?: string;
@@ -20,7 +21,21 @@ export interface CreateCalendarEventDto {
 })
 export class CalendarService {
   private readonly http = inject(HttpClient);
+  private readonly signalR = inject(SignalRService);
   private readonly base = `${environment.apiUrl}/calendar`;
+
+  private readonly _refreshTick = signal(0);
+  readonly refreshTick = this._refreshTick.asReadonly();
+
+  constructor() {
+    effect(() => {
+      const n = this.signalR.lastNotification();
+      if (!n) return;
+      if (n.type === 'Deadline' || n.type === 'Course' || n.type === 'Grade' || n.type === 'Message') {
+        this._refreshTick.update((v) => v + 1);
+      }
+    });
+  }
 
   getMonthEvents(year: number, month: number): Observable<CalendarEventDto[]> {
     const params = new HttpParams().set('year', String(year)).set('month', String(month));

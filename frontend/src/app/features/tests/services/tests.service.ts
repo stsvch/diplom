@@ -24,6 +24,10 @@ export class TestsService {
     return this.http.post<TestDetailDto>(`${this.base}/tests`, data);
   }
 
+  getMyTests(): Observable<TestDto[]> {
+    return this.http.get<TestDto[]>(`${this.base}/tests/my`);
+  }
+
   getTest(id: string): Observable<TestDetailDto> {
     return this.http.get<TestDetailDto>(`${this.base}/tests/${id}`);
   }

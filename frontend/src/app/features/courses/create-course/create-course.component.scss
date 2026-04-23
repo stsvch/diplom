@@ -249,6 +249,38 @@
   }
 }
 
+.cover-preview {
+  position: relative;
+  border-radius: v.$radius-lg;
+  overflow: hidden;
+  max-width: 400px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+    object-fit: cover;
+  }
+
+  &__remove {
+    position: absolute;
+    top: v.$spacing-2;
+    right: v.$spacing-2;
+    padding: v.$spacing-1 v.$spacing-3;
+    border: none;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: v.$radius-sm;
+    cursor: pointer;
+    font-size: v.$font-size-xs;
+
+    &:hover {
+      background: v.$danger;
+    }
+  }
+}
+
 // Price toggle
 .price-toggle {
   display: flex;
@@ -302,206 +334,7 @@
   }
 }
 
-// Structure step
-.step-structure {
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-5;
 
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: v.$spacing-4;
-  }
-}
-
-.structure-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: v.$spacing-4;
-  padding: v.$spacing-12;
-  background: v.$bg-card;
-  border: 2px dashed v.$border-color;
-  border-radius: v.$radius-lg;
-  text-align: center;
-
-  &__icon {
-    color: v.$text-placeholder;
-  }
-
-  &__text {
-    font-size: v.$font-size-base;
-    color: v.$text-muted;
-    margin: 0;
-  }
-}
-
-.modules-list {
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-3;
-}
-
-// Module card
-.module-card {
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: v.$spacing-3 v.$spacing-4;
-    gap: v.$spacing-3;
-    background: v.$bg-muted;
-    border-radius: v.$radius-lg;
-  }
-
-  &__header-left {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-2;
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__expand {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: v.$text-muted;
-    padding: 2px;
-    display: flex;
-    flex-shrink: 0;
-  }
-
-  &__title-input {
-    flex: 1;
-    min-width: 0;
-    background: none;
-    border: none;
-    font-size: v.$font-size-base;
-    font-weight: v.$font-weight-semibold;
-    color: v.$text-foreground;
-    font-family: v.$font-family;
-    outline: none;
-
-    &:focus {
-      border-bottom: 1px solid v.$primary;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-1;
-    flex-shrink: 0;
-  }
-
-  &__count {
-    font-size: v.$font-size-xs;
-    color: v.$text-muted;
-    margin-right: v.$spacing-2;
-  }
-
-  &__body {
-    padding: v.$spacing-4;
-    display: flex;
-    flex-direction: column;
-    gap: v.$spacing-3;
-  }
-
-  &__desc-input {
-    width: 100%;
-    padding: v.$spacing-2 v.$spacing-3;
-    border: 1px solid v.$border-color;
-    border-radius: v.$radius-md;
-    font-size: v.$font-size-sm;
-    color: v.$text-secondary;
-    font-family: v.$font-family;
-    background: v.$bg-input;
-    outline: none;
-    box-sizing: border-box;
-
-    &:focus {
-      border-color: v.$primary;
-    }
-  }
-}
-
-// Lesson items
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-2;
-}
-
-.lesson-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: v.$spacing-2 v.$spacing-3;
-  background: v.$bg-muted;
-  border-radius: v.$radius-md;
-  gap: v.$spacing-3;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-2;
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__icon {
-    color: v.$text-muted;
-    flex-shrink: 0;
-  }
-
-  &__input {
-    flex: 1;
-    background: none;
-    border: none;
-    font-size: v.$font-size-sm;
-    color: v.$text-foreground;
-    font-family: v.$font-family;
-    outline: none;
-
-    &:focus {
-      border-bottom: 1px solid v.$primary;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-1;
-    flex-shrink: 0;
-  }
-}
-
-.add-lesson-btn {
-  display: flex;
-  align-items: center;
-  gap: v.$spacing-2;
-  padding: v.$spacing-2 v.$spacing-3;
-  border: 1px dashed v.$border-color;
-  border-radius: v.$radius-md;
-  background: none;
-  font-size: v.$font-size-sm;
-  color: v.$text-muted;
-  cursor: pointer;
-  transition: all v.$transition-fast;
-  font-family: v.$font-family;
-  width: fit-content;
-
-  &:hover {
-    border-color: v.$primary;
-    color: v.$primary;
-    background: v.$primary-light;
-  }
-}
-
-// Icon buttons
 .icon-btn {
   display: flex;
   align-items: center;
@@ -640,64 +473,6 @@
   }
 }
 
-.preview-modules {
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-3;
-}
-
-.preview-module {
-  border: 1px solid v.$border-color;
-  border-radius: v.$radius-md;
-  overflow: hidden;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-3;
-    padding: v.$spacing-3 v.$spacing-4;
-    background: v.$bg-muted;
-  }
-
-  &__num {
-    font-size: v.$font-size-xs;
-    color: v.$text-muted;
-    font-weight: v.$font-weight-medium;
-  }
-
-  &__title {
-    flex: 1;
-    font-size: v.$font-size-sm;
-    font-weight: v.$font-weight-semibold;
-    color: v.$text-foreground;
-  }
-}
-
-.preview-lessons {
-  padding: v.$spacing-2 v.$spacing-4 v.$spacing-2 v.$spacing-8;
-  margin: 0;
-
-  li {
-    font-size: v.$font-size-sm;
-    color: v.$text-secondary;
-    padding: v.$spacing-1 0;
-  }
-}
-
-.preview-empty {
-  font-size: v.$font-size-sm;
-  color: v.$text-muted;
-  text-align: center;
-  padding: v.$spacing-6;
-  margin: 0;
-}
-
-.preview-total {
-  font-size: v.$font-size-sm;
-  color: v.$text-muted;
-  margin: v.$spacing-2 0 0;
-  text-align: right;
-}
 
 .publish-actions {
   display: flex;

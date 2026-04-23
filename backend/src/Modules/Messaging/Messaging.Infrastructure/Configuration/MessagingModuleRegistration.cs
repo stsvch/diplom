@@ -1,5 +1,7 @@
+using EduPlatform.Shared.Application.Contracts;
 using Messaging.Application.Interfaces;
 using Messaging.Infrastructure.Repositories;
+using Messaging.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -19,8 +21,11 @@ public static class MessagingModuleRegistration
             var client = sp.GetRequiredService<IMongoClient>();
             return client.GetDatabase("eduplatform");
         });
+        services.AddSingleton<IChatConnectionTracker, ChatConnectionTracker>();
 
         services.AddScoped<IMessagingRepository, MongoMessagingRepository>();
+        services.AddScoped<IChatBroadcaster, SignalRChatBroadcaster>();
+        services.AddScoped<IChatAdmin, ChatAdminService>();
 
         return services;
     }

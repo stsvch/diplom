@@ -3,6 +3,9 @@
   <aside class="messages-page__sidebar" [class.messages-page__sidebar--hidden]="selectedChat()">
     <div class="messages-page__sidebar-header">
       <h2 class="messages-page__title">Сообщения</h2>
+      <button class="icon-btn" (click)="openNewDirectChat()" title="Новый чат">
+        <i-lucide [img]="PlusIcon" [size]="18"></i-lucide>
+      </button>
     </div>
 
     <div class="messages-page__search">
@@ -76,105 +79,234 @@
           <i-lucide [img]="ChevronLeftIcon" [size]="20"></i-lucide>
         </button>
 
-        <app-avatar
-          [fallback]="getChatInitials(selectedChat()!)"
-          size="md"
-        ></app-avatar>
+        <app-avatar [fallback]="getChatInitials(selectedChat()!)" size="md"></app-avatar>
 
         <div class="chat-header__info">
           <span class="chat-header__name">{{ getChatName(selectedChat()!) }}</span>
           @if (selectedChat()!.type === 'CourseChat') {
-            <span class="chat-header__subtitle">Групповой чат курса</span>
+            <span class="chat-header__subtitle">
+              Чат курса · {{ selectedChat()!.participants.length }} участников
+            </span>
+          }
+        </div>
+
+        <div class="chat-header__actions">
+          @if (selectedChat()!.type === 'CourseChat') {
+            <button class="icon-btn" (click)="toggleParticipants()" title="Участники">
+              <i-lucide [img]="UsersIcon" [size]="18"></i-lucide>
+            </button>
+          }
+          <button class="icon-btn" (click)="hideChat()" title="Скрыть у себя">
+            <i-lucide [img]="EyeOffIcon" [size]="18"></i-lucide>
+          </button>
+          @if (canDeleteSelectedChat()) {
+            <button class="icon-btn icon-btn--danger" (click)="deleteChat()" title="Удалить для всех">
+              <i-lucide [img]="Trash2Icon" [size]="18"></i-lucide>
+            </button>
           }
         </div>
       </div>
 
-      <!-- Messages area -->
-      <div class="messages-area" #messagesContainer>
-        @if (loadingMessages()) {
-          <div class="loading-state">
-            <div class="loading-spinner"></div>
-          </div>
-        } @else if (messages().length === 0) {
-          <div class="messages-empty">
-            <p>Нет сообщений. Начните беседу!</p>
-          </div>
-        } @else {
-          @for (message of messages(); track message.id) {
-            <div
-              class="message"
-              [class.message--own]="isOwnMessage(message)"
-              [class.message--other]="!isOwnMessage(message)"
-            >
-              @if (!isOwnMessage(message)) {
-                <app-avatar
-                  [fallback]="getMessageInitials(message.senderName)"
-                  size="sm"
-                ></app-avatar>
+      @if (selectedChat()!.isArchived) {
+        <div class="archived-banner">
+          Чат архивирован — новые сообщения недоступны.
+        </div>
+      }
+
+      <!-- Chat body: messages + optional participants sidebar -->
+      <div class="chat-body">
+        <div class="chat-body__main">
+          <div class="messages-area" #messagesContainer>
+            @if (loadingMessages()) {
+              <div class="loading-state">
+                <div class="loading-spinner"></div>
+              </div>
+            } @else if (messages().length === 0) {
+              <div class="messages-empty">
+                <p>Нет сообщений. Начните беседу!</p>
+              </div>
+            } @else {
+              @for (message of messages(); track message.id) {
+                <div
+                  class="message"
+                  [class.message--own]="isOwnMessage(message)"
+                  [class.message--other]="!isOwnMessage(message)"
+                >
+                  @if (!isOwnMessage(message)) {
+                    <app-avatar [fallback]="getMessageInitials(message.senderName)" size="sm"></app-avatar>
+                  }
+
+                  <div class="message__bubble">
+                    @if (!isOwnMessage(message) && selectedChat()!.type === 'CourseChat') {
+                      <span class="message__sender-name">{{ message.senderName }}</span>
+                    }
+
+                    @if (editingId() === message.id) {
+                      <textarea
+                        class="message__edit-input"
+                        rows="2"
+                        [value]="editingText()"
+                        (input)="editingText.set($any($event.target).value)"
+                        (keydown)="onEditKeyDown($event)"
+                        autofocus
+                      ></textarea>
+                      <div class="message__edit-actions">
+                        <button class="btn-xs" (click)="cancelEdit()">Отмена</button>
+                        <button class="btn-xs btn-xs--primary" (click)="saveEdit()">
+                          <i-lucide [img]="CheckIcon" [size]="14"></i-lucide> Сохранить
+                        </button>
+                      </div>
+                    } @else {
+                      @if (message.text) {
+                        <p class="message__text">{{ message.text }}</p>
+                      }
+
+                      @if (message.attachments && message.attachments.length > 0) {
+                        <div class="message__attachments">
+                          @for (att of message.attachments; track att.fileUrl) {
+                            <a [href]="att.fileUrl" target="_blank" class="message__attachment">
+                              <i-lucide [img]="PaperclipIcon" [size]="14"></i-lucide>
+                              <span>{{ att.fileName }}</span>
+                              <span class="message__attachment-size">({{ formatFileSize(att.fileSize) }})</span>
+                            </a>
+                          }
+                        </div>
+                      }
+
+                      <div class="message__meta">
+                        <span class="message__time">{{ formatTime(message.sentAt) }}</span>
+                        @if (message.isEdited) {
+                          <span class="message__edited">изменено</span>
+                        }
+                        @if (getReadLabel(message)) {
+                          <span class="message__edited">{{ getReadLabel(message) }}</span>
+                        }
+                        @if (canEdit(message)) {
+                          <button class="message__action" (click)="startEditMessage(message)" title="Редактировать">
+                            <i-lucide [img]="EditIcon" [size]="12"></i-lucide>
+                          </button>
+                        }
+                        @if (isOwnMessage(message)) {
+                          <button class="message__action" (click)="deleteMessage(message.id, $event)" title="Удалить">
+                            <i-lucide [img]="Trash2Icon" [size]="12"></i-lucide>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
               }
+            }
+          </div>
 
-              <div class="message__bubble">
-                @if (!isOwnMessage(message) && selectedChat()!.type === 'CourseChat') {
-                  <span class="message__sender-name">{{ message.senderName }}</span>
-                }
+          <!-- Input bar -->
+          @if (!selectedChat()!.isArchived) {
+            <div class="input-bar">
+              <button
+                class="input-bar__attach"
+                [disabled]="uploading()"
+                (click)="triggerFilePicker()"
+                title="Прикрепить файл"
+              >
+                <i-lucide [img]="PaperclipIcon" [size]="20"></i-lucide>
+              </button>
+              <input
+                #fileInput
+                type="file"
+                multiple
+                hidden
+                (change)="onFilesSelected($event)"
+              />
 
-                <p class="message__text">{{ message.text }}</p>
-
-                @if (message.attachments && message.attachments.length > 0) {
-                  <div class="message__attachments">
-                    @for (att of message.attachments; track att.fileUrl) {
-                      <a [href]="att.fileUrl" target="_blank" class="message__attachment">
-                        <i-lucide [img]="PaperclipIcon" [size]="14"></i-lucide>
-                        <span>{{ att.fileName }}</span>
-                      </a>
+              <div class="input-bar__center">
+                @if (pendingAttachments().length > 0) {
+                  <div class="pending-attachments">
+                    @for (att of pendingAttachments(); track att.fileUrl; let i = $index) {
+                      <span class="pending-attachment">
+                        <i-lucide [img]="PaperclipIcon" [size]="12"></i-lucide>
+                        {{ att.fileName }}
+                        <button type="button" class="pending-attachment__remove" (click)="removePendingAttachment(i)">
+                          <i-lucide [img]="XIcon" [size]="10"></i-lucide>
+                        </button>
+                      </span>
                     }
                   </div>
                 }
-
-                <div class="message__meta">
-                  <span class="message__time">{{ formatTime(message.sentAt) }}</span>
-                  @if (message.isEdited) {
-                    <span class="message__edited">изменено</span>
-                  }
-                  @if (isOwnMessage(message)) {
-                    <button
-                      class="message__delete"
-                      (click)="deleteMessage(message.id, $event)"
-                      title="Удалить"
-                    >
-                      <i-lucide [img]="Trash2Icon" [size]="12"></i-lucide>
-                    </button>
-                  }
-                </div>
+                <textarea
+                  #messageInput
+                  class="input-bar__textarea"
+                  placeholder="Напишите сообщение..."
+                  rows="1"
+                  [value]="messageText()"
+                  (input)="messageText.set($any($event.target).value)"
+                  (keydown)="onKeyDown($event)"
+                ></textarea>
               </div>
+
+              <button
+                class="input-bar__send"
+                [disabled]="(!messageText().trim() && pendingAttachments().length === 0) || sendingMessage() || uploading()"
+                (click)="sendMessage()"
+              >
+                <i-lucide [img]="SendIcon" [size]="20"></i-lucide>
+              </button>
             </div>
           }
+        </div>
+
+        @if (selectedChat()!.type === 'CourseChat' && showParticipants()) {
+          <aside class="participants-sidebar">
+            <header class="participants-sidebar__head">
+              <h4>Участники ({{ selectedChat()!.participants.length }})</h4>
+              @if (isOwnerOfSelectedCourseChat()) {
+                <button class="icon-btn" (click)="openAddParticipant()" title="Добавить участника">
+                  <i-lucide [img]="UserPlusIcon" [size]="16"></i-lucide>
+                </button>
+              }
+            </header>
+            <ul class="participants-sidebar__list">
+              @for (p of selectedChat()!.participants; track p.userId) {
+                <li class="participants-sidebar__item">
+                  <app-avatar [fallback]="getMessageInitials(p.name)" size="sm"></app-avatar>
+                  <span class="participants-sidebar__name">
+                    {{ p.name }}
+                    @if (p.userId === selectedChat()!.ownerId) {
+                      <span class="participants-sidebar__owner-tag">преподаватель</span>
+                    }
+                  </span>
+                  @if (isOwnerOfSelectedCourseChat() && p.userId !== selectedChat()!.ownerId) {
+                    <button class="icon-btn icon-btn--danger" (click)="removeParticipant(p.userId)" title="Удалить">
+                      <i-lucide [img]="XIcon" [size]="14"></i-lucide>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          </aside>
         }
-      </div>
-
-      <!-- Input bar -->
-      <div class="input-bar">
-        <textarea
-          #messageInput
-          class="input-bar__textarea"
-          placeholder="Напишите сообщение..."
-          rows="1"
-          [value]="messageText()"
-          (input)="messageText.set($any($event.target).value)"
-          (keydown)="onKeyDown($event)"
-        ></textarea>
-
-        <button
-          class="input-bar__send"
-          [disabled]="!messageText().trim() || sendingMessage()"
-          (click)="sendMessage()"
-        >
-          <i-lucide [img]="SendIcon" [size]="20"></i-lucide>
-        </button>
       </div>
     }
   </main>
 </div>
+
+@if (pickerMode() === 'newDirect') {
+  <app-user-picker
+    title="Новый чат"
+    [excludedIds]="[currentUser()?.id ?? '']"
+    (close)="closePicker()"
+    (picked)="onUserPicked($event)"
+  ></app-user-picker>
+}
+
+@if (pickerMode() === 'addParticipant') {
+  <app-user-picker
+    title="Добавить участника"
+    role="Student"
+    [excludedIds]="excludedParticipantIds()"
+    (close)="closePicker()"
+    (picked)="onUserPicked($event)"
+  ></app-user-picker>
+}
 
 @if (error()) {
   <div class="error-toast">

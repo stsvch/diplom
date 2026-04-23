@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dc2626"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g transform="translate(100,180)" font-family="Segoe UI, sans-serif" fill="#ffffff">
+    <text font-size="26" opacity="0.8">Fullstack track</text>
+    <text y="90" font-size="84" font-weight="700">Веб-разработка:</text>
+    <text y="170" font-size="84" font-weight="700">HTML · CSS · JS</text>
+    <text y="250" font-size="24" opacity="0.85">От разметки страницы до адаптивного сайта</text>
+  </g>
+  <g transform="translate(870,120)" font-family="Consolas, monospace" font-size="22" fill="#ffffff" opacity="0.55">
+    <text y="0">&lt;!DOCTYPE html&gt;</text>
+    <text y="30">&lt;html&gt;</text>
+    <text y="60">&lt;head&gt;</text>
+    <text y="90">  &lt;title&gt;...&lt;/title&gt;</text>
+    <text y="120">&lt;/head&gt;</text>
+    <text y="150">&lt;body&gt;</text>
+    <text y="180">  &lt;h1&gt;Привет&lt;/h1&gt;</text>
+    <text y="210">&lt;/body&gt;</text>
+    <text y="240">&lt;/html&gt;</text>
+  </g>
+</svg>

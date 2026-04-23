@@ -1,11 +1,10 @@
 using Calendar.Application.Calendar.Commands.CreateCalendarEvent;
-using Calendar.Domain.Enums;
 using EduPlatform.Shared.Application.Models;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Notifications.Application.Notifications.Commands.CreateNotification;
-using Notifications.Domain.Enums;
 using Scheduling.Application.Scheduling.Commands.BookSlot;
 using Scheduling.Application.Scheduling.Commands.CancelBooking;
 using Scheduling.Application.Scheduling.Commands.CancelSlot;

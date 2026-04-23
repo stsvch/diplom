@@ -1,0 +1,129 @@
+@startuml EduPlatform_Conceptual_Model
+
+!theme plain
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 50
+skinparam roundcorner 15
+skinparam classFontSize 13
+skinparam classFontStyle bold
+skinparam classBackgroundColor #FAFAFA
+skinparam classBorderColor #4F46E5
+skinparam packageBackgroundColor transparent
+skinparam packageBorderColor transparent
+skinparam arrowColor #374151
+
+title Концептуальная модель данных\nОбразовательная платформа EduPlatform
+
+together {
+  entity "Пользователь\n(User)" as User #EEF2FF
+  entity "Токен обновления\n(RefreshToken)" as Token #EEF2FF
+}
+
+together {
+  entity "Дисциплина\n(Discipline)" as Discipline #F0FFF0
+  entity "Курс\n(Course)" as Course #F0FFF0
+  entity "Запись на курс\n(Enrollment)" as Enrollment #F0FFF0
+  entity "Модуль курса\n(CourseModule)" as Module #F0FFF0
+  entity "Урок\n(Lesson)" as Lesson #F0FFF0
+  entity "Блок контента\n(LessonBlock)" as Block #F0FFF0
+}
+
+together {
+  entity "Вложение\n(Attachment)" as Attachment #FFFFF0
+}
+
+together {
+  entity "Тест\n(Test)" as Test #FFF0F0
+  entity "Вопрос\n(Question)" as Question #FFF0F0
+  entity "Вариант ответа\n(AnswerOption)" as Option #FFF0F0
+  entity "Попытка теста\n(TestAttempt)" as Attempt #FFF0F0
+  entity "Ответ студента\n(TestResponse)" as Response #FFF0F0
+}
+
+together {
+  entity "Задание\n(Assignment)" as Assignment #F5F0FF
+  entity "Сдача задания\n(Submission)" as Submission #F5F0FF
+}
+
+together {
+  entity "Оценка\n(Grade)" as Grade #FFF5F0
+  entity "Прогресс урока\n(LessonProgress)" as Progress #F0FFF5
+}
+
+together {
+  entity "Уведомление\n(Notification)" as Notification #FFF0F5
+  entity "Событие календаря\n(CalendarEvent)" as Calendar #F5FFF0
+}
+
+together {
+  entity "Слот занятия\n(ScheduleSlot)" as Slot #F0F5FF
+  entity "Запись на занятие\n(SessionBooking)" as Booking #F0F5FF
+}
+
+together {
+  entity "Чат\n(Chat)" as Chat #F5F5F5
+  entity "Сообщение\n(Message)" as Message #F5F5F5
+}
+
+' ═══════════════════════════════════════════
+' СВЯЗИ
+' ═══════════════════════════════════════════
+
+' --- Auth ---
+User "1" -- "0..*" Token : имеет
+
+' --- Курсы ---
+Discipline "1" -- "0..*" Course : содержит
+User "1" -- "0..*" Course : создаёт\n(преподаватель)
+Course "1" -- "0..*" Enrollment
+User "1" -- "0..*" Enrollment : записывается\n(студент)
+Course "1" -- "0..*" Module : состоит из
+Module "1" -- "0..*" Lesson : содержит
+Lesson "1" -- "0..*" Block : содержит
+
+' --- Контент ---
+Block "0..1" .. "0..1" Test : ссылается
+Block "0..1" .. "0..1" Assignment : ссылается
+
+' --- Тесты ---
+User "1" -- "0..*" Test : создаёт\n(преподаватель)
+Test "1" -- "0..*" Question : содержит
+Question "1" -- "0..*" Option : имеет
+Test "1" -- "0..*" Attempt : проходится
+User "1" -- "0..*" Attempt : проходит\n(студент)
+Attempt "1" -- "0..*" Response : содержит
+Question "1" -- "0..*" Response : отвечает
+
+' --- Задания ---
+User "1" -- "0..*" Assignment : создаёт\n(преподаватель)
+Assignment "1" -- "0..*" Submission : сдаётся
+User "1" -- "0..*" Submission : сдаёт\n(студент)
+
+' --- Оценки и прогресс ---
+User "1" -- "0..*" Grade : получает\n(студент)
+Course "1" -- "0..*" Grade : содержит
+User "1" -- "0..*" Progress : отслеживает
+
+' --- Уведомления и календарь ---
+User "1" -- "0..*" Notification : получает
+User "0..1" -- "0..*" Calendar : имеет
+
+' --- Расписание ---
+User "1" -- "0..*" Slot : создаёт\n(преподаватель)
+Slot "1" -- "0..*" Booking : бронируется
+User "1" -- "0..*" Booking : записывается\n(студент)
+
+' --- Чаты ---
+User "0..*" -- "0..*" Chat : участвует
+Chat "1" -- "0..*" Message : содержит
+
+' --- Вложения (полиморфная связь) ---
+note bottom of Attachment
+  Полиморфная связь:
+  привязывается к любой
+  сущности через
+  EntityType + EntityId
+end note
+
+@enduml

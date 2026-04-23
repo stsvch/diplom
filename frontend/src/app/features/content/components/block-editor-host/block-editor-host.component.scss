@@ -1,0 +1,105 @@
+@use '../../../../../styles/variables' as *;
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+
+  &__placeholder {
+    padding: $spacing-3;
+    background: $warning-light;
+    color: $warning-dark;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+
+    pre {
+      margin: $spacing-2 0 0;
+      font-size: $font-size-xs;
+      color: $text-secondary;
+    }
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+
+  &--inline {
+    flex-direction: column;
+    flex: 0 0 auto;
+  }
+
+  &__label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+  }
+
+  &__input,
+  &__textarea {
+    padding: $spacing-2 $spacing-3;
+    border: 1px solid $border-input;
+    border-radius: $radius-sm;
+    background: $bg-input;
+    color: $text-foreground;
+    font: inherit;
+    font-size: $font-size-sm;
+    outline: none;
+    transition: all $transition-fast;
+
+    &:focus {
+      border-color: $primary;
+      background: $bg-card;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+  }
+
+  &__input--small {
+    width: 100px;
+  }
+
+  &__textarea {
+    resize: vertical;
+    font-family: ui-monospace, 'SF Mono', monospace;
+  }
+}
+
+.settings-toggle {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  padding: $spacing-1 0;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  padding: $spacing-3;
+  background: $bg-muted;
+  border-radius: $radius-md;
+
+  &__row {
+    display: flex;
+    align-items: flex-end;
+    gap: $spacing-4;
+    flex-wrap: wrap;
+  }
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  color: $text-foreground;
+  cursor: pointer;
+}

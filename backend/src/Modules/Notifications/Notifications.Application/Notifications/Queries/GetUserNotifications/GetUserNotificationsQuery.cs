@@ -1,8 +1,8 @@
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Shared.Domain;
+using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Notifications.Application.DTOs;
-using Notifications.Domain.Enums;
 
 namespace Notifications.Application.Notifications.Queries.GetUserNotifications;
 

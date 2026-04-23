@@ -1,3 +1,4 @@
+using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Tests.Application.Interfaces;
 using Tests.Application.Mappings;
 using Tests.Infrastructure.Persistence;
+using Tests.Infrastructure.Services;
 
 namespace Tests.Infrastructure.Configuration;
 
@@ -19,6 +21,7 @@ public static class TestsModuleRegistration
             options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")));
 
         services.AddScoped<ITestsDbContext>(provider => provider.GetRequiredService<TestsDbContext>());
+        services.AddScoped<ITestReadService, TestReadService>();
 
         // MediatR
         services.AddMediatR(cfg =>

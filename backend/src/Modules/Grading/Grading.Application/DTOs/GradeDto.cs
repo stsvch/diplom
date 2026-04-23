@@ -7,6 +7,7 @@ public class GradeDto
     public Guid Id { get; set; }
     public string StudentId { get; set; } = string.Empty;
     public Guid CourseId { get; set; }
+    public string? CourseName { get; set; }
     public GradeSourceType SourceType { get; set; }
     public string Title { get; set; } = string.Empty;
     public decimal Score { get; set; }

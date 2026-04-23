@@ -1,3 +1,4 @@
+using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ public static class NotificationsModuleRegistration
             options.UseNpgsql(connectionString));
         services.AddScoped<INotificationsDbContext>(sp => sp.GetRequiredService<NotificationsDbContext>());
         services.AddScoped<INotificationSender, SignalRNotificationSender>();
+        services.AddScoped<INotificationDispatcher, NotificationPublisher>();
 
         var applicationAssembly = typeof(INotificationsDbContext).Assembly;
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));

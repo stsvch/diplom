@@ -1,0 +1,28 @@
+<div class="menu" (click)="$event.stopPropagation()">
+  <div class="menu__search">
+    <lucide-icon name="search" size="16"></lucide-icon>
+    <input
+      type="text"
+      placeholder="Поиск блока..."
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      autofocus
+    />
+  </div>
+
+  <div class="menu__groups">
+    @for (group of filteredGroups(); track group.title) {
+      <div class="group">
+        <div class="group__title">{{ group.title }}</div>
+        <div class="group__items">
+          @for (t of group.types; track t) {
+            <button class="item" type="button" (click)="choose(t)">
+              <lucide-icon class="item__icon" [name]="icon(t)" size="18"></lucide-icon>
+              <span class="item__label">{{ label(t) }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

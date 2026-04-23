@@ -1,0 +1,80 @@
+<div class="stepper">
+  @if (loading()) {
+    <div class="state">Загрузка…</div>
+  } @else if (entries().length === 0) {
+    <div class="state">В этом уроке пока нет блоков.</div>
+  } @else if (isFinalScreen()) {
+    <div class="final">
+      <h2>Урок пройден</h2>
+      @if (progress(); as p) {
+        <p class="score">{{ score() }} / {{ p.maxScore }} баллов</p>
+        <p class="pct">{{ p.percentage }}%</p>
+        @if (isCompleted()) {
+          <div class="badge badge--done">✓ Урок завершён</div>
+        } @else {
+          <p class="muted">Некоторые блоки ждут проверки преподавателя.</p>
+        }
+      }
+    </div>
+  } @else if (currentEntry(); as e) {
+    <main class="stepper__main">
+      <app-block-host [type]="e.block.type" [readonly]="true">
+        <app-block-viewer-host
+          [block]="e.block"
+          [attempt]="e.attempt"
+          (submitAnswer)="onSubmitAnswer(e.block.id, $event)"
+        ></app-block-viewer-host>
+
+        @if (e.lastResult; as r) {
+          <div
+            class="feedback"
+            [class.feedback--ok]="r.isCorrect"
+            [class.feedback--fail]="!r.isCorrect && !r.needsReview"
+            [class.feedback--review]="r.needsReview"
+          >
+            @if (r.isCorrect) { ✓ Правильно · +{{ r.score }} }
+            @else if (r.needsReview) { ⏳ Отправлено на проверку }
+            @else {
+              ✗ Неверно · {{ r.score }} / {{ r.maxScore }}
+              @if (r.attemptsRemaining) { · Осталось попыток: {{ r.attemptsRemaining }} }
+            }
+          </div>
+        }
+      </app-block-host>
+    </main>
+  }
+
+  <footer class="stepper__footer">
+    <button class="nav" type="button" (click)="prev()" [disabled]="currentIndex() === 0">
+      <lucide-icon name="chevron-left" size="20"></lucide-icon>
+    </button>
+
+    <div class="stepper__status">
+      <div class="stepper__page">
+        Страница {{ currentIndex() + 1 }} из {{ entries().length }}
+      </div>
+      <div class="stepper__score">Оценка {{ score() }}</div>
+      @if (canToggleCompletion()) {
+        <button
+          type="button"
+          class="complete-toggle"
+          [class.complete-toggle--active]="manualProgress()?.isCompleted"
+          (click)="toggleCompletion()"
+        >
+          {{ manualProgress()?.isCompleted ? 'Снять отметку' : 'Пройдено' }}
+        </button>
+      } @else if (isCompleted()) {
+        <div class="complete-badge">Урок завершён</div>
+      }
+    </div>
+
+    <button
+      class="nav"
+      type="button"
+      (click)="next()"
+      [disabled]="!canAdvance() || isFinalScreen()"
+    >
+      <lucide-icon name="chevron-right" size="20"></lucide-icon>
+    </button>
+  </footer>
+</div>

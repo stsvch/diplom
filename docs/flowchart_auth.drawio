@@ -1,0 +1,201 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.6">
+  <diagram name="Аутентификация" id="auth1">
+    <mxGraphModel dx="1690" dy="1320" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="b1" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="1" vertex="1">
+          <mxGeometry height="15" width="20" x="232" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="2&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="15" width="20" x="229" y="233" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Поиск пользователя&#xa;по email в базе данных" vertex="1">
+          <mxGeometry height="50" width="180" x="240" y="238" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="3" vertex="1">
+          <mxGeometry height="15" width="20" x="234" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Пользователь&#xa;найден?" vertex="1">
+          <mxGeometry height="80" width="180" x="240" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="4" vertex="1">
+          <mxGeometry height="15" width="20" x="232" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Проверка соответствия&#xa;пароля хэшу в БД" vertex="1">
+          <mxGeometry height="50" width="180" x="240" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="5" vertex="1">
+          <mxGeometry height="15" width="20" x="232" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-16" edge="1" parent="1" source="s6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="NGsCOZGHbe-CsyXRrpMp-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" parent="1" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Пароль&#xa;верный?" vertex="1">
+          <mxGeometry height="70" width="180" x="240" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="7" vertex="1">
+          <mxGeometry height="15" width="20" x="252" y="658" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="6" vertex="1">
+          <mxGeometry height="15" width="20" x="236" y="658" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Получение ролей&#xa;пользователя из БД" vertex="1">
+          <mxGeometry height="50" width="180" x="244" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="7" vertex="1">
+          <mxGeometry height="15" width="20" x="234" y="736" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Генерация JWT&lt;br&gt;Access Token" vertex="1">
+          <mxGeometry height="40" width="180" x="244" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="b10" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="8&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="15" width="20" x="231" y="805" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Генерация&lt;br&gt;Refresh Token" vertex="1">
+          <mxGeometry height="40" width="180" x="244" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="b11" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="9&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="15" width="20" x="232" y="875" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Сохранение Refresh&#xa;Token в базу данных" vertex="1">
+          <mxGeometry height="50" width="180" x="244" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="b12" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="10" vertex="1">
+          <mxGeometry height="15" width="20" x="229" y="955" as="geometry" />
+        </mxCell>
+        <mxCell id="s12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Установка Refresh Token&#xa;в httpOnly cookie" vertex="1">
+          <mxGeometry height="50" width="180" x="244" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="b13" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="11&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="15" width="20" x="226" y="1044" as="geometry" />
+        </mxCell>
+        <mxCell id="b14" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="12" vertex="1">
+          <mxGeometry height="15" width="20" x="234" y="1172" as="geometry" />
+        </mxCell>
+        <mxCell id="b15" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="14&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="15" width="20" x="590" y="437" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="696" y="1150" />
+            </Array>
+            <mxPoint x="696" y="500" as="sourcePoint" />
+            <mxPoint x="336" y="1150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Возврат ошибки:&lt;br&gt;«Неверный email»" vertex="1">
+          <mxGeometry height="60" width="180" x="610" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="e3_4" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;strokeColor=#000000;fontSize=10;" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4_5" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;strokeColor=#000000;fontSize=10;" target="s5" value="Да">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6_7" edge="1" parent="1" source="s6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;strokeColor=#000000;fontSize=10;" value="Да">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4_15" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;strokeColor=#000000;fontSize=10;" target="s15" value="Нет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" value="Начало" vertex="1">
+          <mxGeometry height="50" width="178" x="241" y="145" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-4" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="NGsCOZGHbe-CsyXRrpMp-2" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="330" y="235" as="sourcePoint" />
+            <mxPoint x="310" y="275" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-5" edge="1" parent="1" style="edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="210" as="sourcePoint" />
+            <mxPoint x="330" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-6" edge="1" parent="1" source="s3" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="240" as="sourcePoint" />
+            <mxPoint x="330" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-9" edge="1" parent="1" source="s6" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="s5" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="280" y="570" as="sourcePoint" />
+            <mxPoint x="330" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;" value="Конец" vertex="1">
+          <mxGeometry height="50" width="178" x="246" y="1175" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-14" edge="1" parent="1" source="NGsCOZGHbe-CsyXRrpMp-23" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="NGsCOZGHbe-CsyXRrpMp-11" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="334" y="1100" as="sourcePoint" />
+            <mxPoint x="430" y="980" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;" value="Возврат ошибки:&lt;br&gt;«Неверный пароль»" vertex="1">
+          <mxGeometry height="60" width="180" x="442" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-17" parent="1" style="text;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 10px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: nowrap; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Нет&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="50" x="470" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-18" edge="1" parent="1" source="NGsCOZGHbe-CsyXRrpMp-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="532" y="1120" />
+            </Array>
+            <mxPoint x="527" y="650" as="sourcePoint" />
+            <mxPoint x="335" y="1120" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-19" parent="1" style="text;html=1;fontSize=9;fontStyle=2;align=left;verticalAlign=top;fillColor=none;strokeColor=none;" value="13" vertex="1">
+          <mxGeometry height="15" width="20" x="422" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-20" edge="1" parent="1" source="s9" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="s8" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="250" y="750" as="sourcePoint" />
+            <mxPoint x="300" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-21" edge="1" parent="1" source="s10" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="s9" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="250" y="750" as="sourcePoint" />
+            <mxPoint x="300" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-22" edge="1" parent="1" source="s11" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="s10" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="250" y="900" as="sourcePoint" />
+            <mxPoint x="300" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;Возврат Access Token&lt;/span&gt;&lt;br style=&quot;forced-color-adjust: none; color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 11px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;и времени истечения&lt;/span&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="48" width="180" x="244" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-24" edge="1" parent="1" source="NGsCOZGHbe-CsyXRrpMp-23" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="s12" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="300" y="1040" as="sourcePoint" />
+            <mxPoint x="350" y="990" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-25" edge="1" parent="1" source="s12" style="endArrow=none;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" target="s11" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="300" y="980" as="sourcePoint" />
+            <mxPoint x="350" y="930" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-26" parent="1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" value="&lt;span style=&quot;font-size: 11px;&quot;&gt;Генерация JWT&lt;/span&gt;&lt;br style=&quot;font-size: 11px;&quot;&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;Access Token&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="180" x="244" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="NGsCOZGHbe-CsyXRrpMp-27" parent="1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" value="&lt;span style=&quot;font-size: 11px;&quot;&gt;Генерация&lt;/span&gt;&lt;br style=&quot;font-size: 11px;&quot;&gt;&lt;span style=&quot;font-size: 11px;&quot;&gt;Refresh Token&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="180" x="244" y="810" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
