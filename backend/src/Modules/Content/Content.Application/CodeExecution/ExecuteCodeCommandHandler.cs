@@ -1,4 +1,5 @@
 using Content.Application.Interfaces;
+using Content.Domain.Entities;
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 using EduPlatform.Shared.Domain;
@@ -27,9 +28,23 @@ public class ExecuteCodeCommandHandler : IRequestHandler<ExecuteCodeCommand, Res
             return Result.Failure<CodeExecutionResponse>("Этот блок не является упражнением по коду.");
 
         var cases = data.TestCases.Select(t => new CodeExecutionCase(t.Input, t.ExpectedOutput, t.IsHidden)).ToList();
-        var req = new CodeExecutionRequest(data.Language, request.Code, cases, data.TimeoutMs);
+        var req = new CodeExecutionRequest(data.Language, request.Code, cases, data.TimeoutMs, data.MemoryLimitMb);
 
         var response = await _executor.ExecuteAsync(req, cancellationToken);
+        _context.CodeExerciseRuns.Add(new CodeExerciseRun
+        {
+            BlockId = block.Id,
+            UserId = request.UserId,
+            Kind = CodeExerciseRunKind.Run,
+            Language = data.Language,
+            Code = request.Code,
+            Ok = response.Ok,
+            GlobalError = response.GlobalError,
+            Results = CodeExerciseSanitizer.BuildRunSnapshot(data, response.Results),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _context.SaveChangesAsync(cancellationToken);
+
         return Result.Success(response);
     }
 }

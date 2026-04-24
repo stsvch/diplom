@@ -7,10 +7,17 @@ import {
   AdminCourseDto,
   PlatformSettingsDto,
   DashboardStatsDto,
+  AdminAnalyticsDto,
   CreateUserRequest,
   ChangeRoleRequest,
   ForceArchiveRequest,
+  AdminPaymentRecordDto,
+  AdminRefundRequest,
+  AdminSubscriptionAllocationRunDto,
+  AdminSubscriptionPlanDto,
+  UpsertSubscriptionPlanRequest,
 } from '../models/admin.model';
+import { RefundRecordDto } from '../../payments/models/payments.model';
 
 export interface PagedResult<T> {
   items: T[];
@@ -71,6 +78,36 @@ export class AdminService {
     return this.http.post<{ message: string }>(`${this.base}/courses/${id}/force-archive`, request);
   }
 
+  // Payments
+  getPayments(params: { search?: string; page?: number; pageSize?: number }): Observable<PagedResult<AdminPaymentRecordDto>> {
+    let httpParams = new HttpParams();
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
+    if (params.pageSize !== undefined) httpParams = httpParams.set('pageSize', String(params.pageSize));
+    return this.http.get<PagedResult<AdminPaymentRecordDto>>(`${this.base}/payments`, { params: httpParams });
+  }
+
+  createRefund(request: AdminRefundRequest): Observable<RefundRecordDto> {
+    return this.http.post<RefundRecordDto>(`${this.base}/payments/refunds`, request);
+  }
+
+  getSubscriptionPlans(): Observable<AdminSubscriptionPlanDto[]> {
+    return this.http.get<AdminSubscriptionPlanDto[]>(`${this.base}/payments/subscription-plans`);
+  }
+
+  getSubscriptionAllocationRuns(take = 20): Observable<AdminSubscriptionAllocationRunDto[]> {
+    const params = new HttpParams().set('take', String(take));
+    return this.http.get<AdminSubscriptionAllocationRunDto[]>(`${this.base}/payments/subscription-allocation-runs`, { params });
+  }
+
+  createSubscriptionPlan(request: UpsertSubscriptionPlanRequest): Observable<AdminSubscriptionPlanDto> {
+    return this.http.post<AdminSubscriptionPlanDto>(`${this.base}/payments/subscription-plans`, request);
+  }
+
+  updateSubscriptionPlan(id: string, request: UpsertSubscriptionPlanRequest): Observable<AdminSubscriptionPlanDto> {
+    return this.http.put<AdminSubscriptionPlanDto>(`${this.base}/payments/subscription-plans/${id}`, request);
+  }
+
   // Settings
   getSettings(): Observable<PlatformSettingsDto> {
     return this.http.get<PlatformSettingsDto>(`${environment.apiUrl}/platform-settings`);
@@ -83,5 +120,9 @@ export class AdminService {
   // Stats
   getDashboard(): Observable<DashboardStatsDto> {
     return this.http.get<DashboardStatsDto>(`${this.base}/stats/dashboard`);
+  }
+
+  getAnalytics(): Observable<AdminAnalyticsDto> {
+    return this.http.get<AdminAnalyticsDto>(`${this.base}/stats/analytics`);
   }
 }

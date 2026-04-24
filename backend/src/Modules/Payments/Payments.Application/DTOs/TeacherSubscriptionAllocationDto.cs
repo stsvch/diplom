@@ -1,0 +1,26 @@
+namespace Payments.Application.DTOs;
+
+public record TeacherSubscriptionAllocationDto(
+    Guid Id,
+    Guid SubscriptionAllocationRunId,
+    Guid SubscriptionInvoiceId,
+    Guid SubscriptionPlanId,
+    string PlanName,
+    Guid CourseId,
+    string CourseTitle,
+    decimal AllocationWeight,
+    decimal ProgressPercent,
+    int CompletedLessons,
+    int TotalLessons,
+    decimal GrossAmount,
+    decimal PlatformCommissionAmount,
+    decimal ProviderFeeAmount,
+    decimal NetAmount,
+    string Currency,
+    string Status,
+    string PayoutStatus,
+    DateTime? PeriodStart,
+    DateTime? PeriodEnd,
+    DateTime AvailableAt,
+    DateTime? PaidOutAt,
+    DateTime AllocatedAt);

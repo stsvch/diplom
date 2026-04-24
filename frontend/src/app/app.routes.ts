@@ -12,8 +12,10 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        pathMatch: 'full',
-        redirectTo: 'login',
+        loadComponent: () =>
+          import('./features/public/landing/landing.component').then(
+            (m) => m.LandingComponent,
+          ),
       },
       {
         path: 'login',
@@ -50,6 +52,11 @@ export const routes: Routes = [
             (m) => m.ResetPasswordComponent,
           ),
       },
+      {
+        path: 'welcome',
+        redirectTo: '',
+        pathMatch: 'full',
+      },
     ],
   },
   {
@@ -77,8 +84,8 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/reports/student-dashboard/student-dashboard.component').then(
+            (m) => m.StudentDashboardComponent,
           ),
       },
       {
@@ -175,8 +182,15 @@ export const routes: Routes = [
       {
         path: 'payments',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/payments/student-payments/student-payments.component').then(
+            (m) => m.StudentPaymentsComponent,
+          ),
+      },
+      {
+        path: 'glossary',
+        loadComponent: () =>
+          import('./features/tools/glossary-page/glossary-page.component').then(
+            (m) => m.GlossaryPageComponent,
           ),
       },
       {
@@ -203,8 +217,8 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/reports/teacher-dashboard/teacher-dashboard.component').then(
+            (m) => m.TeacherDashboardComponent,
           ),
       },
       {
@@ -261,6 +275,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/courses/lesson-editor/lesson-editor.component').then(
             (m) => m.LessonEditorComponent,
+          ),
+      },
+      {
+        path: 'lesson/:id/review',
+        loadComponent: () =>
+          import('./features/content/code-run-review/code-run-review.component').then(
+            (m) => m.CodeRunReviewComponent,
           ),
       },
       {
@@ -336,8 +357,8 @@ export const routes: Routes = [
       {
         path: 'reports',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/reports/teacher-course-reports/teacher-course-reports.component').then(
+            (m) => m.TeacherCourseReportsComponent,
           ),
       },
       {
@@ -362,10 +383,17 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/payments/teacher-payouts/teacher-payouts.component').then(
+            (m) => m.TeacherPayoutsComponent,
+          ),
+      },
+      {
         path: 'glossary',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/tools/glossary-page/glossary-page.component').then(
+            (m) => m.GlossaryPageComponent,
           ),
       },
       {
@@ -420,15 +448,15 @@ export const routes: Routes = [
       {
         path: 'payments',
         loadComponent: () =>
-          import('./features/placeholder/placeholder.component').then(
-            (m) => m.PlaceholderComponent,
+          import('./features/admin/payments/admin-payments.component').then(
+            (m) => m.AdminPaymentsComponent,
           ),
       },
       {
         path: 'analytics',
         loadComponent: () =>
-          import('./features/admin/dashboard/admin-dashboard.component').then(
-            (m) => m.AdminDashboardComponent,
+          import('./features/admin/analytics/admin-analytics.component').then(
+            (m) => m.AdminAnalyticsComponent,
           ),
       },
       {

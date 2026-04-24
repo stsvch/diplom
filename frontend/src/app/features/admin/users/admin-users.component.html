@@ -61,21 +61,25 @@
               </td>
               <td>{{ formatDate(u.createdAt) }}</td>
               <td class="actions">
-                @if (u.isBlocked) {
-                  <button class="icon-btn" (click)="unblockUser(u)" title="Разблокировать">
-                    <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
+                @if (canManageUser(u)) {
+                  @if (u.isBlocked) {
+                    <button class="icon-btn" (click)="unblockUser(u)" title="Разблокировать">
+                      <lucide-icon [img]="UnlockIcon" size="16"></lucide-icon>
+                    </button>
+                  } @else {
+                    <button class="icon-btn" (click)="blockUser(u)" title="Заблокировать">
+                      <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
+                    </button>
+                  }
+                  <button class="icon-btn" (click)="changeRole(u)" title="Сменить роль">
+                    <lucide-icon [img]="UserCogIcon" size="16"></lucide-icon>
+                  </button>
+                  <button class="icon-btn icon-btn--danger" (click)="deleteUser(u)" title="Удалить">
+                    <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
                   </button>
                 } @else {
-                  <button class="icon-btn" (click)="blockUser(u)" title="Заблокировать">
-                    <lucide-icon [img]="LockIcon" size="16"></lucide-icon>
-                  </button>
+                  <span class="muted">Текущий admin</span>
                 }
-                <button class="icon-btn" (click)="changeRole(u)" title="Сменить роль">
-                  <lucide-icon [img]="UserCogIcon" size="16"></lucide-icon>
-                </button>
-                <button class="icon-btn icon-btn--danger" (click)="deleteUser(u)" title="Удалить">
-                  <lucide-icon [img]="Trash2Icon" size="16"></lucide-icon>
-                </button>
               </td>
             </tr>
           }

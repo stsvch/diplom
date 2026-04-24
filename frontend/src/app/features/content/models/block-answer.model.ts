@@ -75,6 +75,8 @@ export interface CodeTestCaseResult {
   expectedOutput: string;
   actualOutput: string;
   passed: boolean;
+  isHidden: boolean;
+  error?: string | null;
 }
 
 export interface CodeExerciseAnswer {
@@ -134,4 +136,30 @@ export interface LessonProgressDto {
   maxScore: number;
   percentage: number;
   isCompleted: boolean;
+}
+
+export type CodeExerciseRunKind = 'Run' | 'Submission';
+
+export interface CodeExerciseRunDto {
+  id: string;
+  blockId: string;
+  userId: string;
+  userName?: string | null;
+  attemptId?: string | null;
+  kind: CodeExerciseRunKind | string;
+  language: string;
+  code: string;
+  ok: boolean;
+  globalError?: string | null;
+  results: CodeTestCaseResult[];
+  createdAt: string;
+  blockOrderIndex?: number | null;
+  blockLabel?: string | null;
+  attemptStatus?: LessonBlockAttemptStatus | string | null;
+  attemptScore?: number | null;
+  attemptMaxScore?: number | null;
+  attemptNeedsReview?: boolean | null;
+  attemptReviewedAt?: string | null;
+  attemptReviewerComment?: string | null;
+  attemptAttemptsUsed?: number | null;
 }

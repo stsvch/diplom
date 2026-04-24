@@ -169,9 +169,18 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
     }
     this.attemptsService.submitAttempt(blockId, answers).subscribe({
       next: (result) => {
-        this.entries.update((arr) =>
-          arr.map((e) => (e.block.id === blockId ? { ...e, lastResult: result } : e)),
-        );
+        this.attemptsService.getMyAttempt(blockId).subscribe({
+          next: (attempt) => {
+            this.entries.update((arr) =>
+              arr.map((e) => (e.block.id === blockId ? { ...e, lastResult: result, attempt: attempt ?? null } : e)),
+            );
+          },
+          error: () => {
+            this.entries.update((arr) =>
+              arr.map((e) => (e.block.id === blockId ? { ...e, lastResult: result } : e)),
+            );
+          },
+        });
         this.loadProgress();
         if (result.isCorrect) this.toast.success(`+${result.score} балла`);
         else if (result.needsReview) this.toast.info('Отправлено на проверку');

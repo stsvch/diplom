@@ -1,0 +1,277 @@
+<div class="teacher-dashboard">
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Reports / Teacher</p>
+      <h1>Панель преподавателя</h1>
+      <p class="hero__text">
+        Быстрый срез по курсам, проверке работ, ближайшим занятиям и выплатам,
+        чтобы не раскладывать операционку по нескольким разделам.
+      </p>
+    </div>
+
+    @if (earnings(); as e) {
+      <div class="hero__earnings">
+        <div class="hero__value">{{ formatMoney(e.readyForPayoutAmount, e.currency) }}</div>
+        <div class="hero__label">Готово к выплате</div>
+        <div class="hero__chips">
+          <span class="hero__chip">В payout: {{ formatMoney(e.inPayoutAmount, e.currency) }}</span>
+          <span class="hero__chip hero__chip--accent">Выплачено: {{ formatMoney(e.paidOutAmount, e.currency) }}</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (loading()) {
+    <div class="state">Загружаю панель преподавателя...</div>
+  } @else if (error()) {
+    <div class="state state--error">
+      <span>{{ error() }}</span>
+      <button class="state__action" type="button" (click)="loadDashboard()">Повторить</button>
+    </div>
+  } @else if (summary(); as s) {
+    <section class="stats-grid">
+      <app-stats-card
+        title="Курсы"
+        [value]="s.totalCourses"
+        [change]="s.publishedCourses + ' опубликовано'"
+        changeType="neutral"
+        [iconName]="BookOpenIcon"
+        iconBg="#FDE68A"
+        iconColor="#B45309"
+      />
+      <app-stats-card
+        title="Студенты"
+        [value]="s.activeStudents"
+        subtitle="активных записей"
+        [iconName]="UsersIcon"
+        iconBg="#DBEAFE"
+        iconColor="#1D4ED8"
+      />
+      <app-stats-card
+        title="На проверке"
+        [value]="s.pendingReviewsCount"
+        subtitle="работ и попыток ждут review"
+        [iconName]="ReviewIcon"
+        iconBg="#FEE2E2"
+        iconColor="#B91C1C"
+      />
+      <app-stats-card
+        title="Ср. прогресс"
+        [value]="formatPercent(s.averageStudentProgressPercent)"
+        subtitle="по активным студентам"
+        [iconName]="TargetIcon"
+        iconBg="#DCFCE7"
+        iconColor="#15803D"
+      />
+      <app-stats-card
+        title="Ср. балл"
+        [value]="formatPercent(s.averageGradePercent)"
+        subtitle="по оценённым работам"
+        [iconName]="GradeIcon"
+        iconBg="#EDE9FE"
+        iconColor="#6D28D9"
+      />
+      @if (earnings(); as e) {
+        <app-stats-card
+          title="Готово к выплате"
+          [value]="formatMoney(e.readyForPayoutAmount, e.currency)"
+          subtitle="доступно в payout queue"
+          [iconName]="EarningsIcon"
+          iconBg="#FEF3C7"
+          iconColor="#A16207"
+        />
+      }
+      <app-stats-card
+        title="Ближайшие занятия"
+        [value]="s.upcomingSessionsCount"
+        subtitle="слотов впереди"
+        [iconName]="SessionsIcon"
+        iconBg="#E0F2FE"
+        iconColor="#0369A1"
+      />
+      <app-stats-card
+        title="Ритм"
+        [value]="s.publishedCourses"
+        subtitle="курсов в live-работе"
+        [iconName]="ActivityIcon"
+        iconBg="#ECFCCB"
+        iconColor="#4D7C0F"
+      />
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="panel panel--courses">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Courses</p>
+            <h2>Курсы под контролем</h2>
+          </div>
+          <a class="panel-link" routerLink="/teacher/courses">
+            Все курсы
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+
+        @if (!courses().length) {
+          <section class="empty-panel empty-panel--embedded">
+            <div>
+              <h2>Курсов пока нет</h2>
+              <p>Создай первый курс, и здесь появится прогресс по студентам и нагрузка на проверку.</p>
+            </div>
+            <a class="panel-link" routerLink="/teacher/courses/new">
+              Создать курс
+              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+            </a>
+          </section>
+        } @else {
+          <div class="course-list">
+            @for (course of courses(); track course.courseId) {
+              <article class="course-card">
+                <div class="course-card__meta">
+                  <div>
+                    <p class="course-card__discipline">{{ course.disciplineName }}</p>
+                    <h3>{{ course.title }}</h3>
+                  </div>
+                  <span [class]="getCourseStateClass(course)">{{ getCourseStateLabel(course) }}</span>
+                </div>
+
+                <div class="course-card__kpis">
+                  <div>
+                    <span>Студентов</span>
+                    <strong>{{ course.activeStudents }}</strong>
+                  </div>
+                  <div>
+                    <span>На проверке</span>
+                    <strong>{{ course.pendingReviewsCount }}</strong>
+                  </div>
+                  <div>
+                    <span>Ср. прогресс</span>
+                    <strong>{{ formatPercent(course.averageStudentProgressPercent) }}</strong>
+                  </div>
+                  <div>
+                    <span>Ср. балл</span>
+                    <strong>{{ formatPercent(course.averageGradePercent) }}</strong>
+                  </div>
+                </div>
+
+                <div class="course-card__footer">
+                  <a class="panel-link panel-link--inline" [routerLink]="['/teacher/courses', course.courseId, 'editor']">
+                    Редактор
+                    <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+                  </a>
+                  <a class="panel-link panel-link--inline" [routerLink]="['/teacher/reports']" [queryParams]="{ courseId: course.courseId }">
+                    Отчёт
+                    <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+                  </a>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Review Queue</p>
+            <h2>Работы на проверку</h2>
+          </div>
+          <a class="panel-link" routerLink="/teacher/assignments">
+            Открыть queue
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+
+        @if (!pendingReviews().length) {
+          <div class="panel__empty">Сейчас очередь проверки пустая.</div>
+        } @else {
+          <div class="review-list">
+            @for (item of pendingReviews(); track item.reviewId) {
+              <a class="review-item" [routerLink]="getReviewRoute(item)">
+                <div class="review-item__copy">
+                  <div class="review-item__meta">
+                    <span class="pill">{{ getReviewKindLabel(item) }}</span>
+                    @if (item.courseName) {
+                      <span class="pill pill--neutral">{{ item.courseName }}</span>
+                    }
+                  </div>
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.studentName }} • {{ formatDateTime(item.submittedAt) }}</p>
+                </div>
+                <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Schedule</p>
+            <h2>Ближайшие занятия</h2>
+          </div>
+          <a class="panel-link" routerLink="/teacher/schedule">
+            Расписание
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+
+        @if (!upcomingSessions().length) {
+          <div class="panel__empty">Ближайших слотов пока нет.</div>
+        } @else {
+          <div class="session-list">
+            @for (session of upcomingSessions(); track session.slotId) {
+              <a class="session-item" routerLink="/teacher/schedule">
+                <div class="session-item__copy">
+                  <div class="session-item__meta">
+                    <span [class]="getSessionStatusClass(session.status)">{{ getSessionStatusLabel(session.status) }}</span>
+                    @if (session.courseName) {
+                      <span class="pill pill--neutral">{{ session.courseName }}</span>
+                    }
+                  </div>
+                  <h3>{{ session.title }}</h3>
+                  <p>{{ formatSessionRange(session) }}</p>
+                </div>
+                <div class="session-item__stats">
+                  <strong>{{ session.bookingsCount }}/{{ session.maxStudents }}</strong>
+                  <small>{{ session.isGroupSession ? 'group' : '1:1' }}</small>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+
+      @if (earnings(); as e) {
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="panel__eyebrow">Payouts</p>
+              <h2>Доход и выплаты</h2>
+            </div>
+            <a class="panel-link" routerLink="/teacher/payments">
+              Выплаты
+              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+            </a>
+          </div>
+
+          <div class="earnings-grid">
+            <article class="earnings-card earnings-card--ready">
+              <span>Готово к выплате</span>
+              <strong>{{ formatMoney(e.readyForPayoutAmount, e.currency) }}</strong>
+            </article>
+            <article class="earnings-card earnings-card--transit">
+              <span>В payout</span>
+              <strong>{{ formatMoney(e.inPayoutAmount, e.currency) }}</strong>
+            </article>
+            <article class="earnings-card earnings-card--paid">
+              <span>Уже выплачено</span>
+              <strong>{{ formatMoney(e.paidOutAmount, e.currency) }}</strong>
+            </article>
+          </div>
+        </section>
+      }
+    </div>
+  }
+</div>

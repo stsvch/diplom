@@ -1,0 +1,360 @@
+<div class="admin-payments">
+  <header class="admin-payments__head">
+    <h1>Платежи</h1>
+  </header>
+
+  <section class="admin-payments__plans">
+    <div class="admin-payments__plans-head">
+      <div>
+        <h2>Тарифы подписки</h2>
+        <p>Платформа управляет тарифами подписки, а renewal/allocation flow уже складывает paid invoices в отдельный allocation ledger.</p>
+      </div>
+      <button class="btn btn--primary" (click)="openCreatePlan()">Новый тариф</button>
+    </div>
+
+    @if (subscriptionPlans().length === 0) {
+      <div class="admin-payments__table-wrap">
+        <div class="empty">Тарифов подписки пока нет</div>
+      </div>
+    } @else {
+      <div class="admin-payments__plans-grid">
+        @for (plan of subscriptionPlans(); track plan.id) {
+          <article class="plan-card">
+            <div class="plan-card__head">
+              <div>
+                <strong>{{ plan.name }}</strong>
+                <div class="muted">{{ subscriptionIntervalLabel(plan) }}</div>
+              </div>
+              <div class="plan-card__badges">
+                @if (plan.isFeatured) {
+                  <span class="badge badge--ok">Featured</span>
+                }
+                <span [class]="plan.isActive ? 'badge badge--ok' : 'badge badge--neutral'">
+                  {{ plan.isActive ? 'Активен' : 'Черновик' }}
+                </span>
+              </div>
+            </div>
+
+            @if (plan.description) {
+              <p class="plan-card__description">{{ plan.description }}</p>
+            }
+
+            <div class="plan-card__facts">
+              <div>
+                <span>Цена</span>
+                <strong>{{ formatAmount(plan.price, plan.currency) }}</strong>
+              </div>
+              <div>
+                <span>Sort order</span>
+                <strong>{{ plan.sortOrder }}</strong>
+              </div>
+              <div>
+                <span>Provider product</span>
+                <strong>{{ plan.providerProductId || '—' }}</strong>
+              </div>
+              <div>
+                <span>Provider price</span>
+                <strong>{{ plan.providerPriceId || '—' }}</strong>
+              </div>
+            </div>
+
+            <div class="plan-card__actions">
+              <button class="btn btn--outline" (click)="openEditPlan(plan)">Редактировать</button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="admin-payments__plans">
+    <div class="admin-payments__plans-head">
+      <div>
+        <h2>Subscription Allocation Runs</h2>
+        <p>Последние распределения paid subscription invoices по преподавателям на основе progress-weighted active enrollments.</p>
+      </div>
+    </div>
+
+    @if (subscriptionAllocationRuns().length === 0) {
+      <div class="admin-payments__table-wrap">
+        <div class="empty">Распределений подписочной выручки пока нет</div>
+      </div>
+    } @else {
+      <div class="admin-payments__plans-grid">
+        @for (run of subscriptionAllocationRuns(); track run.id) {
+          <article class="plan-card">
+            <div class="plan-card__head">
+              <div>
+                <strong>{{ run.planName }}</strong>
+                <div class="muted">Student: {{ run.studentId }}</div>
+              </div>
+              <div class="plan-card__badges">
+                <span [class]="allocationStatusClass(run.status)">{{ allocationStatusLabel(run.status) }}</span>
+              </div>
+            </div>
+
+            <div class="plan-card__facts">
+              <div>
+                <span>Gross</span>
+                <strong>{{ formatAmount(run.grossAmount, run.currency) }}</strong>
+              </div>
+              <div>
+                <span>Net</span>
+                <strong>{{ formatAmount(run.netAmount, run.currency) }}</strong>
+              </div>
+              <div>
+                <span>Teachers / courses</span>
+                <strong>{{ run.teacherCount }} / {{ run.courseCount }}</strong>
+              </div>
+              <div>
+                <span>Allocated at</span>
+                <strong>{{ formatDate(run.allocatedAt) }}</strong>
+              </div>
+            </div>
+
+            @if (run.periodStart && run.periodEnd) {
+              <p class="plan-card__description">
+                Период инвойса: {{ formatDate(run.periodStart) }} - {{ formatDate(run.periodEnd) }}
+              </p>
+            }
+
+            <div class="admin-payments__table-wrap">
+              <table class="admin-payments__table">
+                <thead>
+                  <tr>
+                    <th>Преподаватель</th>
+                    <th>Курс</th>
+                    <th>Вес</th>
+                    <th>Прогресс</th>
+                    <th>Net</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (line of run.lines; track line.id) {
+                    <tr>
+                      <td>
+                        <div>{{ line.teacherName }}</div>
+                        <div class="muted">{{ line.teacherId }}</div>
+                      </td>
+                      <td>
+                        <div>{{ line.courseTitle }}</div>
+                        <div class="muted">{{ line.courseId }}</div>
+                      </td>
+                      <td>{{ (line.allocationWeight * 100).toFixed(2) }}%</td>
+                      <td>{{ line.completedLessons }}/{{ line.totalLessons }}</td>
+                      <td>{{ formatAmount(line.netAmount, line.currency) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <div class="admin-payments__filters">
+    <div class="filter filter--search">
+      <lucide-icon [img]="SearchIcon" size="16"></lucide-icon>
+      <input
+        type="text"
+        placeholder="Поиск по курсу, студенту, teacher id или charge id"
+        [ngModel]="searchText()"
+        (ngModelChange)="searchText.set($event); onSearchChange()"
+      />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state">Загрузка...</div>
+  } @else if (data(); as d) {
+    <div class="admin-payments__table-wrap">
+      <table class="admin-payments__table">
+        <thead>
+          <tr>
+            <th>Курс</th>
+            <th>Студент</th>
+            <th>Преподаватель</th>
+            <th>Платёж</th>
+            <th>Refund / dispute</th>
+            <th>Статус</th>
+            <th>Создан</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of d.items; track item.paymentAttemptId) {
+            <tr>
+              <td>
+                <strong>{{ item.courseTitle }}</strong>
+                <div class="muted">{{ item.courseId }}</div>
+              </td>
+              <td>
+                <div>{{ item.studentName }}</div>
+                <div class="muted">{{ item.studentId }}</div>
+              </td>
+              <td>
+                <div>{{ item.teacherName }}</div>
+                <div class="muted">{{ item.teacherId }}</div>
+              </td>
+              <td>
+                <div>{{ formatAmount(item.amount, item.currency) }}</div>
+                @if (item.providerFeeAmount > 0) {
+                  <div class="muted">Fee: {{ formatAmount(item.providerFeeAmount, item.currency) }}</div>
+                }
+                @if (item.providerChargeId) {
+                  <div class="muted">Charge: {{ item.providerChargeId }}</div>
+                }
+                @if (item.completedAt) {
+                  <div class="muted">{{ formatDate(item.completedAt) }}</div>
+                }
+              </td>
+              <td>
+                <div>Возвращено: {{ formatAmount(item.refundedAmount, item.currency) }}</div>
+                @if (item.pendingRefundAmount > 0) {
+                  <div class="muted">Pending: {{ formatAmount(item.pendingRefundAmount, item.currency) }}</div>
+                }
+                @if (item.disputedAmount > 0) {
+                  <div class="muted">Disputed: {{ formatAmount(item.disputedAmount, item.currency) }}</div>
+                }
+                <div class="muted">Остаток: {{ formatAmount(item.remainingRefundableAmount, item.currency) }}</div>
+              </td>
+              <td>
+                <span [class]="paymentStatusClass(item.paymentStatus)">{{ paymentStatusLabel(item.paymentStatus) }}</span>
+                @if (item.latestDisputeStatus) {
+                  <div>
+                    <span [class]="disputeStatusClass(item.latestDisputeStatus)">
+                      {{ disputeStatusLabel(item.latestDisputeStatus) }}
+                    </span>
+                  </div>
+                }
+                @if (item.purchaseStatus) {
+                  <div class="muted">{{ item.purchaseStatus }}</div>
+                }
+              </td>
+              <td>{{ formatDate(item.createdAt) }}</td>
+              <td>
+                <button
+                  class="icon-btn icon-btn--danger"
+                  [disabled]="item.remainingRefundableAmount <= 0"
+                  (click)="openRefund(item)"
+                  title="Создать refund">
+                  <lucide-icon [img]="RefundIcon" size="16"></lucide-icon>
+                </button>
+              </td>
+            </tr>
+          }
+          @if (d.items.length === 0) {
+            <tr><td colspan="8" class="empty">Нет платежей</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="admin-payments__pager">
+      <button class="btn btn--outline" (click)="prevPage()" [disabled]="page() === 1">Назад</button>
+      <span>Стр. {{ page() }} из {{ totalPages() }} · всего {{ d.totalCount }}</span>
+      <button class="btn btn--outline" (click)="nextPage()" [disabled]="page() >= totalPages()">Вперёд</button>
+    </div>
+  }
+</div>
+
+@if (planModalOpen()) {
+  <div class="modal-backdrop" (click)="cancelPlanModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__head">
+        <h2>{{ editingPlan() ? 'Редактировать тариф' : 'Новый тариф подписки' }}</h2>
+        <button class="icon-btn" (click)="cancelPlanModal()">
+          <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+        </button>
+      </header>
+      <div class="modal__body">
+        <label>Название</label>
+        <input [ngModel]="planName()" (ngModelChange)="planName.set($event)" />
+
+        <label>Описание</label>
+        <textarea rows="3" [ngModel]="planDescription()" (ngModelChange)="planDescription.set($event)"></textarea>
+
+        <label>Цена</label>
+        <input type="number" min="0.01" step="0.01" [ngModel]="planPrice()" (ngModelChange)="planPrice.set($event)" />
+
+        <label>Валюта</label>
+        <input [ngModel]="planCurrency()" (ngModelChange)="planCurrency.set($event)" />
+
+        <label>Billing interval</label>
+        <select [ngModel]="planBillingInterval()" (ngModelChange)="planBillingInterval.set($event)">
+          <option value="Month">Month</option>
+          <option value="Year">Year</option>
+        </select>
+
+        <label>Billing interval count</label>
+        <input type="number" min="1" step="1" [ngModel]="planBillingIntervalCount()" (ngModelChange)="planBillingIntervalCount.set($event)" />
+
+        <label>Sort order</label>
+        <input type="number" step="1" [ngModel]="planSortOrder()" (ngModelChange)="planSortOrder.set($event)" />
+
+        <label>Provider product id</label>
+        <input [ngModel]="planProviderProductId()" (ngModelChange)="planProviderProductId.set($event)" />
+
+        <label>Provider price id</label>
+        <input [ngModel]="planProviderPriceId()" (ngModelChange)="planProviderPriceId.set($event)" />
+
+        <label class="checkbox">
+          <input type="checkbox" [ngModel]="planIsActive()" (ngModelChange)="planIsActive.set($event)" />
+          <span>Тариф активен</span>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" [ngModel]="planIsFeatured()" (ngModelChange)="planIsFeatured.set($event)" />
+          <span>Показывать как рекомендуемый</span>
+        </label>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--outline" (click)="cancelPlanModal()">Отмена</button>
+        <button class="btn btn--primary" [disabled]="savingPlan()" (click)="submitPlan()">
+          {{ savingPlan() ? 'Сохраняем…' : 'Сохранить' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (refundOpenFor(); as payment) {
+  <div class="modal-backdrop" (click)="cancelRefund()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__head">
+        <h2>Создать refund</h2>
+        <button class="icon-btn" (click)="cancelRefund()">
+          <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+        </button>
+      </header>
+      <div class="modal__body">
+        <p>Платёж по курсу «<strong>{{ payment.courseTitle }}</strong>».</p>
+        <label>Сумма refund</label>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          [ngModel]="refundAmount()"
+          (ngModelChange)="refundAmount.set($event)"
+        />
+        <div class="hint">Максимум: {{ formatAmount(payment.remainingRefundableAmount, payment.currency) }}</div>
+
+        <label>Причина</label>
+        <textarea
+          rows="3"
+          placeholder="Необязательно"
+          [ngModel]="refundReason()"
+          (ngModelChange)="refundReason.set($event)"
+        ></textarea>
+      </div>
+      <footer class="modal__foot">
+        <button class="btn btn--outline" (click)="cancelRefund()">Отмена</button>
+        <button class="btn btn--danger" [disabled]="refunding()" (click)="submitRefund()">
+          {{ refunding() ? 'Создаём…' : 'Создать refund' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}

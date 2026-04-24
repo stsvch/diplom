@@ -38,6 +38,9 @@ public static class CoursesModuleRegistration
             new BaseRepository<CourseEnrollment>(provider.GetRequiredService<CoursesDbContext>()));
 
         services.AddScoped<IEnrollmentReadService, EnrollmentReadService>();
+        services.AddScoped<ICoursePaymentReadService, CoursePaymentReadService>();
+        services.AddScoped<ICourseAccessProvisioningService, CourseAccessProvisioningService>();
+        services.AddScoped<ICourseAccessRevocationService, CourseAccessRevocationService>();
 
         // MediatR
         services.AddMediatR(cfg =>

@@ -114,8 +114,21 @@
                 }
               </div>
               <app-button variant="primary" [fullWidth]="true" [loading]="enrolling()" (click)="enroll()">
-                Записаться на курс
+                {{ course()!.isFree ? 'Записаться на курс' : 'Купить курс' }}
               </app-button>
+              @if (!course()!.isFree) {
+                <label class="course-detail__save-payment">
+                  <input
+                    type="checkbox"
+                    [checked]="savePaymentMethod()"
+                    (change)="savePaymentMethod.set($any($event.target).checked)"
+                  />
+                  <span>Сохранить карту у платёжного провайдера для следующих оплат</span>
+                </label>
+                <p class="course-detail__save-payment-hint">
+                  Данные карты не хранятся в платформе. Сохраняется только безопасная ссылка на способ оплаты.
+                </p>
+              }
             }
 
             <ul class="course-detail__includes">

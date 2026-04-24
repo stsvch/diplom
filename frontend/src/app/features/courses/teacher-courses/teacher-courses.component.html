@@ -83,7 +83,12 @@
                 </div>
               </td>
               <td>
-                <app-badge variant="warning" size="sm">Черновик</app-badge>
+                <app-badge [variant]="getStatusVariant(course)" size="sm">
+                  {{ getStatusLabel(course) }}
+                </app-badge>
+                @if (course.isArchived && course.archiveReason) {
+                  <div class="reason" [title]="course.archiveReason">{{ course.archiveReason }}</div>
+                }
               </td>
               <td>
                 <span class="tc-stat">
@@ -102,38 +107,44 @@
               </td>
               <td>
                 <div class="tc-actions">
-                  <a [routerLink]="['/teacher/courses', course.id, 'editor']" title="Редактор структуры">
-                    <app-button variant="ghost" size="sm">
-                      <lucide-icon [img]="EditIcon" [size]="16" />
+                  @if (canManageCourse(course)) {
+                    <a [routerLink]="['/teacher/courses', course.id, 'editor']" title="Редактор структуры">
+                      <app-button variant="ghost" size="sm">
+                        <lucide-icon [img]="EditIcon" [size]="16" />
+                      </app-button>
+                    </a>
+                    <app-button
+                      variant="outline"
+                      size="sm"
+                      [loading]="publishing() === course.id"
+                      (click)="publish(course.id)"
+                      title="Опубликовать"
+                    >
+                      <lucide-icon [img]="EyeIcon" [size]="16" />
                     </app-button>
-                  </a>
-                  <app-button
-                    variant="outline"
-                    size="sm"
-                    [loading]="publishing() === course.id"
-                    (click)="publish(course.id)"
-                    title="Опубликовать"
-                  >
-                    <lucide-icon [img]="EyeIcon" [size]="16" />
-                  </app-button>
-                  <app-button
-                    variant="ghost"
-                    size="sm"
-                    [loading]="archiving() === course.id"
-                    (click)="archive(course.id)"
-                    title="Архивировать"
-                  >
-                    <lucide-icon [img]="ArchiveIcon" [size]="16" />
-                  </app-button>
-                  <app-button
-                    variant="danger"
-                    size="sm"
-                    [loading]="deleting() === course.id"
-                    (click)="deleteCourse(course.id)"
-                    title="Удалить"
-                  >
-                    <lucide-icon [img]="TrashIcon" [size]="16" />
-                  </app-button>
+                    <app-button
+                      variant="ghost"
+                      size="sm"
+                      [loading]="archiving() === course.id"
+                      (click)="archive(course.id)"
+                      title="Архивировать"
+                    >
+                      <lucide-icon [img]="ArchiveIcon" [size]="16" />
+                    </app-button>
+                    <app-button
+                      variant="danger"
+                      size="sm"
+                      [loading]="deleting() === course.id"
+                      (click)="deleteCourse(course.id)"
+                      title="Удалить"
+                    >
+                      <lucide-icon [img]="TrashIcon" [size]="16" />
+                    </app-button>
+                  } @else {
+                    <span class="muted" [title]="course.archiveReason ?? 'Курс архивирован'">
+                      Архивировано
+                    </span>
+                  }
                 </div>
               </td>
             </tr>

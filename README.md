@@ -106,6 +106,13 @@ dotnet run --project src/AppHost
 `Now listening on: http://localhost:XXXX`). Порт можно зафиксировать
 в `src/AppHost/Properties/launchSettings.json`.
 
+### API документация
+
+В development-режиме backend поднимает Swagger UI:
+
+- если backend запущен отдельно, документация доступна на `http://localhost:<backend-port>/swagger`
+- в one-click локальном Stripe flow backend фиксирован на `http://localhost:5000`, значит Swagger будет на `http://localhost:5000/swagger`
+
 ### 3. Frontend
 
 ```bash
@@ -113,6 +120,68 @@ cd frontend
 npm install    # один раз
 npm start      # http://localhost:4200
 ```
+
+### Запуск одной кнопкой для локального Stripe flow
+
+Если нужно, чтобы локально работал checkout + webhook без публичного URL, используй launcher:
+
+1. Скопируй `.env.example` в `.env`.
+2. Заполни `STRIPE_SECRET_KEY` тестовым ключом Stripe.
+3. Запусти:
+
+```powershell
+.\start-local-dev.cmd
+```
+
+Что делает launcher:
+
+- поднимает Docker-инфраструктуру;
+- при необходимости ставит `Stripe CLI` через `winget`;
+- запускает `stripe listen --forward-to http://localhost:5000/api/payments/webhooks/stripe`;
+- автоматически вытаскивает `whsec_...` и прокидывает его в backend как `Stripe__WebhookSecret`;
+- запускает backend напрямую на фиксированном `http://localhost:5000` (без Aspire, чтобы webhook target был стабильным);
+- запускает frontend на `http://localhost:4200`.
+
+Этот режим рекомендуемый, если нужен сценарий "запустить всё одной кнопкой".
+
+### Если backend запускается из Visual Studio или через Aspire
+
+Для этого есть отдельный режим, который поднимает только Stripe forwarding и автоматически пишет
+локальный конфиг `backend/src/Host/appsettings.Development.Local.json` с актуальными:
+
+- `Stripe:SecretKey`
+- `Stripe:WebhookSecret`
+- `Stripe:Country`
+
+Запуск:
+
+```powershell
+.\start-local-stripe.cmd
+```
+
+Дальше:
+
+1. Запускаешь backend из Visual Studio (`EduPlatform.Host`, профиль `http`) или через Aspire.
+2. Запускаешь frontend как обычно.
+
+Важно:
+
+- backend должен стартовать **после** `.\start-local-stripe.cmd`, потому что `WebhookSecret` генерируется заново на каждую сессию `stripe listen`;
+- если backend уже был запущен, его надо перезапустить после старта `stripe listen`.
+
+Остановка:
+
+```powershell
+.\stop-local-dev.cmd
+```
+
+Если нужно вместе погасить Docker-контейнеры:
+
+```powershell
+.\stop-local-dev.cmd -StopDocker
+```
+
+Логи launcher пишет в `.tmp/local-dev/logs`.
 
 ### Остановка
 

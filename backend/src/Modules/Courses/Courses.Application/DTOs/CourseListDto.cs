@@ -19,4 +19,7 @@ public class CourseListDto
     public int? Duration { get; set; }
     public double? Progress { get; set; }
     public string? Tags { get; set; }
+    public bool IsPublished { get; set; }
+    public bool IsArchived { get; set; }
+    public string? ArchiveReason { get; set; }
 }

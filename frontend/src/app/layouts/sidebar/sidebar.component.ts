@@ -81,6 +81,7 @@ export class SidebarComponent implements OnInit {
         { label: 'Журнал оценок', route: '/teacher/gradebook', icon: BookMarked },
         { label: 'Календарь', route: '/teacher/calendar', icon: Calendar },
         { label: 'Расписание', route: '/teacher/schedule', icon: CalendarDays },
+        { label: 'Выплаты', route: '/teacher/payments', icon: DollarSign },
         { label: 'Отчёты', route: '/teacher/reports', icon: BarChart2 },
         { label: 'Сообщения', route: '/teacher/messages', icon: MessageSquare, badge: msg || undefined },
         { label: 'Уведомления', route: '/teacher/notifications', icon: Bell, badge: notif || undefined },
@@ -106,7 +107,8 @@ export class SidebarComponent implements OnInit {
       { label: 'Календарь', route: '/student/calendar', icon: Calendar },
       { label: 'Сообщения', route: '/student/messages', icon: MessageSquare, badge: msg || undefined },
       { label: 'Уведомления', route: '/student/notifications', icon: Bell, badge: notif || undefined },
-      { label: 'Подписки и платежи', route: '/student/payments', icon: CreditCard },
+      { label: 'Словарь', route: '/student/glossary', icon: Globe },
+      { label: 'Платежи', route: '/student/payments', icon: CreditCard },
       { label: 'Профиль', route: '/student/profile', icon: User },
     ];
   });

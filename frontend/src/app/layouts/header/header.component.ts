@@ -134,7 +134,7 @@ export class HeaderComponent implements OnInit {
       calendar: 'Календарь',
       messages: 'Сообщения',
       notifications: 'Уведомления',
-      payments: 'Подписки и платежи',
+      payments: 'Платежи и выплаты',
       profile: 'Профиль',
       assignments: 'Проверка работ',
       gradebook: 'Журнал оценок',

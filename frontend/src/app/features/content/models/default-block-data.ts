@@ -107,7 +107,7 @@ export function defaultBlockData(type: LessonBlockType): LessonBlockData {
       return {
         type: 'CodeExercise',
         instruction: '',
-        language: 'csharp',
+        language: 'javascript',
         testCases: [],
         timeoutMs: 5000,
         memoryLimitMb: 128,

@@ -8,5 +8,6 @@ public interface IContentDbContext
     DbSet<Attachment> Attachments { get; }
     DbSet<LessonBlock> LessonBlocks { get; }
     DbSet<LessonBlockAttempt> LessonBlockAttempts { get; }
+    DbSet<CodeExerciseRun> CodeExerciseRuns { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

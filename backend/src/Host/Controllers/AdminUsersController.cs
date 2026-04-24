@@ -8,6 +8,7 @@ using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
@@ -52,7 +53,11 @@ public class AdminUsersController : ControllerBase
     [HttpPost("{userId}/block")]
     public async Task<IActionResult> Block(string userId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new BlockUserCommand(userId), cancellationToken);
+        var actorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actorUserId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new BlockUserCommand(userId, actorUserId), cancellationToken);
         return result.IsFailure
             ? BadRequest(ApiError.FromMessage(result.Error!, "USER_BLOCK_FAILED"))
             : Ok(new { message = result.Value });
@@ -70,7 +75,11 @@ public class AdminUsersController : ControllerBase
     [HttpPost("{userId}/role")]
     public async Task<IActionResult> ChangeRole(string userId, [FromBody] ChangeRoleRequest request, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new ChangeUserRoleCommand(userId, request.Role), cancellationToken);
+        var actorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actorUserId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new ChangeUserRoleCommand(userId, request.Role, actorUserId), cancellationToken);
         return result.IsFailure
             ? BadRequest(ApiError.FromMessage(result.Error!, "USER_ROLE_FAILED"))
             : Ok(new { message = result.Value });
@@ -79,7 +88,11 @@ public class AdminUsersController : ControllerBase
     [HttpDelete("{userId}")]
     public async Task<IActionResult> Delete(string userId, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteUserCommand(userId), cancellationToken);
+        var actorUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(actorUserId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new DeleteUserCommand(userId, actorUserId), cancellationToken);
         return result.IsFailure
             ? BadRequest(ApiError.FromMessage(result.Error!, "USER_DELETE_FAILED"))
             : Ok(new { message = result.Value });

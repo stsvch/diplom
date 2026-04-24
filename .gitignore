@@ -60,6 +60,8 @@ dist/
 
 # Environment
 .env
+appsettings.Local.json
+appsettings.*.Local.json
 
 # IDE
 .idea/

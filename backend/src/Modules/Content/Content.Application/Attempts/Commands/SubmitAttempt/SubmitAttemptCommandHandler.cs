@@ -1,8 +1,11 @@
 using Content.Application.DTOs;
 using Content.Application.Grading;
 using Content.Application.Interfaces;
+using Content.Application.CodeExecution;
+using Content.Domain.ValueObjects.Answers;
 using Content.Domain.Entities;
 using Content.Domain.Enums;
+using Content.Domain.ValueObjects.Blocks;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -15,15 +18,18 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
     private readonly IContentDbContext _context;
     private readonly IBlockGraderRegistry _graderRegistry;
     private readonly ILessonProgressUpdater _progressUpdater;
+    private readonly ICodeExecutor _codeExecutor;
 
     public SubmitAttemptCommandHandler(
         IContentDbContext context,
         IBlockGraderRegistry graderRegistry,
-        ILessonProgressUpdater progressUpdater)
+        ILessonProgressUpdater progressUpdater,
+        ICodeExecutor codeExecutor)
     {
         _context = context;
         _graderRegistry = graderRegistry;
         _progressUpdater = progressUpdater;
+        _codeExecutor = codeExecutor;
     }
 
     public async Task<Result<SubmitAttemptResultDto>> Handle(SubmitAttemptCommand request, CancellationToken cancellationToken)
@@ -44,7 +50,12 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             return Result.Failure<SubmitAttemptResultDto>("Лимит попыток исчерпан.");
         }
 
-        var grade = _graderRegistry.Grade(block.Type, block.Data, request.Answers, block.Settings);
+        var preparedAnswersResult = await PrepareAnswersAsync(block.Type, block.Data, request.Answers, cancellationToken);
+        if (preparedAnswersResult.IsFailure)
+            return Result.Failure<SubmitAttemptResultDto>(preparedAnswersResult.Error!);
+
+        var preparedAnswers = preparedAnswersResult.Value!;
+        var grade = _graderRegistry.Grade(block.Type, block.Data, preparedAnswers, block.Settings);
         var now = DateTime.UtcNow;
 
         if (attempt is null)
@@ -53,7 +64,7 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             {
                 BlockId = request.BlockId,
                 UserId = request.UserId,
-                Answers = request.Answers,
+                Answers = preparedAnswers,
                 Score = grade.Score,
                 MaxScore = grade.MaxScore,
                 IsCorrect = grade.IsCorrect,
@@ -66,7 +77,7 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         }
         else
         {
-            attempt.Answers = request.Answers;
+            attempt.Answers = preparedAnswers;
             attempt.Score = grade.Score;
             attempt.MaxScore = grade.MaxScore;
             attempt.IsCorrect = grade.IsCorrect;
@@ -77,6 +88,32 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             attempt.ReviewedAt = null;
             attempt.ReviewerId = null;
             attempt.ReviewerComment = null;
+        }
+
+        if (block.Type == LessonBlockType.CodeExercise
+            && block.Data is CodeExerciseBlockData codeData
+            && preparedAnswers is CodeExerciseAnswer codeAnswer)
+        {
+            _context.CodeExerciseRuns.Add(new CodeExerciseRun
+            {
+                BlockId = block.Id,
+                UserId = request.UserId,
+                AttemptId = attempt.Id,
+                Kind = CodeExerciseRunKind.Submission,
+                Language = codeData.Language,
+                Code = codeAnswer.Code,
+                Ok = true,
+                GlobalError = null,
+                Results = codeAnswer.RunOutput?.Select(r => new CodeTestCaseResult
+                {
+                    Input = r.Input,
+                    ExpectedOutput = r.ExpectedOutput,
+                    ActualOutput = r.ActualOutput,
+                    Passed = r.Passed,
+                    IsHidden = r.IsHidden
+                }).ToList() ?? new List<CodeTestCaseResult>(),
+                CreatedAt = now
+            });
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -98,6 +135,41 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             AttemptsRemaining = attemptsRemaining,
             Feedback = grade.Feedback
         });
+    }
+
+    private async Task<Result<LessonBlockAnswer>> PrepareAnswersAsync(
+        LessonBlockType blockType,
+        LessonBlockData blockData,
+        LessonBlockAnswer submittedAnswers,
+        CancellationToken cancellationToken)
+    {
+        if (blockType != LessonBlockType.CodeExercise
+            || blockData is not CodeExerciseBlockData codeData
+            || submittedAnswers is not CodeExerciseAnswer codeAnswer)
+        {
+            return Result.Success(submittedAnswers);
+        }
+
+        if (string.IsNullOrWhiteSpace(codeAnswer.Code))
+            return Result.Failure<LessonBlockAnswer>("Код не может быть пустым.");
+
+        var cases = codeData.TestCases
+            .Select(t => new CodeExecutionCase(t.Input, t.ExpectedOutput, t.IsHidden))
+            .ToList();
+
+        var executionRequest = new CodeExecutionRequest(
+            codeData.Language,
+            codeAnswer.Code,
+            cases,
+            codeData.TimeoutMs,
+            codeData.MemoryLimitMb);
+
+        var executionResponse = await _codeExecutor.ExecuteAsync(executionRequest, cancellationToken);
+        if (!executionResponse.Ok)
+            return Result.Failure<LessonBlockAnswer>(executionResponse.GlobalError ?? "Не удалось проверить код.");
+
+        return Result.Success<LessonBlockAnswer>(
+            CodeExerciseSanitizer.BuildStoredAnswer(codeData, codeAnswer.Code, executionResponse.Results));
     }
 
     private async Task TryMarkLessonCompletedAsync(Guid lessonId, Guid userId, CancellationToken cancellationToken)

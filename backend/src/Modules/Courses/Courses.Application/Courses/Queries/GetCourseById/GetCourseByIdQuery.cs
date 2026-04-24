@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Courses.Application.Courses.Queries.GetCourseById;
 
-public record GetCourseByIdQuery(Guid Id) : IRequest<Result<CourseDetailDto>>;
+public record GetCourseByIdQuery(Guid Id, string? UserId, string? UserRole) : IRequest<Result<CourseDetailDto>>;

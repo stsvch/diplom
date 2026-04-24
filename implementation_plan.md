@@ -217,25 +217,32 @@
 ## Этап 11. Подписки и оплата (Payments)
 
 **Backend:**
-- Модуль Payments: Payment, Subscription, UserSubscription, интеграция Stripe, проверка доступа, история
+- Модуль Payments: `PaymentAttempt`, `CoursePurchase`, `TeacherPayoutAccount`, `TeacherSettlement`, `PayoutRecord`, `RefundRecord`, `DisputeRecord`, `PaymentMethodRef`, webhook Stripe, проверка доступа, история
+- Реализовано: payout onboarding преподавателя, provider dashboard link для payout account, checkout для платного курса, выдача доступа только после подтверждённой оплаты, безопасный return-flow после checkout, сохранение `provider charge id` и фактической provider fee в settlement, teacher settlement ledger, provider transfer submission/reconciliation для payout batches, refund/reversal flow, admin refund initiation, dispute/chargeback ledger, управление сохранёнными payment methods у студента (detach + soft-delete + reassignment default), `SubscriptionPlan`, `UserSubscription`, `SubscriptionPaymentAttempt`, `SubscriptionInvoice`, `SubscriptionAllocationRun` и `SubscriptionAllocationLine` (admin CRUD + student list + subscription checkout + webhook lifecycle + renewal/invoice tracking + allocation ledger + payout integration + reversal ещё не выплаченных allocation lines при `invoice failed/void/uncollectible`)
 
 **Frontend:**
-- Оплата курса (Stripe Checkout), подписки, история платежей
+- Оплата курса (Stripe Checkout), teacher payouts onboarding + dashboard access, история платежей, teacher earnings ledger, payout history, refund history, dispute history, admin payments screen
+- Для подписок реализован revenue allocation ledger по policy `ProgressWeightedActiveEnrollmentsV1`, его интеграция в teacher payout batches и отображение payout status/availability в teacher earnings screen
 
-**Результат:** монетизация работает.
+**Результат:** платные курсы, teacher payouts, refund/dispute flow, payment method management, subscription checkout/lifecycle, invoice history и revenue allocation для подписок работают end-to-end; policy `ProgressWeightedActiveEnrollmentsV1` доведена до реальных payout batches.
 
 ---
 
 ## Этап 12. Инструменты по дисциплинам (Tools)
 
 **Backend:**
-- Модуль Tools: DictionaryWord, CodeExercise, CodeSubmission, CRUD словаря, запуск и проверка кода
+- `CodeExercise` оставлен внутри `Content` и доведён по security/data-hardening: hidden tests не уходят студенту, server-side re-execution на submit, append-only `CodeExerciseRun`, access checks для student/teacher, выровнен language/runtime contract
+- Новый модуль `Tools`: `DictionaryWord`, `UserDictionaryProgress`, `GlossaryController`, `GlossaryService`, `ToolsDbContext`
+- Реализовано: CRUD словаря для преподавателя, привязка словаря к курсу, student progress (`isKnown`, `reviewCount`, `lastReviewedAt`), API списка слов по курсу/поиску
+- Реализовано: история `CodeExerciseRun` для студента и teacher review по уроку/блоку
 
 **Frontend:**
-- Словарь: список, добавление, карточки для заучивания
-- Редактор кода: Monaco Editor, запуск, результат
+- Реализовано: история запусков и отправок `CodeExercise` у студента, отдельный teacher review screen по уроку
+- Реализовано: единая страница словаря для `student/teacher`, фильтры по курсу и поиску, teacher CRUD, student toggle `изучено / вернуть в повторение`
+- Реализовано: flashcards / режим заучивания словаря с review-session и outcome `Known / Hard / RepeatLater`
+- Дальнейшее расширение code tools и SRS-логики возможно как улучшение, но базовый объём этапа закрыт
 
-**Результат:** специализированные инструменты для разных дисциплин.
+**Результат:** этап 12 закрыт в текущем объёме: `CodeExercise` доведён до безопасного persisted review/history flow, у курса есть рабочий словарь и режим карточек для заучивания.
 
 ---
 
@@ -247,6 +254,14 @@
 **Frontend:**
 - Дашборд студента, преподавателя, администратора
 - Графики и диаграммы
+
+**Текущий статус:**
+- Реализовано: student dashboard API `GET /api/reports/student/dashboard` как read-only агрегация по курсам, прогрессу, оценкам и ближайшим событиям
+- Реализовано: реальный student dashboard на фронте вместо placeholder, с KPI, списком прогресса по курсам, последними оценками и ближайшими дедлайнами
+- Реализовано: teacher dashboard API `GET /api/reports/teacher/dashboard` и реальный teacher dashboard на фронте с KPI по курсам, очереди review, расписанию и earnings
+- Реализовано: teacher course reports `GET /api/reports/teacher/courses/{courseId}` и страница `/teacher/reports` с выбором курса, risk-list студентов, grade distribution и deadline pressure
+- Реализовано: admin analytics `GET /api/admin/stats/analytics` и отдельная страница `/admin/analytics` с platform-wide KPI, trend series, top courses, top teachers и payment/subscription health
+- Export/report polish может быть улучшением, но базовый объём этапа закрыт
 
 **Результат:** все роли видят аналитику.
 
@@ -273,6 +288,11 @@
 - Финальное тестирование всех сценариев
 - Документация API
 
+Текущий статус:
+- Реализовано: публичная landing page на корневом маршруте `/` вместо принудительного редиректа на `login`
+- Реализовано: явная точка входа в Swagger / OpenAPI из landing page и README
+- Осталось: финальный UI/perf/security sweep и сценарная проверка ролей
+
 ---
 
 ## Сводная таблица
@@ -289,11 +309,11 @@
 | 8 | Уведомления и календарь | 3 | Готов |
 | 9 | Чаты и сообщения | 2 | Готов |
 | 10 | Занятия с преподавателем | 2, 3 | Готов |
-| 11 | Подписки и оплата | 3 | Ожидает |
-| 12 | Инструменты по дисциплинам | 3, 4 | Ожидает |
-| 13 | Отчёты и аналитика | 7 | Ожидает |
-| 14 | Администрирование | 2, 3 | Частично (только Disciplines на фронте) |
-| 15 | Финализация | все | Ожидает |
+| 11 | Подписки и оплата | 3 | Готов (paid courses + teacher payouts + refunds/disputes + admin payments + payment methods + subscriptions + invoice tracking + allocation ledger/payout integration) |
+| 12 | Инструменты по дисциплинам | 3, 4 | Готов (CodeExercise history/review + glossary CRUD/progress + flashcards) |
+| 13 | Отчёты и аналитика | 7 | Готов (student + teacher + admin analytics) |
+| 14 | Администрирование | 2, 3 | Готов |
+| 15 | Финализация | все | В работе (landing + API docs entrypoint) |
 
 ---
 

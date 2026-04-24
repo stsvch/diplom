@@ -17,7 +17,8 @@ public class CoursesMappingProfile : Profile
             .ForMember(d => d.LessonsCount, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Count()))
             .ForMember(d => d.Duration, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Sum(l => l.Duration ?? 0)))
             .ForMember(d => d.Rating, opt => opt.Ignore())
-            .ForMember(d => d.Progress, opt => opt.Ignore());
+            .ForMember(d => d.Progress, opt => opt.Ignore())
+            .ForMember(d => d.ArchiveReason, opt => opt.MapFrom(s => s.ArchiveReason));
 
         CreateMap<Course, CourseDetailDto>()
             .ForMember(d => d.DisciplineName, opt => opt.MapFrom(s => s.Discipline != null ? s.Discipline.Name : string.Empty))

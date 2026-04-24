@@ -80,6 +80,58 @@ namespace Content.Infrastructure.Persistence.Migrations
                     b.ToTable("Attachments", "content");
                 });
 
+            modelBuilder.Entity("Content.Domain.Entities.CodeExerciseRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AttemptId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BlockId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("GlobalError")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("Ok")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Results")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttemptId");
+
+                    b.HasIndex("BlockId", "UserId", "CreatedAt");
+
+                    b.ToTable("CodeExerciseRuns", "content");
+                });
+
             modelBuilder.Entity("Content.Domain.Entities.LessonBlock", b =>
                 {
                     b.Property<Guid>("Id")
@@ -177,6 +229,24 @@ namespace Content.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("LessonBlockAttempts", "content");
+                });
+
+            modelBuilder.Entity("Content.Domain.Entities.CodeExerciseRun", b =>
+                {
+                    b.HasOne("Content.Domain.Entities.LessonBlockAttempt", "Attempt")
+                        .WithMany()
+                        .HasForeignKey("AttemptId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Content.Domain.Entities.LessonBlock", "Block")
+                        .WithMany()
+                        .HasForeignKey("BlockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attempt");
+
+                    b.Navigation("Block");
                 });
 
             modelBuilder.Entity("Content.Domain.Entities.LessonBlockAttempt", b =>

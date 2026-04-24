@@ -6,7 +6,7 @@ public class CodeExerciseBlockData : LessonBlockData
 {
     public override LessonBlockType Type => LessonBlockType.CodeExercise;
     public string Instruction { get; set; } = string.Empty;
-    public string Language { get; set; } = "csharp";
+    public string Language { get; set; } = "javascript";
     public string? StarterCode { get; set; }
     public List<CodeTestCase> TestCases { get; set; } = new();
     public int TimeoutMs { get; set; } = 5000;

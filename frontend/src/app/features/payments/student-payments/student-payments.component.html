@@ -1,0 +1,349 @@
+<div class="payments-page">
+  <div class="payments-page__header">
+    <div>
+      <h1>Подписки и платежи</h1>
+      <p>История попыток оплаты, купленные курсы и сохранённые способы оплаты.</p>
+    </div>
+    <a routerLink="/student/catalog">
+      <app-button variant="outline">Перейти в каталог</app-button>
+    </a>
+  </div>
+
+  @if (error()) {
+    <div class="payments-page__error">{{ error() }}</div>
+  }
+
+  @if (loadingAttempt()) {
+    <div class="payments-card">Проверяем статус последней оплаты...</div>
+  } @else if (currentAttempt()) {
+    <section class="payments-card payments-card--highlight">
+      <div class="payments-card__row">
+        <div>
+          <h2>{{ currentAttempt()!.courseTitle }}</h2>
+          <p>{{ formatAmount(currentAttempt()!.amount, currentAttempt()!.currency) }}</p>
+        </div>
+        <span [class]="getStatusClass(currentAttempt()!.status)">
+          {{ getStatusLabel(currentAttempt()!.status) }}
+        </span>
+      </div>
+
+      @if (getCurrentAttemptNotice(currentAttempt()); as notice) {
+        <p [class]="getCurrentAttemptNoticeClass(currentAttempt())">{{ notice }}</p>
+      }
+
+      @if (currentAttempt()!.failureMessage) {
+        <p class="payments-card__hint">{{ currentAttempt()!.failureMessage }}</p>
+      }
+
+      @if (currentAttempt()!.providerChargeId) {
+        <p class="payments-card__hint">Provider charge: {{ currentAttempt()!.providerChargeId }}</p>
+      }
+
+      @if (canRetryAttempt(currentAttempt()!)) {
+        <app-button variant="primary" (click)="retryAttempt(currentAttempt()!)">
+          Повторить оплату
+        </app-button>
+      }
+    </section>
+  }
+
+  @if (currentSubscriptionAttempt()) {
+    <section class="payments-card payments-card--highlight">
+      <div class="payments-card__row">
+        <div>
+          <h2>{{ currentSubscriptionAttempt()!.planName }}</h2>
+          <p>{{ formatAmount(currentSubscriptionAttempt()!.amount, currentSubscriptionAttempt()!.currency) }}</p>
+        </div>
+        <span [class]="getStatusClass(currentSubscriptionAttempt()!.status)">
+          {{ getStatusLabel(currentSubscriptionAttempt()!.status) }}
+        </span>
+      </div>
+
+      @if (getCurrentSubscriptionAttemptNotice(currentSubscriptionAttempt()); as notice) {
+        <p [class]="getCurrentSubscriptionAttemptNoticeClass(currentSubscriptionAttempt())">{{ notice }}</p>
+      }
+
+      <p class="payments-card__hint">{{ getSubscriptionAttemptIntervalLabel(currentSubscriptionAttempt()!) }}</p>
+
+      @if (currentSubscriptionAttempt()!.failureMessage) {
+        <p class="payments-card__hint">{{ currentSubscriptionAttempt()!.failureMessage }}</p>
+      }
+
+      @if (canRetrySubscriptionAttempt(currentSubscriptionAttempt()!)) {
+        <app-button variant="primary" (click)="retrySubscriptionAttempt(currentSubscriptionAttempt()!)">
+          Повторить оформление
+        </app-button>
+      }
+    </section>
+  }
+
+  <section class="payments-grid">
+    <div class="payments-card">
+      <h2>Мои подписки</h2>
+      @if (subscriptions().length === 0) {
+        <p class="payments-card__hint">Активных подписок пока нет.</p>
+      } @else {
+        <div class="payments-list">
+          @for (subscription of subscriptions(); track subscription.id) {
+            <div class="payments-item">
+              <div>
+                <strong>{{ subscription.planName }}</strong>
+                <p>Старт: {{ formatDate(subscription.startedAt) }}</p>
+                @if (subscription.currentPeriodEnd) {
+                  <p>Текущий период до: {{ formatDate(subscription.currentPeriodEnd) }}</p>
+                }
+                @if (subscription.cancelAtPeriodEnd) {
+                  <p>Подписка завершится в конце оплаченного периода.</p>
+                }
+              </div>
+              <div class="payments-item__meta">
+                <span [class]="getStatusClass(subscription.status)">{{ getStatusLabel(subscription.status) }}</span>
+                <span>{{ formatAmount(subscription.price, subscription.currency) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="payments-card">
+      <h2>Тарифы подписки</h2>
+      <p class="payments-card__hint">
+        Здесь можно оформить подписку платформы. Статусы автопродления и инвойсы провайдера отображаются ниже в истории.
+      </p>
+      @if (subscriptionPlans().length === 0) {
+        <p class="payments-card__hint">Активных тарифов подписки пока нет.</p>
+      } @else {
+        <div class="payments-list">
+          @for (plan of subscriptionPlans(); track plan.id) {
+            <div class="payments-item">
+              <div>
+                <strong>{{ plan.name }}</strong>
+                @if (plan.description) {
+                  <p>{{ plan.description }}</p>
+                }
+                <p>{{ getSubscriptionIntervalLabel(plan) }}</p>
+              </div>
+              <div class="payments-item__meta">
+                @if (plan.isFeatured) {
+                  <span class="status status--success">Рекомендуемый</span>
+                }
+                <span>{{ formatAmount(plan.price, plan.currency) }}</span>
+                <app-button
+                  size="sm"
+                  [disabled]="hasBlockingSubscription()"
+                  (click)="startSubscriptionCheckout(plan.id)">
+                  {{ hasBlockingSubscription() ? 'Подписка уже есть' : 'Оформить' }}
+                </app-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="payments-card">
+      <h2>Купленные курсы</h2>
+      @if (purchases().length === 0) {
+        <p class="payments-card__hint">Пока нет завершённых покупок.</p>
+      } @else {
+        <div class="payments-list">
+          @for (purchase of purchases(); track purchase.id) {
+            <a class="payments-item" [routerLink]="['/student/course', purchase.courseId]">
+              <div>
+                <strong>{{ purchase.courseTitle }}</strong>
+                <p>{{ formatDate(purchase.purchasedAt) }}</p>
+              </div>
+              <div class="payments-item__meta">
+                <span [class]="getStatusClass(purchase.status)">{{ getStatusLabel(purchase.status) }}</span>
+                <span>{{ formatAmount(purchase.amount, purchase.currency) }}</span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="payments-card">
+      <h2>Сохранённые способы оплаты</h2>
+      <p class="payments-card__hint">
+        Карта сохраняется только у платёжного провайдера и может быть повторно использована в следующих checkout-сессиях.
+      </p>
+      <p class="payments-card__hint">
+        При удалении основной карты следующая активная карта автоматически станет основной.
+      </p>
+      @if (paymentMethods().length === 0) {
+        <p class="payments-card__hint">Пока нет сохранённых способов оплаты.</p>
+      } @else {
+        <div class="payments-list">
+          @for (method of paymentMethods(); track method.id) {
+            <div class="payments-item">
+              <div>
+                <strong>{{ method.brand || 'Карта' }} •••• {{ method.last4 || '----' }}</strong>
+                <p>До {{ method.expMonth || '--' }}/{{ method.expYear || '----' }}</p>
+              </div>
+              <div class="payments-item__meta">
+                @if (method.isDefault) {
+                  <span class="status status--success">Основная</span>
+                }
+                <app-button
+                  variant="ghost"
+                  size="sm"
+                  [loading]="removingPaymentMethodId() === method.id"
+                  [disabled]="removingPaymentMethodId() !== null && removingPaymentMethodId() !== method.id"
+                  (click)="removePaymentMethod(method.id)">
+                  Удалить
+                </app-button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="payments-card">
+    <h2>История попыток подписки</h2>
+    @if (subscriptionHistory().length === 0) {
+      <p class="payments-card__hint">Попыток оформления подписки пока не было.</p>
+    } @else {
+      <div class="payments-list">
+        @for (attempt of subscriptionHistory(); track attempt.id) {
+          <div class="payments-item">
+            <div>
+              <strong>{{ attempt.planName }}</strong>
+              <p>{{ getSubscriptionAttemptIntervalLabel(attempt) }}</p>
+              <p>{{ formatDate(attempt.createdAt) }}</p>
+              @if (attempt.failureMessage) {
+                <p class="payments-item__failure">{{ attempt.failureMessage }}</p>
+              }
+            </div>
+            <div class="payments-item__meta">
+              <span [class]="getStatusClass(attempt.status)">{{ getStatusLabel(attempt.status) }}</span>
+              <span>{{ formatAmount(attempt.amount, attempt.currency) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="payments-card">
+    <h2>История инвойсов подписки</h2>
+    @if (subscriptionInvoices().length === 0) {
+      <p class="payments-card__hint">Инвойсов по подписке пока не было.</p>
+    } @else {
+      <div class="payments-list">
+        @for (invoice of subscriptionInvoices(); track invoice.id) {
+          <div class="payments-item">
+            <div>
+              <strong>{{ invoice.planName }}</strong>
+              @if (invoice.periodStart && invoice.periodEnd) {
+                <p>Период: {{ formatDate(invoice.periodStart) }} - {{ formatDate(invoice.periodEnd) }}</p>
+              } @else {
+                <p>Создан: {{ formatDate(invoice.createdAt) }}</p>
+              }
+              @if (invoice.billingReason) {
+                <p>Основание: {{ invoice.billingReason }}</p>
+              }
+              @if (invoice.dueDate) {
+                <p>Срок оплаты: {{ formatDate(invoice.dueDate) }}</p>
+              }
+              @if (invoice.paidAt) {
+                <p>Оплачен: {{ formatDate(invoice.paidAt) }}</p>
+              }
+              @if (invoice.failureMessage) {
+                <p class="payments-item__failure">{{ invoice.failureMessage }}</p>
+              }
+            </div>
+            <div class="payments-item__meta">
+              <span [class]="getStatusClass(invoice.status)">{{ getStatusLabel(invoice.status) }}</span>
+              <span>{{ formatAmount(invoice.amountPaid || invoice.amountDue, invoice.currency) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="payments-card">
+    <h2>История попыток оплаты</h2>
+    @if (history().length === 0) {
+      <p class="payments-card__hint">Попыток оплаты пока не было.</p>
+    } @else {
+      <div class="payments-list">
+        @for (attempt of history(); track attempt.id) {
+          <div class="payments-item">
+            <div>
+              <strong>{{ attempt.courseTitle }}</strong>
+              <p>{{ formatDate(attempt.createdAt) }}</p>
+              @if (attempt.failureMessage) {
+                <p class="payments-item__failure">{{ attempt.failureMessage }}</p>
+              }
+            </div>
+            <div class="payments-item__meta">
+              <span [class]="getStatusClass(attempt.status)">{{ getStatusLabel(attempt.status) }}</span>
+              <span>{{ formatAmount(attempt.amount, attempt.currency) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="payments-card">
+    <h2>История возвратов</h2>
+    @if (refunds().length === 0) {
+      <p class="payments-card__hint">Возвратов пока не было.</p>
+    } @else {
+      <div class="payments-list">
+        @for (refund of refunds(); track refund.id) {
+          <div class="payments-item">
+            <div>
+              <strong>{{ refund.courseTitle }}</strong>
+              <p>{{ formatDate(refund.requestedAt) }}</p>
+              @if (refund.reason) {
+                <p>{{ refund.reason }}</p>
+              }
+              @if (refund.failureMessage) {
+                <p class="payments-item__failure">{{ refund.failureMessage }}</p>
+              }
+            </div>
+            <div class="payments-item__meta">
+              <span [class]="getStatusClass(refund.status)">{{ getStatusLabel(refund.status) }}</span>
+              <span>{{ formatAmount(refund.amount, refund.currency) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="payments-card">
+    <h2>История споров и chargeback</h2>
+    @if (disputes().length === 0) {
+      <p class="payments-card__hint">Споров по оплатам пока не было.</p>
+    } @else {
+      <div class="payments-list">
+        @for (dispute of disputes(); track dispute.id) {
+          <div class="payments-item">
+            <div>
+              <strong>{{ dispute.courseTitle }}</strong>
+              <p>Открыт: {{ formatDate(dispute.openedAt) }}</p>
+              @if (dispute.reason) {
+                <p>{{ dispute.reason }}</p>
+              }
+              @if (dispute.evidenceDueBy) {
+                <p>Ответ до: {{ formatDate(dispute.evidenceDueBy) }}</p>
+              }
+            </div>
+            <div class="payments-item__meta">
+              <span [class]="getStatusClass(dispute.status)">{{ getStatusLabel(dispute.status) }}</span>
+              <span>{{ formatAmount(dispute.amount, dispute.currency) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

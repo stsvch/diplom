@@ -1,0 +1,329 @@
+<div class="glossary-page">
+  <header class="glossary-page__header">
+    <div>
+      <h1>Словарь курса</h1>
+      @if (isTeacher()) {
+        <p>Добавляйте термины по своим курсам и управляйте словарём из одного места.</p>
+      } @else {
+        <p>Повторяйте термины по своим курсам и отмечайте уже изученные слова.</p>
+      }
+    </div>
+    <div class="glossary-page__header-meta">
+      <span class="glossary-page__counter">{{ words().length }} слов</span>
+      <button type="button" class="glossary-button glossary-button--ghost" (click)="reloadWords()" [disabled]="reloading()">
+        @if (reloading()) { Обновляем... } @else { Обновить }
+      </button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="glossary-page__error">{{ error() }}</div>
+  }
+
+  <section class="glossary-panel">
+    <div class="glossary-panel__grid">
+      <label class="glossary-field">
+        <span>Курс</span>
+        <select
+          [ngModel]="selectedCourseId()"
+          (ngModelChange)="selectedCourseId.set($event); reloadWords()"
+          [disabled]="studyMode()">
+          <option value="">Все курсы</option>
+          @for (course of courses(); track course.id) {
+            <option [value]="course.id">{{ course.title }}</option>
+          }
+        </select>
+        @if (studyMode()) {
+          <small>Сменить курс можно после завершения текущей сессии карточек.</small>
+        }
+      </label>
+
+      <label class="glossary-field glossary-field--wide">
+        <span>Поиск</span>
+        <input
+          type="text"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          (keyup.enter)="reloadWords()"
+          placeholder="Термин, перевод, описание или тег"
+        />
+      </label>
+
+      @if (isStudent()) {
+        <label class="glossary-field glossary-field--check">
+          <input type="checkbox" [ngModel]="knownOnly()" (ngModelChange)="knownOnly.set($event); reloadWords()" />
+          <span>Только изученные</span>
+        </label>
+      }
+    </div>
+  </section>
+
+  @if (isStudent()) {
+    <section class="glossary-panel glossary-study">
+      <div class="glossary-study__header">
+        <div>
+          <h2>Режим карточек</h2>
+          <p>Повторяйте слова в отдельной сессии. Карточки учитывают ваш прогресс и порядок повторения.</p>
+        </div>
+        @if (!studyMode()) {
+          <button type="button" class="glossary-button glossary-button--primary" (click)="startStudyMode()">
+            Начать повторение
+          </button>
+        } @else {
+          <button type="button" class="glossary-button glossary-button--ghost" (click)="exitStudyMode()">
+            Закрыть карточки
+          </button>
+        }
+      </div>
+
+      @if (studyMode()) {
+        @if (studyLoading() && studyQueue().length === 0) {
+          <div class="glossary-panel__empty">Собираем сессию повторения...</div>
+        } @else if (!currentStudyWord()) {
+          <div class="glossary-panel__empty">
+            Очередь повторения пуста. Либо слов пока мало, либо всё уже повторено на текущую сессию.
+          </div>
+        } @else {
+          <div class="glossary-study__stats">
+            <span>Карточка {{ studyStats().current }} из {{ studyStats().total }}</span>
+            <span>Осталось в очереди: {{ studyStats().remaining }}</span>
+            @if (currentStudyWord()!.nextReviewAt) {
+              <span>Следующее повторение: {{ currentStudyWord()!.nextReviewAt | date: 'dd.MM.y HH:mm' }}</span>
+            }
+          </div>
+
+          <article class="study-card">
+            <header class="study-card__header">
+              <span class="study-card__course">{{ currentStudyWord()!.courseTitle }}</span>
+              @if (currentStudyWord()!.lastOutcome) {
+                <span class="study-card__outcome">{{ currentStudyWord()!.lastOutcome }}</span>
+              }
+            </header>
+
+            <div class="study-card__front">
+              <h3>{{ currentStudyWord()!.term }}</h3>
+              @if (currentStudyWord()!.tags.length > 0) {
+                <div class="word-card__tags">
+                  @for (tag of currentStudyWord()!.tags; track tag) {
+                    <span>{{ tag }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (showStudyAnswer()) {
+              <div class="study-card__answer">
+                <p class="study-card__translation">{{ currentStudyWord()!.translation }}</p>
+                @if (currentStudyWord()!.definition) {
+                  <div class="word-card__section">
+                    <strong>Определение</strong>
+                    <p>{{ currentStudyWord()!.definition }}</p>
+                  </div>
+                }
+                @if (currentStudyWord()!.example) {
+                  <div class="word-card__section">
+                    <strong>Пример</strong>
+                    <p>{{ currentStudyWord()!.example }}</p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="study-card__placeholder">Сначала попробуйте вспомнить перевод и смысл термина, затем откройте ответ.</div>
+            }
+
+            <footer class="study-card__actions">
+              @if (!showStudyAnswer()) {
+                <button type="button" class="glossary-button glossary-button--primary" (click)="revealStudyAnswer()">
+                  Показать ответ
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="glossary-button glossary-button--success"
+                  (click)="reviewCurrentWord('Known')"
+                  [disabled]="studySaving()">
+                  @if (studySaving()) { Сохраняем... } @else { Знаю }
+                </button>
+                <button
+                  type="button"
+                  class="glossary-button glossary-button--warning"
+                  (click)="reviewCurrentWord('Hard')"
+                  [disabled]="studySaving()">
+                  Сложно
+                </button>
+                <button
+                  type="button"
+                  class="glossary-button glossary-button--ghost"
+                  (click)="reviewCurrentWord('RepeatLater')"
+                  [disabled]="studySaving()">
+                  Позже
+                </button>
+              }
+            </footer>
+          </article>
+        }
+      }
+    </section>
+  }
+
+  @if (isTeacher()) {
+    <section class="glossary-panel glossary-editor">
+      <div class="glossary-editor__header">
+        <div>
+          <h2>{{ editingWordId() ? 'Редактирование слова' : 'Новое слово' }}</h2>
+          <p>Словарь привязан к курсу, поэтому каждое слово создаётся в контексте одного из ваших курсов.</p>
+        </div>
+        @if (editingWordId()) {
+          <button type="button" class="glossary-button glossary-button--ghost" (click)="cancelEdit()">Отменить</button>
+        } @else {
+          <button type="button" class="glossary-button glossary-button--ghost" (click)="startCreate()">Очистить</button>
+        }
+      </div>
+
+      @if (courses().length === 0) {
+        <div class="glossary-panel__empty">У вас пока нет курсов, к которым можно привязать словарь.</div>
+      } @else {
+        <div class="glossary-editor__grid">
+          <label class="glossary-field">
+            <span>Курс</span>
+            <select [(ngModel)]="editor.courseId">
+              @for (course of courses(); track course.id) {
+                <option [value]="course.id">{{ course.title }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="glossary-field">
+            <span>Термин</span>
+            <input type="text" [(ngModel)]="editor.term" placeholder="Например, Closure" />
+          </label>
+
+          <label class="glossary-field">
+            <span>Перевод</span>
+            <input type="text" [(ngModel)]="editor.translation" placeholder="Замыкание" />
+          </label>
+
+          <label class="glossary-field glossary-field--wide">
+            <span>Теги</span>
+            <input type="text" [(ngModel)]="editor.tags" placeholder="javascript, functions, scope" />
+          </label>
+
+          <label class="glossary-field glossary-field--wide">
+            <span>Определение</span>
+            <textarea rows="3" [(ngModel)]="editor.definition" placeholder="Короткое пояснение термина"></textarea>
+          </label>
+
+          <label class="glossary-field glossary-field--wide">
+            <span>Пример</span>
+            <textarea rows="3" [(ngModel)]="editor.example" placeholder="Пример использования или контекст"></textarea>
+          </label>
+        </div>
+
+        <div class="glossary-editor__actions">
+          <button type="button" class="glossary-button glossary-button--primary" (click)="saveWord()" [disabled]="saving()">
+            @if (saving()) { Сохраняем... } @else if (editingWordId()) { Сохранить изменения } @else { Добавить слово }
+          </button>
+        </div>
+      }
+    </section>
+  }
+
+  @if (loading()) {
+    <section class="glossary-panel glossary-panel__empty">Загрузка словаря...</section>
+  } @else if (words().length === 0) {
+    <section class="glossary-panel glossary-panel__empty">
+      @if (isTeacher()) {
+        <span>По текущим фильтрам слов пока нет.</span>
+      } @else {
+        <span>Словарь пока пуст для выбранных курсов или вы ещё не записаны на курс со словарём.</span>
+      }
+    </section>
+  } @else {
+    <section class="glossary-list">
+      @for (word of words(); track trackWord($index, word)) {
+        <article class="word-card">
+          <div class="word-card__header">
+            <div>
+              <h2>{{ word.term }}</h2>
+              <p class="word-card__translation">{{ word.translation }}</p>
+            </div>
+            <div class="word-card__meta">
+              <span class="word-card__course">{{ word.courseTitle }}</span>
+              @if (word.isKnown) {
+                <span class="word-card__status word-card__status--known">Изучено</span>
+              }
+            </div>
+          </div>
+
+          @if (word.tags.length > 0) {
+            <div class="word-card__tags">
+              @for (tag of word.tags; track tag) {
+                <span>{{ tag }}</span>
+              }
+            </div>
+          }
+
+          @if (word.definition) {
+            <div class="word-card__section">
+              <strong>Определение</strong>
+              <p>{{ word.definition }}</p>
+            </div>
+          }
+
+          @if (word.example) {
+            <div class="word-card__section">
+              <strong>Пример</strong>
+              <p>{{ word.example }}</p>
+            </div>
+          }
+
+          <footer class="word-card__footer">
+            <div class="word-card__hint">
+              @if (word.lastReviewedAt) {
+                <span>Последнее повторение: {{ word.lastReviewedAt | date: 'dd.MM.y HH:mm' }}</span>
+              } @else {
+                <span>Пока без повторений</span>
+              }
+              @if (isStudent()) {
+                <span>Повторений: {{ word.reviewCount }}</span>
+              }
+            </div>
+
+            <div class="word-card__actions">
+              @if (isTeacher()) {
+                <button type="button" class="glossary-button glossary-button--ghost" (click)="editWord(word)">
+                  Редактировать
+                </button>
+                <button
+                  type="button"
+                  class="glossary-button glossary-button--danger"
+                  (click)="deleteWord(word.id)"
+                  [disabled]="deletingWordId() === word.id">
+                  @if (deletingWordId() === word.id) { Удаляем... } @else { Удалить }
+                </button>
+              }
+
+              @if (isStudent()) {
+                <button
+                  type="button"
+                  class="glossary-button"
+                  [class.glossary-button--primary]="!word.isKnown"
+                  [class.glossary-button--ghost]="word.isKnown"
+                  (click)="toggleKnown(word)"
+                  [disabled]="progressWordId() === word.id">
+                  @if (progressWordId() === word.id) {
+                    Обновляем...
+                  } @else if (word.isKnown) {
+                    Вернуть в повторение
+                  } @else {
+                    Отметить как изученное
+                  }
+                </button>
+              }
+            </div>
+          </footer>
+        </article>
+      }
+    </section>
+  }
+</div>

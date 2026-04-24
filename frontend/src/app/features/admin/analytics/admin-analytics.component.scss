@@ -1,0 +1,377 @@
+:host {
+  display: block;
+}
+
+.admin-analytics {
+  display: grid;
+  gap: 24px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 28%),
+    linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);
+  min-height: 100%;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid #BFDBFE;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(239, 246, 255, 0.94)),
+    #FFFFFF;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+}
+
+.hero__eyebrow,
+.panel__eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0369A1;
+}
+
+.hero h1,
+.panel h2,
+.panel h3 {
+  margin: 0;
+  color: #0F172A;
+}
+
+.hero h1 {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.hero__text {
+  max-width: 60ch;
+  margin: 14px 0 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.hero__meter {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+  color: #F8FAFC;
+}
+
+.hero__value {
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.hero__label {
+  color: #CBD5E1;
+}
+
+.hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.2);
+  color: #E2E8F0;
+  font-size: 0.875rem;
+}
+
+.hero__chip--accent {
+  background: rgba(56, 189, 248, 0.18);
+  color: #E0F2FE;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr);
+  gap: 20px;
+}
+
+.panel {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid #E2E8F0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.06);
+}
+
+.panel--wide {
+  grid-column: span 2;
+}
+
+.panel__header,
+.panel__subheader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel__subsection {
+  display: grid;
+  gap: 14px;
+  padding-top: 8px;
+  border-top: 1px solid #E2E8F0;
+}
+
+.panel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0369A1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.panel-link:hover {
+  color: #075985;
+}
+
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px dashed #CBD5E1;
+  background: rgba(248, 250, 252, 0.96);
+  color: #64748B;
+}
+
+.state--error {
+  color: #B91C1C;
+  border-color: #FECACA;
+  background: #FEF2F2;
+}
+
+.state__action {
+  border: 0;
+  border-radius: 999px;
+  background: #0369A1;
+  color: #fff;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.panel__empty {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px dashed #CBD5E1;
+  background: rgba(248, 250, 252, 0.94);
+  color: #64748B;
+}
+
+.trend-list,
+.leader-list,
+.health-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.trend-item,
+.leader-card,
+.health-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  background: #FFFFFF;
+}
+
+.trend-item {
+  grid-template-columns: 96px repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+}
+
+.trend-item__date {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.trend-item__metric {
+  display: grid;
+  gap: 8px;
+}
+
+.trend-item__metric span {
+  color: #475569;
+  font-size: 0.875rem;
+}
+
+.bar,
+.leader-card__bar {
+  position: relative;
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: #E2E8F0;
+}
+
+.bar span,
+.leader-card__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.bar--users span {
+  background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 100%);
+}
+
+.bar--enrollments span {
+  background: linear-gradient(90deg, #22C55E 0%, #4ADE80 100%);
+}
+
+.bar--revenue span {
+  background: linear-gradient(90deg, #F59E0B 0%, #FB923C 100%);
+}
+
+.health-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.health-card span {
+  color: #64748B;
+  font-size: 0.875rem;
+}
+
+.health-card strong {
+  color: #0F172A;
+  font-size: 1.2rem;
+}
+
+.health-card small {
+  color: #64748B;
+}
+
+.health-card--warn {
+  background: #FEF3C7;
+  border-color: #FDE68A;
+}
+
+.health-card--risk {
+  background: #FEE2E2;
+  border-color: #FECACA;
+}
+
+.leader-card__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.leader-card h3 {
+  font-size: 1rem;
+}
+
+.leader-card p {
+  margin: 6px 0 0;
+  color: #64748B;
+}
+
+.leader-card__bar span {
+  background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 100%);
+}
+
+.leader-card__bar--teacher span {
+  background: linear-gradient(90deg, #F97316 0%, #FB7185 100%);
+}
+
+.leader-card__facts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.leader-card__facts strong {
+  color: #0F172A;
+}
+
+.leader-card__facts small {
+  color: #64748B;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #E0F2FE;
+  color: #075985;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.pill--success {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+@media (max-width: 1180px) {
+  .hero,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel--wide {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .trend-item {
+    grid-template-columns: 1fr;
+  }
+
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-analytics {
+    padding: 16px;
+  }
+
+  .hero,
+  .panel {
+    padding: 18px;
+  }
+
+  .state,
+  .leader-card__meta,
+  .leader-card__facts,
+  .panel__header,
+  .panel__subheader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

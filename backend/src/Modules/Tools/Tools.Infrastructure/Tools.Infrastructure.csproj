@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tools.Application\Tools.Application.csproj" />
+    <ProjectReference Include="..\..\Courses\Courses.Application\Courses.Application.csproj" />
+    <ProjectReference Include="..\..\..\Shared\EduPlatform.Shared.Infrastructure\EduPlatform.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

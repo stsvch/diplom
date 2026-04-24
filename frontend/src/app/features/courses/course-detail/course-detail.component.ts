@@ -30,6 +30,7 @@ import { ProgressBarComponent } from '../../../shared/components/progress-bar/pr
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar.component';
 import { DurationPipe } from '../../../shared/pipes/duration.pipe';
+import { PaymentsService } from '../../payments/services/payments.service';
 
 @Component({
   selector: 'app-course-detail',
@@ -53,6 +54,7 @@ export class CourseDetailComponent implements OnInit {
   private readonly progressService = inject(ProgressService);
   private readonly authService = inject(AuthService);
   private readonly previewMode = inject(PreviewModeService);
+  private readonly paymentsService = inject(PaymentsService);
 
   readonly isPreview = this.previewMode.isPreview;
   readonly actualProgress = signal<number | null>(null);
@@ -75,6 +77,7 @@ export class CourseDetailComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly enrolling = signal(false);
+  readonly savePaymentMethod = signal(false);
   readonly course = signal<CourseDetailDto | null>(null);
   readonly expandedModules = signal<Set<string>>(new Set());
 
@@ -137,10 +140,24 @@ export class CourseDetailComponent implements OnInit {
     const c = this.course();
     if (!c) return;
     this.enrolling.set(true);
-    this.coursesService.enrollCourse(c.id).subscribe({
-      next: () => {
+    if (c.isFree) {
+      this.coursesService.enrollCourse(c.id).subscribe({
+        next: () => {
+          this.enrolling.set(false);
+          this.toastService.success('Вы успешно записались на курс!');
+        },
+        error: (err: ApiError) => {
+          this.enrolling.set(false);
+          this.toastService.error(err.message);
+        },
+      });
+      return;
+    }
+
+    this.paymentsService.createCourseCheckout(c.id, this.savePaymentMethod()).subscribe({
+      next: (session) => {
         this.enrolling.set(false);
-        this.toastService.success('Вы успешно записались на курс!');
+        window.location.assign(session.checkoutUrl);
       },
       error: (err: ApiError) => {
         this.enrolling.set(false);

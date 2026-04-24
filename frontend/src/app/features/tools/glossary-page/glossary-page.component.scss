@@ -1,0 +1,452 @@
+:host {
+  display: block;
+}
+
+.glossary-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+}
+
+.glossary-page__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.glossary-page__header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #0f172a;
+}
+
+.glossary-page__header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  max-width: 720px;
+}
+
+.glossary-page__header-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.glossary-page__counter {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.glossary-page__error {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.glossary-panel {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.glossary-panel__grid,
+.glossary-editor__grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.glossary-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.glossary-field small {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.glossary-field--wide {
+  grid-column: span 2;
+}
+
+.glossary-field--check {
+  justify-content: flex-end;
+}
+
+.glossary-field--check span {
+  font-weight: 600;
+}
+
+.glossary-field input,
+.glossary-field select,
+.glossary-field textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 11px 13px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+}
+
+.glossary-field textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.glossary-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.glossary-study {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.glossary-study__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.glossary-study__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.glossary-study__header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  max-width: 680px;
+}
+
+.glossary-study__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.glossary-study__stats span,
+.study-card__course,
+.study-card__outcome {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.study-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.05);
+}
+
+.study-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.study-card__course {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.study-card__outcome {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.study-card__front h3 {
+  margin: 0;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.study-card__answer {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.study-card__translation {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.study-card__placeholder {
+  padding: 20px;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #64748b;
+  text-align: center;
+}
+
+.study-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.glossary-editor__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.glossary-editor__header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.glossary-editor__header p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.glossary-editor__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.glossary-panel__empty {
+  text-align: center;
+  color: #64748b;
+  padding: 20px;
+}
+
+.glossary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.word-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.word-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.word-card__header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #0f172a;
+}
+
+.word-card__translation {
+  margin: 6px 0 0;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.word-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.word-card__course,
+.word-card__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.word-card__course {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.word-card__status--known {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.word-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.word-card__tags span {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.8125rem;
+}
+
+.word-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.word-card__section strong {
+  color: #0f172a;
+}
+
+.word-card__section p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.word-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.word-card__hint {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.word-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.glossary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: #e2e8f0;
+  color: #0f172a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.glossary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+}
+
+.glossary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.glossary-button--primary {
+  background: #0f766e;
+  color: #f8fafc;
+}
+
+.glossary-button--success {
+  background: #166534;
+  color: #f8fafc;
+}
+
+.glossary-button--warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.glossary-button--ghost {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.glossary-button--danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 900px) {
+  .glossary-field--wide {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .glossary-page {
+    padding: 16px;
+  }
+
+  .word-card__header,
+  .word-card__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .word-card__meta {
+    align-items: flex-start;
+  }
+
+  .word-card__actions {
+    width: 100%;
+  }
+
+  .word-card__actions .glossary-button,
+  .study-card__actions .glossary-button {
+    width: 100%;
+  }
+}

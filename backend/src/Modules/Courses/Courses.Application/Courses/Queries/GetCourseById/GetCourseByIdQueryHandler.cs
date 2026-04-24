@@ -30,6 +30,16 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Res
         if (course == null)
             return Result.Failure<CourseDetailDto>("Курс не найден.");
 
+        var isAdmin = string.Equals(request.UserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+        var isCourseTeacher = !string.IsNullOrWhiteSpace(request.UserId)
+            && course.TeacherId == request.UserId;
+
+        if (course.IsArchived && !isAdmin && !isCourseTeacher)
+            return Result.Failure<CourseDetailDto>("Курс не найден.");
+
+        if (!course.IsPublished && !isAdmin && !isCourseTeacher)
+            return Result.Failure<CourseDetailDto>("Курс не найден.");
+
         return Result.Success(_mapper.Map<CourseDetailDto>(course));
     }
 }

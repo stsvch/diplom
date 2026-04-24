@@ -71,6 +71,25 @@
   &:hover { color: $primary; border-color: $primary-ring; }
 }
 
+.review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2 $spacing-3;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  background: $bg-card;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary;
+    border-color: $primary-ring;
+  }
+}
+
 .back {
   display: inline-flex; align-items: center; gap: $spacing-1;
   background: transparent; border: none; color: $text-secondary;

@@ -1,0 +1,236 @@
+<div class="teacher-course-reports">
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Reports / Teacher</p>
+      <h1>Аналитика по курсам</h1>
+      <p class="hero__text">
+        Отдельный срез по курсу: где проседает прогресс, сколько работ зависло около дедлайна
+        и какие студенты требуют ручного внимания.
+      </p>
+    </div>
+
+    <div class="hero__control">
+      <label class="hero__label" for="teacher-course-select">Курс для анализа</label>
+      <select
+        id="teacher-course-select"
+        class="hero__select"
+        [value]="selectedCourseId() ?? ''"
+        [disabled]="dashboardLoading() || !hasCourses()"
+        (change)="onCourseChange(($any($event.target).value ?? '').toString())">
+        @for (course of courses(); track course.courseId) {
+          <option [value]="course.courseId">
+            {{ course.title }} • {{ course.disciplineName }}
+          </option>
+        }
+      </select>
+
+      @if (summary(); as s) {
+        <div class="hero__meta">
+          <span [class]="getCourseStateClass(s)">{{ s.isArchived ? 'Архив' : s.isPublished ? 'Опубликован' : 'Черновик' }}</span>
+          <a class="hero__link" [routerLink]="['/teacher/courses', s.courseId, 'editor']">
+            Открыть редактор
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (dashboardLoading() || reportLoading()) {
+    <div class="state">Загружаю аналитику по курсу...</div>
+  } @else if (error()) {
+    <div class="state state--error">
+      <span>{{ error() }}</span>
+      <button class="state__action" type="button" (click)="retry()">Повторить</button>
+    </div>
+  } @else if (!hasCourses()) {
+    <section class="empty-panel">
+      <div>
+        <h2>Для отчётов нужен хотя бы один курс</h2>
+        <p>Создай курс, опубликуй его и запиши студентов, тогда здесь появится course analytics.</p>
+      </div>
+      <a class="hero__link" routerLink="/teacher/courses/new">
+        Создать курс
+        <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+      </a>
+    </section>
+  } @else if (summary(); as s) {
+    <section class="stats-grid">
+      <app-stats-card
+        title="Студенты"
+        [value]="s.activeStudents"
+        subtitle="активных записей"
+        [iconName]="StudentsIcon"
+        iconBg="#DBEAFE"
+        iconColor="#1D4ED8"
+      />
+      <app-stats-card
+        title="Уроки"
+        [value]="s.totalLessons"
+        subtitle="в структуре курса"
+        [iconName]="BookOpenIcon"
+        iconBg="#FEF3C7"
+        iconColor="#B45309"
+      />
+      <app-stats-card
+        title="Ср. прогресс"
+        [value]="formatPercent(s.averageProgressPercent)"
+        subtitle="по активным студентам"
+        [iconName]="ProgressIcon"
+        iconBg="#DCFCE7"
+        iconColor="#15803D"
+      />
+      <app-stats-card
+        title="Completion"
+        [value]="formatPercent(s.completionRatePercent)"
+        subtitle="студентов дошли до конца"
+        [iconName]="ProgressIcon"
+        iconBg="#ECFCCB"
+        iconColor="#4D7C0F"
+      />
+      <app-stats-card
+        title="Ср. балл"
+        [value]="formatPercent(s.averageGradePercent)"
+        subtitle="по graded активности"
+        [iconName]="GradeIcon"
+        iconBg="#EDE9FE"
+        iconColor="#6D28D9"
+      />
+      <app-stats-card
+        title="На проверке"
+        [value]="s.pendingReviewsCount"
+        subtitle="assignment/test queue"
+        [iconName]="ReviewIcon"
+        iconBg="#FEE2E2"
+        iconColor="#B91C1C"
+      />
+      <app-stats-card
+        title="Зона риска"
+        [value]="s.overdueStudentsCount"
+        subtitle="студентов с overdue work"
+        [iconName]="OverdueIcon"
+        iconBg="#FDE2E2"
+        iconColor="#B91C1C"
+      />
+      <app-stats-card
+        title="Дедлайны"
+        [value]="s.upcomingDeadlinesCount"
+        [change]="s.overdueAssignmentsCount + ' assignment items, ' + s.overdueTestsCount + ' test items'"
+        changeType="neutral"
+        [iconName]="UpcomingIcon"
+        iconBg="#E0F2FE"
+        iconColor="#0369A1"
+      />
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="panel panel--main">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Risk Watch</p>
+            <h2>Студенты, которым нужен фокус</h2>
+          </div>
+        </div>
+
+        @if (!atRiskStudents().length) {
+          <div class="panel__empty">Сейчас по курсу нет явной зоны риска: overdue и low-progress студентов не найдено.</div>
+        } @else {
+          <div class="student-list">
+            @for (student of atRiskStudents(); track student.studentId) {
+              <article class="student-card">
+                <div class="student-card__head">
+                  <div>
+                    <h3>{{ student.studentName }}</h3>
+                    <p>{{ formatStudentProgress(student) }} уроков • {{ formatPercent(student.progressPercent) }}</p>
+                  </div>
+                  <span [class]="getRiskClass(student)">{{ getRiskLabel(student) }}</span>
+                </div>
+
+                <div class="student-card__stats">
+                  <div>
+                    <span>Ср. балл</span>
+                    <strong>{{ student.averageGradePercent != null ? formatPercent(student.averageGradePercent) : '—' }}</strong>
+                  </div>
+                  <div>
+                    <span>Просрочено заданий</span>
+                    <strong>{{ student.overdueAssignmentsCount }}</strong>
+                  </div>
+                  <div>
+                    <span>Просрочено тестов</span>
+                    <strong>{{ student.overdueTestsCount }}</strong>
+                  </div>
+                  <div>
+                    <span>На ручной проверке</span>
+                    <strong>{{ student.pendingReviewCount }}</strong>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Distribution</p>
+            <h2>Распределение оценок</h2>
+          </div>
+        </div>
+
+        @if (!hasGradeDistribution()) {
+          <div class="panel__empty">Оценённых работ по курсу пока недостаточно для распределения.</div>
+        } @else {
+          <div class="distribution">
+            @for (bucket of gradeDistribution(); track bucket.label) {
+              <article class="distribution__row">
+                <div class="distribution__meta">
+                  <strong>{{ bucket.label }}</strong>
+                  <span>{{ bucket.count }} работ • {{ formatPercent(bucket.sharePercent) }}</span>
+                </div>
+                <div class="distribution__bar">
+                  <span [style.width.%]="bucket.sharePercent"></span>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Deadlines</p>
+            <h2>Дедлайны и нагрузка</h2>
+          </div>
+        </div>
+
+        @if (!deadlines().length) {
+          <div class="panel__empty">Критичных дедлайнов и review-pressure по курсу сейчас нет.</div>
+        } @else {
+          <div class="deadline-list">
+            @for (item of deadlines(); track item.kind + '-' + item.sourceId) {
+              <a class="deadline-item" [routerLink]="getDeadlineRoute(item)">
+                <div class="deadline-item__copy">
+                  <div class="deadline-item__meta">
+                    <span class="pill">{{ getDeadlineKindLabel(item) }}</span>
+                    <span [class]="getDeadlineClass(item)">{{ getDeadlineStatus(item) }}</span>
+                  </div>
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ formatDeadline(item.deadline) }}</p>
+                </div>
+                <div class="deadline-item__stats">
+                  <strong>{{ item.affectedStudentsCount }}</strong>
+                  <small>студентов затронуто</small>
+                  @if (item.pendingReviewsCount > 0) {
+                    <span>{{ item.pendingReviewsCount }} ждут review</span>
+                  }
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

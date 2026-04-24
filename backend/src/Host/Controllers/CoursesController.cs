@@ -51,7 +51,10 @@ public class CoursesController : ControllerBase
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetCourseByIdQuery(id), cancellationToken);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+
+        var result = await _mediator.Send(new GetCourseByIdQuery(id, userId, role), cancellationToken);
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "COURSE_NOT_FOUND"));
 

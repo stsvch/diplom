@@ -1,0 +1,286 @@
+<div class="admin-analytics">
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Reports / Admin</p>
+      <h1>Platform analytics</h1>
+      <p class="hero__text">
+        Единый срез по росту пользователей, активности курсов, платёжному потоку и подпискам,
+        чтобы видеть платформу целиком, а не только по отдельным административным разделам.
+      </p>
+    </div>
+
+    @if (summary(); as s) {
+      <div class="hero__meter">
+        <div class="hero__value">{{ formatMoneyBreakdown(s.grossRevenue30DaysByCurrency) }}</div>
+        <div class="hero__label">Gross volume за 30 дней</div>
+        <div class="hero__chips">
+          <span class="hero__chip">{{ s.activeEnrollments }} активных записей</span>
+          <span class="hero__chip hero__chip--accent">{{ s.activeSubscriptions }} активных подписок</span>
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (loading()) {
+    <div class="state">Загружаю platform analytics...</div>
+  } @else if (error()) {
+    <div class="state state--error">
+      <span>{{ error() }}</span>
+      <button class="state__action" type="button" (click)="loadAnalytics()">Повторить</button>
+    </div>
+  } @else if (summary(); as s) {
+    <section class="stats-grid">
+      <app-stats-card
+        title="Пользователи"
+        [value]="s.totalUsers"
+        subtitle="всего на платформе"
+        [iconName]="UsersIcon"
+        iconBg="#DBEAFE"
+        iconColor="#1D4ED8"
+      />
+      <app-stats-card
+        title="Рост 30д"
+        [value]="s.newUsers30Days"
+        subtitle="новых аккаунтов"
+        [iconName]="UserGrowthIcon"
+        iconBg="#DCFCE7"
+        iconColor="#15803D"
+      />
+      <app-stats-card
+        title="Курсы live"
+        [value]="s.publishedCourses"
+        subtitle="опубликованных курсов"
+        [iconName]="CoursesIcon"
+        iconBg="#FEF3C7"
+        iconColor="#B45309"
+      />
+      <app-stats-card
+        title="Активность"
+        [value]="s.activeEnrollments"
+        subtitle="активных записей"
+        [iconName]="ActivityIcon"
+        iconBg="#E0F2FE"
+        iconColor="#0369A1"
+      />
+      <app-stats-card
+        title="GMV 30д"
+        [value]="formatMoneyBreakdown(s.grossRevenue30DaysByCurrency)"
+        subtitle="course payments + paid invoices"
+        [iconName]="RevenueIcon"
+        iconBg="#FDE68A"
+        iconColor="#A16207"
+      />
+      <app-stats-card
+        title="Комиссия 30д"
+        [value]="formatMoneyBreakdown(s.platformCommission30DaysByCurrency)"
+        subtitle="platform commission"
+        [iconName]="CommissionIcon"
+        iconBg="#EDE9FE"
+        iconColor="#6D28D9"
+      />
+      <app-stats-card
+        title="Подписки"
+        [value]="s.activeSubscriptions"
+        subtitle="активных plan holders"
+        [iconName]="SubscriptionsIcon"
+        iconBg="#FCE7F3"
+        iconColor="#BE185D"
+      />
+      <app-stats-card
+        title="Paid invoices"
+        [value]="s.paidInvoices30Days"
+        subtitle="за последние 30 дней"
+        [iconName]="SubscriptionsIcon"
+        iconBg="#ECFCCB"
+        iconColor="#4D7C0F"
+      />
+    </section>
+
+    <div class="dashboard-grid">
+      <section class="panel panel--wide">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Trends</p>
+            <h2>Последние 14 дней</h2>
+          </div>
+        </div>
+
+        <div class="trend-list">
+          @for (item of trends(); track item.date) {
+            <article class="trend-item">
+              <div class="trend-item__date">{{ item.label }}</div>
+              <div class="trend-item__metric">
+                <span>Users {{ item.newUsers }}</span>
+                <div class="bar bar--users"><span [style.width.%]="getUsersWidth(item)"></span></div>
+              </div>
+              <div class="trend-item__metric">
+                <span>Enrollments {{ item.newEnrollments }}</span>
+                <div class="bar bar--enrollments"><span [style.width.%]="getEnrollmentsWidth(item)"></span></div>
+              </div>
+              <div class="trend-item__metric">
+                <span>Revenue {{ formatMoneyBreakdown(item.revenueByCurrency) }}</span>
+                @if (hasSingleCurrency(item.revenueByCurrency)) {
+                  <div class="bar bar--revenue"><span [style.width.%]="getRevenueWidth(item)"></span></div>
+                } @else {
+                  <small class="trend-item__note">multi-currency breakdown</small>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Payments</p>
+            <h2>Платёжное здоровье</h2>
+          </div>
+          <a class="panel-link" routerLink="/admin/payments">
+            Платежи
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+
+        @if (payments(); as p) {
+          <div class="health-grid">
+            <article class="health-card">
+              <span>Успешных оплат</span>
+              <strong>{{ p.successfulPayments30Days }}</strong>
+              <small>{{ p.coursePurchases30Days }} course payments</small>
+            </article>
+            <article class="health-card health-card--warn">
+              <span>Ошибок / отмен</span>
+              <strong>{{ p.failedPayments30Days }}</strong>
+              <small>failed + canceled + expired</small>
+            </article>
+            <article class="health-card health-card--warn">
+              <span>Refunded</span>
+              <strong>{{ p.refundedPayments30Days }}</strong>
+              <small>refund pressure за 30д</small>
+            </article>
+            <article class="health-card health-card--risk">
+              <span>Disputed</span>
+              <strong>{{ p.disputedPayments30Days }}</strong>
+              <small>chargeback / dispute flow</small>
+            </article>
+          </div>
+        }
+
+        @if (subscriptions(); as subs) {
+          <div class="panel__subsection">
+            <div class="panel__subheader">
+              <p class="panel__eyebrow">Subscriptions</p>
+              <h3>Recurring layer</h3>
+            </div>
+
+            <div class="health-grid">
+              <article class="health-card">
+                <span>Active</span>
+                <strong>{{ subs.activeCount }}</strong>
+                <small>живых подписок</small>
+              </article>
+              <article class="health-card">
+                <span>Trialing</span>
+                <strong>{{ subs.trialingCount }}</strong>
+                <small>ещё не fully billed</small>
+              </article>
+              <article class="health-card health-card--warn">
+                <span>Past due</span>
+                <strong>{{ subs.pastDueCount }}</strong>
+                <small>нужен retry / follow-up</small>
+              </article>
+              <article class="health-card">
+                <span>Approx. MRR</span>
+                <strong>{{ formatMoneyBreakdown(subs.approximateMonthlyRecurringRevenueByCurrency) }}</strong>
+                <small>{{ subs.canceled30Days }} отмен за 30д</small>
+              </article>
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Top Courses</p>
+            <h2>Лидеры по выручке</h2>
+          </div>
+          <a class="panel-link" routerLink="/admin/courses">
+            Курсы
+            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+          </a>
+        </div>
+
+        @if (!topCourses().length) {
+          <div class="panel__empty">Пока нет данных по курсам.</div>
+        } @else {
+          <div class="leader-list">
+            @for (course of topCourses(); track course.courseId + '-' + course.currency) {
+              <article class="leader-card">
+                <div class="leader-card__meta">
+                  <div>
+                    <h3>{{ course.title }}</h3>
+                    <p>{{ course.disciplineName }} • {{ course.teacherName }}</p>
+                  </div>
+                  <span class="pill" [class.pill--success]="course.isPublished">
+                    {{ course.isPublished ? 'Published' : 'Draft/Archived' }}
+                  </span>
+                </div>
+                @if (canCompareCourseRevenue()) {
+                  <div class="leader-card__bar">
+                    <span [style.width.%]="getCourseRevenueWidth(course)"></span>
+                  </div>
+                } @else {
+                  <small class="trend-item__note">multi-currency ranking</small>
+                }
+                <div class="leader-card__facts">
+                  <strong>{{ formatMoney(course.grossRevenue, course.currency) }}</strong>
+                  <small>{{ course.activeStudents }} активных студентов</small>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="panel__eyebrow">Top Teachers</p>
+            <h2>Кто тянет monetization</h2>
+          </div>
+        </div>
+
+        @if (!topTeachers().length) {
+          <div class="panel__empty">Пока нет данных по преподавателям.</div>
+        } @else {
+          <div class="leader-list">
+            @for (teacher of topTeachers(); track teacher.teacherId + '-' + teacher.currency) {
+              <article class="leader-card">
+                <div class="leader-card__meta">
+                  <div>
+                    <h3>{{ teacher.teacherName }}</h3>
+                    <p>{{ teacher.publishedCourses }} published courses • {{ teacher.activeStudents }} active students</p>
+                  </div>
+                  <lucide-icon [img]="TeachersIcon" size="18"></lucide-icon>
+                </div>
+                @if (canCompareTeacherRevenue()) {
+                  <div class="leader-card__bar leader-card__bar--teacher">
+                    <span [style.width.%]="getTeacherRevenueWidth(teacher)"></span>
+                  </div>
+                } @else {
+                  <small class="trend-item__note">multi-currency ranking</small>
+                }
+                <div class="leader-card__facts">
+                  <strong>{{ formatMoney(teacher.grossRevenue, teacher.currency) }}</strong>
+                  <small>gross revenue by teacher courses</small>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

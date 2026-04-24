@@ -27,6 +27,11 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
         if (discipline == null)
             return Result.Failure<CourseDetailDto>("Дисциплина не найдена.");
 
+        if (request.IsFree)
+            request = request with { Price = null };
+        else if (!request.Price.HasValue || request.Price.Value <= 0)
+            return Result.Failure<CourseDetailDto>("Для платного курса цена должна быть больше 0.");
+
         var course = new Course
         {
             DisciplineId = request.DisciplineId,

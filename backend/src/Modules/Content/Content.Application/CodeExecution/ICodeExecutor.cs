@@ -14,7 +14,8 @@ public record CodeExecutionRequest(
     string Language,
     string Code,
     IReadOnlyList<CodeExecutionCase> TestCases,
-    int TimeoutMs);
+    int TimeoutMs,
+    int MemoryLimitMb);
 
 public record CodeExecutionResponse(
     bool Ok,

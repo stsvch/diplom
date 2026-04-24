@@ -127,4 +127,20 @@ export class TeacherCoursesComponent implements OnInit {
     };
     return map[level] ?? level;
   }
+
+  getStatusLabel(course: CourseListDto): string {
+    if (course.isArchived) return 'Архивирован';
+    if (course.isPublished) return 'Опубликован';
+    return 'Черновик';
+  }
+
+  getStatusVariant(course: CourseListDto): 'success' | 'warning' | 'danger' | 'neutral' {
+    if (course.isArchived) return 'danger';
+    if (course.isPublished) return 'success';
+    return 'warning';
+  }
+
+  canManageCourse(course: CourseListDto): boolean {
+    return !course.isArchived;
+  }
 }

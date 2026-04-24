@@ -7,6 +7,7 @@ using Courses.Application.Lessons.Queries.GetLessonById;
 using Courses.Application.Lessons.Queries.GetModuleLessons;
 using Courses.Domain.Entities;
 using EduPlatform.Shared.Application.Models;
+using EduPlatform.Host.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,25 +20,43 @@ namespace EduPlatform.Host.Controllers;
 public class LessonsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly LessonAccessService _lessonAccess;
 
-    public LessonsController(IMediator mediator)
+    public LessonsController(IMediator mediator, LessonAccessService lessonAccess)
     {
         _mediator = mediator;
+        _lessonAccess = lessonAccess;
     }
 
     [HttpGet("by-module/{moduleId:guid}")]
+    [Authorize]
     [ProducesResponseType(typeof(List<LessonDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByModule(Guid moduleId, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserIdRaw();
+        if (userId is null)
+            return Unauthorized();
+
+        if (!await CanViewModuleAsync(moduleId, userId, cancellationToken))
+            return Forbid();
+
         var result = await _mediator.Send(new GetModuleLessonsQuery(moduleId), cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize]
     [ProducesResponseType(typeof(LessonDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserIdRaw();
+        if (userId is null)
+            return Unauthorized();
+
+        if (!await CanViewLessonAsync(id, userId, cancellationToken))
+            return Forbid();
+
         var result = await _mediator.Send(new GetLessonByIdQuery(id), cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
@@ -48,6 +67,14 @@ public class LessonsController : ControllerBase
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateLessonCommand command, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserIdRaw();
+        if (userId is null)
+            return Unauthorized();
+
+        var canManage = await _lessonAccess.CanTeacherManageModuleAsync(command.ModuleId, userId, cancellationToken);
+        if (!canManage)
+            return Forbid();
+
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "LESSON_CREATE_FAILED"));
@@ -66,6 +93,10 @@ public class LessonsController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized();
 
+        var canManage = await _lessonAccess.CanTeacherManageLessonAsync(id, userId, cancellationToken);
+        if (!canManage)
+            return Forbid();
+
         var command = new UpdateLessonCommand(id, userId, request.Title, request.Description, request.Duration, request.IsPublished, request.Layout, request.ModuleId);
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -80,6 +111,14 @@ public class LessonsController : ControllerBase
     [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserIdRaw();
+        if (userId is null)
+            return Unauthorized();
+
+        var canManage = await _lessonAccess.CanTeacherManageLessonAsync(id, userId, cancellationToken);
+        if (!canManage)
+            return Forbid();
+
         var result = await _mediator.Send(new DeleteLessonCommand(id), cancellationToken);
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "LESSON_NOT_FOUND"));
@@ -92,12 +131,58 @@ public class LessonsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Reorder([FromBody] ReorderLessonsCommand command, CancellationToken cancellationToken)
     {
+        var userId = GetCurrentUserIdRaw();
+        if (userId is null)
+            return Unauthorized();
+
+        var canManage = await _lessonAccess.CanTeacherManageModuleAsync(command.ModuleId, userId, cancellationToken);
+        if (!canManage)
+            return Forbid();
+
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "LESSON_REORDER_FAILED"));
 
         return Ok(new { message = result.Value });
     }
+
+    private async Task<bool> CanViewModuleAsync(Guid moduleId, string userId, CancellationToken cancellationToken)
+    {
+        if (IsAdmin())
+            return true;
+
+        if (IsTeacher())
+            return await _lessonAccess.CanTeacherManageModuleAsync(moduleId, userId, cancellationToken);
+
+        if (IsStudent())
+            return await _lessonAccess.CanStudentAccessModuleAsync(moduleId, userId, cancellationToken);
+
+        return false;
+    }
+
+    private async Task<bool> CanViewLessonAsync(Guid lessonId, string userId, CancellationToken cancellationToken)
+    {
+        if (IsAdmin())
+            return true;
+
+        if (IsTeacher())
+            return await _lessonAccess.CanTeacherManageLessonAsync(lessonId, userId, cancellationToken);
+
+        if (IsStudent())
+            return await _lessonAccess.CanStudentAccessLessonAsync(lessonId, userId, cancellationToken);
+
+        return false;
+    }
+
+    private string? GetCurrentUserIdRaw()
+    {
+        return User.FindFirstValue(ClaimTypes.NameIdentifier)
+               ?? User.FindFirst("sub")?.Value;
+    }
+
+    private bool IsTeacher() => User.IsInRole("Teacher");
+    private bool IsStudent() => User.IsInRole("Student");
+    private bool IsAdmin() => User.IsInRole("Admin");
 }
 
 public record UpdateLessonRequest(string Title, string? Description, int? Duration, bool? IsPublished, LessonLayout? Layout = null, Guid? ModuleId = null);

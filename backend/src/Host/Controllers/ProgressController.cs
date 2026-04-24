@@ -1,5 +1,6 @@
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Models;
+using EduPlatform.Host.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +21,18 @@ public class ProgressController : ControllerBase
     private readonly IMediator _mediator;
     private readonly ICoursesDbContext _coursesDb;
     private readonly IProgressDbContext _progressDb;
+    private readonly LessonAccessService _lessonAccess;
 
     public ProgressController(
         IMediator mediator,
         ICoursesDbContext coursesDb,
-        IProgressDbContext progressDb)
+        IProgressDbContext progressDb,
+        LessonAccessService lessonAccess)
     {
         _mediator = mediator;
         _coursesDb = coursesDb;
         _progressDb = progressDb;
+        _lessonAccess = lessonAccess;
     }
 
     [HttpPost("lessons/{lessonId:guid}/complete")]
@@ -36,6 +40,9 @@ public class ProgressController : ControllerBase
     public async Task<IActionResult> CompleteLesson(Guid lessonId, CancellationToken ct)
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (!await _lessonAccess.CanStudentAccessLessonAsync(lessonId, studentId, ct))
+            return Forbid();
+
         var result = await _mediator.Send(new CompleteLessonCommand(lessonId, studentId), ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "COMPLETE_FAILED"));
         return Ok(result.Value);
@@ -46,16 +53,24 @@ public class ProgressController : ControllerBase
     public async Task<IActionResult> UncompleteLesson(Guid lessonId, CancellationToken ct)
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (!await _lessonAccess.CanStudentAccessLessonAsync(lessonId, studentId, ct))
+            return Forbid();
+
         var result = await _mediator.Send(new UncompleteLessonCommand(lessonId, studentId), ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "UNCOMPLETE_FAILED"));
         return Ok(new { message = "Lesson marked as not completed" });
     }
 
     [HttpGet("courses/{courseId:guid}")]
-    [Authorize]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> GetCourseProgress(Guid courseId, CancellationToken ct)
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        var hasEnrollment = await _coursesDb.CourseEnrollments
+            .AnyAsync(e => e.CourseId == courseId && e.StudentId == studentId, ct);
+        if (!hasEnrollment)
+            return Forbid();
 
         var lessonIds = await _coursesDb.CourseModules
             .Where(m => m.CourseId == courseId)
@@ -121,10 +136,13 @@ public class ProgressController : ControllerBase
     }
 
     [HttpGet("lessons/{lessonId:guid}")]
-    [Authorize]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> GetLessonProgress(Guid lessonId, CancellationToken ct)
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (!await _lessonAccess.CanStudentAccessLessonAsync(lessonId, studentId, ct))
+            return Forbid();
+
         var progress = await _progressDb.LessonProgresses
             .FirstOrDefaultAsync(p => p.LessonId == lessonId && p.StudentId == studentId, ct);
 

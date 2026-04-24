@@ -1,0 +1,389 @@
+<div class="teacher-payouts">
+  <div class="teacher-payouts__header">
+    <div>
+      <h1>Выплаты преподавателя</h1>
+      <p>Подключите выплаты, отслеживайте начисления по покупкам и provider transfer batches по готовым settlement.</p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="teacher-payouts__error">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="teacher-payouts__card">Загружаем статус payout account...</div>
+  } @else if (account()) {
+    <section class="teacher-payouts__card">
+      <div class="teacher-payouts__row">
+        <div>
+          <h2>Статус подключения</h2>
+          <p>
+            @if (account()!.providerConfigured) {
+              Платёжный провайдер подключён.
+            } @else {
+              Платёжный провайдер пока не настроен на backend.
+            }
+          </p>
+        </div>
+        <span [class]="getStatusClass(account()!.status)">{{ getStatusLabel(account()!.status) }}</span>
+      </div>
+
+      <div class="teacher-payouts__facts">
+        <div>
+          <strong>Можно публиковать платные курсы</strong>
+          <span>{{ account()!.canPublishPaidCourses ? 'Да' : 'Нет' }}</span>
+        </div>
+        <div>
+          <strong>Приём платежей</strong>
+          <span>{{ account()!.chargesEnabled ? 'Включён' : 'Не включён' }}</span>
+        </div>
+        <div>
+          <strong>Выплаты</strong>
+          <span>{{ account()!.payoutsEnabled ? 'Включены' : 'Не включены' }}</span>
+        </div>
+        <div>
+          <strong>Данные отправлены</strong>
+          <span>{{ account()!.detailsSubmitted ? 'Да' : 'Нет' }}</span>
+        </div>
+      </div>
+
+      @if (account()!.requirementsSummary) {
+        <div class="teacher-payouts__warning">
+          <strong>Что ещё требуется:</strong>
+          <span>{{ account()!.requirementsSummary }}</span>
+        </div>
+      }
+
+      <div class="teacher-payouts__actions">
+        <app-button
+          variant="primary"
+          [loading]="connecting()"
+          [disabled]="!account()!.providerConfigured"
+          (click)="connectPayouts()">
+          @if (account()!.status === 'Ready') {
+            Открыть онбординг повторно
+          } @else {
+            Подключить выплаты
+          }
+        </app-button>
+
+        @if (account()!.providerConfigured && account()!.status !== 'NotStarted') {
+          <app-button
+            variant="outline"
+            [loading]="openingDashboard()"
+            (click)="openDashboard()">
+            Открыть payout dashboard
+          </app-button>
+        }
+      </div>
+    </section>
+
+    @if (summary()) {
+      <section class="teacher-payouts__stats">
+        <div class="teacher-payouts__stat-card">
+          <span>Всего начислено</span>
+          <strong>{{ formatAmount(summary()!.totalGrossAmount, summary()!.currency) }}</strong>
+          <small>
+            {{ summary()!.settlementsCount }} записей ledger, из них {{ summary()!.subscriptionAllocationCount }} по подписке
+          </small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>Чистое начисление</span>
+          <strong>{{ formatAmount(summary()!.totalNetAmount, summary()!.currency) }}</strong>
+          <small>После platform commission и provider fee</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>В холде</span>
+          <strong>{{ formatAmount(summary()!.pendingNetAmount, summary()!.currency) }}</strong>
+          <small>До окончания hold window</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>Доступно к выплате</span>
+          <strong>{{ formatAmount(summary()!.readyForPayoutNetAmount, summary()!.currency) }}</strong>
+          <small>Ещё не выведено провайдером</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>В payout batch</span>
+          <strong>{{ formatAmount(summary()!.inPayoutNetAmount, summary()!.currency) }}</strong>
+          <small>Уже запрошено на вывод</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>Refunded / reversed</span>
+          <strong>{{ formatAmount(summary()!.refundedNetAmount, summary()!.currency) }}</strong>
+          <small>Сумма возвратов, уменьшающих earnings</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>Disputed / chargeback</span>
+          <strong>{{ formatAmount(summary()!.disputedNetAmount, summary()!.currency) }}</strong>
+          <small>Текущие удержания по спорам</small>
+        </div>
+        <div class="teacher-payouts__stat-card">
+          <span>Subscription allocation</span>
+          <strong>{{ formatAmount(subscriptionAllocationNetTotal(), summary()!.currency) }}</strong>
+          <small>{{ summary()!.subscriptionAllocationCount }} активных строк распределения</small>
+        </div>
+      </section>
+    }
+
+    <section class="teacher-payouts__card">
+      <div class="teacher-payouts__row">
+        <div>
+          <h2>Ledger начислений</h2>
+          <p>Каждая успешная покупка создаёт settlement, а subscription allocations тоже попадают в тот же payout batch при достижении ready state.</p>
+        </div>
+        <app-button
+          variant="primary"
+          [loading]="requestingPayout()"
+          [disabled]="!summary() || summary()!.readyForPayoutNetAmount <= 0"
+          (click)="requestPayout()">
+          Запросить выплату
+        </app-button>
+      </div>
+
+      @if (settlements().length === 0) {
+        <p class="teacher-payouts__empty">Пока нет начислений по платным курсам.</p>
+      } @else {
+        <div class="teacher-payouts__settlements">
+          @for (settlement of settlements(); track settlement.id) {
+            <article class="teacher-payouts__settlement">
+              <div class="teacher-payouts__settlement-main">
+                <div>
+                  <strong>{{ settlement.courseTitle }}</strong>
+                  <p>Студент: {{ settlement.studentName }}</p>
+                  <p>Создано: {{ formatDate(settlement.createdAt) }}</p>
+                </div>
+                <span [class]="getSettlementStatusClass(settlement.status)">
+                  {{ getSettlementStatusLabel(settlement.status) }}
+                </span>
+              </div>
+
+              <div class="teacher-payouts__settlement-facts">
+                <div>
+                  <span>Сумма платежа</span>
+                  <strong>{{ formatAmount(settlement.grossAmount, settlement.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Комиссия платформы</span>
+                  <strong>{{ formatAmount(settlement.platformCommissionAmount, settlement.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Комиссия провайдера</span>
+                  <strong>{{ formatAmount(settlement.providerFeeAmount, settlement.currency) }}</strong>
+                </div>
+                <div>
+                  <span>К выплате преподавателю</span>
+                  <strong>{{ formatAmount(settlement.netAmount, settlement.currency) }}</strong>
+                </div>
+                @if (settlement.refundedNetAmount > 0) {
+                  <div>
+                    <span>Возвращено / сторнировано</span>
+                    <strong>{{ formatAmount(settlement.refundedNetAmount, settlement.currency) }}</strong>
+                  </div>
+                }
+                @if (settlement.disputedNetAmount > 0) {
+                  <div>
+                    <span>Удержано по спорам</span>
+                    <strong>{{ formatAmount(settlement.disputedNetAmount, settlement.currency) }}</strong>
+                  </div>
+                }
+              </div>
+
+              <div class="teacher-payouts__timeline">
+                <span>Будет доступно: {{ formatDate(settlement.availableAt) }}</span>
+                @if (settlement.paidOutAt) {
+                  <span>Выплачено: {{ formatDate(settlement.paidOutAt) }}</span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="teacher-payouts__card">
+      <div class="teacher-payouts__row">
+        <div>
+          <h2>Subscription allocation ledger</h2>
+          <p>Paid subscription invoices платформы распределяются между активными курсами студента по progress-weighted policy.</p>
+        </div>
+      </div>
+
+      @if (subscriptionAllocations().length === 0) {
+        <p class="teacher-payouts__empty">Пока нет распределений подписочной выручки.</p>
+      } @else {
+        <div class="teacher-payouts__settlements">
+          @for (allocation of subscriptionAllocations(); track allocation.id) {
+            <article class="teacher-payouts__settlement">
+              <div class="teacher-payouts__settlement-main">
+                <div>
+                  <strong>{{ allocation.planName }}</strong>
+                  <p>Курс: {{ allocation.courseTitle }}</p>
+                  <p>Распределено: {{ formatDate(allocation.allocatedAt) }}</p>
+                </div>
+                <span [class]="getAllocationStatusClass(allocation.status)">
+                  {{ getAllocationStatusLabel(allocation.status) }}
+                </span>
+              </div>
+
+              <div class="teacher-payouts__settlement-facts">
+                <div>
+                  <span>Доля инвойса</span>
+                  <strong>{{ (allocation.allocationWeight * 100).toFixed(2) }}%</strong>
+                </div>
+                <div>
+                  <span>Прогресс студента</span>
+                  <strong>{{ allocation.completedLessons }}/{{ allocation.totalLessons }}</strong>
+                </div>
+                <div>
+                  <span>Gross allocation</span>
+                  <strong>{{ formatAmount(allocation.grossAmount, allocation.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Комиссия платформы</span>
+                  <strong>{{ formatAmount(allocation.platformCommissionAmount, allocation.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Net allocation</span>
+                  <strong>{{ formatAmount(allocation.netAmount, allocation.currency) }}</strong>
+                </div>
+              </div>
+
+              <div class="teacher-payouts__timeline">
+                <span [class]="getAllocationPayoutStatusClass(allocation.payoutStatus)">
+                  {{ getAllocationPayoutStatusLabel(allocation.payoutStatus) }}
+                </span>
+                <span>Доступно к выплате: {{ formatDate(allocation.availableAt) }}</span>
+                @if (allocation.paidOutAt) {
+                  <span>Выплачено: {{ formatDate(allocation.paidOutAt) }}</span>
+                }
+                @if (allocation.periodStart && allocation.periodEnd) {
+                  <span>Период инвойса: {{ formatDate(allocation.periodStart) }} - {{ formatDate(allocation.periodEnd) }}</span>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="teacher-payouts__card">
+      <div class="teacher-payouts__row">
+        <div>
+          <h2>История payout batches</h2>
+          <p>Это отдельный слой поверх начислений: batch фиксирует, какие settlement и subscription allocation lines были отправлены провайдеру как transfer.</p>
+        </div>
+      </div>
+
+      @if (payouts().length === 0) {
+        <p class="teacher-payouts__empty">Пока нет payout batches.</p>
+      } @else {
+        <div class="teacher-payouts__settlements">
+          @for (payout of payouts(); track payout.id) {
+            <article class="teacher-payouts__settlement">
+              <div class="teacher-payouts__settlement-main">
+                <div>
+                  <strong>Payout batch {{ payout.id.slice(0, 8) }}</strong>
+                  <p>Запрошено: {{ formatDate(payout.requestedAt) }}</p>
+                  @if (payout.providerTransferId) {
+                    <p>Provider transfer: {{ payout.providerTransferId }}</p>
+                  }
+                </div>
+                <span [class]="getPayoutStatusClass(payout.status)">
+                  {{ getPayoutStatusLabel(payout.status) }}
+                </span>
+              </div>
+
+              <div class="teacher-payouts__settlement-facts">
+                <div>
+                  <span>Сумма выплаты</span>
+                  <strong>{{ formatAmount(payout.amount, payout.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Settlement'ов в batch</span>
+                  <strong>{{ payout.settlementsCount }}</strong>
+                </div>
+                <div>
+                  <span>Subscription lines в batch</span>
+                  <strong>{{ payout.allocationLinesCount }}</strong>
+                </div>
+                @if (payout.paidAt) {
+                  <div>
+                    <span>Подтверждено</span>
+                    <strong>{{ formatDate(payout.paidAt) }}</strong>
+                  </div>
+                } @else if (payout.failedAt) {
+                  <div>
+                    <span>Ошибка</span>
+                    <strong>{{ formatDate(payout.failedAt) }}</strong>
+                  </div>
+                }
+              </div>
+
+              @if (payout.failureMessage) {
+                <div class="teacher-payouts__warning">
+                  <strong>Причина:</strong>
+                  <span>{{ payout.failureMessage }}</span>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="teacher-payouts__card">
+      <div class="teacher-payouts__row">
+        <div>
+          <h2>Споры и chargeback</h2>
+          <p>Отдельный слой риска поверх оплат. Спор может временно или окончательно уменьшать доступный payout.</p>
+        </div>
+      </div>
+
+      @if (disputes().length === 0) {
+        <p class="teacher-payouts__empty">Споров по платным курсам пока не было.</p>
+      } @else {
+        <div class="teacher-payouts__settlements">
+          @for (dispute of disputes(); track dispute.id) {
+            <article class="teacher-payouts__settlement">
+              <div class="teacher-payouts__settlement-main">
+                <div>
+                  <strong>{{ dispute.courseTitle }}</strong>
+                  <p>Открыт: {{ formatDate(dispute.openedAt) }}</p>
+                  @if (dispute.reason) {
+                    <p>Причина: {{ dispute.reason }}</p>
+                  }
+                </div>
+                <span [class]="getDisputeStatusClass(dispute.status)">
+                  {{ getDisputeStatusLabel(dispute.status) }}
+                </span>
+              </div>
+
+              <div class="teacher-payouts__settlement-facts">
+                <div>
+                  <span>Сумма спора</span>
+                  <strong>{{ formatAmount(dispute.amount, dispute.currency) }}</strong>
+                </div>
+                <div>
+                  <span>Влияние на earnings</span>
+                  <strong>{{ formatAmount(dispute.teacherNetDisputeAmount, dispute.currency) }}</strong>
+                </div>
+                @if (dispute.evidenceDueBy) {
+                  <div>
+                    <span>Ответ до</span>
+                    <strong>{{ formatDate(dispute.evidenceDueBy) }}</strong>
+                  </div>
+                }
+                @if (dispute.closedAt) {
+                  <div>
+                    <span>Закрыт</span>
+                    <strong>{{ formatDate(dispute.closedAt) }}</strong>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

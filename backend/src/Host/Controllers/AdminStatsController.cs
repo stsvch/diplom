@@ -1,5 +1,6 @@
 using Auth.Application.Queries.GetDashboardStats;
 using Courses.Application.Courses.Queries.GetCourseStats;
+using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,12 @@ namespace EduPlatform.Host.Controllers;
 public class AdminStatsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly AdminAnalyticsReadService _analytics;
 
-    public AdminStatsController(IMediator mediator)
+    public AdminStatsController(IMediator mediator, AdminAnalyticsReadService analytics)
     {
         _mediator = mediator;
+        _analytics = analytics;
     }
 
     [HttpGet("dashboard")]
@@ -35,5 +38,12 @@ public class AdminStatsController : ControllerBase
             users = users.Value,
             courses = courses.Value,
         });
+    }
+
+    [HttpGet("analytics")]
+    public async Task<IActionResult> Analytics(CancellationToken cancellationToken)
+    {
+        var analytics = await _analytics.GetAsync(cancellationToken);
+        return Ok(analytics);
     }
 }

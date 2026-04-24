@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.IO;
+using System.ComponentModel;
 using Content.Application.CodeExecution;
 
 namespace Content.Infrastructure.Services;
@@ -11,6 +13,8 @@ public class ProcessCodeExecutor : ICodeExecutor
 {
     public async Task<CodeExecutionResponse> ExecuteAsync(CodeExecutionRequest request, CancellationToken cancellationToken = default)
     {
+        _ = request.MemoryLimitMb; // MVP executor does not enforce memory limits yet.
+
         var lang = request.Language.ToLowerInvariant();
         var (exe, ext, stdinMode) = lang switch
         {
@@ -39,6 +43,10 @@ public class ProcessCodeExecutor : ICodeExecutor
                 results.Add(result);
             }
         }
+        catch (CodeExecutionInfrastructureException e)
+        {
+            return new CodeExecutionResponse(false, Array.Empty<CodeExecutionCaseResult>(), e.Message);
+        }
         finally
         {
             try { Directory.Delete(tmpDir, recursive: true); } catch { }
@@ -63,41 +71,74 @@ public class ProcessCodeExecutor : ICodeExecutor
                 CreateNoWindow = true,
             };
 
-            using var proc = Process.Start(psi);
-            if (proc is null)
-                return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, "", false, tc.IsHidden, $"Не удалось запустить {exe}");
-
-            if (!string.IsNullOrEmpty(tc.Input))
-            {
-                await proc.StandardInput.WriteLineAsync(tc.Input);
-                proc.StandardInput.Close();
-            }
-
-            using var timeoutCts = new CancellationTokenSource(timeoutMs);
-            using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
-
+            Process? proc;
             try
             {
-                await proc.WaitForExitAsync(linked.Token);
+                proc = Process.Start(psi);
             }
-            catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+            catch (Win32Exception)
             {
-                try { proc.Kill(entireProcessTree: true); } catch { }
-                return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, "", false, tc.IsHidden, "Таймаут");
+                throw CreateRuntimeUnavailableException(exe);
+            }
+            catch (FileNotFoundException)
+            {
+                throw CreateRuntimeUnavailableException(exe);
             }
 
-            var stdout = (await proc.StandardOutput.ReadToEndAsync()).Trim();
-            var stderr = (await proc.StandardError.ReadToEndAsync()).Trim();
+            if (proc is null)
+                throw CreateRuntimeUnavailableException(exe);
 
-            if (proc.ExitCode != 0 && !string.IsNullOrEmpty(stderr))
-                return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, stdout, false, tc.IsHidden, stderr);
+            using (proc)
+            {
+                if (!string.IsNullOrEmpty(tc.Input))
+                {
+                    await proc.StandardInput.WriteLineAsync(tc.Input);
+                    proc.StandardInput.Close();
+                }
 
-            var passed = string.Equals(stdout.Trim(), tc.ExpectedOutput.Trim(), StringComparison.Ordinal);
-            return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, stdout, passed, tc.IsHidden, null);
+                using var timeoutCts = new CancellationTokenSource(timeoutMs);
+                using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
+
+                try
+                {
+                    await proc.WaitForExitAsync(linked.Token);
+                }
+                catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+                {
+                    try { proc.Kill(entireProcessTree: true); } catch { }
+                    return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, "", false, tc.IsHidden, "Таймаут");
+                }
+
+                var stdout = (await proc.StandardOutput.ReadToEndAsync()).Trim();
+                var stderr = (await proc.StandardError.ReadToEndAsync()).Trim();
+
+                if (proc.ExitCode != 0 && !string.IsNullOrEmpty(stderr))
+                    return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, stdout, false, tc.IsHidden, stderr);
+
+                var passed = string.Equals(stdout.Trim(), tc.ExpectedOutput.Trim(), StringComparison.Ordinal);
+                return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, stdout, passed, tc.IsHidden, null);
+            }
+        }
+        catch (CodeExecutionInfrastructureException)
+        {
+            throw;
         }
         catch (Exception e)
         {
             return new CodeExecutionCaseResult(tc.Input, tc.ExpectedOutput, "", false, tc.IsHidden, e.Message);
+        }
+    }
+
+    private static CodeExecutionInfrastructureException CreateRuntimeUnavailableException(string exe)
+    {
+        return new CodeExecutionInfrastructureException(
+            $"Не удалось запустить runtime {exe}. Убедитесь, что он установлен и доступен в PATH.");
+    }
+
+    private sealed class CodeExecutionInfrastructureException : Exception
+    {
+        public CodeExecutionInfrastructureException(string message) : base(message)
+        {
         }
     }
 }

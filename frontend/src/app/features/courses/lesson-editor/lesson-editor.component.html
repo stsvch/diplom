@@ -17,6 +17,10 @@
       <button type="button" class="settings-btn" (click)="showLessonSettings.set(!showLessonSettings())">
         <lucide-icon name="settings" size="16"></lucide-icon>
       </button>
+
+      <a class="review-btn" [routerLink]="['/teacher/lesson', lessonId(), 'review']">
+        Проверка решений
+      </a>
     }
 
     <div class="editor-page__save" [attr.data-status]="saveStatus()">

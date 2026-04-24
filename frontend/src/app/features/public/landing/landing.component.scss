@@ -1,0 +1,397 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.landing {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(#0f766e, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba($primary, 0.18), transparent 26%),
+    linear-gradient(180deg, #f7f7f0 0%, #eef3f7 48%, #f8fafc 100%);
+  color: $text-foreground;
+  padding: $spacing-6;
+
+  @include respond-to(md) {
+    padding: $spacing-4;
+  }
+
+  &__hero-shell {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: $spacing-6;
+    border: 1px solid rgba(#0f172a, 0.06);
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(#fefce8, 0.92) 0%, rgba(#ffffff, 0.92) 42%, rgba(#eef2ff, 0.92) 100%);
+    box-shadow: 0 24px 80px rgba(#0f172a, 0.08);
+
+    @include respond-to(md) {
+      padding: $spacing-4;
+      border-radius: 22px;
+    }
+  }
+
+  &__topbar {
+    @include flex-between;
+    gap: $spacing-4;
+    margin-bottom: $spacing-10;
+
+    @include respond-to(md) {
+      flex-direction: column;
+      align-items: stretch;
+      margin-bottom: $spacing-8;
+    }
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-3;
+    text-decoration: none;
+    color: $text-foreground;
+  }
+
+  &__brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: linear-gradient(135deg, #0f766e 0%, $primary 100%);
+    box-shadow: 0 14px 28px rgba($primary, 0.24);
+  }
+
+  &__brand-text {
+    font-size: 1.15rem;
+    font-weight: $font-weight-bold;
+    letter-spacing: -0.03em;
+  }
+
+  &__nav {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    @include respond-to(md) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  &__nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 $spacing-4;
+    border-radius: 999px;
+    text-decoration: none;
+    color: $text-foreground;
+    background: rgba(#ffffff, 0.72);
+    border: 1px solid rgba(#0f172a, 0.08);
+    transition: transform $transition-fast, box-shadow $transition-fast, background $transition-fast;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: $shadow-md;
+    }
+
+    &--primary {
+      background: $text-foreground;
+      color: #fff;
+      border-color: $text-foreground;
+    }
+  }
+
+  &__hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.9fr);
+    gap: $spacing-8;
+
+    @include respond-to(lg) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__hero-copy {
+    padding: $spacing-4 0;
+  }
+
+  &__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    min-height: 34px;
+    padding: 0 $spacing-3;
+    border-radius: 999px;
+    margin-bottom: $spacing-5;
+    background: rgba(#ffffff, 0.8);
+    border: 1px solid rgba(#0f172a, 0.08);
+    color: #0f766e;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__title {
+    margin: 0 0 $spacing-5;
+    font-size: clamp(2.4rem, 5vw, 4.7rem);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+    max-width: 14ch;
+  }
+
+  &__subtitle {
+    max-width: 62ch;
+    margin: 0;
+    color: $text-secondary;
+    font-size: 1.04rem;
+    line-height: 1.75;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-3;
+    margin-top: $spacing-8;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 $spacing-5;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: $font-weight-semibold;
+    transition: transform $transition-fast, box-shadow $transition-fast, background $transition-fast;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+
+    &--primary {
+      background: linear-gradient(135deg, #0f766e 0%, $primary 100%);
+      color: #fff;
+    }
+
+    &--ghost {
+      background: rgba(#ffffff, 0.88);
+      color: $text-foreground;
+      border: 1px solid rgba(#0f172a, 0.08);
+    }
+
+    &--outline {
+      background: transparent;
+      color: $text-foreground;
+      border: 1px dashed rgba(#0f172a, 0.24);
+    }
+  }
+
+  &__hero-panel {
+    display: grid;
+    gap: $spacing-4;
+    align-content: start;
+  }
+
+  &__hero-card {
+    padding: $spacing-5;
+    border-radius: 22px;
+    background: rgba(#ffffff, 0.78);
+    border: 1px solid rgba(#0f172a, 0.08);
+    box-shadow: $shadow-md;
+
+    strong {
+      display: block;
+      margin-bottom: $spacing-2;
+      font-size: 1.05rem;
+      line-height: 1.45;
+    }
+
+    p {
+      margin: 0;
+      color: $text-secondary;
+      line-height: 1.6;
+    }
+
+    &--accent {
+      background: linear-gradient(160deg, rgba(#0f766e, 0.92) 0%, rgba($primary, 0.92) 100%);
+      color: #fff;
+
+      p {
+        color: rgba(#ffffff, 0.82);
+      }
+    }
+  }
+
+  &__hero-label {
+    display: inline-flex;
+    margin-bottom: $spacing-3;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: inherit;
+    opacity: 0.76;
+  }
+
+  &__metrics {
+    max-width: 1320px;
+    margin: $spacing-5 auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $spacing-4;
+
+    @include respond-to(lg) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @include respond-to(md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__metric {
+    padding: $spacing-5;
+    border-radius: 22px;
+    background: rgba(#ffffff, 0.86);
+    border: 1px solid rgba(#0f172a, 0.08);
+
+    strong {
+      display: block;
+      margin-bottom: $spacing-2;
+      font-size: 1.8rem;
+      letter-spacing: -0.04em;
+    }
+
+    span {
+      color: $text-secondary;
+      line-height: 1.55;
+    }
+  }
+
+  &__section {
+    max-width: 1320px;
+    margin: $spacing-5 auto 0;
+    padding: $spacing-8;
+    border-radius: 28px;
+    background: rgba(#ffffff, 0.88);
+    border: 1px solid rgba(#0f172a, 0.08);
+    box-shadow: $shadow-md;
+
+    @include respond-to(md) {
+      padding: $spacing-5;
+      border-radius: 22px;
+    }
+
+    &--split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: $spacing-6;
+
+      @include respond-to(lg) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  &__section-heading {
+    max-width: 70ch;
+    margin-bottom: $spacing-6;
+
+    h2 {
+      margin: 0 0 $spacing-3;
+      font-size: clamp(1.7rem, 3vw, 2.6rem);
+      letter-spacing: -0.04em;
+    }
+
+    p {
+      margin: 0;
+      color: $text-secondary;
+      line-height: 1.7;
+    }
+  }
+
+  &__feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: $spacing-4;
+
+    @include respond-to(lg) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @include respond-to(md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__feature {
+    padding: $spacing-5;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(#f8fafc, 0.94) 0%, rgba(#ffffff, 0.94) 100%);
+    border: 1px solid rgba(#0f172a, 0.08);
+
+    h3 {
+      margin: 0 0 $spacing-2;
+      font-size: 1.05rem;
+    }
+
+    p {
+      margin: 0;
+      color: $text-secondary;
+      line-height: 1.65;
+    }
+  }
+
+  &__feature-icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-4;
+    border-radius: 14px;
+    color: #0f766e;
+    background: rgba(#ccfbf1, 0.95);
+  }
+
+  &__checklist h2,
+  &__doc-box h3 {
+    margin: 0 0 $spacing-4;
+    letter-spacing: -0.03em;
+  }
+
+  &__checklist ul {
+    margin: 0;
+    padding-left: $spacing-5;
+    color: $text-secondary;
+    line-height: 1.8;
+  }
+
+  &__doc-box {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    padding: $spacing-5;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(#111827, 0.96) 0%, rgba(#1e293b, 0.96) 100%);
+    color: #fff;
+
+    a {
+      color: rgba(#ffffff, 0.9);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__doc-box-muted {
+    opacity: 0.7;
+    font-size: $font-size-sm;
+  }
+}

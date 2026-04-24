@@ -18,6 +18,7 @@ public class ContentDbContext : BaseDbContext, IContentDbContext
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<LessonBlock> LessonBlocks => Set<LessonBlock>();
     public DbSet<LessonBlockAttempt> LessonBlockAttempts => Set<LessonBlockAttempt>();
+    public DbSet<CodeExerciseRun> CodeExerciseRuns => Set<CodeExerciseRun>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +89,36 @@ public class ContentDbContext : BaseDbContext, IContentDbContext
 
             entity.HasIndex(e => new { e.BlockId, e.UserId }).IsUnique();
             entity.HasIndex(e => e.UserId);
+        });
+
+        modelBuilder.Entity<CodeExerciseRun>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BlockId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.AttemptId);
+            entity.Property(e => e.Kind).HasConversion<string>().HasMaxLength(30);
+            entity.Property(e => e.Language).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Code).IsRequired();
+            entity.Property(e => e.GlobalError).HasMaxLength(4000);
+            entity.Property(e => e.Results)
+                .HasColumnType("jsonb")
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, jsonOptions),
+                    v => JsonSerializer.Deserialize<List<CodeTestCaseResult>>(v, jsonOptions) ?? new List<CodeTestCaseResult>());
+
+            entity.HasOne(e => e.Block)
+                .WithMany()
+                .HasForeignKey(e => e.BlockId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Attempt)
+                .WithMany()
+                .HasForeignKey(e => e.AttemptId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.BlockId, e.UserId, e.CreatedAt });
+            entity.HasIndex(e => e.AttemptId);
         });
     }
 }

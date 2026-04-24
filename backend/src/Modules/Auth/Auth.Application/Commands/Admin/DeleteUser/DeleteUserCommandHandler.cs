@@ -19,9 +19,20 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Resul
 
     public async Task<Result<string>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
+        if (request.UserId == request.ActorUserId)
+            return Result.Failure<string>("Нельзя удалить самого себя.");
+
         var user = await _userManager.FindByIdAsync(request.UserId);
         if (user == null)
             return Result.Failure<string>("Пользователь не найден.");
+
+        var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+        if (isAdmin)
+        {
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            if (admins.Count <= 1)
+                return Result.Failure<string>("Нельзя удалить последнего администратора платформы.");
+        }
 
         var check = await _userDeletionGuard.CheckAsync(request.UserId, cancellationToken);
         if (!check.CanDelete)

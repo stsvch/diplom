@@ -5,11 +5,8 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { CodeExerciseBlockData, CodeTestCase } from '../../models';
 
 const LANGUAGES = [
-  { value: 'csharp', label: 'C#' },
-  { value: 'python', label: 'Python' },
   { value: 'javascript', label: 'JavaScript' },
-  { value: 'java', label: 'Java' },
-  { value: 'cpp', label: 'C++' },
+  { value: 'python', label: 'Python' },
 ];
 
 @Component({
@@ -124,7 +121,8 @@ export class CodeExerciseEditorComponent {
 
   private mapLang(lang: string): string {
     const m: Record<string, string> = {
-      csharp: 'csharp', python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp',
+      python: 'python',
+      javascript: 'javascript',
     };
     return m[lang] ?? 'plaintext';
   }

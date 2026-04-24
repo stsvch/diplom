@@ -22,6 +22,9 @@ export interface CourseListDto {
   duration?: number;
   progress?: number;
   tags?: string;
+  isPublished: boolean;
+  isArchived: boolean;
+  archiveReason?: string | null;
 }
 
 export interface CourseDetailDto extends CourseListDto {

@@ -28,12 +28,19 @@ using Assignments.Infrastructure.Configuration;
 using Assignments.Infrastructure.Persistence;
 using Messaging.Infrastructure.Configuration;
 using Messaging.Infrastructure.Hubs;
+using Payments.Infrastructure.Configuration;
+using Payments.Infrastructure.Persistence;
 using Scheduling.Infrastructure.Configuration;
 using Scheduling.Infrastructure.Persistence;
+using Tools.Infrastructure.Configuration;
+using Tools.Infrastructure.Persistence;
 
 QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.Local.json", optional: true, reloadOnChange: true);
 
 // Serilog
 builder.Host.UseSerilog((context, configuration) =>
@@ -84,9 +91,21 @@ builder.Services.AddMessagingModule(builder.Configuration);
 // Scheduling Module
 builder.Services.AddSchedulingModule(builder.Configuration);
 
+// Payments Module
+builder.Services.AddPaymentsModule(builder.Configuration);
+
+// Tools Module
+builder.Services.AddToolsModule(builder.Configuration);
+
 // Shared MediatR pipeline behavior (validation)
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddScoped<IUserDeletionGuard, UserDeletionGuard>();
+builder.Services.AddScoped<ISubscriptionAllocationReadService, SubscriptionAllocationReadService>();
+builder.Services.AddScoped<LessonAccessService>();
+builder.Services.AddScoped<StudentDashboardReadService>();
+builder.Services.AddScoped<TeacherDashboardReadService>();
+builder.Services.AddScoped<TeacherCourseReportReadService>();
+builder.Services.AddScoped<AdminAnalyticsReadService>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -138,6 +157,12 @@ using (var scope = app.Services.CreateScope())
 
     var schedulingDb = scope.ServiceProvider.GetRequiredService<SchedulingDbContext>();
     await schedulingDb.Database.MigrateAsync();
+
+    var paymentsDb = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
+    await paymentsDb.Database.MigrateAsync();
+
+    var toolsDb = scope.ServiceProvider.GetRequiredService<ToolsDbContext>();
+    await toolsDb.Database.MigrateAsync();
 }
 
 // Middleware

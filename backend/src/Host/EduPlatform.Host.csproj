@@ -30,6 +30,8 @@
     <ProjectReference Include="..\Modules\Calendar\Calendar.Infrastructure\Calendar.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Messaging\Messaging.Infrastructure\Messaging.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Scheduling\Scheduling.Infrastructure\Scheduling.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Payments\Payments.Infrastructure\Payments.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Tools\Tools.Infrastructure\Tools.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

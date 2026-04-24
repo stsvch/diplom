@@ -470,7 +470,16 @@
 
 ## 7.3. Рекомендуемое решение
 
-Подписки вынести в **Phase 2** и реализовывать только после отдельного mini-ADR по revenue allocation.
+Целевой revenue-sharing policy всё ещё требует отдельного mini-ADR, но для текущей реализации допустим безопасный промежуточный вариант:
+
+- paid subscription invoice создаёт `SubscriptionAllocationRun`;
+- распределение идёт по policy `ProgressWeightedActiveEnrollmentsV1`;
+- кандидаты — активные enrollments студента;
+- веса считаются по текущему `course progress` студента;
+- если прогресс по всем активным курсам нулевой, распределение идёт поровну;
+- provider fee для subscription allocation пока считается `0` и не пытается притворяться точным reconciliation-слоем.
+
+Это даёт прозрачный allocation ledger для teacher/admin UI, не ломая текущий one-time payout flow. Финальная payout-интеграция подписочной выручки и revenue-share policy всё ещё остаются следующей фазой.
 
 ### Обязательные сущности для подписок
 
@@ -679,7 +688,15 @@
 
 ## 12.3. Phase 11C — subscriptions
 
-Делать только после отдельного policy-документа по revenue allocation.
+Что уже допустимо в рамках текущей реализации:
+- `SubscriptionPlan`, `UserSubscription`, `SubscriptionInvoice`, `SubscriptionPaymentAttempt`;
+- renewal/invoice tracking;
+- provisional `SubscriptionAllocationRun` и `SubscriptionAllocationLine`.
+
+Что всё ещё требует отдельного policy-документа:
+- финальная формула revenue sharing;
+- payout-интеграция subscription allocations в teacher payouts;
+- reversals/offsets для subscription allocations при refund/dispute/chargeback на production policy.
 
 ---
 
@@ -730,7 +747,7 @@
 - платный курс нельзя публиковать без payout-onboarding преподавателя;
 - успешная оплата фиксируется только по webhook;
 - покупка курса и выплата преподавателю — разные сущности;
-- подписки откладываются до отдельного решения по revenue allocation.
+- финальная payout-policy и revenue-sharing policy для подписок откладываются до отдельного решения; базовый allocation ledger уже может существовать раньше.
 
 ---
 
@@ -746,4 +763,3 @@
 - Saving payment details during payment: https://docs.stripe.com/payments/checkout/save-during-payment
 - Destination charges: https://docs.stripe.com/connect/destination-charges
 - Separate charges and transfers: https://docs.stripe.com/connect/separate-charges-and-transfers
-

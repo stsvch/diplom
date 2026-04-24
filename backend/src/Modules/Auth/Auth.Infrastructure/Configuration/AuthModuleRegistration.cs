@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
@@ -65,6 +66,39 @@ public static class AuthModuleRegistration
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
+            };
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = async context =>
+                {
+                    var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+
+                    var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (string.IsNullOrEmpty(userId))
+                    {
+                        context.Fail("Invalid access token.");
+                        return;
+                    }
+
+                    var user = await userManager.FindByIdAsync(userId);
+                    if (user == null)
+                    {
+                        context.Fail("User not found.");
+                        return;
+                    }
+
+                    if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                    {
+                        context.Fail("User is blocked.");
+                        return;
+                    }
+
+                    var tokenSecurityStamp = context.Principal?.FindFirst("security_stamp")?.Value;
+                    if (!string.Equals(tokenSecurityStamp, user.SecurityStamp, StringComparison.Ordinal))
+                    {
+                        context.Fail("Access token has been revoked.");
+                    }
+                }
             };
         });
 

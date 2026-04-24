@@ -10,11 +10,16 @@ public class PublishCourseCommandHandler : IRequestHandler<PublishCourseCommand,
 {
     private readonly ICoursesDbContext _context;
     private readonly IContentReadService _contentReadService;
+    private readonly ITeacherPayoutReadService _teacherPayoutReadService;
 
-    public PublishCourseCommandHandler(ICoursesDbContext context, IContentReadService contentReadService)
+    public PublishCourseCommandHandler(
+        ICoursesDbContext context,
+        IContentReadService contentReadService,
+        ITeacherPayoutReadService teacherPayoutReadService)
     {
         _context = context;
         _contentReadService = contentReadService;
+        _teacherPayoutReadService = teacherPayoutReadService;
     }
 
     public async Task<Result<PublishValidationResult>> Handle(PublishCourseCommand request, CancellationToken cancellationToken)
@@ -29,6 +34,9 @@ public class PublishCourseCommandHandler : IRequestHandler<PublishCourseCommand,
 
         if (course.TeacherId != request.TeacherId)
             return Result.Failure<PublishValidationResult>("Вы не можете публиковать чужой курс.");
+
+        if (course.IsArchived)
+            return Result.Failure<PublishValidationResult>("Архивированный курс нельзя опубликовать повторно.");
 
         var validation = new PublishValidationResult();
 
@@ -65,6 +73,26 @@ public class PublishCourseCommandHandler : IRequestHandler<PublishCourseCommand,
                             $"В уроке «{lesson.Title}» нет блоков."));
                     }
                 }
+            }
+        }
+
+        if (!course.IsFree)
+        {
+            var payoutReady = await _teacherPayoutReadService.IsTeacherReadyForPaidCoursesAsync(
+                request.TeacherId,
+                cancellationToken);
+
+            if (!payoutReady)
+            {
+                validation.Issues.Add(new PublishIssue(
+                    "error",
+                    $"course-{course.Id}",
+                    "PAYOUT_NOT_READY",
+                    "Для публикации платного курса преподаватель должен подключить выплаты."));
+
+                validation.Success = false;
+                validation.Message = "Платный курс нельзя опубликовать без подключённых выплат.";
+                return Result.Success(validation);
             }
         }
 

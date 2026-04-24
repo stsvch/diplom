@@ -8,6 +8,7 @@ import { AdminService, PagedResult } from '../services/admin.service';
 import { AdminUserDto } from '../models/admin.model';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -20,6 +21,7 @@ export class AdminUsersComponent implements OnInit {
   private readonly admin = inject(AdminService);
   private readonly toast = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
 
   readonly LockIcon = Lock;
   readonly UnlockIcon = Unlock;
@@ -39,6 +41,7 @@ export class AdminUsersComponent implements OnInit {
 
   readonly loading = signal(false);
   readonly data = signal<PagedResult<AdminUserDto> | null>(null);
+  readonly currentUserId = computed(() => this.authService.currentUser()?.id ?? null);
 
   readonly totalPages = computed(() => this.data()?.totalPages ?? 1);
 
@@ -174,5 +177,9 @@ export class AdminUsersComponent implements OnInit {
       case 'Student': return 'Студент';
       default: return role;
     }
+  }
+
+  canManageUser(user: AdminUserDto): boolean {
+    return this.currentUserId() !== user.id;
   }
 }

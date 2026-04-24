@@ -1,0 +1,116 @@
+<section class="landing">
+  <div class="landing__hero-shell">
+    <header class="landing__topbar">
+      <a class="landing__brand" routerLink="/">
+        <span class="landing__brand-mark">
+          <lucide-icon [img]="bookIcon" [size]="20" />
+        </span>
+        <span class="landing__brand-text">EduPlatform</span>
+      </a>
+
+      <nav class="landing__nav">
+        <a class="landing__nav-link" routerLink="/login">Войти</a>
+        <a class="landing__nav-link landing__nav-link--primary" routerLink="/register">
+          Регистрация
+        </a>
+      </nav>
+    </header>
+
+    <div class="landing__hero">
+      <div class="landing__hero-copy">
+        <div class="landing__eyebrow">
+          <lucide-icon [img]="sparklesIcon" [size]="16" />
+          <span>LMS + EdTech платформа для дипломного проекта</span>
+        </div>
+
+        <h1 class="landing__title">
+          Платформа, где курсы, задания, аналитика и платежи уже собраны в один рабочий контур.
+        </h1>
+
+        <p class="landing__subtitle">
+          Студент получает курсы, прогресс, словарь, кодовые упражнения и расписание.
+          Преподаватель — редактор контента, отчёты и выплаты.
+          Администратор — модерацию, аналитику и контроль платформы.
+        </p>
+
+        <div class="landing__actions">
+          <a class="landing__cta landing__cta--primary" routerLink="/register">Открыть платформу</a>
+          <a class="landing__cta landing__cta--ghost" routerLink="/login">Войти в аккаунт</a>
+          <a class="landing__cta landing__cta--outline" [href]="swaggerUrl" target="_blank" rel="noreferrer">
+            API Docs
+          </a>
+        </div>
+      </div>
+
+      <div class="landing__hero-panel">
+        <div class="landing__hero-card landing__hero-card--accent">
+          <span class="landing__hero-label">Student</span>
+          <strong>Dashboard, glossary, flashcards, course progress</strong>
+          <p>Курсы, оценки, дедлайны, календарь и история активности в одном пространстве.</p>
+        </div>
+
+        <div class="landing__hero-card">
+          <span class="landing__hero-label">Teacher</span>
+          <strong>Course editor, reports, messaging, payouts</strong>
+          <p>Создание контента, code review, аналитика по курсу и управление продажами.</p>
+        </div>
+
+        <div class="landing__hero-card">
+          <span class="landing__hero-label">Admin</span>
+          <strong>Users, moderation, analytics, settings</strong>
+          <p>Контроль ролей, архивация курсов, platform health и админская аналитика.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="landing__metrics">
+    @for (metric of metrics; track metric.label) {
+      <article class="landing__metric">
+        <strong>{{ metric.value }}</strong>
+        <span>{{ metric.label }}</span>
+      </article>
+    }
+  </section>
+
+  <section class="landing__section">
+    <div class="landing__section-heading">
+      <h2>Что уже покрыто в системе</h2>
+      <p>
+        Это не промо-страница-заглушка. Здесь уже есть рабочие модули, которые стыкуются между собой:
+        обучение, коммуникация, оплата, аналитика и администрирование.
+      </p>
+    </div>
+
+    <div class="landing__feature-grid">
+      @for (feature of features; track feature.title) {
+        <article class="landing__feature">
+          <div class="landing__feature-icon">
+            <lucide-icon [img]="feature.icon" [size]="20" />
+          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="landing__section landing__section--split">
+    <div class="landing__checklist">
+      <h2>Для локальной разработки</h2>
+      <ul>
+        <li>Есть one-click запуск `start-local-dev.cmd` для локального Stripe flow.</li>
+        <li>Swagger уже поднимается на backend в development-режиме.</li>
+        <li>Роуты разделены по ролям: `student`, `teacher`, `admin`.</li>
+      </ul>
+    </div>
+
+    <div class="landing__doc-box">
+      <h3>Точки входа</h3>
+      <a routerLink="/login">Войти в систему</a>
+      <a routerLink="/register">Создать аккаунт</a>
+      <a [href]="swaggerUrl" target="_blank" rel="noreferrer">Открыть Swagger / OpenAPI</a>
+      <span class="landing__doc-box-muted">README и локальный runbook лежат в корне проекта.</span>
+    </div>
+  </section>
+</section>
