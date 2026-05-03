@@ -29,7 +29,7 @@
         <div class="course-detail__hero-content">
           <!-- Back -->
           @if (!isPreview()) {
-            <a routerLink="/student/catalog" class="course-detail__back">
+            <a [routerLink]="catalogLink" class="course-detail__back">
               <lucide-icon [img]="ChevronLeftIcon" [size]="18" />
               Назад к каталогу
             </a>
@@ -103,31 +103,51 @@
               <a routerLink="/student/courses" class="enroll-btn enroll-btn--continue">
                 Продолжить обучение
               </a>
-            } @else {
-              <div class="course-detail__price">
-                @if (course()!.isFree) {
-                  <span class="course-detail__price-free">Бесплатно</span>
-                } @else if (course()!.price) {
-                  <span class="course-detail__price-amount">{{ course()!.price }} ₽</span>
+              } @else {
+                <div class="course-detail__price">
+                  @if (course()!.isFree) {
+                    <span class="course-detail__price-free">Бесплатно</span>
+                  } @else if (course()!.price) {
+                    <span class="course-detail__price-amount">{{ course()!.price }} ₽</span>
                 } @else {
                   <span class="course-detail__price-free">Бесплатно</span>
                 }
               </div>
-              <app-button variant="primary" [fullWidth]="true" [loading]="enrolling()" (click)="enroll()">
-                {{ course()!.isFree ? 'Записаться на курс' : 'Купить курс' }}
-              </app-button>
-              @if (!course()!.isFree) {
-                <label class="course-detail__save-payment">
-                  <input
-                    type="checkbox"
-                    [checked]="savePaymentMethod()"
-                    (change)="savePaymentMethod.set($any($event.target).checked)"
-                  />
-                  <span>Сохранить карту у платёжного провайдера для следующих оплат</span>
-                </label>
-                <p class="course-detail__save-payment-hint">
-                  Данные карты не хранятся в платформе. Сохраняется только безопасная ссылка на способ оплаты.
-                </p>
+                @if (isGuestView()) {
+                  <a routerLink="/register" class="enroll-btn enroll-btn--continue">
+                    {{ course()!.isFree ? 'Зарегистрироваться и записаться' : 'Создать аккаунт для покупки' }}
+                  </a>
+                  <a routerLink="/login" class="course-detail__back course-detail__back--inline">
+                    Уже есть аккаунт? Войти
+                  </a>
+                } @else if (isReadOnlyAuthenticatedView()) {
+                  <div class="course-detail__preview-notice">
+                    <lucide-icon [img]="LockIcon" [size]="16" />
+                    Покупка и запись доступны только для аккаунта студента.
+                  </div>
+                  <a [routerLink]="dashboardLink" class="enroll-btn enroll-btn--continue">
+                    {{ dashboardLabel }}
+                  </a>
+                  <a [routerLink]="catalogLink" class="course-detail__back course-detail__back--inline">
+                    Вернуться в публичный каталог
+                  </a>
+                } @else {
+                  <app-button variant="primary" [fullWidth]="true" [loading]="enrolling()" (click)="enroll()">
+                    {{ course()!.isFree ? 'Записаться на курс' : 'Купить курс' }}
+                  </app-button>
+                  @if (!course()!.isFree) {
+                  <label class="course-detail__save-payment">
+                    <input
+                      type="checkbox"
+                      [checked]="savePaymentMethod()"
+                      (change)="savePaymentMethod.set($any($event.target).checked)"
+                    />
+                    <span>Сохранить карту у платёжного провайдера для следующих оплат</span>
+                  </label>
+                  <p class="course-detail__save-payment-hint">
+                    Данные карты не хранятся в платформе. Сохраняется только безопасная ссылка на способ оплаты.
+                  </p>
+                }
               }
             }
 

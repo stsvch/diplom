@@ -3,7 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CdkDrag, CdkDropList, CdkDropListGroup, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { LucideAngularModule } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  GripVertical,
+  ChevronDown,
+  ChevronRight,
+  Plus,
+  Trash2,
+  FileText,
+  SquarePen,
+  Copy,
+} from 'lucide-angular';
 import { CourseModuleDetailDto, LessonDetailDto } from '../models/course.model';
 
 export type ModuleTreeEvent =
@@ -31,6 +41,15 @@ export class ModuleTreeComponent {
   expandedModules = signal<Set<string>>(new Set());
   editingModuleId = signal<string | null>(null);
   editingLessonId = signal<string | null>(null);
+
+  readonly GripVerticalIcon = GripVertical;
+  readonly ChevronDownIcon = ChevronDown;
+  readonly ChevronRightIcon = ChevronRight;
+  readonly PlusIcon = Plus;
+  readonly Trash2Icon = Trash2;
+  readonly FileTextIcon = FileText;
+  readonly SquarePenIcon = SquarePen;
+  readonly CopyIcon = Copy;
 
   toggleModule(id: string): void {
     const next = new Set(this.expandedModules());
@@ -125,5 +144,9 @@ export class ModuleTreeComponent {
 
   trackById(_: number, item: { id: string }) {
     return item.id;
+  }
+
+  expandIcon(id: string) {
+    return this.isExpanded(id) ? this.ChevronDownIcon : this.ChevronRightIcon;
   }
 }

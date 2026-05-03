@@ -237,6 +237,8 @@ export type LessonBlockData =
   | QuizBlockData
   | AssignmentBlockData;
 
+export type LessonBlockStatus = 'Draft' | 'Ready' | 'Invalid';
+
 export interface LessonBlockDto {
   id: string;
   lessonId: string;
@@ -244,6 +246,10 @@ export interface LessonBlockDto {
   type: LessonBlockType;
   data: LessonBlockData;
   settings: LessonBlockSettings;
+  /** Бэк-поле soft-валидации: Draft если есть ошибки, Ready если данные полные. */
+  status?: LessonBlockStatus;
+  /** Список ошибок валидации (если статус Draft/Invalid). */
+  validationErrors?: string[];
   createdAt: string;
   updatedAt?: string;
 }

@@ -1,4 +1,6 @@
 using EduPlatform.Shared.Application.Models;
+using Courses.Domain.Enums;
+using EduPlatform.Host.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +20,12 @@ namespace EduPlatform.Host.Controllers;
 public class TestsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly CourseItemSyncService _courseItems;
 
-    public TestsController(IMediator mediator)
+    public TestsController(IMediator mediator, CourseItemSyncService courseItems)
     {
         _mediator = mediator;
+        _courseItems = courseItems;
     }
 
     [HttpGet("my")]
@@ -61,6 +65,15 @@ public class TestsController : ControllerBase
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "TEST_CREATE_FAILED"));
+
+        await _courseItems.EnsureTestItemAsync(
+            request.CourseId,
+            result.Value!.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.MaxScore,
+            result.Value.Deadline,
+            cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
@@ -120,6 +133,15 @@ public class TestsController : ControllerBase
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "TEST_UPDATE_FAILED"));
 
+        await _courseItems.EnsureTestItemAsync(
+            request.CourseId,
+            result.Value!.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.MaxScore,
+            result.Value.Deadline,
+            cancellationToken);
+
         return Ok(result.Value);
     }
 
@@ -137,6 +159,7 @@ public class TestsController : ControllerBase
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "TEST_DELETE_FAILED"));
 
+        await _courseItems.DeleteBySourceAsync(CourseItemType.Test, id, cancellationToken);
         return Ok(new { message = result.Value });
     }
 

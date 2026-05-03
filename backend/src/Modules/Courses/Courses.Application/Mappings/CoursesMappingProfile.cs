@@ -16,7 +16,7 @@ public class CoursesMappingProfile : Profile
             .ForMember(d => d.StudentsCount, opt => opt.MapFrom(s => s.Enrollments.Count))
             .ForMember(d => d.LessonsCount, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Count()))
             .ForMember(d => d.Duration, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Sum(l => l.Duration ?? 0)))
-            .ForMember(d => d.Rating, opt => opt.Ignore())
+            .ForMember(d => d.Rating, opt => opt.MapFrom(s => s.RatingAverage))
             .ForMember(d => d.Progress, opt => opt.Ignore())
             .ForMember(d => d.ArchiveReason, opt => opt.MapFrom(s => s.ArchiveReason));
 
@@ -25,7 +25,7 @@ public class CoursesMappingProfile : Profile
             .ForMember(d => d.StudentsCount, opt => opt.MapFrom(s => s.Enrollments.Count))
             .ForMember(d => d.LessonsCount, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Count()))
             .ForMember(d => d.Duration, opt => opt.MapFrom(s => s.Modules.SelectMany(m => m.Lessons).Sum(l => l.Duration ?? 0)))
-            .ForMember(d => d.Rating, opt => opt.Ignore())
+            .ForMember(d => d.Rating, opt => opt.MapFrom(s => s.RatingAverage))
             .ForMember(d => d.Progress, opt => opt.Ignore())
             .ForMember(d => d.Modules, opt => opt.MapFrom(s => s.Modules.OrderBy(m => m.OrderIndex)));
 

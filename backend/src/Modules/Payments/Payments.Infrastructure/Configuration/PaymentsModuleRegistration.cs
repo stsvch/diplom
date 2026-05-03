@@ -37,7 +37,10 @@ public static class PaymentsModuleRegistration
         services.AddScoped<IPaymentsDbContext>(sp => sp.GetRequiredService<PaymentsDbContext>());
 
         services.AddScoped<HttpClient>();
-        services.AddScoped<IPaymentProviderGateway, StripePaymentGateway>();
+        if (IsLocalProvider(configuration["Payments:Provider"]))
+            services.AddScoped<IPaymentProviderGateway, LocalPaymentProviderGateway>();
+        else
+            services.AddScoped<IPaymentProviderGateway, StripePaymentGateway>();
         services.AddScoped<PaymentsService>();
         services.AddScoped<IPaymentsService>(sp => sp.GetRequiredService<PaymentsService>());
         services.AddScoped<ITeacherPayoutReadService>(sp => sp.GetRequiredService<PaymentsService>());
@@ -47,5 +50,12 @@ public static class PaymentsModuleRegistration
         services.AddAutoMapper(cfg => { }, applicationAssembly);
 
         return services;
+    }
+
+    private static bool IsLocalProvider(string? provider)
+    {
+        return string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provider, "Mock", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provider, "Development", StringComparison.OrdinalIgnoreCase);
     }
 }

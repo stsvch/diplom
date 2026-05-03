@@ -1,0 +1,62 @@
+@if (item(); as it) {
+  <div class="te">
+    <header class="te__header">
+      <span class="te__badge">
+        <lucide-icon [img]="icons.test" [size]="12" />
+        Тест @if (section(); as sec) { · {{ sec.title }} }
+      </span>
+      <input
+        type="text"
+        class="te__title"
+        [ngModel]="it.title"
+        (ngModelChange)="setTitle($event)"
+        placeholder="Название теста"
+      />
+      @if ((it.questionsCount ?? 0) > 0) {
+        <p class="te__meta">
+          {{ it.questionsCount }} {{ it.questionsCount === 1 ? 'вопрос' : 'вопросов' }}
+          @if (it.points) { · {{ it.points }} баллов }
+          @if ((it.attemptsCount ?? 0) > 0) { · {{ it.attemptsCount }} попыток студентов }
+        </p>
+      }
+      <label class="te__check">
+        <input
+          type="checkbox"
+          [checked]="it.isRequired"
+          (change)="setRequired($any($event.target).checked)"
+        />
+        <span>Обязательный элемент</span>
+      </label>
+    </header>
+
+    <div class="te__divider"></div>
+
+    @if ((it.questionsCount ?? 0) === 0) {
+      <div class="te__empty">
+        <span class="te__empty-icon">
+          <lucide-icon [img]="icons.test" [size]="32" />
+        </span>
+        <h3>Тест пока пустой</h3>
+        <p>Добавьте вопросы — выбор ответа, открытый текст или код</p>
+        <span class="te__warn">
+          <lucide-icon [img]="icons.alert" [size]="12" />
+          Нет вопросов
+        </span>
+      </div>
+    } @else {
+      <div class="te__filled">
+        <p>Статус: <strong>{{ it.status === 'Ready' ? 'Готов' : it.status === 'Published' ? 'Опубликован' : 'Черновик' }}</strong></p>
+      </div>
+    }
+
+    <button class="te__open-full" (click)="openFullEditor()">
+      <lucide-icon [img]="icons.edit" [size]="16" />
+      Открыть редактор вопросов и настроек
+      <lucide-icon [img]="icons.link" [size]="14" />
+    </button>
+
+    <p class="te__hint">
+      Полный редактор позволяет добавлять вопросы (один/несколько ответов, открытый текст, код), настраивать попытки, проходной балл, дедлайн и показ правильных ответов.
+    </p>
+  </div>
+}

@@ -1,0 +1,43 @@
+@if (store.loading()) {
+  <div class="cb-loading">
+    <div class="cb-loading__spinner"></div>
+    <p>Загружаю курс…</p>
+  </div>
+} @else if (!store.builder()) {
+  <div class="cb-loading">
+    <p>Не удалось загрузить курс</p>
+  </div>
+} @else {
+  <div class="cb-shell" [class.cb-shell--left-open]="mobileLeftOpen()" [class.cb-shell--right-open]="mobileRightOpen()">
+    <app-cb-top-bar
+      [store]="store"
+      (toggleLeft)="toggleLeft()"
+      (toggleRight)="toggleRight()"
+    />
+
+    <div class="cb-shell__body">
+      @if (mobileLeftOpen() || mobileRightOpen()) {
+        <div class="cb-shell__overlay" (click)="mobileLeftOpen.set(false); mobileRightOpen.set(false)"></div>
+      }
+
+      <app-cb-structure-panel
+        class="cb-shell__left"
+        [store]="store"
+        (closeMobile)="mobileLeftOpen.set(false)"
+      />
+
+      <app-cb-editor-panel class="cb-shell__center" [store]="store" />
+
+      <app-cb-hints-panel
+        class="cb-shell__right"
+        [store]="store"
+        (closeMobile)="mobileRightOpen.set(false)"
+      />
+    </div>
+
+    <app-cb-onboarding-modal
+      [open]="store.showOnboarding()"
+      (close)="onOnboardingClose()"
+    />
+  </div>
+}

@@ -3,14 +3,11 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
-  background-color: $bg-page;
+  background: $slate-50;
+  overflow: hidden;
 
   &__sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    z-index: $z-sidebar;
+    flex-shrink: 0;
   }
 
   &__main {
@@ -18,33 +15,30 @@
     flex-direction: column;
     flex: 1;
     min-width: 0;
-    margin-left: $sidebar-width;
-    transition: margin-left $transition-slow;
+    min-height: 100vh;
   }
 
-  &--collapsed {
-    .app-layout__main {
-      margin-left: $sidebar-collapsed-width;
-    }
-  }
-
-  &__header {
-    display: block;
-  }
+  &__header { display: block; }
 
   &__content {
     flex: 1;
-    padding: $content-padding;
     overflow-x: hidden;
   }
 
-  @media (max-width: $breakpoint-md) {
-    &__sidebar {
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.40);
+    z-index: 40;
+    animation: layout-overlay-in 0.2s ease-out;
+
+    @media (min-width: 1024px) {
       display: none;
     }
-
-    &__main {
-      margin-left: 0;
-    }
   }
+}
+
+@keyframes layout-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

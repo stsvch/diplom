@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, catchError, tap, throwError } from 'rxjs';
 import { User, UserRole } from '../models/user.model';
@@ -43,22 +43,49 @@ export class AuthService {
   }
 
   private restoreSession(): void {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const userJson = localStorage.getItem(USER_KEY);
-    if (token && userJson) {
-      try {
-        const user: User = JSON.parse(userJson);
-        this.accessToken.set(token);
-        this.currentUser.set(user);
-        // Validate token by fetching fresh profile
-        this.fetchProfile().subscribe({
-          error: () => {
+    if (this.ensureSessionRestored()) {
+      // Validate token by fetching fresh profile
+      this.fetchProfile().subscribe({
+        error: (error: unknown) => {
+          if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
             this.clearSession();
-          },
-        });
-      } catch {
-        this.clearSession();
-      }
+          }
+        },
+      });
+    }
+  }
+
+  ensureSessionRestored(): boolean {
+    if (this.isAuthenticated()) {
+      return true;
+    }
+
+    const token = localStorage.getItem(TOKEN_KEY);
+    const user = this.readStoredUser();
+    if (!token || !user) {
+      return false;
+    }
+
+    this.accessToken.set(token);
+    this.currentUser.set(user);
+    return true;
+  }
+
+  getStoredUserRole(): UserRole | null {
+    return this.readStoredUser()?.role ?? null;
+  }
+
+  private readStoredUser(): User | null {
+    const userJson = localStorage.getItem(USER_KEY);
+    if (!userJson) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(userJson) as User;
+    } catch {
+      this.clearSession();
+      return null;
     }
   }
 

@@ -1,0 +1,140 @@
+<header class="tb">
+  <button class="tb__icon-btn tb__mobile-only" (click)="toggleLeft.emit()" title="Структура">
+    <lucide-icon [img]="icons.menu" [size]="20" />
+  </button>
+
+  <button class="tb__back" type="button" (click)="goBack()">
+    <lucide-icon [img]="icons.arrowLeft" [size]="16" />
+    <span class="tb__back-label">Мои курсы</span>
+  </button>
+
+  <span class="tb__divider"></span>
+
+  <span class="tb__logo">
+    <lucide-icon [img]="icons.bookOpen" [size]="14" />
+  </span>
+
+  <div class="tb__title-row">
+    <span class="tb__title">{{ store.course()?.title || 'Без названия' }}</span>
+    <span class="tb-status" [class]="statusClass()">{{ statusLabel() }}</span>
+    @if (store.isDirty()) {
+      <span class="tb-status tb-status--dirty">Есть изменения</span>
+    }
+  </div>
+
+  @if (store.readiness(); as r) {
+    <div class="tb__progress">
+      <div class="tb__progress-bar">
+        <span class="tb__progress-fill" [style.width.%]="store.progressPercent()"></span>
+      </div>
+      <span class="tb__progress-label">{{ store.progressPercent() }}% готово</span>
+    </div>
+  }
+
+  <div class="tb__save">
+    @switch (store.saveStatus()) {
+      @case ('saving') {
+        <span class="tb__save-msg"><span class="tb__save-spinner"></span>Сохранение…</span>
+      }
+      @case ('saved') {
+        <span class="tb__save-msg"><lucide-icon [img]="icons.check" [size]="12" class="tb__save-ok" />Сохранено</span>
+      }
+      @case ('error') {
+        <span class="tb__save-msg tb__save-msg--err"><lucide-icon [img]="icons.alert" [size]="12" />Ошибка</span>
+      }
+    }
+  </div>
+
+  <div class="tb__actions">
+    <button class="tb__btn tb__btn--ghost" type="button" (click)="goPreview()">
+      <lucide-icon [img]="icons.eye" [size]="16" />
+      <span class="tb__btn-label">Предпросмотр</span>
+    </button>
+
+    <button
+      class="tb__btn"
+      [class.tb__btn--primary]="!store.course()?.isPublished"
+      [class.tb__btn--ghost]="store.course()?.isPublished"
+      type="button"
+      (click)="onPublishClick()"
+    >
+      <lucide-icon [img]="icons.upload" [size]="16" />
+      <span class="tb__btn-label">
+        {{ store.course()?.isPublished ? 'Снять с публикации' : 'Опубликовать' }}
+      </span>
+    </button>
+  </div>
+
+  <button class="tb__icon-btn tb__mobile-only" (click)="toggleRight.emit()" title="Чеклист">
+    <lucide-icon [img]="icons.panelRight" [size]="20" />
+  </button>
+</header>
+
+<!-- Back warning modal -->
+@if (showBackModal()) {
+  <div class="tb-modal" (click)="showBackModal.set(false)">
+    <div class="tb-modal__card" (click)="$event.stopPropagation()">
+      <div class="tb-modal__head">
+        <span class="tb-modal__icon tb-modal__icon--warn">
+          <lucide-icon [img]="icons.alert" [size]="20" />
+        </span>
+        <div class="tb-modal__head-text">
+          <h3>Есть несохранённые изменения</h3>
+          <p>Если выйти сейчас, изменения могут потеряться. Что сделать?</p>
+        </div>
+        <button class="tb-modal__close" (click)="showBackModal.set(false)">
+          <lucide-icon [img]="icons.x" [size]="18" />
+        </button>
+      </div>
+      <div class="tb-modal__actions">
+        <button class="tb__btn tb__btn--primary" (click)="showBackModal.set(false)">
+          <lucide-icon [img]="icons.save" [size]="14" />
+          Продолжить редактирование
+        </button>
+        <button class="tb__btn tb__btn--ghost" (click)="exitWithoutSaving()">
+          Выйти всё равно
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Publish errors modal -->
+@if (showPublishModal()) {
+  <div class="tb-modal" (click)="showPublishModal.set(false)">
+    <div class="tb-modal__card" (click)="$event.stopPropagation()">
+      <div class="tb-modal__head">
+        <span class="tb-modal__icon tb-modal__icon--err">
+          <lucide-icon [img]="icons.alert" [size]="20" />
+        </span>
+        <div class="tb-modal__head-text">
+          <h3>Курс не готов к публикации</h3>
+          <p>Исправьте ошибки перед публикацией:</p>
+        </div>
+        <button class="tb-modal__close" (click)="showPublishModal.set(false)">
+          <lucide-icon [img]="icons.x" [size]="18" />
+        </button>
+      </div>
+      @if (store.readiness()) {
+        <ul class="tb-modal__issues">
+          @for (issue of store.readiness()!.issues; track issue.code + issue.message) {
+            @if (issue.severity === 'Error') {
+              <li>
+                <span class="tb-modal__issue-dot"></span>
+                {{ issue.message }}
+              </li>
+            }
+          }
+        </ul>
+      }
+      <div class="tb-modal__actions">
+        <button class="tb__btn tb__btn--primary" (click)="showPublishModal.set(false)">
+          Исправить ошибки
+        </button>
+        <button class="tb__btn tb__btn--ghost" (click)="forcePublish()">
+          Опубликовать всё равно
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,119 @@
+@use '../../../../styles/variables' as *;
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+  font-family: $font-family;
+}
+
+.cb-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: $spacing-4;
+  color: $slate-500;
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $slate-200;
+    border-top-color: $indigo-500;
+    border-radius: 50%;
+    animation: cb-spin 0.8s linear infinite;
+  }
+}
+
+@keyframes cb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cb-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $slate-50;
+  overflow: hidden;
+}
+
+.cb-shell__body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.cb-shell__left,
+.cb-shell__right {
+  flex-shrink: 0;
+  width: 288px;
+  background: #fff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cb-shell__left {
+  border-right: 1px solid $slate-100;
+}
+
+.cb-shell__right {
+  border-left: 1px solid $slate-100;
+}
+
+.cb-shell__center {
+  flex: 1;
+  min-width: 0;
+  background: rgba($slate-50, 0.6);
+  overflow-y: auto;
+  display: block;
+}
+
+.cb-shell__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.40);
+  z-index: 30;
+  display: none;
+}
+
+// Mobile: панели скрываются, открываются по кнопкам в TopBar
+@media (max-width: 1023px) {
+  .cb-shell__left,
+  .cb-shell__right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 40;
+    transition: transform 0.3s ease;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .cb-shell__left {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .cb-shell__right {
+    right: 0;
+    transform: translateX(100%);
+    width: 320px;
+    max-width: 100%;
+  }
+
+  .cb-shell--left-open .cb-shell__left {
+    transform: translateX(0);
+  }
+
+  .cb-shell--right-open .cb-shell__right {
+    transform: translateX(0);
+  }
+
+  .cb-shell--left-open .cb-shell__overlay,
+  .cb-shell--right-open .cb-shell__overlay {
+    display: block;
+  }
+}

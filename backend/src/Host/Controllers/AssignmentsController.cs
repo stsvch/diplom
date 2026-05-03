@@ -10,6 +10,8 @@ using Assignments.Application.Assignments.Queries.GetPendingSubmissions;
 using Assignments.Application.Assignments.Queries.GetSubmissions;
 using Assignments.Application.DTOs;
 using Assignments.Domain.Enums;
+using Courses.Domain.Enums;
+using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +25,13 @@ namespace EduPlatform.Host.Controllers;
 public class AssignmentsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public AssignmentsController(IMediator mediator) => _mediator = mediator;
+    private readonly CourseItemSyncService _courseItems;
+
+    public AssignmentsController(IMediator mediator, CourseItemSyncService courseItems)
+    {
+        _mediator = mediator;
+        _courseItems = courseItems;
+    }
 
     [HttpGet("assignments/my")]
     [Authorize(Roles = "Teacher")]
@@ -41,10 +49,27 @@ public class AssignmentsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateAssignmentRequest request, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var command = new CreateAssignmentCommand(request.CourseId, request.Title, request.Description, request.Criteria,
-            request.Deadline, request.MaxAttempts, request.MaxScore, userId);
+        var command = new CreateAssignmentCommand(
+            request.CourseId,
+            request.Title,
+            request.Description,
+            request.Criteria,
+            request.Deadline,
+            request.MaxAttempts,
+            request.MaxScore,
+            userId,
+            request.SubmissionFormat ?? AssignmentSubmissionFormat.Both,
+            request.CriteriaItems);
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "ASSIGNMENT_CREATE_FAILED"));
+        await _courseItems.EnsureAssignmentItemAsync(
+            request.CourseId,
+            result.Value!.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.MaxScore,
+            result.Value.Deadline,
+            ct);
         return Ok(result.Value);
     }
 
@@ -62,10 +87,28 @@ public class AssignmentsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentRequest request, CancellationToken ct)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var command = new UpdateAssignmentCommand(id, userId, request.CourseId, request.Title, request.Description,
-            request.Criteria, request.Deadline, request.MaxAttempts, request.MaxScore);
+        var command = new UpdateAssignmentCommand(
+            id,
+            userId,
+            request.CourseId,
+            request.Title,
+            request.Description,
+            request.Criteria,
+            request.Deadline,
+            request.MaxAttempts,
+            request.MaxScore,
+            request.SubmissionFormat,
+            request.CriteriaItems);
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "ASSIGNMENT_UPDATE_FAILED"));
+        await _courseItems.EnsureAssignmentItemAsync(
+            request.CourseId,
+            result.Value!.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.MaxScore,
+            result.Value.Deadline,
+            ct);
         return Ok(result.Value);
     }
 
@@ -76,6 +119,7 @@ public class AssignmentsController : ControllerBase
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var result = await _mediator.Send(new DeleteAssignmentCommand(id, userId), ct);
         if (result.IsFailure) return BadRequest(ApiError.FromMessage(result.Error!, "ASSIGNMENT_DELETE_FAILED"));
+        await _courseItems.DeleteBySourceAsync(CourseItemType.Assignment, id, ct);
         return Ok(new { message = result.Value });
     }
 
@@ -125,7 +169,26 @@ public class AssignmentsController : ControllerBase
     }
 }
 
-public record CreateAssignmentRequest(Guid CourseId, string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
-public record UpdateAssignmentRequest(Guid CourseId, string Title, string Description, string? Criteria, DateTime? Deadline, int? MaxAttempts, int MaxScore);
+public record CreateAssignmentRequest(
+    Guid CourseId,
+    string Title,
+    string Description,
+    string? Criteria,
+    DateTime? Deadline,
+    int? MaxAttempts,
+    int MaxScore,
+    AssignmentSubmissionFormat? SubmissionFormat = null,
+    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null);
+
+public record UpdateAssignmentRequest(
+    Guid CourseId,
+    string Title,
+    string Description,
+    string? Criteria,
+    DateTime? Deadline,
+    int? MaxAttempts,
+    int MaxScore,
+    AssignmentSubmissionFormat? SubmissionFormat = null,
+    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null);
 public record SubmitRequest(string? Content);
 public record GradeRequest(int Score, string? Comment, bool ReturnForRevision = false);

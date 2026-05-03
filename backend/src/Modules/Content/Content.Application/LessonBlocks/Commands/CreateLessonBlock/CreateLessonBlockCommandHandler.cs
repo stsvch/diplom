@@ -1,8 +1,10 @@
+using System.Text.Json;
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
 using Content.Application.Validation;
 using Content.Domain.Entities;
+using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -28,9 +30,9 @@ public class CreateLessonBlockCommandHandler : IRequestHandler<CreateLessonBlock
         if (request.Data.Type != request.Type)
             return Result.Failure<LessonBlockDto>("Тип блока и тип данных не совпадают.");
 
+        // Soft validation: блок создаётся всегда. Если данные неполные — статус Draft + ошибки в JSON.
+        // Строгая проверка переносится на момент перевода в Ready или на публикацию курса.
         var validation = _validator.Validate(request.Type, request.Data);
-        if (!validation.IsValid)
-            return Result.Failure<LessonBlockDto>(string.Join("; ", validation.Errors));
 
         var maxOrder = await _context.LessonBlocks
             .Where(b => b.LessonId == request.LessonId)
@@ -43,6 +45,10 @@ public class CreateLessonBlockCommandHandler : IRequestHandler<CreateLessonBlock
             Data = request.Data,
             Settings = request.Settings ?? new LessonBlockSettings(),
             OrderIndex = maxOrder + 1,
+            Status = validation.IsValid ? LessonBlockStatus.Ready : LessonBlockStatus.Draft,
+            ValidationErrorsJson = validation.IsValid
+                ? null
+                : JsonSerializer.Serialize(validation.Errors),
             CreatedAt = DateTime.UtcNow
         };
 

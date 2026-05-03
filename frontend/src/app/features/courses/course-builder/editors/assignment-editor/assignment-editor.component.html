@@ -1,0 +1,64 @@
+@if (item(); as it) {
+  <div class="ae">
+    <header class="ae__header">
+      <span class="ae__badge">
+        <lucide-icon [img]="icons.assignment" [size]="12" />
+        Задание @if (section(); as sec) { · {{ sec.title }} }
+      </span>
+      <input
+        type="text"
+        class="ae__title"
+        [ngModel]="it.title"
+        (ngModelChange)="setTitle($event)"
+        placeholder="Название задания"
+      />
+      @if ((it.submissionsCount ?? 0) > 0) {
+        <p class="ae__meta">{{ it.submissionsCount }} отправок студентов</p>
+      }
+      <label class="ae__check">
+        <input
+          type="checkbox"
+          [checked]="it.isRequired"
+          (change)="setRequired($any($event.target).checked)"
+        />
+        <span>Обязательный элемент</span>
+      </label>
+    </header>
+
+    <div class="ae__divider"></div>
+
+    @if (!it.description) {
+      <div class="ae__empty">
+        <span class="ae__empty-icon">
+          <lucide-icon [img]="icons.assignment" [size]="32" />
+        </span>
+        <h3>Задание не заполнено</h3>
+        <p>Опишите, что должен сделать студент, добавьте критерии оценивания и максимальный балл</p>
+        <span class="ae__warn">
+          <lucide-icon [img]="icons.alert" [size]="12" />
+          Нет описания
+        </span>
+      </div>
+    } @else {
+      <div class="ae__filled">
+        <p class="ae__filled-desc">{{ it.description }}</p>
+        @if (it.points) {
+          <p class="ae__filled-points">Максимум: <strong>{{ it.points }} баллов</strong></p>
+        }
+        @if (it.deadline) {
+          <p class="ae__filled-deadline">Дедлайн: <strong>{{ it.deadline | date: 'dd MMM y, HH:mm' }}</strong></p>
+        }
+      </div>
+    }
+
+    <button class="ae__open-full" (click)="openFullEditor()">
+      <lucide-icon [img]="icons.edit" [size]="16" />
+      Открыть редактор задания
+      <lucide-icon [img]="icons.link" [size]="14" />
+    </button>
+
+    <p class="ae__hint">
+      В полном редакторе можно настроить описание, критерии оценивания, дедлайн, баллы, попытки и формат ответа (текст/файл).
+    </p>
+  </div>
+}

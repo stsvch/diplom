@@ -6,5 +6,9 @@ public enum QuestionType
     MultipleChoice,
     TextInput,
     Matching,
-    OpenAnswer
+    OpenAnswer,
+    /// <summary>
+    /// Студент пишет код. Проверяется вручную или по ожидаемому выводу.
+    /// </summary>
+    Code
 }

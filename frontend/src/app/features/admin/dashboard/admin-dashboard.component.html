@@ -1,0 +1,174 @@
+<div class="ad">
+  <!-- Hero -->
+  <section class="ad-hero">
+    <div class="ad-hero__col ad-hero__col--copy">
+      <span class="ad-hero__pill">REPORTS / ADMIN</span>
+      <h1>Платформа под контролем</h1>
+      <p>
+        Единая панель: пользователи, курсы, дисциплины и состояние платформы.
+        Здесь видны ключевые метрики и потенциальные проблемы.
+      </p>
+    </div>
+
+    @if (stats(); as s) {
+      <div class="ad-hero__col ad-hero__col--meter">
+        <div class="ad-meter">
+          <span class="ad-meter__icon">
+            <lucide-icon [img]="ShieldIcon" [size]="26" />
+          </span>
+          <div>
+            <p class="ad-meter__caption">PLATFORM HEALTH</p>
+            <p class="ad-meter__value">{{ publishedShare() }}%</p>
+            <div class="ad-meter__chips">
+              <span class="ad-meter__chip">{{ s.courses.published }} опубликовано</span>
+              <span class="ad-meter__chip ad-meter__chip--accent">{{ s.users.total }} пользователей</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+
+  @if (loading()) {
+    <div class="ad-state">Загружаю дашборд…</div>
+  } @else if (error()) {
+    <div class="ad-state ad-state--error">
+      <span>{{ error() }}</span>
+      <button type="button" class="ad-state__action" (click)="loadDashboard()">Повторить</button>
+    </div>
+  } @else if (stats(); as s) {
+    <!-- Users -->
+    <section class="ad-section">
+      <header class="ad-section-head">
+        <div>
+          <span class="ad-section-head__eyebrow">USERS</span>
+          <h2>Пользователи</h2>
+        </div>
+      </header>
+
+      <div class="ad-stats">
+        <app-stats-card
+          title="Всего"
+          [value]="s.users.total"
+          subtitle="зарегистрированных аккаунтов"
+          [iconName]="UsersIcon"
+          iconBg="#ecfdf5"
+          iconColor="#059669"
+        />
+        <app-stats-card
+          title="Студенты"
+          [value]="s.users.students"
+          subtitle="активных учеников"
+          [iconName]="GraduationIcon"
+          iconBg="#eef2ff"
+          iconColor="#4f46e5"
+        />
+        <app-stats-card
+          title="Преподаватели"
+          [value]="s.users.teachers"
+          subtitle="ведут курсы"
+          [iconName]="UserCheckIcon"
+          iconBg="#fffbeb"
+          iconColor="#d97706"
+        />
+        <app-stats-card
+          title="Админы"
+          [value]="s.users.admins"
+          subtitle="с правами"
+          [iconName]="ShieldIcon"
+          iconBg="#f0fdfa"
+          iconColor="#0d9488"
+        />
+        <app-stats-card
+          title="Заблокировано"
+          [value]="s.users.blocked"
+          subtitle="требуют разблокировки"
+          [iconName]="UserXIcon"
+          iconBg="#fff1f2"
+          iconColor="#e11d48"
+        />
+        <app-stats-card
+          title="Email не подтверждён"
+          [value]="s.users.unconfirmedEmail"
+          subtitle="ожидают подтверждения"
+          [iconName]="MailWarningIcon"
+          iconBg="#fff7ed"
+          iconColor="#ea580c"
+        />
+      </div>
+
+      @if (s.users.newLast7Days > 0) {
+        <div class="ad-callout ad-callout--accent">
+          <span class="ad-callout__icon">
+            <lucide-icon [img]="TrendingUpIcon" [size]="22" />
+          </span>
+          <div>
+            <p class="ad-callout__title">Рост за 7 дней</p>
+            <p class="ad-callout__sub">+{{ s.users.newLast7Days }} новых пользователей за последнюю неделю</p>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Courses -->
+    <section class="ad-section">
+      <header class="ad-section-head">
+        <div>
+          <span class="ad-section-head__eyebrow">COURSES</span>
+          <h2>Курсы и контент</h2>
+        </div>
+      </header>
+
+      <div class="ad-stats">
+        <app-stats-card
+          title="Всего"
+          [value]="s.courses.total"
+          subtitle="курсов на платформе"
+          [iconName]="BookOpenIcon"
+          iconBg="#eef2ff"
+          iconColor="#4f46e5"
+        />
+        <app-stats-card
+          title="Опубликовано"
+          [value]="s.courses.published"
+          subtitle="доступно студентам"
+          [iconName]="BookOpenIcon"
+          iconBg="#f0fdf4"
+          iconColor="#16a34a"
+        />
+        <app-stats-card
+          title="Черновики"
+          [value]="s.courses.drafts"
+          subtitle="ещё не опубликовано"
+          [iconName]="BookOpenIcon"
+          iconBg="#fffbeb"
+          iconColor="#d97706"
+        />
+        <app-stats-card
+          title="В архиве"
+          [value]="s.courses.archived"
+          subtitle="закрыто или скрыто"
+          [iconName]="ArchiveIcon"
+          iconBg="#f1f5f9"
+          iconColor="#475569"
+        />
+        <app-stats-card
+          title="Активных записей"
+          [value]="s.courses.totalEnrollments"
+          subtitle="студенты в обучении"
+          [iconName]="ActivityIcon"
+          iconBg="#fff1f2"
+          iconColor="#e11d48"
+        />
+        <app-stats-card
+          title="Дисциплин"
+          [value]="s.courses.disciplines"
+          subtitle="направлений"
+          [iconName]="GlobeIcon"
+          iconBg="#f0fdfa"
+          iconColor="#0d9488"
+        />
+      </div>
+    </section>
+  }
+</div>

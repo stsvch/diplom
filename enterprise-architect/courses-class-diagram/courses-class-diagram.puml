@@ -1,0 +1,179 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+abstract class BaseEntity {
+  +Id: Guid
+}
+
+interface IAuditableEntity {
+  +CreatedAt: DateTime
+  +UpdatedAt: DateTime?
+}
+
+class Discipline {
+  +Name: string
+  +Description: string?
+  +ImageUrl: string?
+  +CreatedAt: DateTime
+  +UpdatedAt: DateTime?
+}
+
+class Course {
+  +DisciplineId: Guid
+  +TeacherId: string
+  +TeacherName: string
+  +Title: string
+  +Description: string
+  +Price: decimal?
+  +IsFree: bool
+  +IsPublished: bool
+  +IsArchived: bool
+  +ArchiveReason: string?
+  +ArchivedBy: string?
+  +OrderType: CourseOrderType
+  +HasGrading: bool
+  +HasCertificate: bool
+  +Deadline: DateTime?
+  +ImageUrl: string?
+  +Level: CourseLevel
+  +Tags: string?
+  +RatingAverage: double?
+  +RatingCount: int
+  +ReviewsCount: int
+  +CreatedAt: DateTime
+  +UpdatedAt: DateTime?
+}
+
+class CourseModule {
+  +CourseId: Guid
+  +Title: string
+  +Description: string?
+  +OrderIndex: int
+  +IsPublished: bool
+}
+
+class Lesson {
+  +ModuleId: Guid
+  +Title: string
+  +Description: string?
+  +OrderIndex: int
+  +IsPublished: bool
+  +Duration: int?
+  +Layout: LessonLayout
+}
+
+class CourseItem {
+  +CourseId: Guid
+  +ModuleId: Guid?
+  +Type: CourseItemType
+  +SourceId: Guid
+  +Title: string
+  +Description: string?
+  +Url: string?
+  +AttachmentId: Guid?
+  +ResourceKind: string?
+  +OrderIndex: int
+  +Status: CourseItemStatus
+  +IsRequired: bool
+  +Points: decimal?
+  +AvailableFrom: DateTime?
+  +Deadline: DateTime?
+  +CreatedAt: DateTime
+  +UpdatedAt: DateTime?
+}
+
+class CourseEnrollment {
+  +CourseId: Guid
+  +StudentId: string
+  +EnrolledAt: DateTime
+  +Status: EnrollmentStatus
+}
+
+class CourseReview {
+  +CourseId: Guid
+  +StudentId: string
+  +StudentName: string
+  +Rating: int
+  +Comment: string?
+  +CreatedAt: DateTime
+  +UpdatedAt: DateTime?
+}
+
+enum CourseLevel {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+enum CourseOrderType {
+  Sequential
+  Free
+}
+
+enum EnrollmentStatus {
+  Active
+  Completed
+  Dropped
+}
+
+enum CourseItemType {
+  Lesson
+  Test
+  Assignment
+  LiveSession
+  Resource
+  ExternalLink
+}
+
+enum CourseItemStatus {
+  Draft
+  NeedsContent
+  Ready
+  Published
+  Archived
+}
+
+enum LessonLayout {
+  Scroll
+  Stepper
+}
+
+BaseEntity <|-- Discipline
+BaseEntity <|-- Course
+BaseEntity <|-- CourseModule
+BaseEntity <|-- Lesson
+BaseEntity <|-- CourseItem
+BaseEntity <|-- CourseEnrollment
+BaseEntity <|-- CourseReview
+
+IAuditableEntity <|.. Discipline
+IAuditableEntity <|.. Course
+IAuditableEntity <|.. CourseItem
+IAuditableEntity <|.. CourseReview
+
+Discipline "1" o-- "0..*" Course : Courses
+Course "1" *-- "0..*" CourseModule : Modules
+Course "1" *-- "0..*" CourseItem : Items
+Course "1" *-- "0..*" CourseEnrollment : Enrollments
+Course "1" *-- "0..*" CourseReview : Reviews
+CourseModule "1" *-- "0..*" Lesson : Lessons
+CourseModule "0..1" o-- "0..*" CourseItem : Items
+
+Course --> CourseLevel
+Course --> CourseOrderType
+CourseItem --> CourseItemType
+CourseItem --> CourseItemStatus
+CourseEnrollment --> EnrollmentStatus
+Lesson --> LessonLayout
+
+note right of CourseItem
+  CourseItem is a universal Course Builder item.
+  Type + SourceId identify source entity.
+  Source can be Lesson, Test, Assignment,
+  LiveSession, Resource or ExternalLink.
+  Unique index: { Type, SourceId }.
+end note
+
+@enduml
+

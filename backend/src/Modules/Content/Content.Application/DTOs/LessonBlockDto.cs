@@ -11,6 +11,8 @@ public class LessonBlockDto
     public LessonBlockType Type { get; set; }
     public LessonBlockData Data { get; set; } = null!;
     public LessonBlockSettings Settings { get; set; } = new();
+    public LessonBlockStatus Status { get; set; } = LessonBlockStatus.Ready;
+    public IReadOnlyList<string> ValidationErrors { get; set; } = Array.Empty<string>();
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

@@ -1,0 +1,266 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.ad {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  padding: $spacing-4;
+  font-family: $font-family;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: $spacing-8;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Hero — emerald/teal
+// ─────────────────────────────────────────────
+.ad-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-6;
+  padding: $spacing-6;
+  border-radius: $radius-3xl;
+  background: linear-gradient(135deg, $emerald-500 0%, $teal-500 50%, #047857 100%);
+  color: #fff;
+  overflow: hidden;
+  isolation: isolate;
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: 1.6fr 1fr;
+    align-items: center;
+    padding: $spacing-8;
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(48px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  &::before {
+    top: -32px; right: -32px;
+    width: 192px; height: 192px;
+    background: rgba(#fff, 0.10);
+  }
+  &::after {
+    bottom: 0; left: 25%;
+    width: 160px; height: 160px;
+    background: rgba(#000, 0.10);
+  }
+
+  &__col--copy {
+    h1 {
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      font-weight: $font-weight-extrabold;
+      color: #fff;
+      margin: $spacing-2 0;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      color: rgba(#fff, 0.85);
+      font-size: $font-size-sm;
+      line-height: 1.65;
+      max-width: 28rem;
+      margin: 0;
+    }
+  }
+
+  &__pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: $radius-full;
+    background: rgba(#fff, 0.20);
+    color: #fff;
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.05em;
+  }
+}
+
+.ad-meter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-5;
+  border-radius: $radius-2xl;
+  background: rgba(#fff, 0.10);
+  border: 1px solid rgba(#fff, 0.20);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: $radius-2xl;
+    background: rgba(#fff, 0.20);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__caption {
+    color: rgba(#fff, 0.78);
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.05em;
+    margin: 0 0 4px;
+    text-transform: uppercase;
+  }
+
+  &__value {
+    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
+    font-weight: $font-weight-extrabold;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-2;
+    margin-top: 10px;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: $radius-full;
+    background: rgba(#fff, 0.15);
+    color: rgba(#fff, 0.85);
+    font-size: 11px;
+    font-weight: $font-weight-medium;
+
+    &--accent {
+      background: rgba(#fff, 0.25);
+      color: #fff;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+.ad-state {
+  padding: $spacing-6;
+  border: 1px dashed $slate-300;
+  border-radius: $radius-2xl;
+  background: #fff;
+  color: $slate-500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-3;
+
+  &--error {
+    color: $red-600;
+    border-color: $red-100;
+    background: $red-50;
+  }
+
+  &__action {
+    border: 0;
+    border-radius: $radius-xl;
+    background: $emerald-500;
+    color: #fff;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: background $transition-fast;
+
+    &:hover { background: $emerald-600; }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Section
+// ─────────────────────────────────────────────
+.ad-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.ad-section-head {
+  &__eyebrow {
+    display: inline-block;
+    color: $slate-400;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: $font-weight-bold;
+    color: $slate-900;
+    margin: 0;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Stats grid
+// ─────────────────────────────────────────────
+.ad-stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-4;
+
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Callout
+// ─────────────────────────────────────────────
+.ad-callout {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-5;
+  border-radius: $radius-2xl;
+  background: linear-gradient(90deg, $emerald-50 0%, $teal-50 100%);
+  border: 1px solid $emerald-100;
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-xl;
+    background: $gradient-emerald-teal;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    color: $slate-900;
+    font-weight: $font-weight-bold;
+    margin: 0 0 2px;
+  }
+
+  &__sub {
+    color: $slate-500;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}

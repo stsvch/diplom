@@ -10,6 +10,7 @@ import { MessageDto, AttachmentDto, ParticipantDto } from '../../features/messag
 export class ChatSignalRService {
   private readonly authService = inject(AuthService);
   private hubConnection: signalR.HubConnection | null = null;
+  private readonly unloadHandler = () => this.disposeForUnload();
 
   readonly unreadCount = signal(0);
   readonly lastMessage = signal<MessageDto | null>(null);
@@ -23,6 +24,10 @@ export class ChatSignalRService {
   readonly chatDeleted = signal<string | null>(null);
 
   constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', this.unloadHandler);
+    }
+
     effect(() => {
       const isAuthenticated = this.authService.isAuthenticated();
       if (isAuthenticated) {
@@ -42,11 +47,16 @@ export class ChatSignalRService {
     }
 
     const baseUrl = environment.apiUrl.replace('/api', '');
+    const transport = environment.production
+      ? signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
+      : signalR.HttpTransportType.LongPolling;
 
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${baseUrl}/hubs/chat`, {
-        accessTokenFactory: () => this.authService.getAccessToken()!,
+        accessTokenFactory: () => this.authService.getAccessToken() ?? '',
+        transport,
       })
+      .configureLogging(signalR.LogLevel.None)
       .withAutomaticReconnect()
       .build();
 
@@ -100,10 +110,20 @@ export class ChatSignalRService {
 
   private stopConnection(): void {
     if (this.hubConnection) {
-      this.hubConnection.stop();
+      void this.hubConnection.stop().catch(() => undefined);
       this.hubConnection = null;
     }
     this.unreadCount.set(0);
+  }
+
+  private disposeForUnload(): void {
+    if (!this.hubConnection) {
+      return;
+    }
+
+    const connection = this.hubConnection;
+    this.hubConnection = null;
+    void connection.stop().catch(() => undefined);
   }
 
   setUnreadCount(count: number): void {

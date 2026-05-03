@@ -1,6 +1,7 @@
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
+using AssignmentCriteriaEntity = Assignments.Domain.Entities.AssignmentCriteria;
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -42,8 +43,23 @@ public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCo
             Deadline = request.Deadline,
             MaxAttempts = request.MaxAttempts,
             MaxScore = request.MaxScore,
+            SubmissionFormat = request.SubmissionFormat,
             CreatedById = request.CreatedById
         };
+
+        if (request.CriteriaItems is { Count: > 0 })
+        {
+            var order = 0;
+            foreach (var c in request.CriteriaItems)
+            {
+                assignment.CriteriaItems.Add(new AssignmentCriteriaEntity
+                {
+                    Text = c.Text,
+                    MaxPoints = c.MaxPoints,
+                    OrderIndex = order++
+                });
+            }
+        }
 
         _context.Assignments.Add(assignment);
         await _context.SaveChangesAsync(cancellationToken);

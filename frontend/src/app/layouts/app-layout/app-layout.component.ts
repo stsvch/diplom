@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
@@ -13,5 +13,9 @@ import { SidebarService } from '../../core/services/sidebar.service';
 })
 export class AppLayoutComponent {
   private sidebarService = inject(SidebarService);
-  readonly collapsed = this.sidebarService.collapsed;
+  readonly mobileOpen = this.sidebarService.mobileOpen;
+
+  closeMobile(): void {
+    this.sidebarService.closeMobile();
+  }
 }

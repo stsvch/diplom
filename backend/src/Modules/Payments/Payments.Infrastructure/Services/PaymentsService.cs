@@ -811,6 +811,22 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         foreach (var allocationLine in payableAllocationLines)
             allocationLine.PayoutRecordId = payoutRecord.Id;
 
+        if (IsLocalProvider())
+        {
+            payoutRecord.Status = PayoutRecordStatus.Paid;
+            payoutRecord.PaidAt = DateTime.UtcNow;
+            payoutRecord.FailureMessage = null;
+
+            foreach (var settlement in payableSettlements)
+            {
+                settlement.Status = TeacherSettlementStatus.PaidOut;
+                settlement.PaidOutAt ??= payoutRecord.PaidAt;
+            }
+
+            foreach (var allocationLine in payableAllocationLines)
+                allocationLine.PaidOutAt ??= payoutRecord.PaidAt;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return MapPayoutRecord(payoutRecord);
@@ -914,6 +930,15 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         attempt.Status = PaymentAttemptStatus.PendingProvider;
         await _context.SaveChangesAsync(cancellationToken);
 
+        if (IsLocalProvider())
+        {
+            await FinalizeCoursePaymentAsync(
+                attempt,
+                CreateLocalCoursePaymentWebhook(attempt, checkout.SessionId),
+                cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         return new CourseCheckoutSessionDto(attempt.Id, checkout.CheckoutUrl);
     }
 
@@ -984,6 +1009,15 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         attempt.ProviderSessionId = checkout.SessionId;
         attempt.Status = SubscriptionPaymentAttemptStatus.PendingProvider;
         await _context.SaveChangesAsync(cancellationToken);
+
+        if (IsLocalProvider())
+        {
+            attempt.Status = SubscriptionPaymentAttemptStatus.Succeeded;
+            attempt.ProviderSubscriptionId = $"sub_local_{attempt.Id:N}";
+            attempt.CompletedAt ??= DateTime.UtcNow;
+            attempt.FailureMessage = null;
+            await _context.SaveChangesAsync(cancellationToken);
+        }
 
         return new SubscriptionCheckoutSessionDto(attempt.Id, checkout.CheckoutUrl);
     }
@@ -1442,6 +1476,53 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         attempt.ProviderSessionId ??= webhook.SessionId;
         attempt.ProviderPaymentIntentId ??= webhook.PaymentIntentId;
         attempt.ProviderCustomerId ??= webhook.CustomerId;
+    }
+
+    private StripeWebhookEvent CreateLocalCoursePaymentWebhook(PaymentAttempt attempt, string providerSessionId)
+    {
+        return new StripeWebhookEvent(
+            EventId: $"evt_local_checkout_{attempt.Id:N}",
+            EventType: "checkout.session.completed",
+            ProviderAccountId: null,
+            ProviderTransferId: null,
+            ProviderRefundId: null,
+            ProviderDisputeId: null,
+            ProviderInvoiceId: null,
+            SessionId: providerSessionId,
+            ProviderSubscriptionId: null,
+            PaymentIntentId: $"pi_local_{attempt.Id:N}",
+            CustomerId: attempt.ProviderCustomerId,
+            SubscriptionStatus: null,
+            InvoiceStatus: null,
+            InvoiceBillingReason: null,
+            PaymentStatus: "paid",
+            FailureMessage: null,
+            RefundStatus: null,
+            RefundReason: null,
+            DisputeStatus: null,
+            DisputeReason: null,
+            DisputeEvidenceDueBy: null,
+            CurrentPeriodStart: null,
+            CurrentPeriodEnd: null,
+            CancelAtPeriodEnd: null,
+            SubscriptionCanceledAt: null,
+            InvoiceDueDate: null,
+            InvoicePaidAt: null,
+            AmountMinor: ToMinorUnits(attempt.Amount),
+            AmountDueMinor: null,
+            AmountPaidMinor: ToMinorUnits(attempt.Amount),
+            Currency: attempt.Currency,
+            Metadata: new Dictionary<string, string>
+            {
+                ["paymentAttemptId"] = attempt.Id.ToString(),
+                ["courseId"] = attempt.CourseId.ToString(),
+                ["teacherId"] = attempt.TeacherId,
+                ["studentId"] = attempt.StudentId,
+            },
+            ChargesEnabled: null,
+            PayoutsEnabled: null,
+            DetailsSubmitted: null,
+            RequirementsSummary: null);
     }
 
     private async Task FinalizeCoursePaymentAsync(
@@ -2511,7 +2592,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 ProviderFeeAmount = lineProviderFeeAmount,
                 NetAmount = lineNetAmount,
                 Currency = invoice.Currency,
-                AvailableAt = run.AllocatedAt.AddDays(Math.Max(0, _paymentsOptions.SettlementHoldDays)),
+                AvailableAt = run.AllocatedAt.AddDays(GetSettlementHoldDays()),
                 AllocatedAt = run.AllocatedAt,
             });
         }
@@ -2632,7 +2713,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         var grossAmount = attempt.Amount;
         var platformCommissionAmount = CalculatePlatformCommissionAmount(grossAmount);
         var netAmount = Math.Max(0m, grossAmount - providerFeeAmount - platformCommissionAmount);
-        var availableAt = DateTime.UtcNow.AddDays(Math.Max(0, _paymentsOptions.SettlementHoldDays));
+        var availableAt = DateTime.UtcNow.AddDays(GetSettlementHoldDays());
         var status = availableAt <= DateTime.UtcNow
             ? TeacherSettlementStatus.ReadyForPayout
             : TeacherSettlementStatus.PendingHold;
@@ -2787,6 +2868,11 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
     private static decimal FromMinorUnits(long amountMinor)
     {
         return decimal.Round(amountMinor / 100m, 2, MidpointRounding.AwayFromZero);
+    }
+
+    private static long ToMinorUnits(decimal amount)
+    {
+        return decimal.ToInt64(decimal.Round(amount * 100m, 0, MidpointRounding.AwayFromZero));
     }
 
     private static UserSubscriptionStatus ResolveUserSubscriptionStatus(string? providerStatus)
@@ -3094,5 +3180,19 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
     {
         if (!_gateway.IsConfigured)
             throw new InvalidOperationException("Платёжный провайдер не настроен.");
+    }
+
+    private bool IsLocalProvider()
+    {
+        return string.Equals(_paymentsOptions.Provider, "Local", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(_paymentsOptions.Provider, "Mock", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(_paymentsOptions.Provider, "Development", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private int GetSettlementHoldDays()
+    {
+        return IsLocalProvider()
+            ? 0
+            : Math.Max(0, _paymentsOptions.SettlementHoldDays);
     }
 }

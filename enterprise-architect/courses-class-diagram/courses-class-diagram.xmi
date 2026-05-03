@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.1"
+  xmlns:xmi="http://schema.omg.org/spec/XMI/2.1"
+  xmlns:uml="http://www.omg.org/spec/UML/2.1">
+  <uml:Model xmi:id="model_EduPlatform" name="EduPlatform">
+    <packagedElement xmi:type="uml:Package" xmi:id="pkg_CoursesModule" name="Courses Module">
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_Guid" name="Guid"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_string" name="string"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_int" name="int"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_bool" name="bool"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_decimal" name="decimal"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_double" name="double"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="type_DateTime" name="DateTime"/>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_BaseEntity" name="BaseEntity" isAbstract="true">
+        <ownedAttribute xmi:id="attr_BaseEntity_Id" name="Id" visibility="public" type="type_Guid"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Interface" xmi:id="if_IAuditableEntity" name="IAuditableEntity">
+        <ownedAttribute xmi:id="attr_IAuditableEntity_CreatedAt" name="CreatedAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_IAuditableEntity_UpdatedAt" name="UpdatedAt" visibility="public" type="type_DateTime"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_CourseLevel" name="CourseLevel">
+        <ownedLiteral xmi:id="lit_CourseLevel_Beginner" name="Beginner"/>
+        <ownedLiteral xmi:id="lit_CourseLevel_Intermediate" name="Intermediate"/>
+        <ownedLiteral xmi:id="lit_CourseLevel_Advanced" name="Advanced"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_CourseOrderType" name="CourseOrderType">
+        <ownedLiteral xmi:id="lit_CourseOrderType_Sequential" name="Sequential"/>
+        <ownedLiteral xmi:id="lit_CourseOrderType_Free" name="Free"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_EnrollmentStatus" name="EnrollmentStatus">
+        <ownedLiteral xmi:id="lit_EnrollmentStatus_Active" name="Active"/>
+        <ownedLiteral xmi:id="lit_EnrollmentStatus_Completed" name="Completed"/>
+        <ownedLiteral xmi:id="lit_EnrollmentStatus_Dropped" name="Dropped"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_CourseItemType" name="CourseItemType">
+        <ownedLiteral xmi:id="lit_CourseItemType_Lesson" name="Lesson"/>
+        <ownedLiteral xmi:id="lit_CourseItemType_Test" name="Test"/>
+        <ownedLiteral xmi:id="lit_CourseItemType_Assignment" name="Assignment"/>
+        <ownedLiteral xmi:id="lit_CourseItemType_LiveSession" name="LiveSession"/>
+        <ownedLiteral xmi:id="lit_CourseItemType_Resource" name="Resource"/>
+        <ownedLiteral xmi:id="lit_CourseItemType_ExternalLink" name="ExternalLink"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_CourseItemStatus" name="CourseItemStatus">
+        <ownedLiteral xmi:id="lit_CourseItemStatus_Draft" name="Draft"/>
+        <ownedLiteral xmi:id="lit_CourseItemStatus_NeedsContent" name="NeedsContent"/>
+        <ownedLiteral xmi:id="lit_CourseItemStatus_Ready" name="Ready"/>
+        <ownedLiteral xmi:id="lit_CourseItemStatus_Published" name="Published"/>
+        <ownedLiteral xmi:id="lit_CourseItemStatus_Archived" name="Archived"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="enum_LessonLayout" name="LessonLayout">
+        <ownedLiteral xmi:id="lit_LessonLayout_Scroll" name="Scroll"/>
+        <ownedLiteral xmi:id="lit_LessonLayout_Stepper" name="Stepper"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_Discipline" name="Discipline">
+        <generalization xmi:id="gen_Discipline_BaseEntity" general="cls_BaseEntity"/>
+        <interfaceRealization xmi:id="real_Discipline_Auditable" client="cls_Discipline" supplier="if_IAuditableEntity" contract="if_IAuditableEntity"/>
+        <ownedAttribute xmi:id="attr_Discipline_Name" name="Name" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Discipline_Description" name="Description" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Discipline_ImageUrl" name="ImageUrl" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Discipline_CreatedAt" name="CreatedAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_Discipline_UpdatedAt" name="UpdatedAt" visibility="public" type="type_DateTime"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_Course" name="Course">
+        <generalization xmi:id="gen_Course_BaseEntity" general="cls_BaseEntity"/>
+        <interfaceRealization xmi:id="real_Course_Auditable" client="cls_Course" supplier="if_IAuditableEntity" contract="if_IAuditableEntity"/>
+        <ownedAttribute xmi:id="attr_Course_DisciplineId" name="DisciplineId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_Course_TeacherId" name="TeacherId" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_TeacherName" name="TeacherName" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_Title" name="Title" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_Description" name="Description" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_Price" name="Price" visibility="public" type="type_decimal"/>
+        <ownedAttribute xmi:id="attr_Course_IsFree" name="IsFree" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Course_IsPublished" name="IsPublished" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Course_IsArchived" name="IsArchived" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Course_ArchiveReason" name="ArchiveReason" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_ArchivedBy" name="ArchivedBy" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_OrderType" name="OrderType" visibility="public" type="enum_CourseOrderType"/>
+        <ownedAttribute xmi:id="attr_Course_HasGrading" name="HasGrading" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Course_HasCertificate" name="HasCertificate" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Course_Deadline" name="Deadline" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_Course_ImageUrl" name="ImageUrl" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_Level" name="Level" visibility="public" type="enum_CourseLevel"/>
+        <ownedAttribute xmi:id="attr_Course_Tags" name="Tags" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Course_RatingAverage" name="RatingAverage" visibility="public" type="type_double"/>
+        <ownedAttribute xmi:id="attr_Course_RatingCount" name="RatingCount" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_Course_ReviewsCount" name="ReviewsCount" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_Course_CreatedAt" name="CreatedAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_Course_UpdatedAt" name="UpdatedAt" visibility="public" type="type_DateTime"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_CourseModule" name="CourseModule">
+        <generalization xmi:id="gen_CourseModule_BaseEntity" general="cls_BaseEntity"/>
+        <ownedAttribute xmi:id="attr_CourseModule_CourseId" name="CourseId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseModule_Title" name="Title" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseModule_Description" name="Description" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseModule_OrderIndex" name="OrderIndex" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_CourseModule_IsPublished" name="IsPublished" visibility="public" type="type_bool"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_Lesson" name="Lesson">
+        <generalization xmi:id="gen_Lesson_BaseEntity" general="cls_BaseEntity"/>
+        <ownedAttribute xmi:id="attr_Lesson_ModuleId" name="ModuleId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_Lesson_Title" name="Title" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Lesson_Description" name="Description" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_Lesson_OrderIndex" name="OrderIndex" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_Lesson_IsPublished" name="IsPublished" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_Lesson_Duration" name="Duration" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_Lesson_Layout" name="Layout" visibility="public" type="enum_LessonLayout"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_CourseItem" name="CourseItem">
+        <generalization xmi:id="gen_CourseItem_BaseEntity" general="cls_BaseEntity"/>
+        <interfaceRealization xmi:id="real_CourseItem_Auditable" client="cls_CourseItem" supplier="if_IAuditableEntity" contract="if_IAuditableEntity"/>
+        <ownedAttribute xmi:id="attr_CourseItem_CourseId" name="CourseId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseItem_ModuleId" name="ModuleId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Type" name="Type" visibility="public" type="enum_CourseItemType"/>
+        <ownedAttribute xmi:id="attr_CourseItem_SourceId" name="SourceId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Title" name="Title" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Description" name="Description" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Url" name="Url" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseItem_AttachmentId" name="AttachmentId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseItem_ResourceKind" name="ResourceKind" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseItem_OrderIndex" name="OrderIndex" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Status" name="Status" visibility="public" type="enum_CourseItemStatus"/>
+        <ownedAttribute xmi:id="attr_CourseItem_IsRequired" name="IsRequired" visibility="public" type="type_bool"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Points" name="Points" visibility="public" type="type_decimal"/>
+        <ownedAttribute xmi:id="attr_CourseItem_AvailableFrom" name="AvailableFrom" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_CourseItem_Deadline" name="Deadline" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_CourseItem_CreatedAt" name="CreatedAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_CourseItem_UpdatedAt" name="UpdatedAt" visibility="public" type="type_DateTime"/>
+        <ownedComment xmi:id="comment_CourseItem_Source" body="CourseItem is a universal Course Builder item. Type + SourceId identify source entity. Source can be Lesson, Test, Assignment, LiveSession, Resource or ExternalLink. Unique index: { Type, SourceId }."/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_CourseEnrollment" name="CourseEnrollment">
+        <generalization xmi:id="gen_CourseEnrollment_BaseEntity" general="cls_BaseEntity"/>
+        <ownedAttribute xmi:id="attr_CourseEnrollment_CourseId" name="CourseId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseEnrollment_StudentId" name="StudentId" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseEnrollment_EnrolledAt" name="EnrolledAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_CourseEnrollment_Status" name="Status" visibility="public" type="enum_EnrollmentStatus"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Class" xmi:id="cls_CourseReview" name="CourseReview">
+        <generalization xmi:id="gen_CourseReview_BaseEntity" general="cls_BaseEntity"/>
+        <interfaceRealization xmi:id="real_CourseReview_Auditable" client="cls_CourseReview" supplier="if_IAuditableEntity" contract="if_IAuditableEntity"/>
+        <ownedAttribute xmi:id="attr_CourseReview_CourseId" name="CourseId" visibility="public" type="type_Guid"/>
+        <ownedAttribute xmi:id="attr_CourseReview_StudentId" name="StudentId" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseReview_StudentName" name="StudentName" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseReview_Rating" name="Rating" visibility="public" type="type_int"/>
+        <ownedAttribute xmi:id="attr_CourseReview_Comment" name="Comment" visibility="public" type="type_string"/>
+        <ownedAttribute xmi:id="attr_CourseReview_CreatedAt" name="CreatedAt" visibility="public" type="type_DateTime"/>
+        <ownedAttribute xmi:id="attr_CourseReview_UpdatedAt" name="UpdatedAt" visibility="public" type="type_DateTime"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_Discipline_Course" name="Discipline_Courses">
+        <ownedEnd xmi:id="assoc_Discipline_Course_end1" name="discipline" type="cls_Discipline" association="assoc_Discipline_Course">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="assoc_Discipline_Course_end1_lower" value="1"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="assoc_Discipline_Course_end1_upper" value="1"/>
+        </ownedEnd>
+        <ownedEnd xmi:id="assoc_Discipline_Course_end2" name="courses" type="cls_Course" association="assoc_Discipline_Course">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="assoc_Discipline_Course_end2_lower" value="0"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="assoc_Discipline_Course_end2_upper" value="*"/>
+        </ownedEnd>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_Course_CourseModule" name="Course_Modules">
+        <ownedEnd xmi:id="assoc_Course_CourseModule_end1" name="course" type="cls_Course" association="assoc_Course_CourseModule" aggregation="composite"/>
+        <ownedEnd xmi:id="assoc_Course_CourseModule_end2" name="modules" type="cls_CourseModule" association="assoc_Course_CourseModule"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_Course_CourseItem" name="Course_Items">
+        <ownedEnd xmi:id="assoc_Course_CourseItem_end1" name="course" type="cls_Course" association="assoc_Course_CourseItem" aggregation="composite"/>
+        <ownedEnd xmi:id="assoc_Course_CourseItem_end2" name="items" type="cls_CourseItem" association="assoc_Course_CourseItem"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_Course_CourseEnrollment" name="Course_Enrollments">
+        <ownedEnd xmi:id="assoc_Course_CourseEnrollment_end1" name="course" type="cls_Course" association="assoc_Course_CourseEnrollment" aggregation="composite"/>
+        <ownedEnd xmi:id="assoc_Course_CourseEnrollment_end2" name="enrollments" type="cls_CourseEnrollment" association="assoc_Course_CourseEnrollment"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_Course_CourseReview" name="Course_Reviews">
+        <ownedEnd xmi:id="assoc_Course_CourseReview_end1" name="course" type="cls_Course" association="assoc_Course_CourseReview" aggregation="composite"/>
+        <ownedEnd xmi:id="assoc_Course_CourseReview_end2" name="reviews" type="cls_CourseReview" association="assoc_Course_CourseReview"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_CourseModule_Lesson" name="CourseModule_Lessons">
+        <ownedEnd xmi:id="assoc_CourseModule_Lesson_end1" name="module" type="cls_CourseModule" association="assoc_CourseModule_Lesson" aggregation="composite"/>
+        <ownedEnd xmi:id="assoc_CourseModule_Lesson_end2" name="lessons" type="cls_Lesson" association="assoc_CourseModule_Lesson"/>
+      </packagedElement>
+
+      <packagedElement xmi:type="uml:Association" xmi:id="assoc_CourseModule_CourseItem" name="CourseModule_Items">
+        <ownedEnd xmi:id="assoc_CourseModule_CourseItem_end1" name="module" type="cls_CourseModule" association="assoc_CourseModule_CourseItem" aggregation="shared"/>
+        <ownedEnd xmi:id="assoc_CourseModule_CourseItem_end2" name="items" type="cls_CourseItem" association="assoc_CourseModule_CourseItem"/>
+      </packagedElement>
+    </packagedElement>
+  </uml:Model>
+</xmi:XMI>
+

@@ -5,6 +5,7 @@ namespace Courses.Application.DTOs;
 public class CourseListDto
 {
     public Guid Id { get; set; }
+    public string TeacherId { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
@@ -14,6 +15,8 @@ public class CourseListDto
     public decimal? Price { get; set; }
     public bool IsFree { get; set; }
     public double? Rating { get; set; }
+    public int RatingCount { get; set; }
+    public int ReviewsCount { get; set; }
     public int StudentsCount { get; set; }
     public int LessonsCount { get; set; }
     public int? Duration { get; set; }

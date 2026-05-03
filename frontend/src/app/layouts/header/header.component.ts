@@ -8,12 +8,10 @@ import {
   ElementRef,
   OnInit,
 } from '@angular/core';
-import { RouterLink, Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 import {
   Bell,
-  Search,
   ChevronDown,
   LogOut,
   UserCircle,
@@ -24,13 +22,14 @@ import {
   MessageCircle,
   BookOpen,
   Trophy,
+  Menu,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { SidebarService } from '../../core/services/sidebar.service';
 import { SignalRService } from '../../core/services/signalr.service';
 import { NotificationsService } from '../../features/notifications/services/notifications.service';
 import { NotificationDto, NotificationType } from '../../features/notifications/models/notification.model';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { UserRole } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-header',
@@ -49,7 +48,6 @@ export class HeaderComponent implements OnInit {
 
   readonly icons = {
     Bell,
-    Search,
     ChevronDown,
     LogOut,
     UserCircle,
@@ -60,26 +58,16 @@ export class HeaderComponent implements OnInit {
     MessageCircle,
     BookOpen,
     Trophy,
+    Menu,
   };
 
   readonly currentUser = this.authService.currentUser;
-  readonly collapsed = this.sidebarService.collapsed;
 
   notificationsOpen = signal(false);
   profileOpen = signal(false);
 
   readonly recentNotifications = signal<NotificationDto[]>([]);
   readonly unreadCount = this.signalRService.unreadCount;
-
-  readonly pageTitle = toSignal(
-    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
-    { initialValue: null },
-  );
-
-  readonly currentPageTitle = computed(() => {
-    this.pageTitle(); // track navigation
-    return this.getTitleFromUrl(this.router.url);
-  });
 
   readonly userInitials = computed(() => {
     const user = this.currentUser();
@@ -93,11 +81,30 @@ export class HeaderComponent implements OnInit {
     return `${user.firstName} ${user.lastName}`;
   });
 
+  readonly userRoleKey = computed<'student' | 'teacher' | 'admin'>(() => {
+    switch (this.authService.userRole()) {
+      case UserRole.Teacher: return 'teacher';
+      case UserRole.Admin: return 'admin';
+      default: return 'student';
+    }
+  });
+
+  readonly userRoleLabel = computed(() => {
+    switch (this.userRoleKey()) {
+      case 'teacher': return 'Преподаватель';
+      case 'admin': return 'Администратор';
+      default: return 'Студент';
+    }
+  });
+
+  readonly profileRoute = computed(() => {
+    if (this.userRoleKey() === 'admin') return '/admin/settings';
+    return `/${this.userRoleKey()}/profile`;
+  });
+
   private readonly liveUpdatesEffect = effect(() => {
     const notification = this.signalRService.lastNotification();
-    if (!notification) {
-      return;
-    }
+    if (!notification) return;
 
     this.recentNotifications.update((list) => {
       const next = [notification, ...list.filter((item) => item.id !== notification.id)];
@@ -122,36 +129,6 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  private getTitleFromUrl(url: string): string {
-    const segments = url
-      .split('?')[0]
-      .split('/')
-      .filter(Boolean);
-    const map: Record<string, string> = {
-      dashboard: 'Дашборд',
-      courses: 'Мои курсы',
-      catalog: 'Каталог курсов',
-      calendar: 'Календарь',
-      messages: 'Сообщения',
-      notifications: 'Уведомления',
-      payments: 'Платежи и выплаты',
-      profile: 'Профиль',
-      assignments: 'Проверка работ',
-      gradebook: 'Журнал оценок',
-      schedule: 'Расписание',
-      reports: 'Отчёты',
-      glossary: 'Словарь',
-      users: 'Пользователи',
-      disciplines: 'Дисциплины',
-      analytics: 'Аналитика',
-      settings: 'Настройки',
-      create: 'Создать курс',
-    };
-
-    const matchedSegment = [...segments].reverse().find((segment) => map[segment]);
-    return matchedSegment ? map[matchedSegment] : 'EduPlatform';
-  }
-
   getNotificationIcon(type: NotificationType): LucideIconData {
     switch (type) {
       case NotificationType.Grade: return this.icons.Star;
@@ -166,14 +143,16 @@ export class HeaderComponent implements OnInit {
   toggleNotifications(): void {
     this.notificationsOpen.update((v) => !v);
     this.profileOpen.set(false);
-    if (this.notificationsOpen()) {
-      this.loadRecentNotifications();
-    }
+    if (this.notificationsOpen()) this.loadRecentNotifications();
   }
 
   toggleProfile(): void {
     this.profileOpen.update((v) => !v);
     this.notificationsOpen.set(false);
+  }
+
+  openMobileSidebar(): void {
+    this.sidebarService.openMobile();
   }
 
   markAllRead(): void {
@@ -229,7 +208,7 @@ export class HeaderComponent implements OnInit {
   navigateToNotifications(): void {
     this.notificationsOpen.set(false);
     const role = this.authService.userRole();
-    const prefix = role === 'Teacher' ? 'teacher' : 'student';
+    const prefix = role === 'Teacher' ? 'teacher' : role === 'Admin' ? 'admin' : 'student';
     this.router.navigate([`/${prefix}/notifications`]);
   }
 

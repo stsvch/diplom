@@ -11,6 +11,21 @@ public class Question : BaseEntity
     public int Points { get; set; }
     public int OrderIndex { get; set; }
 
+    /// <summary>
+    /// Авто (выбор варианта) или ручная (открытый ответ, код).
+    /// </summary>
+    public QuestionGradeType GradeType { get; set; } = QuestionGradeType.Auto;
+
+    /// <summary>
+    /// Пояснение к правильному ответу — показывается студенту после прохождения.
+    /// </summary>
+    public string? Explanation { get; set; }
+
+    /// <summary>
+    /// Эталонный ответ для подсказки преподавателю при ручной проверке (для текста и кода).
+    /// </summary>
+    public string? ExpectedAnswer { get; set; }
+
     public Test Test { get; set; } = null!;
     public ICollection<AnswerOption> AnswerOptions { get; set; } = new List<AnswerOption>();
 }

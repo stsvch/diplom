@@ -1,248 +1,254 @@
 @use '../../../styles/variables' as *;
 
-.sidebar {
+// ─────────────────────────────────────────────
+// Корень — light sidebar (Figma Make)
+// ─────────────────────────────────────────────
+.sb {
+  // ── Палитра по ролям (через data-role)
+  --sb-accent:        #{$indigo-500};
+  --sb-accent-hover:  #{$indigo-600};
+  --sb-accent-light:  #{$indigo-50};
+  --sb-accent-text:   #{$indigo-600};
+
+  &[data-role='teacher'] {
+    --sb-accent:        #{$amber-500};
+    --sb-accent-hover:  #{$amber-600};
+    --sb-accent-light:  #{$amber-50};
+    --sb-accent-text:   #{$amber-600};
+  }
+  &[data-role='admin'] {
+    --sb-accent:        #{$emerald-500};
+    --sb-accent-hover:  #{$emerald-600};
+    --sb-accent-light:  #{$emerald-50};
+    --sb-accent-text:   #{$emerald-600};
+  }
+
   display: flex;
   flex-direction: column;
-  width: $sidebar-width;
-  min-height: 100vh;
-  background-color: $sidebar-bg;
-  border-right: 1px solid $sidebar-border;
-  transition: width $transition-slow;
-  overflow: visible;
-  position: relative;
+  width: 256px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid $slate-100;
   flex-shrink: 0;
+  font-family: $font-family;
+}
 
-  &--collapsed {
-    width: $sidebar-collapsed-width;
+// ── Logo
+.sb__logo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-5 $spacing-6;
+  border-bottom: 1px solid $slate-100;
+  min-height: 64px;
 
-    .sidebar__logo-text,
-    .sidebar__nav-label,
-    .sidebar__user-info {
-      display: none;
-    }
-
-    .sidebar__logo {
-      justify-content: center;
-      padding: $spacing-4 0;
-    }
-
-    .sidebar__nav-item {
-      justify-content: center;
-      padding: $spacing-3 0;
-    }
-
-    .sidebar__user {
-      justify-content: center;
-      padding: $spacing-3 0;
-    }
-  }
-
-  &__logo {
-    display: flex;
-    align-items: center;
-    gap: $spacing-3;
-    padding: $spacing-5 $spacing-4;
-    border-bottom: 1px solid $sidebar-border;
-    min-height: $header-height;
-  }
-
-  &__logo-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background-color: $primary;
+  &-mark {
+    width: 32px;
+    height: 32px;
     border-radius: $radius-lg;
-    flex-shrink: 0;
-    color: $primary-foreground;
-
-    lucide-icon {
-      display: flex;
-    }
-  }
-
-  &__logo-text {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-bold;
+    background: var(--sb-accent);
     color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  &__nav {
-    flex: 1;
-    padding: $spacing-3 $spacing-2;
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    &::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: $sidebar-border;
-      border-radius: $radius-full;
-    }
-  }
-
-  &__nav-item {
-    display: flex;
-    align-items: center;
-    gap: $spacing-3;
-    padding: $spacing-2 $spacing-3;
-    border-radius: $radius-lg;
-    color: $sidebar-text;
-    text-decoration: none;
-    transition: background-color $transition-fast, color $transition-fast;
-    cursor: pointer;
-    margin-bottom: $spacing-1;
-    white-space: nowrap;
-    position: relative;
-
-    &:hover {
-      background-color: $sidebar-accent;
-      color: #fff;
-    }
-
-    &--active {
-      background-color: $primary;
-      color: $primary-foreground;
-
-      &:hover {
-        background-color: $primary-hover;
-      }
-    }
-  }
-
-  &__nav-icon {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
     flex-shrink: 0;
   }
 
-  &__nav-label {
+  &-text {
+    font-size: 1rem;
+    font-weight: $font-weight-bold;
+    color: $slate-900;
+    letter-spacing: -0.01em;
+  }
+}
+
+.sb__close {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: $slate-400;
+  cursor: pointer;
+  border-radius: $radius-lg;
+  transition: color $transition-fast, background $transition-fast;
+
+  &:hover {
+    background: $slate-100;
+    color: $slate-600;
+  }
+}
+
+// ── Role badge
+.sb__role-row {
+  padding: $spacing-3 $spacing-6;
+}
+
+.sb__role {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.05em;
+  background: var(--sb-accent-light);
+  color: var(--sb-accent-text);
+}
+
+.sb__role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sb-accent);
+}
+
+// ── Nav
+.sb__nav {
+  flex: 1;
+  padding: $spacing-2 $spacing-4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: $slate-200;
+    border-radius: $radius-full;
+  }
+}
+
+.sb__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: 10px $spacing-3;
+  border-radius: $radius-xl;
+  text-decoration: none;
+  color: $slate-500;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition:
+    background $transition-normal,
+    color $transition-normal;
+  width: 100%;
+
+  &-icon {
+    color: $slate-400;
+    transition: color $transition-normal;
+    flex-shrink: 0;
+    display: flex;
+  }
+
+  &-label {
     flex: 1;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
+    text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  &__nav-badge {
+  &-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 20px;
     height: 20px;
     padding: 0 6px;
-    background-color: $primary;
-    color: $primary-foreground;
+    background: var(--sb-accent);
+    color: #fff;
     font-size: 11px;
     font-weight: $font-weight-bold;
     border-radius: $radius-full;
     flex-shrink: 0;
-
-    .sidebar__nav-item--active & {
-      background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    &--dot {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 8px;
-      height: 8px;
-      min-width: unset;
-      padding: 0;
-      border-radius: $radius-full;
-      background-color: $danger;
-    }
   }
 
-  &__toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    background-color: $bg-card;
-    border: 1px solid $border-color;
-    border-radius: $radius-full;
-    color: $text-secondary;
-    cursor: pointer;
-    position: absolute;
-    right: -12px;
-    top: 76px;
-    transition: all $transition-fast;
-    z-index: 11;
-    box-shadow: $shadow-md;
+  &-marker {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    flex-shrink: 0;
+    transition: background $transition-normal;
+  }
+
+  &:hover {
+    background: $slate-50;
+    color: $slate-900;
+
+    .sb__item-icon { color: $slate-600; }
+  }
+
+  &--active {
+    background: var(--sb-accent-light);
+    color: var(--sb-accent-text);
+    font-weight: $font-weight-semibold;
+
+    .sb__item-icon { color: var(--sb-accent-text); }
+
+    .sb__item-marker {
+      background: var(--sb-accent);
+    }
 
     &:hover {
-      background-color: $primary;
-      color: $primary-foreground;
-      border-color: $primary;
+      background: var(--sb-accent-light);
+      color: var(--sb-accent-text);
     }
   }
 
-  &__user {
-    display: flex;
-    align-items: center;
-    gap: $spacing-3;
-    padding: $spacing-3 $spacing-4;
-    border-top: 1px solid $sidebar-border;
-  }
+  &--danger {
+    color: $red-400;
 
-  &__user-avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: $radius-full;
-    background-color: $primary;
-    color: $primary-foreground;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    flex-shrink: 0;
-    overflow: hidden;
-    border: 2px solid $sidebar-border;
+    .sb__item-icon { color: $red-400; }
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    &:hover {
+      background: $red-50;
+      color: $red-600;
+
+      .sb__item-icon { color: $red-600; }
     }
   }
+}
 
-  &__user-info {
-    flex: 1;
-    overflow: hidden;
+// ── Bottom block
+.sb__bottom {
+  padding: $spacing-4;
+  border-top: 1px solid $slate-100;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+// ─────────────────────────────────────────────
+// Mobile (<1024px)
+// ─────────────────────────────────────────────
+@media (max-width: 1023px) {
+  .sb {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 41;
+    transform: translateX(-100%);
+    transition: transform $transition-slow;
+    box-shadow: $shadow-2xl;
   }
 
-  &__user-name {
-    display: block;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .sb--mobile-open {
+    transform: translateX(0);
   }
 
-  &__user-role {
-    display: block;
-    font-size: $font-size-xs;
-    color: $sidebar-text-muted;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .sb__close {
+    display: inline-flex;
   }
 }

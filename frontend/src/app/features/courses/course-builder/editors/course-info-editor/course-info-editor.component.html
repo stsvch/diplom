@@ -1,0 +1,137 @@
+@if (store.course(); as c) {
+  <div class="cie">
+    <header class="cie__header">
+      <div class="cie__eyebrow">
+        <lucide-icon [img]="icons.info" [size]="14" />
+        <span>Информация о курсе</span>
+      </div>
+      <h2>Основные данные курса</h2>
+      <p>Эта информация отображается в каталоге и на странице курса</p>
+    </header>
+
+    <div class="cie__field">
+      <label>Название курса <span class="cie__required">*</span></label>
+      <input
+        type="text"
+        class="cie__input"
+        [ngModel]="c.title"
+        (ngModelChange)="setTitle($event)"
+        placeholder="Введите название курса"
+      />
+    </div>
+
+    <div class="cie__field">
+      <label>Подробное описание <span class="cie__required">*</span></label>
+      <textarea
+        class="cie__textarea"
+        [ngModel]="c.description"
+        (ngModelChange)="setDescription($event)"
+        rows="5"
+        placeholder="Расскажите подробнее о курсе: что студент узнает, как будет проходить обучение..."
+      ></textarea>
+    </div>
+
+    <div class="cie__field">
+      <label>Обложка (URL)</label>
+      <input
+        type="url"
+        class="cie__input"
+        [ngModel]="c.imageUrl"
+        (ngModelChange)="setImageUrl($event)"
+        placeholder="https://..."
+      />
+      @if (c.imageUrl) {
+        <img class="cie__preview" [src]="c.imageUrl" alt="" />
+      }
+    </div>
+
+    <div class="cie__row">
+      <div class="cie__field">
+        <label>Уровень</label>
+        <input class="cie__input" type="text" [value]="c.level" disabled />
+      </div>
+      <div class="cie__field">
+        <label>Дисциплина</label>
+        <input class="cie__input" type="text" [value]="c.disciplineName" disabled />
+      </div>
+    </div>
+
+    <div class="cie__field">
+      <label>Цена</label>
+      <div class="cie__price-toggle">
+        <button
+          type="button"
+          [class.cie__price-toggle--active]="c.isFree"
+          (click)="setIsFree(true)"
+        >Бесплатно</button>
+        <button
+          type="button"
+          [class.cie__price-toggle--active]="!c.isFree"
+          (click)="setIsFree(false)"
+        >Платно</button>
+      </div>
+      @if (!c.isFree) {
+        <input
+          type="number"
+          class="cie__input"
+          [ngModel]="c.price"
+          (ngModelChange)="setPrice($event)"
+          placeholder="Цена в рублях"
+          min="0"
+        />
+      }
+    </div>
+
+    <div class="cie__field">
+      <label>Теги (через запятую)</label>
+      <input
+        type="text"
+        class="cie__input"
+        [ngModel]="c.tags"
+        (ngModelChange)="setTags($event)"
+        placeholder="например: дизайн, ux, прототипирование"
+      />
+    </div>
+
+    <div class="cie__settings">
+      <label class="cie__check">
+        <input
+          type="checkbox"
+          [checked]="c.hasGrading"
+          (change)="setHasGrading($any($event.target).checked)"
+        />
+        <span>Курс с оценками</span>
+      </label>
+      <label class="cie__check">
+        <input
+          type="checkbox"
+          [checked]="c.hasCertificate"
+          (change)="setHasCertificate($any($event.target).checked)"
+        />
+        <span>Выдавать сертификат</span>
+      </label>
+    </div>
+
+    <div class="cie__stats">
+      <p class="cie__stats-label">Статистика курса</p>
+      <div class="cie__stats-row">
+        <div class="cie__stat">
+          <span class="cie__stat-value">{{ c.studentsCount }}</span>
+          <span class="cie__stat-label">студентов</span>
+        </div>
+        <div class="cie__stat">
+          <span class="cie__stat-value">{{ c.sectionsCount }}</span>
+          <span class="cie__stat-label">разделов</span>
+        </div>
+        <div class="cie__stat">
+          <span class="cie__stat-value">{{ c.lessonsCount }}</span>
+          <span class="cie__stat-label">уроков</span>
+        </div>
+        <div class="cie__stat">
+          <span class="cie__stat-value">{{ c.testsCount }}</span>
+          <span class="cie__stat-label">тестов</span>
+        </div>
+      </div>
+    </div>
+  </div>
+}

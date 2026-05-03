@@ -1,0 +1,105 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: eduplatform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=eduplatform;Username=postgres;Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__MongoDB: mongodb://mongo:27017
+      FrontendUrl: http://localhost:4200
+      Cors__AllowedOrigins__0: http://localhost:4200
+      MinIO__Endpoint: minio:9000
+      MinIO__AccessKey: ${MINIO_ROOT_USER:-minioadmin}
+      MinIO__SecretKey: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MinIO__BucketName: eduplatform-files
+      MinIO__UseSSL: "false"
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Set STRIPE_SECRET_KEY in .env}
+      Stripe__Country: ${STRIPE_COUNTRY:-US}
+      Payments__Currency: usd
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      minio:
+        condition: service_started
+      stripe-listen:
+        condition: service_started
+    volumes:
+      - stripe_data:/stripe:ro
+
+  stripe-listen:
+    image: stripe/stripe-cli:latest
+    entrypoint: ["/bin/sh"]
+    command:
+      - "-c"
+      - |
+        rm -f /stripe/webhook-secret
+        stripe listen --api-key "$$STRIPE_SECRET_KEY" --forward-to http://backend:5000/api/payments/webhooks/stripe 2>&1 | while IFS= read -r line; do
+          secret="$$(printf "%s" "$$line" | grep -o 'whsec_[A-Za-z0-9]*' | head -n 1 || true)"
+          if [ -n "$$secret" ] && [ ! -f /stripe/webhook-secret ]; then
+            printf "%s" "$$secret" > /stripe/webhook-secret
+            echo "Stripe listener is ready."
+          elif printf "%s" "$$line" | grep -q 'whsec_'; then
+            echo "Stripe listener is ready."
+          else
+            echo "$$line"
+          fi
+        done
+    environment:
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Set STRIPE_SECRET_KEY in .env}
+    volumes:
+      - stripe_data:/stripe
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  mongo_data:
+  minio_data:
+  stripe_data:

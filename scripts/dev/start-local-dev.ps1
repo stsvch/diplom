@@ -396,6 +396,9 @@ if (-not $SkipBackend) {
     if (-not [string]::IsNullOrWhiteSpace($stripeCountry)) {
         $backendEnv['Stripe__Country'] = $stripeCountry
     }
+    if ($SkipStripe -and -not $backendEnv.ContainsKey('Payments__Provider')) {
+        $backendEnv['Payments__Provider'] = 'Local'
+    }
 
     Write-Step 'Запускаю backend на http://localhost:5000'
     $backendProcess = Start-ManagedProcess `

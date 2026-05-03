@@ -38,7 +38,10 @@ public class QuestionsController : ControllerBase
             request.Type,
             request.Text,
             request.Points,
-            request.AnswerOptions.Select(o => new AnswerOptionInput(o.Text, o.IsCorrect, o.MatchingPairValue)).ToList());
+            request.AnswerOptions.Select(o => new AnswerOptionInput(o.Text, o.IsCorrect, o.MatchingPairValue)).ToList(),
+            request.GradeType ?? Tests.Domain.Enums.QuestionGradeType.Auto,
+            request.Explanation,
+            request.ExpectedAnswer);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -63,7 +66,10 @@ public class QuestionsController : ControllerBase
             request.Type,
             request.Text,
             request.Points,
-            request.AnswerOptions.Select(o => new UpdateAnswerOptionInput(o.Id, o.Text, o.IsCorrect, o.MatchingPairValue)).ToList());
+            request.AnswerOptions.Select(o => new UpdateAnswerOptionInput(o.Id, o.Text, o.IsCorrect, o.MatchingPairValue)).ToList(),
+            request.GradeType,
+            request.Explanation,
+            request.ExpectedAnswer);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -112,7 +118,10 @@ public record AddQuestionRequest(
     QuestionType Type,
     string Text,
     int Points,
-    List<AnswerOptionRequest> AnswerOptions);
+    List<AnswerOptionRequest> AnswerOptions,
+    Tests.Domain.Enums.QuestionGradeType? GradeType = null,
+    string? Explanation = null,
+    string? ExpectedAnswer = null);
 
 public record AnswerOptionRequest(string Text, bool IsCorrect, string? MatchingPairValue);
 
@@ -120,7 +129,10 @@ public record UpdateQuestionRequest(
     QuestionType Type,
     string Text,
     int Points,
-    List<UpdateAnswerOptionRequest> AnswerOptions);
+    List<UpdateAnswerOptionRequest> AnswerOptions,
+    Tests.Domain.Enums.QuestionGradeType? GradeType = null,
+    string? Explanation = null,
+    string? ExpectedAnswer = null);
 
 public record UpdateAnswerOptionRequest(Guid? Id, string Text, bool IsCorrect, string? MatchingPairValue);
 

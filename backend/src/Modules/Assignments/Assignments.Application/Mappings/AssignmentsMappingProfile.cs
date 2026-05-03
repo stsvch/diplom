@@ -8,8 +8,11 @@ public class AssignmentsMappingProfile : Profile
 {
     public AssignmentsMappingProfile()
     {
+        CreateMap<AssignmentCriteria, AssignmentCriteriaDto>();
+
         CreateMap<Assignment, AssignmentDto>()
-            .ForMember(d => d.SubmissionsCount, opt => opt.MapFrom(s => s.Submissions.Count));
+            .ForMember(d => d.SubmissionsCount, opt => opt.MapFrom(s => s.Submissions.Count))
+            .ForMember(d => d.CriteriaItems, opt => opt.MapFrom(s => s.CriteriaItems.OrderBy(c => c.OrderIndex)));
 
         CreateMap<Assignment, AssignmentDetailDto>()
             .ForMember(d => d.SubmissionsCount, opt => opt.MapFrom(s => s.Submissions.Count))

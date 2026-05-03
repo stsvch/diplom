@@ -1,4 +1,5 @@
 using Assignments.Application.DTOs;
+using Assignments.Domain.Enums;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
@@ -12,5 +13,7 @@ public record CreateAssignmentCommand(
     DateTime? Deadline,
     int? MaxAttempts,
     int MaxScore,
-    string CreatedById
+    string CreatedById,
+    AssignmentSubmissionFormat SubmissionFormat = AssignmentSubmissionFormat.Both,
+    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null
 ) : IRequest<Result<AssignmentDto>>;

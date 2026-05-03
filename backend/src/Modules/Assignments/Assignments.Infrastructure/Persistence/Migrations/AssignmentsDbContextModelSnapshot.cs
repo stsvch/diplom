@@ -56,6 +56,13 @@ namespace Assignments.Infrastructure.Persistence.Migrations
                     b.Property<int>("MaxScore")
                         .HasColumnType("integer");
 
+                    b.Property<string>("SubmissionFormat")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Both");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -69,6 +76,33 @@ namespace Assignments.Infrastructure.Persistence.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("Assignments", "assignments");
+                });
+
+            modelBuilder.Entity("Assignments.Domain.Entities.AssignmentCriteria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxPoints")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentId");
+
+                    b.ToTable("AssignmentCriteria", "assignments");
                 });
 
             modelBuilder.Entity("Assignments.Domain.Entities.AssignmentSubmission", b =>
@@ -130,8 +164,21 @@ namespace Assignments.Infrastructure.Persistence.Migrations
                     b.Navigation("Assignment");
                 });
 
+            modelBuilder.Entity("Assignments.Domain.Entities.AssignmentCriteria", b =>
+                {
+                    b.HasOne("Assignments.Domain.Entities.Assignment", "Assignment")
+                        .WithMany("CriteriaItems")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+                });
+
             modelBuilder.Entity("Assignments.Domain.Entities.Assignment", b =>
                 {
+                    b.Navigation("CriteriaItems");
+
                     b.Navigation("Submissions");
                 });
 #pragma warning restore 612, 618

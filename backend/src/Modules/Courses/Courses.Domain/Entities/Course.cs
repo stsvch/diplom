@@ -23,10 +23,15 @@ public class Course : BaseEntity, IAuditableEntity
     public string? ImageUrl { get; set; }
     public CourseLevel Level { get; set; }
     public string? Tags { get; set; }
+    public double? RatingAverage { get; set; }
+    public int RatingCount { get; set; }
+    public int ReviewsCount { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
     public Discipline Discipline { get; set; } = null!;
     public ICollection<CourseModule> Modules { get; set; } = new List<CourseModule>();
+    public ICollection<CourseItem> Items { get; set; } = new List<CourseItem>();
     public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
+    public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
 }

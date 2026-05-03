@@ -1,0 +1,142 @@
+// ======================
+// Анимации/keyframes для редизайна (Figma Make → Angular)
+// ======================
+
+// ── Float (плавающие карточки в hero)
+@keyframes float-y-sm {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes float-y-md {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes float-y-lg {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+// ── Aurora orbs (мерцающие пятна на фоне)
+@keyframes aurora-pulse-1 {
+  0%, 100% { transform: scale(1); opacity: 0.30; }
+  50%      { transform: scale(1.10); opacity: 0.50; }
+}
+@keyframes aurora-pulse-2 {
+  0%, 100% { transform: scale(1.10); opacity: 0.20; }
+  50%      { transform: scale(1.00); opacity: 0.40; }
+}
+@keyframes aurora-pulse-3 {
+  0%, 100% { transform: scale(1); opacity: 0.15; }
+  50%      { transform: scale(1.20); opacity: 0.30; }
+}
+
+// ── Fade-up при появлении
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fade-from-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-from-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+// ── Прогресс-кольцо (рисуется на маунт)
+@keyframes draw-stroke {
+  from { stroke-dashoffset: var(--circ, 100); }
+  to   { stroke-dashoffset: var(--target, 35); }
+}
+
+// ── Прогресс-бар: ширина 0 → target (target задаётся через --bar-w)
+@keyframes grow-width {
+  from { width: 0; }
+  to   { width: var(--bar-w, 100%); }
+}
+
+// ── Pulse (для активных индикаторов)
+@keyframes ping-soft {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+}
+
+// ── Скейл при ховере (используется через классы)
+@keyframes scale-pop {
+  from { transform: scale(0.96); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+// ── Marquee (для бегущих строк, на будущее)
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+// ──────────────────────────────────────────
+// Утилитарные классы
+// ──────────────────────────────────────────
+.anim-fade-up {
+  animation: fade-up 0.6s ease-out both;
+}
+.anim-fade-up-delay-1 { animation: fade-up 0.6s ease-out 0.1s both; }
+.anim-fade-up-delay-2 { animation: fade-up 0.6s ease-out 0.2s both; }
+.anim-fade-up-delay-3 { animation: fade-up 0.6s ease-out 0.3s both; }
+.anim-fade-up-delay-4 { animation: fade-up 0.6s ease-out 0.4s both; }
+
+.anim-fade-from-right {
+  animation: fade-from-right 0.8s ease-out 0.3s both;
+}
+
+.anim-float-1 { animation: float-y-sm 4s ease-in-out infinite; }
+.anim-float-2 { animation: float-y-md 5s ease-in-out 0.5s infinite; }
+.anim-float-3 { animation: float-y-lg 5.5s ease-in-out 1s infinite; }
+.anim-float-4 { animation: float-y-md 4.5s ease-in-out 1.5s infinite; }
+.anim-float-5 { animation: float-y-sm 4.2s ease-in-out 2s infinite; }
+.anim-float-6 { animation: float-y-md 4.8s ease-in-out 0.8s infinite; }
+
+.anim-aurora-1 { animation: aurora-pulse-1 6s ease-in-out infinite; }
+.anim-aurora-2 { animation: aurora-pulse-2 7s ease-in-out infinite; }
+.anim-aurora-3 { animation: aurora-pulse-3 8s ease-in-out infinite; }
+
+// IntersectionObserver-based reveal
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@for $i from 1 through 8 {
+  .reveal.delay-#{$i} {
+    transition-delay: #{$i * 0.06}s;
+  }
+}
+
+// Уважать prefers-reduced-motion
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up,
+  .anim-fade-up-delay-1,
+  .anim-fade-up-delay-2,
+  .anim-fade-up-delay-3,
+  .anim-fade-up-delay-4,
+  .anim-fade-from-right,
+  .anim-float-1, .anim-float-2, .anim-float-3,
+  .anim-float-4, .anim-float-5, .anim-float-6,
+  .anim-aurora-1, .anim-aurora-2, .anim-aurora-3,
+  .reveal {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

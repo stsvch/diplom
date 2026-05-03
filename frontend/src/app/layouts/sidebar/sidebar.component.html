@@ -1,62 +1,56 @@
-<aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
+<aside class="sb" [class.sb--mobile-open]="mobileOpen()" [attr.data-role]="roleKey()">
   <!-- Logo -->
-  <div class="sidebar__logo">
-    <div class="sidebar__logo-icon">
-      <lucide-icon [img]="icons.GraduationCap" [size]="22" />
-    </div>
-    @if (!collapsed()) {
-      <span class="sidebar__logo-text">EduPlatform</span>
-    }
+  <div class="sb__logo">
+    <span class="sb__logo-mark">
+      <lucide-icon [img]="icons.GraduationCap" [size]="16" />
+    </span>
+    <span class="sb__logo-text">EduPlatform</span>
+    <button class="sb__close" type="button" (click)="closeMobile()" aria-label="Закрыть меню">
+      <lucide-icon [img]="icons.X" [size]="18" />
+    </button>
+  </div>
+
+  <!-- Role badge -->
+  <div class="sb__role-row">
+    <span class="sb__role">
+      <span class="sb__role-dot"></span>
+      {{ roleLabel() }}
+    </span>
   </div>
 
   <!-- Navigation -->
-  <nav class="sidebar__nav">
+  <nav class="sb__nav">
     @for (item of navItems(); track item.route) {
       <a
-        class="sidebar__nav-item"
+        class="sb__item"
         [routerLink]="item.route"
-        routerLinkActive="sidebar__nav-item--active"
-        [title]="collapsed() ? item.label : ''"
+        routerLinkActive="sb__item--active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        (click)="closeMobile()"
       >
-        <span class="sidebar__nav-icon">
-          <lucide-icon [img]="item.icon" [size]="18" />
-        </span>
-        @if (!collapsed()) {
-          <span class="sidebar__nav-label">{{ item.label }}</span>
-          @if (item.badge) {
-            <span class="sidebar__nav-badge">{{ item.badge }}</span>
-          }
+        <lucide-icon class="sb__item-icon" [img]="item.icon" [size]="18" />
+        <span class="sb__item-label">{{ item.label }}</span>
+        @if (item.badge) {
+          <span class="sb__item-badge">{{ item.badge }}</span>
         }
-        @if (collapsed() && item.badge) {
-          <span class="sidebar__nav-badge sidebar__nav-badge--dot"></span>
-        }
+        <span class="sb__item-marker"></span>
       </a>
     }
   </nav>
 
-  <!-- Toggle Button -->
-  <button class="sidebar__toggle" (click)="toggle()" [title]="collapsed() ? 'Развернуть' : 'Свернуть'">
-    @if (collapsed()) {
-      <lucide-icon [img]="icons.ChevronRight" [size]="16" />
-    } @else {
-      <lucide-icon [img]="icons.ChevronLeft" [size]="16" />
-    }
-  </button>
-
-  <!-- User Info -->
-  <div class="sidebar__user">
-    <div class="sidebar__user-avatar">
-      @if (currentUser()?.avatarUrl) {
-        <img [src]="currentUser()!.avatarUrl" [alt]="userFullName()" />
-      } @else {
-        <span>{{ userInitials() }}</span>
-      }
-    </div>
-    @if (!collapsed()) {
-      <div class="sidebar__user-info">
-        <span class="sidebar__user-name">{{ userFullName() }}</span>
-        <span class="sidebar__user-role">{{ userRoleLabel() }}</span>
-      </div>
-    }
+  <!-- Bottom -->
+  <div class="sb__bottom">
+    <a class="sb__item" routerLink="/" (click)="closeMobile()">
+      <lucide-icon class="sb__item-icon" [img]="icons.Home" [size]="18" />
+      <span class="sb__item-label">Главная</span>
+    </a>
+    <a class="sb__item" [routerLink]="settingsRoute()" (click)="closeMobile()">
+      <lucide-icon class="sb__item-icon" [img]="icons.Settings" [size]="18" />
+      <span class="sb__item-label">Настройки</span>
+    </a>
+    <button class="sb__item sb__item--danger" type="button" (click)="logout()">
+      <lucide-icon class="sb__item-icon" [img]="icons.LogOut" [size]="18" />
+      <span class="sb__item-label">Выйти</span>
+    </button>
   </div>
 </aside>

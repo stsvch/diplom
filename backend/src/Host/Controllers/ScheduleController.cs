@@ -1,4 +1,5 @@
 using Calendar.Application.Calendar.Commands.CreateCalendarEvent;
+using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Shared.Domain.Enums;
 using MediatR;
@@ -26,10 +27,12 @@ namespace EduPlatform.Host.Controllers;
 public class ScheduleController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly CourseItemSyncService _courseItems;
 
-    public ScheduleController(IMediator mediator)
+    public ScheduleController(IMediator mediator, CourseItemSyncService courseItems)
     {
         _mediator = mediator;
+        _courseItems = courseItems;
     }
 
     // ---- Teacher endpoints ----
@@ -54,6 +57,15 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_CREATE_FAILED"));
+
+        await _courseItems.EnsureLiveSessionItemAsync(
+            result.Value!.CourseId,
+            result.Value.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.StartTime,
+            result.Value.EndTime,
+            ct);
 
         // Create calendar event for the teacher
         try
@@ -109,6 +121,15 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_UPDATE_FAILED"));
+
+        await _courseItems.EnsureLiveSessionItemAsync(
+            result.Value!.CourseId,
+            result.Value.Id,
+            result.Value.Title,
+            result.Value.Description,
+            result.Value.StartTime,
+            result.Value.EndTime,
+            ct);
 
         return Ok(result.Value);
     }

@@ -13,5 +13,8 @@ public record AddQuestionCommand(
     QuestionType Type,
     string Text,
     int Points,
-    List<AnswerOptionInput> AnswerOptions
+    List<AnswerOptionInput> AnswerOptions,
+    QuestionGradeType GradeType = QuestionGradeType.Auto,
+    string? Explanation = null,
+    string? ExpectedAnswer = null
 ) : IRequest<Result<QuestionDto>>;

@@ -1,4 +1,5 @@
 using Assignments.Application.DTOs;
+using Assignments.Domain.Enums;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
@@ -13,5 +14,8 @@ public record UpdateAssignmentCommand(
     string? Criteria,
     DateTime? Deadline,
     int? MaxAttempts,
-    int MaxScore
+    int MaxScore,
+    AssignmentSubmissionFormat? SubmissionFormat = null,
+    /// <summary>Если задан — полностью заменяет CriteriaItems. Null — оставить как есть.</summary>
+    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null
 ) : IRequest<Result<AssignmentDto>>;

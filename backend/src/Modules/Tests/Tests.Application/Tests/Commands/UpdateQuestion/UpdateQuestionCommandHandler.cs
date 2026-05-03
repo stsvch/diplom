@@ -37,6 +37,10 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         question.Type = request.Type;
         question.Text = request.Text;
         question.Points = request.Points;
+        if (request.GradeType.HasValue)
+            question.GradeType = request.GradeType.Value;
+        question.Explanation = request.Explanation;
+        question.ExpectedAnswer = request.ExpectedAnswer;
 
         // Remove old options
         _context.AnswerOptions.RemoveRange(question.AnswerOptions);

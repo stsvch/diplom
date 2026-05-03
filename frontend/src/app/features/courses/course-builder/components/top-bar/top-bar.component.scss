@@ -1,0 +1,336 @@
+@use '../../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.tb {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: 0 $spacing-4;
+  background: #fff;
+  border-bottom: 1px solid $slate-100;
+  box-shadow: $shadow-sm;
+  position: relative;
+  z-index: 30;
+}
+
+.tb__icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  border-radius: $radius-lg;
+  color: $slate-500;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover { background: $slate-100; color: $slate-800; }
+}
+
+.tb__mobile-only {
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: inline-flex;
+  }
+}
+
+.tb__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  color: $slate-500;
+  cursor: pointer;
+  border-radius: $radius-lg;
+  flex-shrink: 0;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover { background: $slate-100; color: $slate-800; }
+
+  &-label {
+    @media (max-width: $breakpoint-sm) {
+      display: none;
+    }
+  }
+}
+
+.tb__divider {
+  width: 1px;
+  height: 20px;
+  background: $slate-200;
+  flex-shrink: 0;
+}
+
+.tb__logo {
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-lg;
+  background: $indigo-600;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tb__title-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tb__title {
+  font-size: 0.95rem;
+  font-weight: $font-weight-semibold;
+  color: $slate-900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.tb-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: $radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  flex-shrink: 0;
+
+  &--draft     { background: $slate-100; color: $slate-600; }
+  &--published { background: $emerald-50; color: $emerald-600; }
+  &--archived  { background: $slate-100; color: $slate-500; }
+  &--dirty     { background: $amber-50; color: $amber-600; }
+}
+
+.tb__progress {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+
+  &-bar {
+    width: 110px;
+    height: 6px;
+    background: $slate-100;
+    border-radius: $radius-full;
+    overflow: hidden;
+  }
+
+  &-fill {
+    display: block;
+    height: 100%;
+    background: $indigo-500;
+    border-radius: $radius-full;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &-label {
+    color: $slate-500;
+    font-size: $font-size-xs;
+  }
+}
+
+.tb__save {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 100px;
+  justify-content: flex-end;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+
+  &-msg {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: $slate-400;
+    font-size: $font-size-xs;
+
+    &--err { color: $rose-600; }
+  }
+
+  &-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid $slate-300;
+    border-top-color: $indigo-500;
+    border-radius: 50%;
+    animation: cb-spin 0.8s linear infinite;
+  }
+
+  &-ok { color: $emerald-500; }
+}
+
+@keyframes cb-spin { to { transform: rotate(360deg); } }
+
+.tb__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex-shrink: 0;
+}
+
+.tb__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 36px;
+  border: 0;
+  border-radius: $radius-lg;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast, transform $transition-fast;
+
+  &--primary {
+    background: $indigo-600;
+    color: #fff;
+
+    &:hover { background: $indigo-700; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $slate-600;
+
+    &:hover { background: $slate-100; color: $slate-900; }
+  }
+
+  &-label {
+    @media (max-width: $breakpoint-sm) {
+      display: none;
+    }
+  }
+}
+
+// ── Modals ─────────────────────────────────────
+.tb-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.40);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  animation: tb-fade-in 0.15s ease-out;
+}
+
+.tb-modal__card {
+  background: #fff;
+  border-radius: $radius-2xl;
+  padding: $spacing-6;
+  max-width: 28rem;
+  width: 100%;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  animation: tb-pop 0.2s ease-out;
+}
+
+@keyframes tb-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tb-pop {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.tb-modal__head {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  &-text {
+    flex: 1;
+
+    h3 {
+      font-size: 1rem;
+      font-weight: $font-weight-bold;
+      color: $slate-900;
+      margin: 0 0 4px;
+    }
+
+    p {
+      color: $slate-500;
+      font-size: $font-size-sm;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+.tb-modal__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &--warn { background: $amber-100; color: $amber-500; }
+  &--err  { background: $red-100; color: $red-500; }
+}
+
+.tb-modal__close {
+  background: transparent;
+  border: 0;
+  color: $slate-400;
+  cursor: pointer;
+
+  &:hover { color: $slate-600; }
+}
+
+.tb-modal__issues {
+  list-style: none;
+  margin: 0 0 $spacing-5;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: $slate-600;
+    font-size: $font-size-sm;
+  }
+}
+
+.tb-modal__issue-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $rose-400;
+  flex-shrink: 0;
+}
+
+.tb-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}

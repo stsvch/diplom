@@ -97,7 +97,7 @@ export class CourseDetailComponent implements OnInit {
           this.expandedModules.set(new Set([data.modules[0].id]));
         }
         // Load real progress only for students (not in preview)
-        if (!this.isPreview() && this.authService.userRole() === 'Student') {
+        if (!this.isPreview() && this.authService.userRole() === 'Student' && data.progress !== undefined && data.progress !== null) {
           this.loadCourseProgress(id);
         }
       },
@@ -137,6 +137,17 @@ export class CourseDetailComponent implements OnInit {
       this.toastService.info('Запись недоступна в режиме предпросмотра');
       return;
     }
+
+    if (!this.authService.isAuthenticated()) {
+      this.toastService.info('Чтобы записаться на курс, сначала войдите или зарегистрируйтесь.');
+      return;
+    }
+
+    if (!this.isStudentView()) {
+      this.toastService.info('Покупка и запись на курс доступны только для аккаунта студента.');
+      return;
+    }
+
     const c = this.course();
     if (!c) return;
     this.enrolling.set(true);
@@ -197,6 +208,48 @@ export class CourseDetailComponent implements OnInit {
 
   isEnrolled(): boolean {
     return (this.course()?.progress ?? undefined) !== undefined;
+  }
+
+  isGuestView(): boolean {
+    return !this.authService.isAuthenticated();
+  }
+
+  isStudentView(): boolean {
+    return this.authService.userRole() === 'Student';
+  }
+
+  isReadOnlyAuthenticatedView(): boolean {
+    return this.authService.isAuthenticated() && !this.isStudentView();
+  }
+
+  get catalogLink(): string {
+    return this.isStudentView() ? '/student/catalog' : '/catalog';
+  }
+
+  get dashboardLink(): string {
+    switch (this.authService.userRole()) {
+      case 'Teacher':
+        return '/teacher/dashboard';
+      case 'Admin':
+        return '/admin/dashboard';
+      case 'Student':
+        return '/student/dashboard';
+      default:
+        return '/';
+    }
+  }
+
+  get dashboardLabel(): string {
+    switch (this.authService.userRole()) {
+      case 'Teacher':
+        return 'Открыть кабинет преподавателя';
+      case 'Admin':
+        return 'Открыть админ-панель';
+      case 'Student':
+        return 'Открыть дашборд';
+      default:
+        return 'На главную';
+    }
   }
 
   getLessonIcon(lesson: { blocksCount: number }): any {

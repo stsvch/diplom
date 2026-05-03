@@ -44,6 +44,12 @@ public class TestsDbContext : BaseDbContext, ITestsDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Text).IsRequired().HasMaxLength(5000);
             entity.Property(e => e.Type).HasConversion<string>().HasMaxLength(50);
+            entity.Property(e => e.GradeType)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(QuestionGradeType.Auto);
+            entity.Property(e => e.Explanation).HasMaxLength(2000);
+            entity.Property(e => e.ExpectedAnswer).HasMaxLength(10000);
             entity.HasIndex(e => e.TestId);
 
             entity.HasMany(e => e.AnswerOptions)

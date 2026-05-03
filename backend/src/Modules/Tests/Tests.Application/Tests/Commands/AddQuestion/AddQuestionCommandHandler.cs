@@ -39,7 +39,10 @@ public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, Res
             Type = request.Type,
             Text = request.Text,
             Points = request.Points,
-            OrderIndex = maxOrder + 1
+            OrderIndex = maxOrder + 1,
+            GradeType = request.GradeType,
+            Explanation = request.Explanation,
+            ExpectedAnswer = request.ExpectedAnswer
         };
 
         for (int i = 0; i < request.AnswerOptions.Count; i++)

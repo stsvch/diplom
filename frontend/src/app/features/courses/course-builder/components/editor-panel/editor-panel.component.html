@@ -1,0 +1,95 @@
+@if (store.selection().kind === 'course_info') {
+  <app-cb-course-info-editor [store]="store" />
+} @else if (store.selection().kind === 'item' && store.selectedItem(); as item) {
+  @switch (item.type) {
+    @case ('Lesson') { <app-cb-lesson-editor [store]="store" /> }
+    @case ('Test') { <app-cb-test-editor [store]="store" /> }
+    @case ('Assignment') { <app-cb-assignment-editor [store]="store" /> }
+    @case ('LiveSession') { <app-cb-live-session-editor [store]="store" /> }
+    @case ('Resource') { <app-cb-material-editor [store]="store" /> }
+    @case ('ExternalLink') { <app-cb-material-editor [store]="store" /> }
+  }
+} @else {
+  <!-- Empty states -->
+  @if (store.sections().length === 0) {
+    <div class="ep-empty">
+      <div class="ep-empty__icon-big">
+        <lucide-icon [img]="icons.layers" [size]="48" />
+      </div>
+      <h2>Курс пока пустой</h2>
+      <p>
+        Начните с добавления первого раздела. Внутри разделов размещаются уроки, тесты,
+        задания и другие элементы.
+      </p>
+
+      <div class="ep-empty__steps">
+        <p class="ep-empty__steps-title">Структура курса</p>
+        <div class="ep-empty__step">
+          <span class="ep-empty__step-num">1</span>
+          <span><strong>Разделы</strong> — группируют учебный материал по темам</span>
+        </div>
+        <div class="ep-empty__step">
+          <span class="ep-empty__step-num">2</span>
+          <span><strong>Элементы</strong> — уроки, тесты, задания, live-занятия</span>
+        </div>
+        <div class="ep-empty__step">
+          <span class="ep-empty__step-num">3</span>
+          <span><strong>Блоки</strong> — текст, видео, картинки, файлы внутри урока</span>
+        </div>
+      </div>
+
+      <div class="ep-empty__actions">
+        <button class="ep-empty__btn ep-empty__btn--primary" (click)="store.addSection()">
+          <lucide-icon [img]="icons.plus" [size]="16" />
+          Добавить первый раздел
+        </button>
+        <button
+          class="ep-empty__btn ep-empty__btn--ghost"
+          (click)="store.setSelection({ kind: 'course_info' })"
+        >
+          <lucide-icon [img]="icons.bookOpen" [size]="16" />
+          Заполнить информацию
+        </button>
+      </div>
+    </div>
+  } @else if (!hasAnyItem()) {
+    <div class="ep-empty">
+      <div class="ep-empty__icon-md">
+        <lucide-icon [img]="icons.plus" [size]="32" />
+      </div>
+      <h3>Разделы созданы — добавьте элементы</h3>
+      <p>
+        Что добавить в раздел
+        <strong>«{{ store.sections()[0]?.title }}»</strong>?
+      </p>
+
+      <div class="ep-empty__quick-grid">
+        @for (qa of quickAdd; track qa.type) {
+          <button
+            class="ep-empty__quick"
+            [class]="'ep-empty__quick--' + qa.color"
+            (click)="addToFirstSection(qa.type)"
+          >
+            <lucide-icon [img]="qa.icon" [size]="16" />
+            <span class="ep-empty__quick-text">
+              <span class="ep-empty__quick-title">{{ qa.label }}</span>
+              <span class="ep-empty__quick-desc">{{ qa.desc }}</span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <p class="ep-empty__hint">
+        Или выберите раздел слева и нажмите «Добавить элемент»
+      </p>
+    </div>
+  } @else {
+    <div class="ep-empty">
+      <div class="ep-empty__icon-md ep-empty__icon-md--gray">
+        <lucide-icon [img]="icons.pointer" [size]="32" />
+      </div>
+      <h3>Выберите элемент для редактирования</h3>
+      <p>Нажмите на урок, тест или задание в левой панели, чтобы открыть редактор</p>
+    </div>
+  }
+}

@@ -12,4 +12,5 @@ public class CourseModule : BaseEntity
 
     public Course Course { get; set; } = null!;
     public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+    public ICollection<CourseItem> Items { get; set; } = new List<CourseItem>();
 }

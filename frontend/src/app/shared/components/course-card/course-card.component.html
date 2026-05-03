@@ -1,72 +1,91 @@
-<a [routerLink]="courseLink" class="course-card">
-  <!-- Image -->
-  <div class="course-card__image-wrap">
+<a [routerLink]="courseLink" class="cc">
+  <!-- Cover -->
+  <div class="cc__cover" [attr.data-grad]="gradient()">
     @if (course.imageUrl) {
-      <img [src]="course.imageUrl" [alt]="course.title" class="course-card__image" />
+      <img [src]="course.imageUrl" [alt]="course.title" class="cc__cover-img" />
     } @else {
-      <div class="course-card__image-placeholder">
-        <lucide-icon [img]="BookOpenIcon" [size]="40" />
+      <div class="cc__cover-fallback">
+        <lucide-icon [img]="BookOpenIcon" [size]="32" />
       </div>
     }
-    <div class="course-card__badges">
-      <app-badge [variant]="levelVariant" size="sm">{{ levelLabel }}</app-badge>
-      @if (course.isFree) {
-        <app-badge variant="success" size="sm">Бесплатно</app-badge>
-      }
-    </div>
-  </div>
+    <div class="cc__cover-overlay"></div>
 
-  <!-- Body -->
-  <div class="course-card__body">
-    <p class="course-card__discipline">{{ course.disciplineName }}</p>
-    <h3 class="course-card__title">{{ course.title }}</h3>
-    <p class="course-card__description">{{ course.description }}</p>
-
-    <p class="course-card__instructor">
-      <lucide-icon [img]="UsersIcon" [size]="13" />
-      {{ course.teacherName }}
-    </p>
-
-    <!-- Stats -->
-    <div class="course-card__stats">
-      @if (course.rating) {
-        <span class="course-card__stat">
-          <lucide-icon [img]="StarIcon" [size]="14" class="stat-star" />
-          {{ course.rating | number:'1.1-1' }}
-        </span>
-      }
-      @if (course.duration) {
-        <span class="course-card__stat">
-          <lucide-icon [img]="ClockIcon" [size]="14" />
-          {{ course.duration | duration }}
-        </span>
-      }
-      <span class="course-card__stat">
-        <lucide-icon [img]="BookOpenIcon" [size]="14" />
-        {{ course.lessonsCount }} уроков
+    <!-- Badges -->
+    <div class="cc__badges">
+      <span class="cc__badge cc__badge--{{ levelClass }}">{{ levelLabel }}</span>
+      <span class="cc__badge" [class.cc__badge--free]="course.isFree" [class.cc__badge--paid]="!course.isFree">
+        @if (course.isFree) { Бесплатно } @else { {{ priceLabel }} }
       </span>
     </div>
 
-    <!-- Progress -->
-    @if (showProgress && course.progress !== undefined) {
-      <div class="course-card__progress">
-        <div class="course-card__progress-header">
-          <span class="course-card__progress-label">Прогресс</span>
-          <span class="course-card__progress-pct">{{ course.progress }}%</span>
-        </div>
-        <app-progress-bar [value]="course.progress" />
+    <!-- Rating -->
+    @if (course.rating && course.rating > 0) {
+      <div class="cc__rating">
+        <lucide-icon [img]="StarIcon" [size]="11" class="cc__rating-icon" />
+        <span>{{ course.rating | number: '1.1-1' }}</span>
       </div>
     }
   </div>
 
-  <!-- Footer -->
-  <div class="course-card__footer">
-    <span class="course-card__students">
-      <lucide-icon [img]="UsersIcon" [size]="14" />
-      {{ course.studentsCount }} студентов
-    </span>
-    <span class="course-card__price" [class.course-card__price--free]="course.isFree">
-      {{ priceLabel }}
-    </span>
+  <!-- Body -->
+  <div class="cc__body">
+    <p class="cc__discipline">{{ course.disciplineName }}</p>
+    <h3 class="cc__title">{{ course.title }}</h3>
+    <p class="cc__desc">{{ course.description }}</p>
+
+    @if (tags.length > 0) {
+      <div class="cc__tags">
+        @for (tag of tags; track tag) {
+          <span class="cc__tag">{{ tag }}</span>
+        }
+      </div>
+    }
+
+    <!-- Teacher -->
+    <div class="cc__teacher">
+      <span class="cc__teacher-avatar" [attr.data-grad]="gradient()">{{ teacherInitial() }}</span>
+      <span class="cc__teacher-name">{{ course.teacherName }}</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="cc__meta">
+      @if (course.duration) {
+        <span class="cc__meta-item">
+          <lucide-icon [img]="ClockIcon" [size]="13" />
+          {{ course.duration | duration }}
+        </span>
+      }
+      <span class="cc__meta-item">
+        <lucide-icon [img]="BookOpenIcon" [size]="13" />
+        {{ course.lessonsCount }} уроков
+      </span>
+      <span class="cc__meta-item">
+        <lucide-icon [img]="UsersIcon" [size]="13" />
+        {{ course.studentsCount }}
+      </span>
+    </div>
+
+    @if (showProgress && course.progress !== undefined) {
+      <div class="cc__progress">
+        <div class="cc__progress-head">
+          <span class="cc__progress-label">Прогресс</span>
+          <span class="cc__progress-pct">{{ course.progress }}%</span>
+        </div>
+        <div class="cc__progress-bar">
+          <span
+            class="cc__progress-fill"
+            [attr.data-grad]="gradient()"
+            [style.width.%]="course.progress"
+          ></span>
+        </div>
+      </div>
+    }
+
+    @if (showCta) {
+      <div class="cc__cta">
+        Открыть курс
+        <lucide-icon [img]="ChevronRightIcon" [size]="15" />
+      </div>
+    }
   </div>
 </a>

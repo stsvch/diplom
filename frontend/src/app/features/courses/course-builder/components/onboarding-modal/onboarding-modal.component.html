@@ -1,0 +1,53 @@
+@if (open) {
+  <div class="om" (click)="finish()">
+    <div class="om__card" (click)="$event.stopPropagation()">
+      <div class="om__head">
+        <div class="om__dots">
+          @for (s of steps; track $index) {
+            <button
+              class="om__dot"
+              [class.om__dot--active]="$index === stepIdx()"
+              [class.om__dot--done]="$index < stepIdx()"
+              (click)="goTo($index)"
+            ></button>
+          }
+        </div>
+        <button class="om__close" (click)="skip()">
+          <lucide-icon [img]="icons.x" [size]="18" />
+        </button>
+      </div>
+
+      <div class="om__body">
+        <div
+          class="om__icon"
+          [style.background]="current().iconBg"
+          [style.color]="current().iconColor"
+        >
+          <lucide-icon [img]="current().icon" [size]="24" />
+        </div>
+        <h2>{{ current().title }}</h2>
+        <p>{{ current().description }}</p>
+      </div>
+
+      <div class="om__footer">
+        @if (stepIdx() > 0) {
+          <button class="om__btn-text" (click)="prev()">
+            <lucide-icon [img]="icons.chevLeft" [size]="14" />
+            Назад
+          </button>
+        }
+        <button class="om__btn-text" (click)="skip()">Пропустить</button>
+        <span class="om__spacer"></span>
+        <button class="om__btn-primary" (click)="next()">
+          @if (isLast()) {
+            Начать создание
+            <lucide-icon [img]="icons.rocket" [size]="14" />
+          } @else {
+            Далее
+            <lucide-icon [img]="icons.chevRight" [size]="14" />
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

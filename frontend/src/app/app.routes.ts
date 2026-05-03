@@ -53,6 +53,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'catalog',
+        loadComponent: () =>
+          import('./features/courses/catalog/catalog.component').then(
+            (m) => m.CatalogComponent,
+          ),
+      },
+      {
+        path: 'course/:id',
+        loadComponent: () =>
+          import('./features/courses/course-detail/course-detail.component').then(
+            (m) => m.CourseDetailComponent,
+          ),
+      },
+      {
         path: 'welcome',
         redirectTo: '',
         pathMatch: 'full',
@@ -254,6 +268,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/courses/course-editor/course-editor.component').then(
             (m) => m.CourseEditorComponent,
+          ),
+      },
+      {
+        path: 'courses/:id/builder',
+        loadComponent: () =>
+          import('./features/courses/course-builder/course-builder.component').then(
+            (m) => m.CourseBuilderComponent,
           ),
       },
       {
@@ -470,6 +491,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: '',
   },
 ];

@@ -102,16 +102,18 @@ dotnet run --project src/AppHost
 ```
 
 Откроется Aspire Dashboard (автоматически), в нём — ресурс `eduplatform-host`.
-Сам API доступен на порту, который назначит Aspire (ищите в логах
-`Now listening on: http://localhost:XXXX`). Порт можно зафиксировать
-в `src/AppHost/Properties/launchSettings.json`.
+Сам backend-API в dev-flow зафиксирован на `http://localhost:5000`, чтобы
+Angular proxy, SignalR и локальный Stripe flow всегда ходили на один и тот же адрес.
+Aspire при этом поднимает свой dashboard отдельно, но ресурс `eduplatform-host`
+слушает именно `http://localhost:5000`.
 
 ### API документация
 
 В development-режиме backend поднимает Swagger UI:
 
-- если backend запущен отдельно, документация доступна на `http://localhost:<backend-port>/swagger`
-- в one-click локальном Stripe flow backend фиксирован на `http://localhost:5000`, значит Swagger будет на `http://localhost:5000/swagger`
+- стандартный локальный адрес: `http://localhost:5000/swagger`
+- если ты вручную меняешь backend-port, перед запуском frontend задай `BACKEND_URL`
+  для Angular proxy, иначе `/api`, `/hubs` и `/swagger` останутся привязаны к `5000`
 
 ### 3. Frontend
 
@@ -119,6 +121,14 @@ dotnet run --project src/AppHost
 cd frontend
 npm install    # один раз
 npm start      # http://localhost:4200
+```
+
+По умолчанию Angular dev server проксирует backend-запросы на `http://localhost:5000`.
+Если backend запущен на другом адресе, сначала задай переменную окружения:
+
+```powershell
+$env:BACKEND_URL = 'http://localhost:5100'
+npm start
 ```
 
 ### Запуск одной кнопкой для локального Stripe flow

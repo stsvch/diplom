@@ -1,134 +1,214 @@
-<div class="catalog">
-  <!-- Header -->
-  <div class="catalog__header">
-    <div class="catalog__header-text">
-      <h1 class="catalog__title">Каталог курсов</h1>
-      <p class="catalog__subtitle">Найдите курс, который поможет вам достичь ваших целей</p>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="catalog__filters">
-    <div class="catalog__search">
-      <app-search-input
-        placeholder="Поиск курсов..."
-        [(value)]="searchValue"
-      />
+<div class="cat-page" [class.cat-page--embedded]="isInsideDashboard()">
+  <!-- ───── Hero header ───── -->
+  <header class="cat-hero">
+    <div class="cat-hero__bg" aria-hidden="true"></div>
+    <div class="cat-hero__orbs" aria-hidden="true">
+      <span class="cat-orb cat-orb--1"></span>
+      <span class="cat-orb cat-orb--2"></span>
     </div>
 
-    <div class="catalog__filter-row">
-      <select class="catalog__select" [(ngModel)]="selectedLevel" (ngModelChange)="onFilterChange()">
+    <div class="cat-hero__inner">
+      @if (!isInsideDashboard()) {
+        <a class="cat-hero__back" routerLink="/">
+          <lucide-icon [img]="ArrowLeftIcon" [size]="15" />
+          На главную
+        </a>
+      }
+
+      <h1 class="cat-hero__title anim-fade-up">Каталог курсов</h1>
+      <p class="cat-hero__sub anim-fade-up-delay-1">
+        Найдите курс, который поможет вам достичь ваших целей
+      </p>
+
+      <div class="cat-search anim-fade-up-delay-2">
+        <span class="cat-search__icon">
+          <lucide-icon [img]="SearchIcon" [size]="18" />
+        </span>
+        <input
+          type="text"
+          placeholder="Поиск курсов..."
+          [ngModel]="searchValue()"
+          (ngModelChange)="searchValue.set($event)"
+        />
+        @if (searchValue()) {
+          <button class="cat-search__clear" type="button" (click)="clearSearch()" aria-label="Очистить поиск">
+            <lucide-icon [img]="XIcon" [size]="16" />
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- ───── Body ───── -->
+  <div class="cat-body">
+    <!-- Discipline pills -->
+    <div class="cat-pills">
+      <button
+        class="cat-pill"
+        [class.cat-pill--active]="selectedDisciplineId() === ''"
+        (click)="selectDiscipline('')"
+      >
+        Все
+      </button>
+      @for (disc of disciplines(); track disc.id) {
+        <button
+          class="cat-pill"
+          [class.cat-pill--active]="selectedDisciplineId() === disc.id"
+          (click)="selectDiscipline(disc.id)"
+        >
+          {{ disc.name }}
+        </button>
+      }
+    </div>
+
+    <!-- Filter dropdowns -->
+    <div class="cat-filters">
+      <span class="cat-filters__label">
+        <lucide-icon [img]="SlidersIcon" [size]="16" />
+        Фильтры:
+      </span>
+
+      <select class="cat-select" [ngModel]="selectedLevel()" (ngModelChange)="selectedLevel.set($event); onFilterChange()">
         @for (opt of levels; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
       </select>
 
-      <select class="catalog__select" [(ngModel)]="selectedPrice" (ngModelChange)="onFilterChange()">
+      <select class="cat-select" [ngModel]="selectedPrice()" (ngModelChange)="selectedPrice.set($event); onFilterChange()">
         @for (opt of priceOptions; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
       </select>
 
-      <select class="catalog__select" [(ngModel)]="selectedSort" (ngModelChange)="onFilterChange()">
+      <select class="cat-select" [ngModel]="selectedSort()" (ngModelChange)="selectedSort.set($event); onFilterChange()">
         @for (opt of sortOptions; track opt.value) {
           <option [value]="opt.value">{{ opt.label }}</option>
         }
       </select>
-    </div>
-  </div>
 
-  <!-- Discipline pills -->
-  <div class="catalog__disciplines">
-    <button
-      class="catalog__pill"
-      [class.catalog__pill--active]="selectedDisciplineId() === ''"
-      (click)="selectDiscipline('')"
-    >
-      Все
-    </button>
-    @for (disc of disciplines(); track disc.id) {
-      <button
-        class="catalog__pill"
-        [class.catalog__pill--active]="selectedDisciplineId() === disc.id"
-        (click)="selectDiscipline(disc.id)"
-      >
-        {{ disc.name }}
-      </button>
-    }
-  </div>
-
-  <!-- Results count -->
-  @if (!loading()) {
-    <div class="catalog__results-count">
-      Найдено {{ totalCount() }} курсов
-    </div>
-  }
-
-  <!-- Grid -->
-  @if (loading()) {
-    <div class="catalog__grid">
-      @for (item of skeletonItems; track $index) {
-        <div class="catalog__skeleton">
-          <div class="skeleton-image"></div>
-          <div class="skeleton-body">
-            <div class="skeleton-line skeleton-line--sm"></div>
-            <div class="skeleton-line skeleton-line--lg"></div>
-            <div class="skeleton-line skeleton-line--md"></div>
-            <div class="skeleton-line skeleton-line--sm"></div>
-          </div>
-          <div class="skeleton-footer"></div>
-        </div>
-      }
-    </div>
-  } @else if (courses().length === 0) {
-    <div class="catalog__empty">
-      <lucide-icon [img]="BookOpenIcon" [size]="64" class="catalog__empty-icon" />
-      <h3 class="catalog__empty-title">Курсы не найдены</h3>
-      <p class="catalog__empty-text">Попробуйте изменить фильтры или поисковый запрос</p>
-      <app-button variant="outline" (click)="selectDiscipline(''); searchValue.set(''); onFilterChange()">
-        Сбросить фильтры
-      </app-button>
-    </div>
-  } @else {
-    <div class="catalog__grid">
-      @for (course of courses(); track course.id) {
-        <app-course-card [course]="course" linkPrefix="/student/course" />
-      }
-    </div>
-
-    <!-- Pagination -->
-    @if (totalPages() > 1) {
-      <div class="catalog__pagination">
-        <button
-          class="catalog__page-btn catalog__page-btn--nav"
-          [disabled]="page() === 1"
-          (click)="prevPage()"
-        >
-          <lucide-icon [img]="ChevronLeftIcon" [size]="16" />
+      @if (hasFilters()) {
+        <button class="cat-filters__reset" type="button" (click)="clearFilters()">
+          <lucide-icon [img]="XIcon" [size]="14" />
+          Сбросить
         </button>
+      }
+    </div>
 
-        @for (p of pages(); track $index) {
-          @if (p === null) {
-            <span class="catalog__page-ellipsis">…</span>
-          } @else {
-            <button
-              class="catalog__page-btn"
-              [class.catalog__page-btn--active]="page() === p"
-              (click)="goToPage(p)"
-            >
-              {{ p }}
-            </button>
-          }
+    <!-- Results count -->
+    <div class="cat-results-row">
+      <p class="cat-results-row__count">
+        @if (loading()) {
+          Загружаем курсы…
+        } @else {
+          <strong>{{ totalCount() }}</strong> курсов найдено
         }
+      </p>
+      @if (hasFilters()) {
+        <span class="cat-results-row__chip">
+          <lucide-icon [img]="FilterIcon" [size]="12" />
+          Применены фильтры
+        </span>
+      }
+    </div>
 
-        <button
-          class="catalog__page-btn catalog__page-btn--nav"
-          [disabled]="page() === totalPages()"
-          (click)="nextPage()"
-        >
-          <lucide-icon [img]="ChevronRightIcon" [size]="16" />
+    <!-- Grid / states -->
+    @if (loading()) {
+      <div class="cat-grid">
+        @for (item of skeletonItems; track $index) {
+          <div class="cat-skeleton">
+            <div class="cat-skeleton__cover"></div>
+            <div class="cat-skeleton__body">
+              <div class="cat-skeleton__line cat-skeleton__line--xs"></div>
+              <div class="cat-skeleton__line cat-skeleton__line--lg"></div>
+              <div class="cat-skeleton__line cat-skeleton__line--md"></div>
+              <div class="cat-skeleton__line cat-skeleton__line--md"></div>
+              <div class="cat-skeleton__btn"></div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (courses().length === 0) {
+      <div class="cat-empty">
+        <div class="cat-empty__icon">
+          <lucide-icon [img]="BookOpenIcon" [size]="32" />
+        </div>
+        <h3>Курсы не найдены</h3>
+        <p>Попробуйте изменить параметры поиска или сбросьте фильтры</p>
+        <button class="cat-btn cat-btn--gradient" type="button" (click)="clearFilters()">
+          Сбросить фильтры
         </button>
       </div>
+    } @else {
+      <div class="cat-grid">
+        @for (course of courses(); track course.id; let i = $index) {
+          <div class="cat-grid__cell" appReveal [appReveal]="(i % 6) + 1">
+            <app-course-card
+              [course]="course"
+              [linkPrefix]="courseLinkPrefix()"
+              [showCta]="true"
+            />
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="cat-pagination">
+          <button class="cat-page-btn" [disabled]="page() === 1" (click)="prevPage()">
+            <lucide-icon [img]="ChevronLeftIcon" [size]="16" />
+          </button>
+          @for (p of pages(); track $index) {
+            @if (p === null) {
+              <span class="cat-page-ellipsis">…</span>
+            } @else {
+              <button
+                class="cat-page-btn"
+                [class.cat-page-btn--active]="page() === p"
+                (click)="goToPage(p)"
+              >
+                {{ p }}
+              </button>
+            }
+          }
+          <button
+            class="cat-page-btn"
+            [disabled]="page() === totalPages()"
+            (click)="nextPage()"
+          >
+            <lucide-icon [img]="ChevronRightIcon" [size]="16" />
+          </button>
+        </div>
+      }
+
+      <!-- Promo banner -->
+      <div class="cat-promo" appReveal>
+        <div class="cat-promo__left">
+          <span class="cat-promo__icon">
+            <lucide-icon [img]="ZapIcon" [size]="22" />
+          </span>
+          <div>
+            @if (isAuth()) {
+              <p class="cat-promo__title">Не нашли нужный курс?</p>
+              <p class="cat-promo__sub">Станьте преподавателем и создайте свой курс прямо сейчас</p>
+            } @else {
+              <p class="cat-promo__title">Готовы учиться?</p>
+              <p class="cat-promo__sub">Зарегистрируйтесь и получите доступ ко всем курсам платформы</p>
+            }
+          </div>
+        </div>
+
+        @if (isAuth()) {
+          <a class="cat-btn cat-btn--white-on-grad" routerLink="/teacher/dashboard">
+            Стать преподавателем
+            <lucide-icon [img]="ChevronRightIcon" [size]="16" />
+          </a>
+        } @else {
+          <a class="cat-btn cat-btn--white-on-grad" routerLink="/register">
+            Зарегистрироваться
+            <lucide-icon [img]="ArrowRightIcon" [size]="16" />
+          </a>
+        }
+      </div>
     }
-  }
+  </div>
 </div>

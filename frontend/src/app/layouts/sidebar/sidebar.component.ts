@@ -1,6 +1,5 @@
-import { Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { Component, computed, inject, signal, OnInit, effect, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
 import {
   GraduationCap,
   LayoutDashboard,
@@ -20,9 +19,12 @@ import {
   BookCopy,
   DollarSign,
   Settings,
-  ChevronLeft,
-  ChevronRight,
   Globe,
+  Home,
+  LogOut,
+  Menu,
+  X,
+  LucideAngularModule,
 } from 'lucide-angular';
 import { AuthService } from '../../core/services/auth.service';
 import { SidebarService } from '../../core/services/sidebar.service';
@@ -56,15 +58,37 @@ export class SidebarComponent implements OnInit {
   private signalRService = inject(SignalRService);
   private chatSignalRService = inject(ChatSignalRService);
 
-  readonly collapsed = this.sidebarService.collapsed;
+  readonly mobileOpen = this.sidebarService.mobileOpen;
   readonly currentUser = this.authService.currentUser;
   readonly userRole = this.authService.userRole;
 
-  readonly icons = { GraduationCap, ChevronLeft, ChevronRight };
+  readonly icons = {
+    GraduationCap,
+    Home,
+    Settings,
+    LogOut,
+    X,
+    Menu,
+  };
 
   readonly unreadNotifications = this.signalRService.unreadCount;
   readonly unreadMessages = this.chatSignalRService.unreadCount;
   pendingAssignments = signal(0);
+
+  readonly roleKey = computed<'student' | 'teacher' | 'admin'>(() => {
+    const role = this.userRole();
+    if (role === UserRole.Teacher) return 'teacher';
+    if (role === UserRole.Admin) return 'admin';
+    return 'student';
+  });
+
+  readonly roleLabel = computed(() => {
+    switch (this.roleKey()) {
+      case 'teacher': return 'TEACHER';
+      case 'admin': return 'ADMIN';
+      default: return 'STUDENT';
+    }
+  });
 
   readonly navItems = computed<NavItem[]>(() => {
     const role = this.userRole();
@@ -86,7 +110,6 @@ export class SidebarComponent implements OnInit {
         { label: 'Сообщения', route: '/teacher/messages', icon: MessageSquare, badge: msg || undefined },
         { label: 'Уведомления', route: '/teacher/notifications', icon: Bell, badge: notif || undefined },
         { label: 'Словарь', route: '/teacher/glossary', icon: Globe },
-        { label: 'Профиль', route: '/teacher/profile', icon: User },
       ];
     }
     if (role === UserRole.Admin) {
@@ -97,7 +120,6 @@ export class SidebarComponent implements OnInit {
         { label: 'Дисциплины', route: '/admin/disciplines', icon: BookOpen },
         { label: 'Платежи', route: '/admin/payments', icon: DollarSign },
         { label: 'Аналитика', route: '/admin/analytics', icon: BarChart2 },
-        { label: 'Настройки', route: '/admin/settings', icon: Settings },
       ];
     }
     return [
@@ -109,27 +131,13 @@ export class SidebarComponent implements OnInit {
       { label: 'Уведомления', route: '/student/notifications', icon: Bell, badge: notif || undefined },
       { label: 'Словарь', route: '/student/glossary', icon: Globe },
       { label: 'Платежи', route: '/student/payments', icon: CreditCard },
-      { label: 'Профиль', route: '/student/profile', icon: User },
     ];
   });
 
-  readonly userInitials = computed(() => {
-    const user = this.currentUser();
-    if (!user) return 'U';
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  });
-
-  readonly userFullName = computed(() => {
-    const user = this.currentUser();
-    if (!user) return 'Гость';
-    return `${user.firstName} ${user.lastName}`;
-  });
-
-  readonly userRoleLabel = computed(() => {
-    const role = this.userRole();
-    if (role === UserRole.Admin) return 'Администратор';
-    if (role === UserRole.Teacher) return 'Преподаватель';
-    return 'Студент';
+  /** Маршрут к настройкам (admin → settings, остальные → profile) */
+  readonly settingsRoute = computed(() => {
+    if (this.roleKey() === 'admin') return '/admin/settings';
+    return `/${this.roleKey()}/profile`;
   });
 
   constructor() {
@@ -159,7 +167,18 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  toggle(): void {
-    this.sidebarService.toggle();
+  closeMobile(): void {
+    this.sidebarService.closeMobile();
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth >= 1024 && this.mobileOpen()) {
+      this.sidebarService.closeMobile();
+    }
   }
 }

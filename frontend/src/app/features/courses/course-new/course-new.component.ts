@@ -1,7 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  ChevronLeft,
+  FilePlus,
+  GraduationCap,
+  Zap,
+  ClipboardCheck,
+} from 'lucide-angular';
 import { COURSE_TEMPLATES, CourseTemplate } from '../services/course-templates';
 
 @Component({
@@ -12,7 +19,7 @@ import { COURSE_TEMPLATES, CourseTemplate } from '../services/course-templates';
     <div class="page">
       <header class="page__head">
         <a class="back" [routerLink]="['/teacher/courses']">
-          <lucide-icon name="chevron-left" size="18"></lucide-icon>
+          <lucide-icon [img]="ChevronLeftIcon" size="18"></lucide-icon>
           К моим курсам
         </a>
         <h1>Создать новый курс</h1>
@@ -23,7 +30,7 @@ import { COURSE_TEMPLATES, CourseTemplate } from '../services/course-templates';
         @for (tpl of templates; track tpl.id) {
           <button class="card" type="button" (click)="select(tpl)">
             <div class="card__icon">
-              <lucide-icon [name]="tpl.icon" size="24"></lucide-icon>
+              <lucide-icon [img]="iconForTemplate(tpl.icon)" size="24"></lucide-icon>
             </div>
             <h3 class="card__name">{{ tpl.name }}</h3>
             <p class="card__desc">{{ tpl.description }}</p>
@@ -94,6 +101,14 @@ import { COURSE_TEMPLATES, CourseTemplate } from '../services/course-templates';
 })
 export class CourseNewComponent {
   private readonly router = inject(Router);
+  readonly ChevronLeftIcon = ChevronLeft;
+  private readonly templateIcons: Record<string, typeof FilePlus> = {
+    'file-plus': FilePlus,
+    'graduation-cap': GraduationCap,
+    zap: Zap,
+    'clipboard-check': ClipboardCheck,
+  };
+
   templates = COURSE_TEMPLATES;
 
   totalLessons(tpl: CourseTemplate): number {
@@ -102,5 +117,9 @@ export class CourseNewComponent {
 
   select(tpl: CourseTemplate): void {
     this.router.navigate(['/teacher/courses/create'], { state: { templateId: tpl.id } });
+  }
+
+  iconForTemplate(icon: string): typeof FilePlus {
+    return this.templateIcons[icon] ?? FilePlus;
   }
 }

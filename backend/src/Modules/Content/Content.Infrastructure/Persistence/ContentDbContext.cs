@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Content.Application.Interfaces;
 using Content.Domain.Entities;
+using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Answers;
 using Content.Domain.ValueObjects.Blocks;
 using Content.Infrastructure.Persistence.JsonConverters;
@@ -49,6 +50,14 @@ public class ContentDbContext : BaseDbContext, IContentDbContext
             entity.Property(e => e.OrderIndex).IsRequired();
             entity.Property(e => e.Type).HasConversion<string>().HasMaxLength(50);
 
+            entity.Property(e => e.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(LessonBlockStatus.Ready);
+
+            entity.Property(e => e.ValidationErrorsJson)
+                .HasColumnType("jsonb");
+
             entity.Property(e => e.Data)
                 .HasColumnType("jsonb")
                 .HasConversion(
@@ -63,6 +72,7 @@ public class ContentDbContext : BaseDbContext, IContentDbContext
 
             entity.HasIndex(e => new { e.LessonId, e.OrderIndex });
             entity.HasIndex(e => e.Type);
+            entity.HasIndex(e => e.Status);
         });
 
         modelBuilder.Entity<LessonBlockAttempt>(entity =>

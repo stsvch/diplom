@@ -4,10 +4,10 @@
       <div cdkDrag cdkDragLockAxis="y" class="mod">
         <header class="mod__head">
           <button class="mod__drag" cdkDragHandle type="button" aria-label="Перетащить модуль">
-            <lucide-icon name="grip-vertical" size="16"></lucide-icon>
+            <lucide-icon [img]="GripVerticalIcon" size="16"></lucide-icon>
           </button>
           <button class="mod__expand" type="button" (click)="toggleModule(mod.id)">
-            <lucide-icon [name]="isExpanded(mod.id) ? 'chevron-down' : 'chevron-right'" size="16"></lucide-icon>
+            <lucide-icon [img]="expandIcon(mod.id)" size="16"></lucide-icon>
           </button>
 
           @if (editingModuleId() === mod.id) {
@@ -29,10 +29,10 @@
           <span class="mod__count">{{ mod.lessons.length }} урок(ов)</span>
 
           <button class="mod__action" type="button" (click)="addLesson(mod.id)" title="Добавить урок">
-            <lucide-icon name="plus" size="14"></lucide-icon>
+            <lucide-icon [img]="PlusIcon" size="14"></lucide-icon>
           </button>
           <button class="mod__action mod__action--danger" type="button" (click)="deleteModule(mod.id)" title="Удалить модуль">
-            <lucide-icon name="trash-2" size="14"></lucide-icon>
+            <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
           </button>
         </header>
 
@@ -47,9 +47,9 @@
             @for (lesson of mod.lessons; track trackById($index, lesson)) {
               <div cdkDrag class="lesson">
                 <button class="lesson__drag" cdkDragHandle type="button" aria-label="Перетащить урок">
-                  <lucide-icon name="grip-vertical" size="14"></lucide-icon>
+                  <lucide-icon [img]="GripVerticalIcon" size="14"></lucide-icon>
                 </button>
-                <lucide-icon class="lesson__icon" name="file-text" size="14"></lucide-icon>
+                <lucide-icon class="lesson__icon" [img]="FileTextIcon" size="14"></lucide-icon>
 
                 @if (editingLessonId() === lesson.id) {
                   <input
@@ -70,13 +70,13 @@
                 <span class="lesson__badge">{{ lesson.blocksCount }} блок(ов)</span>
 
                 <a class="lesson__action" [routerLink]="'/teacher/lesson/' + lesson.id + '/edit'" title="Редактировать блоки">
-                  <lucide-icon name="square-pen" size="14"></lucide-icon>
+                  <lucide-icon [img]="SquarePenIcon" size="14"></lucide-icon>
                 </a>
                 <button class="lesson__action" type="button" (click)="duplicateLesson(mod.id, lesson.id)" title="Дублировать">
-                  <lucide-icon name="copy" size="14"></lucide-icon>
+                  <lucide-icon [img]="CopyIcon" size="14"></lucide-icon>
                 </button>
                 <button class="lesson__action lesson__action--danger" type="button" (click)="deleteLesson(mod.id, lesson.id)" title="Удалить">
-                  <lucide-icon name="trash-2" size="14"></lucide-icon>
+                  <lucide-icon [img]="Trash2Icon" size="14"></lucide-icon>
                 </button>
               </div>
             }

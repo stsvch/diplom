@@ -1,109 +1,102 @@
-<header class="header">
-  <!-- Left: Page Title -->
-  <div class="header__left">
-    <h1 class="header__title">{{ currentPageTitle() }}</h1>
-  </div>
+<header class="hd" [attr.data-role]="userRoleKey()">
+  <!-- Mobile menu trigger -->
+  <button class="hd__menu" type="button" (click)="openMobileSidebar()" aria-label="Открыть меню">
+    <lucide-icon [img]="icons.Menu" [size]="22" />
+  </button>
 
-  <!-- Center: Search -->
-  <div class="header__search">
-    <div class="header__search-wrapper">
-      <lucide-icon class="header__search-icon" [img]="icons.Search" [size]="16" />
-      <input
-        type="text"
-        class="header__search-input"
-        placeholder="Поиск курсов, заданий..."
-      />
-    </div>
-  </div>
+  <!-- Spacer -->
+  <div class="hd__spacer"></div>
 
-  <!-- Right: Actions -->
-  <div class="header__actions">
-    <!-- Notifications -->
-    <div class="header__action-group">
-      <button class="header__icon-btn" (click)="toggleNotifications()">
-        <lucide-icon [img]="icons.Bell" [size]="20" />
-        @if (unreadCount() > 0) {
-          <span class="header__badge">{{ unreadCount() }}</span>
-        }
-      </button>
-
-      @if (notificationsOpen()) {
-        <div class="header__dropdown header__dropdown--notifications">
-          <div class="header__dropdown-header">
-            <span class="header__dropdown-title">Уведомления</span>
-            @if (unreadCount() > 0) {
-              <button class="header__dropdown-action" (click)="markAllRead()">
-                Отметить все
-              </button>
-            }
-          </div>
-          <div class="header__dropdown-body">
-            @for (notif of recentNotifications(); track notif.id) {
-              <div
-                class="header__notif"
-                [class.header__notif--unread]="!notif.isRead"
-                (click)="openNotification(notif)"
-              >
-                <div class="header__notif-icon">
-                  <lucide-icon [img]="getNotificationIcon(notif.type)" [size]="16" />
-                </div>
-                <div class="header__notif-content">
-                  <p class="header__notif-title">{{ notif.title }}</p>
-                  <p class="header__notif-message">{{ notif.message }}</p>
-                  <span class="header__notif-time">{{ formatTimeAgo(notif.createdAt) }}</span>
-                </div>
-                <button
-                  class="header__notif-close"
-                  (click)="dismissNotification(notif.id, $event)"
-                >
-                  <lucide-icon [img]="icons.X" [size]="14" />
-                </button>
-              </div>
-            }
-            @if (recentNotifications().length === 0) {
-              <div class="header__dropdown-empty">Нет новых уведомлений</div>
-            }
-          </div>
-          <div class="header__dropdown-footer">
-            <button class="header__dropdown-link" (click)="navigateToNotifications()">
-              Все уведомления
-            </button>
-          </div>
-        </div>
+  <!-- Notifications -->
+  <div class="hd__group">
+    <button class="hd__bell" type="button" (click)="toggleNotifications()" aria-label="Уведомления">
+      <lucide-icon [img]="icons.Bell" [size]="20" />
+      @if (unreadCount() > 0) {
+        <span class="hd__bell-dot"></span>
       }
-    </div>
+    </button>
 
-    <!-- Profile -->
-    <div class="header__action-group">
-      <button class="header__profile-btn" (click)="toggleProfile()">
-        <div class="header__avatar">
-          @if (currentUser()?.avatarUrl) {
-            <img [src]="currentUser()!.avatarUrl" [alt]="userFullName()" />
-          } @else {
-            <span>{{ userInitials() }}</span>
+    @if (notificationsOpen()) {
+      <div class="hd__dropdown hd__dropdown--notifications">
+        <div class="hd__dropdown-head">
+          <span class="hd__dropdown-title">Уведомления</span>
+          @if (unreadCount() > 0) {
+            <button class="hd__dropdown-action" type="button" (click)="markAllRead()">
+              Отметить все
+            </button>
           }
         </div>
-        <span class="header__user-name">{{ userFullName() }}</span>
-        <lucide-icon [img]="icons.ChevronDown" [size]="16" />
-      </button>
-
-      @if (profileOpen()) {
-        <div class="header__dropdown header__dropdown--profile">
-          <a class="header__dropdown-item" routerLink="profile" (click)="profileOpen.set(false)">
-            <lucide-icon [img]="icons.UserCircle" [size]="16" />
-            <span>Профиль</span>
-          </a>
-          <a class="header__dropdown-item" routerLink="settings" (click)="profileOpen.set(false)">
-            <lucide-icon [img]="icons.Settings" [size]="16" />
-            <span>Настройки</span>
-          </a>
-          <div class="header__dropdown-divider"></div>
-          <button class="header__dropdown-item header__dropdown-item--danger" (click)="logout()">
-            <lucide-icon [img]="icons.LogOut" [size]="16" />
-            <span>Выйти</span>
+        <div class="hd__dropdown-body">
+          @for (notif of recentNotifications(); track notif.id) {
+            <div
+              class="hd__notif"
+              [class.hd__notif--unread]="!notif.isRead"
+              (click)="openNotification(notif)"
+            >
+              <div class="hd__notif-icon">
+                <lucide-icon [img]="getNotificationIcon(notif.type)" [size]="16" />
+              </div>
+              <div class="hd__notif-content">
+                <p class="hd__notif-title">{{ notif.title }}</p>
+                <p class="hd__notif-message">{{ notif.message }}</p>
+                <span class="hd__notif-time">{{ formatTimeAgo(notif.createdAt) }}</span>
+              </div>
+              <button
+                class="hd__notif-close"
+                type="button"
+                (click)="dismissNotification(notif.id, $event)"
+                aria-label="Удалить"
+              >
+                <lucide-icon [img]="icons.X" [size]="14" />
+              </button>
+            </div>
+          }
+          @if (recentNotifications().length === 0) {
+            <div class="hd__dropdown-empty">Нет новых уведомлений</div>
+          }
+        </div>
+        <div class="hd__dropdown-foot">
+          <button class="hd__dropdown-link" type="button" (click)="navigateToNotifications()">
+            Все уведомления
           </button>
         </div>
-      }
-    </div>
+      </div>
+    }
+  </div>
+
+  <!-- Profile -->
+  <div class="hd__group">
+    <button class="hd__profile" type="button" (click)="toggleProfile()">
+      <span class="hd__avatar">
+        @if (currentUser()?.avatarUrl) {
+          <img [src]="currentUser()!.avatarUrl" [alt]="userFullName()" />
+        } @else {
+          <span>{{ userInitials() }}</span>
+        }
+      </span>
+      <span class="hd__user">
+        <span class="hd__user-name">{{ userFullName() }}</span>
+        <span class="hd__user-role">{{ userRoleLabel() }}</span>
+      </span>
+      <lucide-icon class="hd__chev" [img]="icons.ChevronDown" [size]="14" />
+    </button>
+
+    @if (profileOpen()) {
+      <div class="hd__dropdown hd__dropdown--profile">
+        <a class="hd__menu-item" [routerLink]="profileRoute()" (click)="profileOpen.set(false)">
+          <lucide-icon [img]="icons.UserCircle" [size]="16" />
+          <span>Профиль</span>
+        </a>
+        <a class="hd__menu-item" [routerLink]="profileRoute()" (click)="profileOpen.set(false)">
+          <lucide-icon [img]="icons.Settings" [size]="16" />
+          <span>Настройки</span>
+        </a>
+        <div class="hd__menu-divider"></div>
+        <button class="hd__menu-item hd__menu-item--danger" type="button" (click)="logout()">
+          <lucide-icon [img]="icons.LogOut" [size]="16" />
+          <span>Выйти</span>
+        </button>
+      </div>
+    }
   </div>
 </header>

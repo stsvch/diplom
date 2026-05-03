@@ -1,0 +1,190 @@
+<aside class="hp">
+  <div class="hp__tabs">
+    <button
+      class="hp__tab"
+      [class.hp__tab--active]="tab() === 'checklist'"
+      (click)="tab.set('checklist')"
+    >
+      <lucide-icon [img]="icons.check" [size]="14" />
+      Чеклист
+      @if (errorsCount() + warningsCount() > 0) {
+        <span
+          class="hp__tab-badge"
+          [class.hp__tab-badge--err]="errorsCount() > 0"
+        >
+          {{ errorsCount() + warningsCount() }}
+        </span>
+      }
+    </button>
+    <button
+      class="hp__tab"
+      [class.hp__tab--active]="tab() === 'hints'"
+      (click)="tab.set('hints')"
+    >
+      <lucide-icon [img]="icons.help" [size]="14" />
+      Подсказки
+    </button>
+  </div>
+
+  <div class="hp__body">
+    @if (tab() === 'checklist') {
+      @if (store.readiness(); as r) {
+        <div class="hp__progress">
+          <div>
+            <p class="hp__progress-label">Готовность курса</p>
+            <p class="hp__progress-value">{{ store.progressPercent() }}% выполнено</p>
+          </div>
+          <div class="hp__ring">
+            <svg viewBox="0 0 44 44" width="48" height="48">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#e0e7ff" stroke-width="4" />
+              <circle
+                cx="22" cy="22" r="18"
+                fill="none"
+                [attr.stroke]="store.progressPercent() === 100 ? '#10b981' : '#6366f1'"
+                stroke-width="4"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="ringCircumference"
+                [attr.stroke-dashoffset]="ringOffset()"
+                transform="rotate(-90 22 22)"
+                class="hp__ring-circle"
+              />
+            </svg>
+            <span class="hp__ring-label">{{ r.readyItems }}/{{ r.totalItems }}</span>
+          </div>
+        </div>
+
+        <div class="hp__items">
+          @for (issue of checklistItems(); track issue.id) {
+            <button
+              class="hp-issue"
+              [class.hp-issue--error]="issue.severity === 'Error'"
+              [class.hp-issue--warning]="issue.severity === 'Warning'"
+              [disabled]="!issue.sourceId"
+              (click)="goIssue(issue)"
+            >
+              <span class="hp-issue__icon">
+                @if (issue.severity === 'Error') {
+                  <lucide-icon [img]="icons.xcircle" [size]="14" />
+                } @else {
+                  <lucide-icon [img]="icons.alert" [size]="14" />
+                }
+              </span>
+              <span class="hp-issue__label">{{ issue.label }}</span>
+              @if (issue.sourceId) {
+                <lucide-icon [img]="icons.chev" [size]="12" class="hp-issue__chev" />
+              }
+            </button>
+          }
+
+          @if (checklistItems().length === 0 && r.readyPercent === 100) {
+            <div class="hp-success">
+              <lucide-icon [img]="icons.check" [size]="32" />
+              <p>Курс готов к публикации!</p>
+              <p class="hp-success__sub">Нажмите «Опубликовать» в верхней панели</p>
+            </div>
+          }
+        </div>
+      }
+    } @else {
+      <!-- Hints tab -->
+      @if (currentHint(); as hint) {
+        <div class="hp-hint">
+          <div class="hp-hint__head">
+            <lucide-icon [img]="hint.icon" [size]="16" />
+            <h3>{{ hint.title }}</h3>
+          </div>
+          <p class="hp-hint__sub">{{ hint.subtitle }}</p>
+
+          <div class="hp-hint__section">
+            <p class="hp-hint__label">Как заполнить</p>
+            @for (step of hint.steps; track step; let i = $index) {
+              <div class="hp-hint__step">
+                <span class="hp-hint__step-num">{{ i + 1 }}</span>
+                <span>{{ step }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="hp-hint__ready">
+            <lucide-icon [img]="icons.check" [size]="14" />
+            <div>
+              <p class="hp-hint__ready-label">Считается готовым, когда:</p>
+              <p class="hp-hint__ready-text">{{ hint.readyWhen }}</p>
+            </div>
+          </div>
+        </div>
+      } @else if (store.selection().kind === 'course_info') {
+        <div class="hp-hint">
+          <div class="hp-hint__head">
+            <lucide-icon [img]="icons.info" [size]="16" />
+            <h3>Страница курса в каталоге</h3>
+          </div>
+          <p class="hp-hint__sub">
+            Эти данные видят студенты до записи на курс. Название и описание влияют на число записавшихся.
+          </p>
+          <p class="hp-hint__hint">
+            <strong>Обязательные поля:</strong> название, подробное описание.
+          </p>
+        </div>
+      } @else {
+        <div class="hp-hint">
+          <div class="hp-hint__head">
+            <lucide-icon [img]="icons.bulb" [size]="16" />
+            <h3>С чего начать?</h3>
+          </div>
+          <p class="hp-hint__sub">
+            Откройте «Информацию о курсе» и заполните название, описание и результаты обучения.
+          </p>
+
+          <div class="hp-hint__steps-list">
+            <div class="hp-hint__step-row">
+              <span class="hp-hint__step-num">1</span>
+              <lucide-icon [img]="icons.book" [size]="13" />
+              <span>Заполните информацию о курсе</span>
+            </div>
+            <div class="hp-hint__step-row">
+              <span class="hp-hint__step-num">2</span>
+              <lucide-icon [img]="icons.layers" [size]="13" />
+              <span>Создайте разделы структуры</span>
+            </div>
+            <div class="hp-hint__step-row">
+              <span class="hp-hint__step-num">3</span>
+              <lucide-icon [img]="icons.play" [size]="13" />
+              <span>Добавьте элементы в разделы</span>
+            </div>
+            <div class="hp-hint__step-row">
+              <span class="hp-hint__step-num">4</span>
+              <lucide-icon [img]="icons.target" [size]="13" />
+              <span>Проверьте чеклист и опубликуйте</span>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <footer class="hp__footer">
+    <div class="hp__metrics">
+      <div class="hp__metric">
+        <p class="hp__metric-value">{{ store.sections().length }}</p>
+        <p class="hp__metric-label">Разделов</p>
+      </div>
+      <div class="hp__metric">
+        <p class="hp__metric-value">{{ store.totalItems() }}</p>
+        <p class="hp__metric-label">Элементов</p>
+      </div>
+      <div class="hp__metric">
+        <p class="hp__metric-value">{{ store.readiness()?.readyItems ?? 0 }}</p>
+        <p class="hp__metric-label">Готово</p>
+      </div>
+    </div>
+    <button class="hp__tour" (click)="reopenOnboarding()">
+      <lucide-icon [img]="icons.rotate" [size]="13" />
+      Повторить обучающий тур
+    </button>
+  </footer>
+
+  <button class="hp__close-mobile" (click)="closeMobile.emit()">
+    <lucide-icon [img]="icons.x" [size]="18" />
+  </button>
+</aside>

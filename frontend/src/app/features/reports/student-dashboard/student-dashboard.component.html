@@ -1,145 +1,150 @@
-<div class="student-dashboard">
-  <section class="hero">
-    <div class="hero__copy">
-      <p class="hero__eyebrow">Reports / Student</p>
+<div class="sd">
+  <!-- ── Hero ── -->
+  <section class="sd-hero">
+    <div class="sd-hero__bg-orbs" aria-hidden="true">
+      <span class="sd-hero__orb sd-hero__orb--1"></span>
+      <span class="sd-hero__orb sd-hero__orb--2"></span>
+    </div>
+    <div class="sd-hero__col sd-hero__col--copy">
+      <span class="sd-hero__pill">REPORTS / STUDENT</span>
       <h1>Учебная аналитика</h1>
-      <p class="hero__text">
+      <p>
         Здесь собраны текущий прогресс по курсам, последние оценки и ближайшие дедлайны,
         чтобы не переключаться между несколькими разделами.
       </p>
     </div>
-
     @if (summary(); as s) {
-      <div class="hero__meter">
-        <div class="hero__value">{{ formatPercent(s.overallProgressPercent) }}</div>
-        <div class="hero__label">Общий прогресс</div>
-        <div class="hero__chips">
-          <span class="hero__chip">{{ s.activeCourses }} в процессе</span>
-          <span class="hero__chip hero__chip--accent">{{ s.completedCourses }} завершено</span>
+      <div class="sd-hero__col sd-hero__col--meter">
+        <div class="sd-meter">
+          <div class="sd-meter__value">{{ formatPercent(s.overallProgressPercent) }}</div>
+          <div class="sd-meter__label">Общий прогресс</div>
+          <div class="sd-meter__chips">
+            <span class="sd-meter__chip">{{ s.activeCourses }} в процессе</span>
+            <span class="sd-meter__chip sd-meter__chip--accent">{{ s.completedCourses }} завершено</span>
+          </div>
         </div>
       </div>
     }
   </section>
 
   @if (loading()) {
-    <div class="state">Загружаю дашборд...</div>
+    <div class="sd-state">Загружаю дашборд…</div>
   } @else if (error()) {
-    <div class="state state--error">
+    <div class="sd-state sd-state--error">
       <span>{{ error() }}</span>
-      <button class="state__action" type="button" (click)="loadDashboard()">Повторить</button>
+      <button class="sd-state__action" type="button" (click)="loadDashboard()">Повторить</button>
     </div>
   } @else if (summary(); as s) {
-    <section class="stats-grid">
+    <!-- ── Stats grid ── -->
+    <section class="sd-stats">
       <app-stats-card
         title="Курсы"
         [value]="s.enrolledCourses"
         subtitle="активных записей"
         [iconName]="BookOpenIcon"
-        iconBg="#E0F2FE"
-        iconColor="#0369A1"
+        iconBg="#eef2ff"
+        iconColor="#4f46e5"
       />
       <app-stats-card
         title="Прогресс"
         [value]="formatPercent(s.overallProgressPercent)"
-        [change]="s.completedLessons + ' из ' + s.totalLessons + ' уроков'"
-        changeType="neutral"
+        [subtitle]="s.completedLessons + ' из ' + s.totalLessons + ' уроков'"
         [iconName]="TargetIcon"
-        iconBg="#DCFCE7"
-        iconColor="#15803D"
+        iconBg="#f0fdfa"
+        iconColor="#0d9488"
       />
       <app-stats-card
         title="Завершено"
         [value]="s.completedCourses"
         subtitle="курсов закрыто полностью"
         [iconName]="CheckCircleIcon"
-        iconBg="#FEF3C7"
-        iconColor="#B45309"
+        iconBg="#f0fdf4"
+        iconColor="#16a34a"
       />
       <app-stats-card
         title="Средний балл"
         [value]="formatPercent(s.averageGradePercent)"
         subtitle="по последним оценкам"
         [iconName]="GradeIcon"
-        iconBg="#FCE7F3"
-        iconColor="#BE185D"
+        iconBg="#f5f3ff"
+        iconColor="#7c3aed"
       />
       <app-stats-card
         title="Ближайшее"
         [value]="s.upcomingEventsCount"
         subtitle="событий в фокусе"
         [iconName]="CalendarIcon"
-        iconBg="#EDE9FE"
-        iconColor="#6D28D9"
+        iconBg="#fffbeb"
+        iconColor="#d97706"
       />
       <app-stats-card
         title="Ритм"
         [value]="s.activeCourses"
         subtitle="курсов в активной работе"
         [iconName]="ActivityIcon"
-        iconBg="#ECFCCB"
-        iconColor="#4D7C0F"
+        iconBg="#fff1f2"
+        iconColor="#e11d48"
       />
     </section>
 
-    <div class="dashboard-grid">
-      <section class="panel panel--courses">
-        <div class="panel__header">
+    <!-- ── Two-col layout ── -->
+    <div class="sd-grid">
+      <!-- Left: courses -->
+      <section class="sd-col sd-col--main">
+        <header class="sd-section-head">
           <div>
-            <p class="panel__eyebrow">Курсы</p>
+            <span class="sd-section-head__eyebrow">КУРСЫ</span>
             <h2>Прогресс по обучению</h2>
           </div>
-          <a class="panel-link" routerLink="/student/courses">
+          <a class="sd-link" routerLink="/student/courses">
             Все курсы
-            <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+            <lucide-icon [img]="ArrowRightIcon" [size]="15" />
           </a>
-        </div>
+        </header>
 
         @if (!courses().length) {
-          <section class="empty-panel empty-panel--embedded">
-            <div>
-              <h2>У тебя пока нет курсов в аналитике</h2>
-              <p>Запишись на курс, и здесь появится прогресс по урокам и обучение по траектории.</p>
-            </div>
-            <a class="panel-link" routerLink="/student/catalog">
+          <div class="sd-empty">
+            <h3>У тебя пока нет курсов в аналитике</h3>
+            <p>Запишись на курс, и здесь появится прогресс по урокам и обучение по траектории.</p>
+            <a class="sd-link" routerLink="/student/catalog">
               Перейти в каталог
-              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+              <lucide-icon [img]="ArrowRightIcon" [size]="15" />
             </a>
-          </section>
+          </div>
         } @else {
-          <div class="course-list">
+          <div class="sd-courses">
             @for (course of courses(); track course.courseId) {
-              <article class="course-card">
-                <div class="course-card__meta">
-                  <div>
-                    <p class="course-card__discipline">{{ course.disciplineName }}</p>
+              <article class="sd-course">
+                <div class="sd-course__head">
+                  <div class="sd-course__title-block">
+                    <span class="sd-course__discipline">{{ course.disciplineName }}</span>
                     <h3>{{ course.title }}</h3>
-                    <p class="course-card__teacher">{{ course.teacherName }}</p>
+                    <p class="sd-course__teacher">{{ course.teacherName }}</p>
                   </div>
-                  <span class="pill" [class.pill--success]="course.isCompleted">
+                  <span class="sd-pill" [class.sd-pill--success]="course.isCompleted">
                     {{ course.isCompleted ? 'Готово' : 'В процессе' }}
                   </span>
                 </div>
 
-                <div class="course-card__progress">
-                  <div class="course-card__progress-head">
+                <div class="sd-course__progress">
+                  <div class="sd-course__progress-head">
                     <span>{{ formatLessons(course) }} уроков</span>
                     <strong>{{ formatPercent(course.progressPercent) }}</strong>
                   </div>
-                  <div class="progress-bar">
-                    <span [style.width.%]="course.progressPercent"></span>
+                  <div class="sd-bar">
+                    <span class="sd-bar__fill" [style.width.%]="course.progressPercent"></span>
                   </div>
                 </div>
 
-                <div class="course-card__footer">
+                <div class="sd-course__foot">
                   @if (course.deadline) {
-                    <span class="course-card__deadline">Дедлайн курса: {{ formatShortDate(course.deadline) }}</span>
+                    <span class="sd-course__deadline">Дедлайн: {{ formatShortDate(course.deadline) }}</span>
                   } @else {
-                    <span class="course-card__deadline course-card__deadline--muted">Без общего дедлайна</span>
+                    <span class="sd-course__deadline sd-course__deadline--muted">Без общего дедлайна</span>
                   }
-
-                  <a class="panel-link panel-link--inline" [routerLink]="['/student/course', course.courseId]">
+                  <a class="sd-link sd-link--inline" [routerLink]="['/student/course', course.courseId]">
                     Открыть
-                    <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+                    <lucide-icon [img]="ArrowRightIcon" [size]="14" />
                   </a>
                 </div>
               </article>
@@ -148,66 +153,70 @@
         }
       </section>
 
-      <section class="panel">
-          <div class="panel__header">
+      <!-- Right column: events + grades -->
+      <aside class="sd-col sd-col--side">
+        <!-- Events -->
+        <section class="sd-section">
+          <header class="sd-section-head">
             <div>
-              <p class="panel__eyebrow">Calendar</p>
+              <span class="sd-section-head__eyebrow">CALENDAR</span>
               <h2>Ближайшие события</h2>
             </div>
-            <a class="panel-link" routerLink="/student/calendar">
+            <a class="sd-link" routerLink="/student/calendar">
               Календарь
-              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+              <lucide-icon [img]="ArrowRightIcon" [size]="14" />
             </a>
-          </div>
+          </header>
 
           @if (!upcoming().length) {
-            <div class="panel__empty">На ближайшее время событий нет.</div>
+            <div class="sd-section-empty">На ближайшее время событий нет.</div>
           } @else {
-            <div class="event-list">
+            <div class="sd-events">
               @for (item of upcoming(); track item.id) {
-                <a class="event-item" [routerLink]="getUpcomingRoute(item)">
-                  <div class="event-item__content">
-                    <div class="event-item__tags">
-                      <span class="pill">{{ getEventKindLabel(item) }}</span>
+                <a class="sd-event" [routerLink]="getUpcomingRoute(item)">
+                  <div class="sd-event__body">
+                    <div class="sd-event__tags">
+                      <span class="sd-pill">{{ getEventKindLabel(item) }}</span>
                       <span [class]="getStatusClass(item.status)">{{ getStatusLabel(item.status) }}</span>
                     </div>
-                    <h3>{{ item.title }}</h3>
+                    <h4>{{ item.title }}</h4>
                     <p>{{ item.courseName || item.description || 'Открыть подробности события' }}</p>
                   </div>
-                  <div class="event-item__date">
+                  <div class="sd-event__date">
                     <span>{{ formatEventDate(item) }}</span>
-                    <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+                    <lucide-icon [img]="ArrowRightIcon" [size]="14" />
                   </div>
                 </a>
               }
             </div>
           }
-      </section>
+        </section>
 
-      <section class="panel">
-          <div class="panel__header">
+        <!-- Grades -->
+        <section class="sd-section">
+          <header class="sd-section-head">
             <div>
-              <p class="panel__eyebrow">Grades</p>
+              <span class="sd-section-head__eyebrow">GRADES</span>
               <h2>Последние оценки</h2>
             </div>
-            <a class="panel-link" routerLink="/student/grades">
+            <a class="sd-link" routerLink="/student/grades">
               Все оценки
-              <lucide-icon [img]="ArrowRightIcon" size="16"></lucide-icon>
+              <lucide-icon [img]="ArrowRightIcon" [size]="14" />
             </a>
-          </div>
+          </header>
 
           @if (!recentGrades().length) {
-            <div class="panel__empty">Оценок пока нет. Они появятся после первых проверенных работ и тестов.</div>
+            <div class="sd-section-empty">Оценок пока нет.</div>
           } @else {
-            <div class="grade-list">
+            <div class="sd-grades">
               @for (grade of recentGrades(); track grade.id) {
-                <article class="grade-item">
-                  <div class="grade-item__copy">
-                    <span class="pill">{{ grade.sourceType === 'Assignment' ? 'Задание' : 'Тест' }}</span>
-                    <h3>{{ grade.title }}</h3>
+                <article class="sd-grade">
+                  <div class="sd-grade__copy">
+                    <span class="sd-pill">{{ grade.sourceType === 'Assignment' ? 'Задание' : 'Тест' }}</span>
+                    <h4>{{ grade.title }}</h4>
                     <p>{{ grade.courseName }} • {{ formatShortDate(grade.gradedAt) }}</p>
                   </div>
-                  <div class="grade-item__score">
+                  <div class="sd-grade__score">
                     <span [class]="getGradeClass(grade)">{{ formatPercent(grade.percent) }}</span>
                     <small>{{ formatGrade(grade) }}</small>
                   </div>
@@ -215,7 +224,8 @@
               }
             </div>
           }
-      </section>
+        </section>
+      </aside>
     </div>
   }
 </div>

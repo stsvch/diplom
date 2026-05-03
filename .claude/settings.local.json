@@ -26,7 +26,17 @@
       "Bash(done)",
       "Bash(for module:*)",
       "Bash(do echo:*)",
-      "Read(//c/Users/USER/Desktop/диплом/proj/diplom/**)"
+      "Read(//c/Users/USER/Desktop/диплом/proj/diplom/**)",
+      "Bash(curl -sL \"https://puzzle-solar-32440886.figma.site/\")",
+      "Bash(grep -E \"\\\\.\\(cs\\)$\")",
+      "Bash(xargs grep *)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(powershell *)",
+      "Bash(mkdir *)",
+      "Bash(git check-ignore *)",
+      "Bash(git status *)",
+      "Bash(git add *)",
+      "Bash(git reset *)"
     ]
   }
 }

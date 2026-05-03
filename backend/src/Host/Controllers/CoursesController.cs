@@ -10,10 +10,15 @@ using Courses.Application.Courses.Queries.GetCourseById;
 using Courses.Application.Courses.Queries.GetMyCourses;
 using Courses.Application.DTOs;
 using Courses.Domain.Enums;
+using Auth.Domain.Entities;
+using EduPlatform.Host.Models.Courses;
+using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
@@ -23,10 +28,17 @@ namespace EduPlatform.Host.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly CourseBuilderReadService _courseBuilder;
 
-    public CoursesController(IMediator mediator)
+    public CoursesController(
+        IMediator mediator,
+        UserManager<ApplicationUser> userManager,
+        CourseBuilderReadService courseBuilder)
     {
         _mediator = mediator;
+        _userManager = userManager;
+        _courseBuilder = courseBuilder;
     }
 
     [HttpGet]
@@ -43,6 +55,7 @@ public class CoursesController : ControllerBase
     {
         var query = new GetCourseCatalogQuery(disciplineId, isFree, level, search, sortBy, page, pageSize);
         var result = await _mediator.Send(query, cancellationToken);
+        await EnrichTeacherNamesAsync(result.Items, cancellationToken);
         return Ok(result);
     }
 
@@ -58,6 +71,7 @@ public class CoursesController : ControllerBase
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "COURSE_NOT_FOUND"));
 
+        await EnrichTeacherNamesAsync(result.Value, cancellationToken);
         return Ok(result.Value);
     }
 
@@ -73,6 +87,7 @@ public class CoursesController : ControllerBase
         var role = User.FindFirstValue(ClaimTypes.Role) ?? "Student";
         var query = new GetMyCoursesQuery(userId, role);
         var result = await _mediator.Send(query, cancellationToken);
+        await EnrichTeacherNamesAsync(result, cancellationToken);
         return Ok(result);
     }
 
@@ -86,7 +101,11 @@ public class CoursesController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized();
 
-        var userName = User.FindFirstValue(ClaimTypes.Name) ?? "Unknown";
+        var given = User.FindFirstValue(ClaimTypes.GivenName) ?? string.Empty;
+        var surname = User.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
+        var userName = $"{given} {surname}".Trim();
+        if (string.IsNullOrWhiteSpace(userName))
+            userName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email) ?? "Преподаватель";
         var command = new CreateCourseCommand(
             userId, userName, request.DisciplineId, request.Title, request.Description,
             request.Price, request.IsFree, request.OrderType, request.HasGrading,
@@ -97,6 +116,7 @@ public class CoursesController : ControllerBase
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_CREATE_FAILED"));
 
+        await EnrichTeacherNamesAsync(result.Value, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
 
@@ -120,7 +140,28 @@ public class CoursesController : ControllerBase
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_UPDATE_FAILED"));
 
+        await EnrichTeacherNamesAsync(result.Value, cancellationToken);
         return Ok(result.Value);
+    }
+
+    [HttpGet("{id:guid}/builder")]
+    [Authorize(Roles = "Teacher,Admin")]
+    [ProducesResponseType(typeof(CourseBuilderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetBuilder(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var result = await _courseBuilder.GetAsync(id, userId, User.IsInRole("Admin"), cancellationToken);
+        return result.Status switch
+        {
+            CourseBuilderReadStatus.Success => Ok(result.Builder),
+            CourseBuilderReadStatus.Forbidden => Forbid(),
+            _ => NotFound(ApiError.FromMessage("Курс не найден.", "COURSE_NOT_FOUND"))
+        };
     }
 
     [HttpPost("{id:guid}/publish")]
@@ -133,9 +174,38 @@ public class CoursesController : ControllerBase
         if (string.IsNullOrEmpty(userId))
             return Unauthorized();
 
+        var builderResult = await _courseBuilder.GetAsync(id, userId, User.IsInRole("Admin"), cancellationToken);
+        if (builderResult.Status == CourseBuilderReadStatus.NotFound)
+            return BadRequest(ApiError.FromMessage("Курс не найден.", "COURSE_PUBLISH_FAILED"));
+        if (builderResult.Status == CourseBuilderReadStatus.Forbidden)
+            return Forbid();
+
+        var readinessIssues = builderResult.Builder!.Readiness.Issues
+            .Select(ToPublishIssue)
+            .ToList();
+
+        if (readinessIssues.Any(i => i.Type == "error") && !force)
+        {
+            return Ok(new PublishValidationResult
+            {
+                Success = false,
+                Message = "Курс не может быть опубликован — есть ошибки в готовности курса.",
+                Issues = readinessIssues
+            });
+        }
+
         var result = await _mediator.Send(new PublishCourseCommand(id, userId, force), cancellationToken);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_PUBLISH_FAILED"));
+
+        foreach (var issue in readinessIssues)
+        {
+            if (!result.Value!.Issues.Any(i => i.Code == issue.Code && i.Path == issue.Path))
+                result.Value.Issues.Add(issue);
+        }
+
+        if (result.Value!.Success && readinessIssues.Any(i => i.Type == "error"))
+            result.Value.Message = "Курс опубликован принудительно, но в готовности курса остаются ошибки.";
 
         return Ok(result.Value!);
     }
@@ -212,6 +282,61 @@ public class CoursesController : ControllerBase
             return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_UNENROLL_FAILED"));
 
         return Ok(new { message = result.Value });
+    }
+
+    private async Task EnrichTeacherNamesAsync(IEnumerable<CourseListDto> courses, CancellationToken cancellationToken)
+    {
+        var items = courses
+            .Where(c =>
+                !string.IsNullOrWhiteSpace(c.TeacherId)
+                && (string.IsNullOrWhiteSpace(c.TeacherName) || c.TeacherName == "Unknown"))
+            .ToList();
+
+        if (items.Count == 0)
+            return;
+
+        var teacherIds = items
+            .Select(c => c.TeacherId)
+            .Distinct()
+            .ToList();
+
+        var users = await _userManager.Users
+            .Where(u => teacherIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, cancellationToken);
+
+        foreach (var item in items)
+        {
+            if (!users.TryGetValue(item.TeacherId, out var user))
+                continue;
+
+            var fullName = $"{user.FirstName} {user.LastName}".Trim();
+            item.TeacherName = string.IsNullOrWhiteSpace(fullName)
+                ? user.Email ?? "Преподаватель"
+                : fullName;
+        }
+    }
+
+    private Task EnrichTeacherNamesAsync(CourseDetailDto? course, CancellationToken cancellationToken)
+    {
+        if (course is null)
+            return Task.CompletedTask;
+
+        return EnrichTeacherNamesAsync(new[] { course }, cancellationToken);
+    }
+
+    private static PublishIssue ToPublishIssue(CourseBuilderReadinessIssueDto issue)
+    {
+        var type = issue.Severity.Equals("Error", StringComparison.OrdinalIgnoreCase)
+            ? "error"
+            : "warning";
+
+        var path = issue.SourceId.HasValue
+            ? $"{issue.ItemType ?? "item"}-{issue.SourceId.Value}"
+            : issue.SectionId.HasValue
+                ? $"section-{issue.SectionId.Value}"
+                : "course";
+
+        return new PublishIssue(type, path, issue.Code, issue.Message);
     }
 }
 

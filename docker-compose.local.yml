@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: eduplatform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  stripe-listen:
+    image: stripe/stripe-cli:latest
+    entrypoint: ["/bin/sh"]
+    command:
+      - "-c"
+      - |
+        rm -f /stripe/webhook-secret /host/appsettings.Development.Local.json
+        stripe listen --api-key "$$STRIPE_SECRET_KEY" --forward-to http://host.docker.internal:5000/api/payments/webhooks/stripe 2>&1 | while IFS= read -r line; do
+          secret="$$(printf "%s" "$$line" | grep -o 'whsec_[A-Za-z0-9]*' | head -n 1 || true)"
+          if [ -n "$$secret" ] && [ ! -f /stripe/webhook-secret ]; then
+            printf "%s" "$$secret" > /stripe/webhook-secret
+            cat > /host/appsettings.Development.Local.json <<EOF
+        {
+          "ConnectionStrings": {
+            "PostgreSQL": "Host=localhost;Port=5432;Database=eduplatform;Username=postgres;Password=$$POSTGRES_PASSWORD",
+            "MongoDB": "mongodb://localhost:27017"
+          },
+          "FrontendUrl": "http://localhost:4200",
+          "Cors": {
+            "AllowedOrigins": [ "http://localhost:4200" ]
+          },
+          "MinIO": {
+            "Endpoint": "localhost:9100",
+            "AccessKey": "$$MINIO_ROOT_USER",
+            "SecretKey": "$$MINIO_ROOT_PASSWORD",
+            "BucketName": "eduplatform-files",
+            "UseSSL": false
+          },
+          "Stripe": {
+            "SecretKey": "$$STRIPE_SECRET_KEY",
+            "WebhookSecret": "$$secret",
+            "Country": "$$STRIPE_COUNTRY"
+          }
+        }
+        EOF
+            echo "Stripe listener is ready."
+          elif printf "%s" "$$line" | grep -q 'whsec_'; then
+            echo "Stripe listener is ready."
+          else
+            echo "$$line"
+          fi
+        done
+    environment:
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?Set STRIPE_SECRET_KEY in .env}
+      STRIPE_COUNTRY: ${STRIPE_COUNTRY:-US}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - stripe_data:/stripe
+      - ./backend/src/Host:/host
+
+volumes:
+  postgres_data:
+  mongo_data:
+  minio_data:
+  stripe_data:

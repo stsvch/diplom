@@ -1,0 +1,607 @@
+@use '../../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sp {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.sp__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-3 $spacing-4;
+  border-bottom: 1px solid $slate-100;
+}
+
+.sp__count {
+  font-size: $font-size-xs;
+  color: $slate-400;
+  margin: 0;
+}
+
+.sp__add-section-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-md;
+  color: $indigo-600;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $indigo-50; color: $indigo-700; }
+}
+
+.sp__course-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin: $spacing-2 $spacing-2 0;
+  padding: 8px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-xl;
+  color: $slate-600;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  text-align: left;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast;
+
+  span:not(.sp__warn-badge) { flex: 1; }
+
+  lucide-icon { color: $slate-400; }
+
+  &:hover {
+    background: $slate-50;
+  }
+
+  &--active {
+    background: $indigo-50;
+    color: $indigo-700;
+
+    lucide-icon { color: $indigo-600; }
+  }
+}
+
+.sp__warn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $amber-50;
+  color: $amber-500;
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  border-radius: $radius-full;
+  padding: 0 8px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sp__scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-2;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $slate-200; border-radius: $radius-full; }
+}
+
+// ── Empty state ──
+.sp__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: $spacing-10 $spacing-4;
+
+  &-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-2xl;
+    background: $slate-100;
+    color: $slate-300;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-3;
+  }
+
+  &-title {
+    font-size: $font-size-sm;
+    color: $slate-500;
+    margin: 0 0 4px;
+  }
+
+  &-text {
+    font-size: $font-size-xs;
+    color: $slate-400;
+    margin: 0 0 $spacing-3;
+    line-height: 1.5;
+  }
+}
+
+.sp__add-section-cta {
+  background: $indigo-50;
+  color: $indigo-600;
+  border: 0;
+  padding: 6px 14px;
+  border-radius: $radius-lg;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $indigo-100; }
+}
+
+// ── Section ──
+.sp__section {
+  margin-bottom: $spacing-1;
+
+  &--unsectioned {
+    margin-top: $spacing-4;
+    padding-top: $spacing-3;
+    border-top: 1px dashed $slate-200;
+  }
+}
+
+.sp__section-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: $radius-xl;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $slate-50;
+
+    .sp__section-action,
+    .sp__drag-handle {
+      opacity: 1;
+    }
+  }
+}
+
+.sp__drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: $slate-300;
+  cursor: grab;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity $transition-fast, color $transition-fast;
+
+  &:active { cursor: grabbing; }
+  &:hover { color: $slate-500; }
+}
+
+// CDK DnD стили
+.cdk-drag-preview {
+  background: #fff;
+  border: 1px solid $indigo-200;
+  border-radius: $radius-xl;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  padding: 6px 12px;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  font-family: $font-family;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.sp__items.cdk-drop-list-dragging .sp-item:not(.cdk-drag-placeholder) {
+  transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.sp__chev-btn {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: $slate-400;
+  cursor: pointer;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+
+  &:hover { color: $slate-600; }
+}
+
+.sp__section-title {
+  flex: 1;
+  font-size: $font-size-xs;
+  color: $slate-700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+
+  &--muted { color: $slate-400; font-style: italic; }
+}
+
+.sp__section-input {
+  flex: 1;
+  padding: 2px 6px;
+  background: #fff;
+  border: 1px solid $indigo-300;
+  border-radius: $radius-sm;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  color: $slate-700;
+  outline: none;
+}
+
+.sp__section-count {
+  font-size: $font-size-xs;
+  color: $slate-500;
+  background: $slate-100;
+  padding: 0 6px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+
+  &--empty { color: $slate-300; background: transparent; }
+}
+
+.sp__section-action {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: $slate-400;
+  cursor: pointer;
+  border-radius: $radius-md;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity $transition-fast, background $transition-fast, color $transition-fast;
+
+  &:hover { background: $red-50; color: $red-500; }
+}
+
+// ── Items ──
+.sp__items {
+  padding-left: $spacing-4;
+}
+
+.sp__items-empty {
+  padding: 8px;
+  font-size: $font-size-xs;
+  color: $slate-400;
+  font-style: italic;
+}
+
+.sp-item {
+  --sp-item-bg: #{$slate-100};
+  --sp-item-color: #{$slate-600};
+
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 6px 8px;
+  border-radius: $radius-xl;
+  cursor: pointer;
+  margin-bottom: 2px;
+  transition: background $transition-fast;
+  position: relative;
+
+  &:hover {
+    background: $slate-50;
+
+    .sp-item__delete,
+    .sp-item__drag {
+      opacity: 1;
+    }
+  }
+
+  &__drag {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $slate-300;
+    cursor: grab;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity $transition-fast;
+
+    &:active { cursor: grabbing; }
+    &:hover { color: $slate-500; }
+  }
+
+  &--selected {
+    background: $indigo-50;
+
+    .sp-item__title { color: $indigo-700; }
+  }
+
+  &--indigo { --sp-item-bg: #{$indigo-100}; --sp-item-color: #{$indigo-600}; }
+  &--orange { --sp-item-bg: #{$orange-100}; --sp-item-color: #{$orange-600}; }
+  &--rose   { --sp-item-bg: #{$rose-100};   --sp-item-color: #{$rose-600};   }
+  &--teal   { --sp-item-bg: #{$teal-100};   --sp-item-color: #{$teal-600};   }
+  &--slate  { --sp-item-bg: #{$slate-100};  --sp-item-color: #{$slate-600};  }
+  &--violet { --sp-item-bg: #ede9fe;        --sp-item-color: #7c3aed;         }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    border-radius: $radius-md;
+    background: var(--sp-item-bg);
+    color: var(--sp-item-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    flex: 1;
+    font-size: $font-size-xs;
+    color: $slate-700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  &__input {
+    flex: 1;
+    padding: 2px 6px;
+    background: #fff;
+    border: 1px solid $indigo-300;
+    border-radius: $radius-sm;
+    font-family: inherit;
+    font-size: $font-size-xs;
+    color: $slate-700;
+    outline: none;
+  }
+
+  &__status {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__required {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $indigo-400;
+    flex-shrink: 0;
+  }
+
+  &__delete {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: $slate-300;
+    cursor: pointer;
+    border-radius: $radius-md;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity $transition-fast, background $transition-fast, color $transition-fast;
+
+    &:hover { background: $red-50; color: $red-500; }
+  }
+}
+
+.sp-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $slate-300;
+
+  &--draft { background: $slate-300; }
+  &--warn  { background: $amber-400; }
+  &--ready { background: $emerald-500; }
+}
+
+.sp-status-icon {
+  &--warn  { color: $amber-400; }
+  &--ready { color: $emerald-500; }
+}
+
+// ── Add item button + menu ──
+.sp__add-wrapper {
+  position: relative;
+}
+
+.sp__add-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-xl;
+  color: $slate-400;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $indigo-50;
+    color: $indigo-600;
+  }
+
+  &--open {
+    background: $indigo-50;
+    color: $indigo-600;
+
+    .sp__add-chev {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.sp__add-chev {
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.sp__add-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  z-index: 50;
+  background: #fff;
+  border: 1px solid $slate-100;
+  border-radius: $radius-2xl;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+  padding: 8px 0;
+  animation: sp-pop 0.15s ease-out;
+}
+
+@keyframes sp-pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sp__add-menu-label {
+  padding: 4px 12px 6px;
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $slate-400;
+}
+
+.sp__add-menu-item {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background $transition-fast;
+
+  &:hover { background: $slate-50; }
+
+  &--indigo .sp__add-menu-icon { background: $indigo-100; color: $indigo-600; }
+  &--orange .sp__add-menu-icon { background: $orange-100; color: $orange-600; }
+  &--rose   .sp__add-menu-icon { background: $rose-100;   color: $rose-600;   }
+  &--teal   .sp__add-menu-icon { background: $teal-100;   color: $teal-600;   }
+  &--slate  .sp__add-menu-icon { background: $slate-100;  color: $slate-600;  }
+  &--violet .sp__add-menu-icon { background: #ede9fe;     color: #7c3aed;      }
+}
+
+.sp__add-menu-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-lg;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sp__add-menu-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sp__add-menu-title {
+  font-size: $font-size-sm;
+  color: $slate-700;
+  line-height: 1.2;
+}
+
+.sp__add-menu-desc {
+  font-size: $font-size-xs;
+  color: $slate-400;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+// ── Footer ──
+.sp__footer {
+  padding: $spacing-3 $spacing-4;
+  border-top: 1px solid $slate-100;
+}
+
+.sp__add-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px dashed $slate-200;
+  border-radius: $radius-xl;
+  color: $slate-500;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $indigo-50;
+    color: $indigo-600;
+    border-color: $indigo-300;
+  }
+}
+
+// ── Mobile close button ──
+.sp__close-mobile {
+  display: none;
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: $slate-400;
+  cursor: pointer;
+  border-radius: $radius-lg;
+
+  &:hover { background: $slate-100; color: $slate-700; }
+
+  @media (max-width: 1023px) {
+    display: inline-flex;
+  }
+}

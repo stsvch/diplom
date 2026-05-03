@@ -13,5 +13,8 @@ public record UpdateQuestionCommand(
     QuestionType Type,
     string Text,
     int Points,
-    List<UpdateAnswerOptionInput> AnswerOptions
+    List<UpdateAnswerOptionInput> AnswerOptions,
+    QuestionGradeType? GradeType = null,
+    string? Explanation = null,
+    string? ExpectedAnswer = null
 ) : IRequest<Result<QuestionDto>>;

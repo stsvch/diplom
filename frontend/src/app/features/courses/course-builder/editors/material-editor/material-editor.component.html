@@ -1,0 +1,103 @@
+@if (item(); as it) {
+  <div class="me">
+    <header class="me__header">
+      <span class="me__badge" [class.me__badge--material]="isMaterial()" [class.me__badge--link]="!isMaterial()">
+        <lucide-icon [img]="isMaterial() ? icons.paperclip : icons.link" [size]="12" />
+        {{ isMaterial() ? 'Материал' : 'Внешняя ссылка' }}
+        @if (section(); as sec) { · {{ sec.title }} }
+      </span>
+      <input
+        type="text"
+        class="me__title"
+        [ngModel]="it.title"
+        (ngModelChange)="setTitle($event)"
+        [placeholder]="isMaterial() ? 'Название материала' : 'Название ссылки'"
+      />
+      <label class="me__check">
+        <input
+          type="checkbox"
+          [checked]="it.isRequired"
+          (change)="setRequired($any($event.target).checked)"
+        />
+        <span>Обязательный элемент</span>
+      </label>
+    </header>
+
+    @if (isMaterial()) {
+      <div class="me__upload-area">
+        <lucide-icon [img]="icons.upload" [size]="32" />
+        <p class="me__upload-title">Загрузка файлов скоро будет доступна</p>
+        <p class="me__upload-sub">Сейчас укажите прямую ссылку на файл ниже</p>
+      </div>
+
+      <div class="me__divider"><span>или</span></div>
+
+      <div class="me__field">
+        <label>Прямая ссылка на файл</label>
+        <input
+          type="url"
+          class="me__input"
+          [ngModel]="it.url"
+          (ngModelChange)="setUrl($event)"
+          placeholder="https://..."
+        />
+      </div>
+
+      <div class="me__field">
+        <label>Описание (необязательно)</label>
+        <textarea
+          class="me__textarea"
+          [ngModel]="it.description"
+          (ngModelChange)="setDescription($event)"
+          rows="3"
+          placeholder="Краткое описание материала"
+        ></textarea>
+      </div>
+
+      @if (it.url) {
+        <div class="me__preview me__preview--material">
+          <div class="me__preview-icon"><lucide-icon [img]="icons.paperclip" [size]="16" /></div>
+          <div class="me__preview-text">
+            <p class="me__preview-title">{{ it.title }}</p>
+            <p class="me__preview-url">{{ it.url }}</p>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="me__field">
+        <label>URL ссылки <span class="me__required">*</span></label>
+        <input
+          type="url"
+          class="me__input"
+          [ngModel]="it.url"
+          (ngModelChange)="setUrl($event)"
+          placeholder="https://..."
+        />
+      </div>
+
+      <div class="me__field">
+        <label>Описание (необязательно)</label>
+        <textarea
+          class="me__textarea"
+          [ngModel]="it.description"
+          (ngModelChange)="setDescription($event)"
+          rows="3"
+          placeholder="Что студент найдёт по этой ссылке"
+        ></textarea>
+      </div>
+
+      @if (it.url) {
+        <div class="me__preview me__preview--link">
+          <div class="me__preview-icon"><lucide-icon [img]="icons.link" [size]="16" /></div>
+          <div class="me__preview-text">
+            <p class="me__preview-title">{{ it.title }}</p>
+            <p class="me__preview-url">{{ it.url }}</p>
+          </div>
+          <a class="me__preview-action" [href]="it.url" target="_blank" rel="noopener">
+            <lucide-icon [img]="icons.external" [size]="14" />
+          </a>
+        </div>
+      }
+    }
+  </div>
+}

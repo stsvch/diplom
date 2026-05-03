@@ -1,0 +1,387 @@
+@use '../../../../../../styles/variables' as *;
+
+:host { display: block; height: 100%; }
+
+.hp {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.hp__tabs {
+  display: flex;
+  gap: 4px;
+  padding: $spacing-4 $spacing-4 0;
+  background: $slate-100;
+  border-radius: $radius-xl;
+  margin: $spacing-4 $spacing-4 0;
+  padding: 4px;
+}
+
+.hp__tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-lg;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  color: $slate-500;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover { color: $slate-700; }
+
+  &--active {
+    background: #fff;
+    color: $slate-800;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.hp__tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  padding: 0 6px;
+  height: 16px;
+  border-radius: $radius-full;
+  background: $amber-100;
+  color: $amber-600;
+
+  &--err { background: $red-100; color: $red-600; }
+}
+
+.hp__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-4;
+}
+
+// ── Progress card ──
+.hp__progress {
+  background: linear-gradient(135deg, $indigo-50, $purple-50);
+  border: 1px solid $indigo-100;
+  border-radius: $radius-2xl;
+  padding: $spacing-4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-4;
+
+  &-label {
+    font-size: $font-size-xs;
+    color: $indigo-600;
+    margin: 0 0 2px;
+  }
+
+  &-value {
+    color: $slate-800;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+.hp__ring {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+
+  &-circle { transition: stroke-dashoffset 0.6s ease; }
+
+  &-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xs;
+    color: $slate-600;
+  }
+}
+
+// ── Issues ──
+.hp__items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hp-issue {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: $radius-xl;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:disabled { cursor: default; }
+
+  &--error {
+    background: $red-50;
+
+    &:not(:disabled):hover { background: $red-100; }
+  }
+
+  &--warning {
+    background: $amber-50;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &--error .hp-issue__icon { color: $red-400; }
+  &--warning .hp-issue__icon { color: $amber-400; }
+
+  &__label {
+    flex: 1;
+    font-size: $font-size-xs;
+    line-height: 1.4;
+    color: $slate-600;
+  }
+
+  &--error .hp-issue__label { color: $red-600; }
+
+  &__chev {
+    color: $slate-400;
+    margin-top: 2px;
+  }
+}
+
+// ── Success ──
+.hp-success {
+  background: $emerald-50;
+  border: 1px solid $emerald-100;
+  border-radius: $radius-2xl;
+  padding: $spacing-4;
+  text-align: center;
+  color: $emerald-600;
+
+  lucide-icon { color: $emerald-500; margin-bottom: $spacing-2; }
+
+  p {
+    margin: 0;
+    color: $emerald-700;
+    font-size: $font-size-sm;
+  }
+
+  &__sub {
+    color: $emerald-600 !important;
+    font-size: $font-size-xs !important;
+    margin-top: 4px !important;
+  }
+}
+
+// ── Hints ──
+.hp-hint {
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    margin-bottom: $spacing-2;
+
+    h3 {
+      font-size: $font-size-sm;
+      color: $slate-800;
+      margin: 0;
+      font-weight: $font-weight-semibold;
+    }
+
+    lucide-icon { color: $indigo-500; }
+  }
+
+  &__sub {
+    font-size: $font-size-xs;
+    color: $slate-500;
+    line-height: 1.5;
+    margin: 0 0 $spacing-4;
+  }
+
+  &__hint {
+    background: $amber-50;
+    border: 1px solid $amber-100;
+    border-radius: $radius-xl;
+    padding: 12px;
+    font-size: $font-size-xs;
+    color: $amber-700;
+    line-height: 1.5;
+
+    strong { color: $amber-800; font-weight: $font-weight-semibold; }
+  }
+
+  &__section {
+    background: $slate-50;
+    border-radius: $radius-xl;
+    padding: 12px;
+    margin-bottom: $spacing-4;
+  }
+
+  &__label {
+    font-size: $font-size-xs;
+    color: $slate-400;
+    margin: 0 0 $spacing-2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-2;
+    padding: 4px 0;
+    font-size: $font-size-xs;
+    color: $slate-600;
+    line-height: 1.4;
+  }
+
+  &__step-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: $slate-200;
+    color: $slate-600;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  &__steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__step-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: 8px;
+    background: $slate-50;
+    border-radius: $radius-lg;
+    font-size: $font-size-xs;
+    color: $slate-600;
+
+    lucide-icon { color: $slate-400; }
+  }
+
+  &__ready {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-2;
+    padding: 12px;
+    background: $emerald-50;
+    border: 1px solid $emerald-100;
+    border-radius: $radius-xl;
+
+    lucide-icon { color: $emerald-500; margin-top: 1px; flex-shrink: 0; }
+
+    &-label {
+      font-size: $font-size-xs;
+      color: $emerald-700;
+      margin: 0 0 2px;
+    }
+
+    &-text {
+      font-size: $font-size-xs;
+      color: $emerald-600;
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+// ── Footer ──
+.hp__footer {
+  padding: $spacing-3 $spacing-4;
+  border-top: 1px solid $slate-100;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.hp__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-2;
+}
+
+.hp__metric {
+  background: $slate-50;
+  border-radius: $radius-xl;
+  padding: 8px;
+  text-align: center;
+
+  &-value {
+    color: $slate-900;
+    font-weight: $font-weight-semibold;
+    margin: 0;
+  }
+
+  &-label {
+    font-size: $font-size-xs;
+    color: $slate-400;
+    margin: 0;
+    line-height: 1.2;
+  }
+}
+
+.hp__tour {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed $slate-200;
+  border-radius: $radius-xl;
+  color: $slate-500;
+  font-family: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $indigo-50;
+    color: $indigo-600;
+    border-color: $indigo-200;
+  }
+}
+
+.hp__close-mobile {
+  display: none;
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: $slate-400;
+  cursor: pointer;
+  border-radius: $radius-lg;
+
+  &:hover { background: $slate-100; color: $slate-700; }
+
+  @media (max-width: 1023px) {
+    display: inline-flex;
+  }
+}

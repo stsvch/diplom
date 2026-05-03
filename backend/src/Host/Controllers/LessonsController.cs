@@ -6,6 +6,7 @@ using Courses.Application.Lessons.Commands.UpdateLesson;
 using Courses.Application.Lessons.Queries.GetLessonById;
 using Courses.Application.Lessons.Queries.GetModuleLessons;
 using Courses.Domain.Entities;
+using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Host.Services;
 using MediatR;
@@ -21,11 +22,16 @@ public class LessonsController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly LessonAccessService _lessonAccess;
+    private readonly CourseItemSyncService _courseItems;
 
-    public LessonsController(IMediator mediator, LessonAccessService lessonAccess)
+    public LessonsController(
+        IMediator mediator,
+        LessonAccessService lessonAccess,
+        CourseItemSyncService courseItems)
     {
         _mediator = mediator;
         _lessonAccess = lessonAccess;
+        _courseItems = courseItems;
     }
 
     [HttpGet("by-module/{moduleId:guid}")]
@@ -79,6 +85,7 @@ public class LessonsController : ControllerBase
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "LESSON_CREATE_FAILED"));
 
+        await _courseItems.EnsureLessonItemAsync(result.Value!.Id, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, result.Value);
     }
 
@@ -123,6 +130,7 @@ public class LessonsController : ControllerBase
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "LESSON_NOT_FOUND"));
 
+        await _courseItems.DeleteBySourceAsync(CourseItemType.Lesson, id, cancellationToken);
         return Ok(new { message = result.Value });
     }
 

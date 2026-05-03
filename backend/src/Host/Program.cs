@@ -105,6 +105,10 @@ builder.Services.AddScoped<LessonAccessService>();
 builder.Services.AddScoped<StudentDashboardReadService>();
 builder.Services.AddScoped<TeacherDashboardReadService>();
 builder.Services.AddScoped<TeacherCourseReportReadService>();
+builder.Services.AddScoped<CourseBuilderReadService>();
+builder.Services.AddScoped<CourseItemSyncService>();
+builder.Services.AddScoped<CourseItemManagementService>();
+builder.Services.AddScoped<CourseReviewService>();
 builder.Services.AddScoped<AdminAnalyticsReadService>();
 
 // CORS

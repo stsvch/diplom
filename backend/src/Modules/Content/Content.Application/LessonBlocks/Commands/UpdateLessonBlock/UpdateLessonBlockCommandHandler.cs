@@ -1,7 +1,9 @@
+using System.Text.Json;
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
 using Content.Application.Validation;
+using Content.Domain.Enums;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
@@ -30,12 +32,21 @@ public class UpdateLessonBlockCommandHandler : IRequestHandler<UpdateLessonBlock
             return Result.Failure<LessonBlockDto>("Тип данных не совпадает с типом блока.");
 
         var validation = _validator.Validate(block.Type, request.Data);
-        if (!validation.IsValid)
+
+        // Soft validation: блок сохраняется всегда. Ошибка возвращается только если
+        // явно запрошен переход в Ready (RequestReady=true) — кейс «финализировать блок».
+        if (request.RequestReady && !validation.IsValid)
             return Result.Failure<LessonBlockDto>(string.Join("; ", validation.Errors));
 
         block.Data = request.Data;
         if (request.Settings is not null)
             block.Settings = request.Settings;
+
+        block.Status = validation.IsValid ? LessonBlockStatus.Ready : LessonBlockStatus.Draft;
+        block.ValidationErrorsJson = validation.IsValid
+            ? null
+            : JsonSerializer.Serialize(validation.Errors);
+
         block.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);

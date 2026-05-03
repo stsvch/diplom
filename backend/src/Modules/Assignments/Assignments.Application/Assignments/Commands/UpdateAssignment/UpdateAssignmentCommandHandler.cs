@@ -1,5 +1,7 @@
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
+using Assignments.Domain.Entities;
+using AssignmentCriteriaEntity = Assignments.Domain.Entities.AssignmentCriteria;
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -35,6 +37,7 @@ public class UpdateAssignmentCommandHandler : IRequestHandler<UpdateAssignmentCo
     {
         var assignment = await _context.Assignments
             .Include(a => a.Submissions)
+            .Include(a => a.CriteriaItems)
             .FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
 
         if (assignment is null)
@@ -52,6 +55,27 @@ public class UpdateAssignmentCommandHandler : IRequestHandler<UpdateAssignmentCo
         assignment.Deadline = request.Deadline;
         assignment.MaxAttempts = request.MaxAttempts;
         assignment.MaxScore = request.MaxScore;
+        if (request.SubmissionFormat.HasValue)
+            assignment.SubmissionFormat = request.SubmissionFormat.Value;
+
+        if (request.CriteriaItems is not null)
+        {
+            // Полностью заменяем структурированные критерии
+            _context.AssignmentCriteria.RemoveRange(assignment.CriteriaItems);
+            assignment.CriteriaItems.Clear();
+
+            var order = 0;
+            foreach (var c in request.CriteriaItems)
+            {
+                assignment.CriteriaItems.Add(new AssignmentCriteriaEntity
+                {
+                    AssignmentId = assignment.Id,
+                    Text = c.Text,
+                    MaxPoints = c.MaxPoints,
+                    OrderIndex = order++
+                });
+            }
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -1,0 +1,176 @@
+classDiagram
+direction LR
+
+class BaseEntity {
+  <<abstract>>
+  +Guid Id
+}
+
+class IAuditableEntity {
+  <<interface>>
+  +DateTime CreatedAt
+  +DateTime? UpdatedAt
+}
+
+class Discipline {
+  +string Name
+  +string? Description
+  +string? ImageUrl
+  +DateTime CreatedAt
+  +DateTime? UpdatedAt
+}
+
+class Course {
+  +Guid DisciplineId
+  +string TeacherId
+  +string TeacherName
+  +string Title
+  +string Description
+  +decimal? Price
+  +bool IsFree
+  +bool IsPublished
+  +bool IsArchived
+  +string? ArchiveReason
+  +string? ArchivedBy
+  +CourseOrderType OrderType
+  +bool HasGrading
+  +bool HasCertificate
+  +DateTime? Deadline
+  +string? ImageUrl
+  +CourseLevel Level
+  +string? Tags
+  +double? RatingAverage
+  +int RatingCount
+  +int ReviewsCount
+  +DateTime CreatedAt
+  +DateTime? UpdatedAt
+}
+
+class CourseModule {
+  +Guid CourseId
+  +string Title
+  +string? Description
+  +int OrderIndex
+  +bool IsPublished
+}
+
+class Lesson {
+  +Guid ModuleId
+  +string Title
+  +string? Description
+  +int OrderIndex
+  +bool IsPublished
+  +int? Duration
+  +LessonLayout Layout
+}
+
+class CourseItem {
+  +Guid CourseId
+  +Guid? ModuleId
+  +CourseItemType Type
+  +Guid SourceId
+  +string Title
+  +string? Description
+  +string? Url
+  +Guid? AttachmentId
+  +string? ResourceKind
+  +int OrderIndex
+  +CourseItemStatus Status
+  +bool IsRequired
+  +decimal? Points
+  +DateTime? AvailableFrom
+  +DateTime? Deadline
+  +DateTime CreatedAt
+  +DateTime? UpdatedAt
+}
+
+class CourseEnrollment {
+  +Guid CourseId
+  +string StudentId
+  +DateTime EnrolledAt
+  +EnrollmentStatus Status
+}
+
+class CourseReview {
+  +Guid CourseId
+  +string StudentId
+  +string StudentName
+  +int Rating
+  +string? Comment
+  +DateTime CreatedAt
+  +DateTime? UpdatedAt
+}
+
+class CourseLevel {
+  <<enumeration>>
+  Beginner
+  Intermediate
+  Advanced
+}
+
+class CourseOrderType {
+  <<enumeration>>
+  Sequential
+  Free
+}
+
+class EnrollmentStatus {
+  <<enumeration>>
+  Active
+  Completed
+  Dropped
+}
+
+class CourseItemType {
+  <<enumeration>>
+  Lesson
+  Test
+  Assignment
+  LiveSession
+  Resource
+  ExternalLink
+}
+
+class CourseItemStatus {
+  <<enumeration>>
+  Draft
+  NeedsContent
+  Ready
+  Published
+  Archived
+}
+
+class LessonLayout {
+  <<enumeration>>
+  Scroll
+  Stepper
+}
+
+BaseEntity <|-- Discipline
+BaseEntity <|-- Course
+BaseEntity <|-- CourseModule
+BaseEntity <|-- Lesson
+BaseEntity <|-- CourseItem
+BaseEntity <|-- CourseEnrollment
+BaseEntity <|-- CourseReview
+
+IAuditableEntity <|.. Discipline
+IAuditableEntity <|.. Course
+IAuditableEntity <|.. CourseItem
+IAuditableEntity <|.. CourseReview
+
+Discipline "1" o-- "0..*" Course
+Course "1" *-- "0..*" CourseModule
+Course "1" *-- "0..*" CourseItem
+Course "1" *-- "0..*" CourseEnrollment
+Course "1" *-- "0..*" CourseReview
+CourseModule "1" *-- "0..*" Lesson
+CourseModule "0..1" o-- "0..*" CourseItem
+
+Course --> CourseLevel
+Course --> CourseOrderType
+CourseItem --> CourseItemType
+CourseItem --> CourseItemStatus
+CourseEnrollment --> EnrollmentStatus
+Lesson --> LessonLayout
+

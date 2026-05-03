@@ -1,0 +1,295 @@
+@if (item(); as it) {
+  <div class="le">
+    <header class="le__header">
+      <div class="le__eyebrow">
+        <span class="le__badge le__badge--lesson">
+          <lucide-icon [img]="icons.book" [size]="12" />
+          Урок
+        </span>
+        @if (section(); as sec) {
+          <span class="le__section-label">в разделе «{{ sec.title }}»</span>
+        }
+      </div>
+      <input
+        type="text"
+        class="le__title"
+        [ngModel]="it.title"
+        (ngModelChange)="setTitle($event)"
+        placeholder="Название урока"
+      />
+      <label class="le__check">
+        <input
+          type="checkbox"
+          [checked]="it.isRequired"
+          (change)="setRequired($any($event.target).checked)"
+        />
+        <span>Обязательный элемент</span>
+      </label>
+    </header>
+
+    <div class="le__divider"></div>
+
+    @if (loading()) {
+      <div class="le__loading">Загружаю блоки…</div>
+    } @else if (blocks().length === 0) {
+      <div class="le__empty">
+        <span class="le__empty-icon">
+          <lucide-icon [img]="icons.book" [size]="32" />
+        </span>
+        <h3>Урок пока пустой</h3>
+        <p>Добавьте первый блок — выберите тип содержимого:</p>
+      </div>
+
+      <div class="le-picker">
+        @for (opt of blockTypes; track opt.type) {
+          <button
+            class="le-picker__btn"
+            [class]="opt.colorClass"
+            (click)="addBlockAtEnd(opt.type)"
+          >
+            <span class="le-picker__icon">
+              <lucide-icon [img]="opt.icon" [size]="20" />
+            </span>
+            <span class="le-picker__text">
+              <span class="le-picker__label">{{ opt.label }}</span>
+              <span class="le-picker__desc">{{ opt.desc }}</span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <button class="le__open-full le__open-full--ghost" (click)="openFullEditor()">
+        <lucide-icon [img]="icons.settings" [size]="14" />
+        Открыть расширенный редактор (18 типов блоков)
+      </button>
+    } @else {
+      <div class="le__blocks">
+        @for (block of blocks(); track block.id; let idx = $index) {
+          <div class="le-add-inline" [class.le-add-inline--open]="inlineMenuFor() === idx">
+            <button class="le-add-inline__btn" (click)="toggleInlineMenu(idx)" type="button">
+              <lucide-icon [img]="icons.plus" [size]="12" />
+            </button>
+            @if (inlineMenuFor() === idx) {
+              <div class="le-add-inline__menu">
+                @for (opt of blockTypes; track opt.type) {
+                  <button class="le-add-inline__opt" (click)="addBlockAt(idx, opt.type)">
+                    <lucide-icon [img]="opt.icon" [size]="13" />
+                    <span>{{ opt.label }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <article class="le-block" [attr.data-status]="block.status">
+            <header class="le-block__head">
+              <span class="le-block__grip" title="Перетащить">
+                <lucide-icon [img]="icons.grip" [size]="14" />
+              </span>
+              <span class="le-block__type-badge">
+                {{ blockTypeLabel(block.type) }}
+              </span>
+              @if (block.status === 'Draft') {
+                <span class="le-block__status le-block__status--draft" title="Не заполнен">
+                  <lucide-icon [img]="icons.alert" [size]="11" />
+                  Черновик
+                </span>
+              } @else if (block.status === 'Ready') {
+                <span class="le-block__status le-block__status--ready" title="Готов">
+                  <lucide-icon [img]="icons.check" [size]="11" />
+                  Готов
+                </span>
+              }
+              <button class="le-block__delete" (click)="removeBlock(block)" title="Удалить блок">
+                <lucide-icon [img]="icons.trash" [size]="14" />
+              </button>
+            </header>
+
+            <div class="le-block__body">
+              @switch (block.type) {
+                @case ('Text') {
+                  <textarea
+                    class="le-block__textarea"
+                    rows="5"
+                    [ngModel]="asText(block.data).html"
+                    (ngModelChange)="patchBlock(block, { html: $event })"
+                    placeholder="Введите текст урока… (поддерживается HTML / Markdown)"
+                  ></textarea>
+                }
+
+                @case ('Video') {
+                  @if (getEmbedUrl(asVideo(block.data).url); as embed) {
+                    <div class="le-block__video-frame">
+                      <iframe [src]="embed" allowfullscreen></iframe>
+                    </div>
+                  } @else {
+                    <div class="le-block__video-placeholder">
+                      <lucide-icon [img]="icons.play" [size]="32" />
+                      <p>Вставьте ссылку на видео</p>
+                      <small>YouTube и Vimeo встраиваются автоматически</small>
+                    </div>
+                  }
+                  <input
+                    type="url"
+                    class="le-block__input"
+                    [ngModel]="asVideo(block.data).url"
+                    (ngModelChange)="patchBlock(block, { url: $event })"
+                    placeholder="https://youtube.com/watch?v=… или https://vimeo.com/…"
+                  />
+                }
+
+                @case ('Image') {
+                  @if (asImage(block.data).url) {
+                    <div class="le-block__image-preview">
+                      <img [src]="asImage(block.data).url" alt="" />
+                    </div>
+                  } @else {
+                    <div class="le-block__image-placeholder">
+                      <lucide-icon [img]="icons.image" [size]="32" />
+                      <p>Вставьте URL изображения</p>
+                    </div>
+                  }
+                  <input
+                    type="url"
+                    class="le-block__input"
+                    [ngModel]="asImage(block.data).url"
+                    (ngModelChange)="patchBlock(block, { url: $event })"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <input
+                    type="text"
+                    class="le-block__input"
+                    [ngModel]="asImage(block.data).caption"
+                    (ngModelChange)="patchBlock(block, { caption: $event })"
+                    placeholder="Подпись к изображению (необязательно)"
+                  />
+                }
+
+                @case ('Audio') {
+                  <div class="le-block__audio">
+                    <div class="le-block__audio-icon">
+                      <lucide-icon [img]="icons.music" [size]="20" />
+                    </div>
+                    @if (asAudio(block.data).url) {
+                      <audio [src]="asAudio(block.data).url" controls></audio>
+                    } @else {
+                      <p class="le-block__audio-empty">Вставьте ссылку на аудиофайл ниже</p>
+                    }
+                  </div>
+                  <input
+                    type="url"
+                    class="le-block__input"
+                    [ngModel]="asAudio(block.data).url"
+                    (ngModelChange)="patchBlock(block, { url: $event })"
+                    placeholder="https://… (mp3, wav)"
+                  />
+                }
+
+                @case ('File') {
+                  <div class="le-block__file">
+                    <div class="le-block__file-icon">
+                      <lucide-icon [img]="icons.file" [size]="20" />
+                    </div>
+                    <div class="le-block__file-info">
+                      <p class="le-block__file-title">
+                        {{ asFile(block.data).displayName || 'Файл не выбран' }}
+                      </p>
+                      <p class="le-block__file-hint">
+                        Загрузка файлов из расширенного редактора
+                      </p>
+                    </div>
+                    <button class="le-block__open-advanced" (click)="openFullEditor()">
+                      <lucide-icon [img]="icons.external" [size]="13" />
+                      Открыть
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    class="le-block__input"
+                    [ngModel]="asFile(block.data).displayName"
+                    (ngModelChange)="patchBlock(block, { displayName: $event })"
+                    placeholder="Название файла"
+                  />
+                }
+
+                @case ('CodeExercise') {
+                  <textarea
+                    class="le-block__textarea le-block__textarea--code"
+                    rows="3"
+                    [ngModel]="asCode(block.data).instruction"
+                    (ngModelChange)="patchBlock(block, { instruction: $event })"
+                    placeholder="Описание упражнения: что нужно сделать?"
+                  ></textarea>
+                  <div class="le-block__code-shell">
+                    <div class="le-block__code-toolbar">
+                      <span class="le-block__code-dot le-block__code-dot--red"></span>
+                      <span class="le-block__code-dot le-block__code-dot--yellow"></span>
+                      <span class="le-block__code-dot le-block__code-dot--green"></span>
+                      <span class="le-block__code-lang">code</span>
+                    </div>
+                    <textarea
+                      class="le-block__code"
+                      rows="6"
+                      [ngModel]="asCode(block.data).starterCode"
+                      (ngModelChange)="patchBlock(block, { starterCode: $event })"
+                      placeholder="// Стартовый код или шаблон"
+                    ></textarea>
+                  </div>
+                  <button class="le-block__open-advanced" (click)="openFullEditor()">
+                    <lucide-icon [img]="icons.external" [size]="13" />
+                    Тест-кейсы и автопроверка — в расширенном редакторе
+                  </button>
+                }
+
+                @default {
+                  <div class="le-block__custom">
+                    <p>
+                      Этот тип блока — <strong>{{ blockTypeLabel(block.type) }}</strong> —
+                      редактируется в расширенном редакторе урока.
+                    </p>
+                    <button class="le-block__open-advanced" (click)="openFullEditor()">
+                      <lucide-icon [img]="icons.external" [size]="13" />
+                      Открыть полный редактор
+                    </button>
+                  </div>
+                }
+              }
+
+              @if (block.validationErrors && block.validationErrors.length > 0) {
+                <div class="le-block__errors">
+                  @for (err of block.validationErrors; track err) {
+                    <p>
+                      <lucide-icon [img]="icons.alert" [size]="11" />
+                      {{ err }}
+                    </p>
+                  }
+                </div>
+              }
+            </div>
+          </article>
+        }
+
+        <div class="le-add-inline" [class.le-add-inline--open]="inlineMenuFor() === 'bottom'">
+          <button class="le-add-inline__btn" (click)="toggleInlineMenu('bottom')" type="button">
+            <lucide-icon [img]="icons.plus" [size]="12" />
+          </button>
+          @if (inlineMenuFor() === 'bottom') {
+            <div class="le-add-inline__menu">
+              @for (opt of blockTypes; track opt.type) {
+                <button class="le-add-inline__opt" (click)="addBlockAtEnd(opt.type)">
+                  <lucide-icon [img]="opt.icon" [size]="13" />
+                  <span>{{ opt.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <button class="le__open-full le__open-full--ghost" (click)="openFullEditor()">
+        <lucide-icon [img]="icons.settings" [size]="14" />
+        Открыть расширенный редактор
+      </button>
+    }
+  </div>
+}

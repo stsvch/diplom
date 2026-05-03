@@ -1,0 +1,146 @@
+@use '../../../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.om {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  animation: om-fade 0.2s ease-out;
+}
+
+@keyframes om-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.om__card {
+  background: #fff;
+  border-radius: $radius-3xl;
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: om-pop 0.25s ease-out;
+}
+
+@keyframes om-pop {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.om__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-6 $spacing-6 0;
+}
+
+.om__dots {
+  display: flex;
+  gap: 4px;
+}
+
+.om__dot {
+  height: 6px;
+  border: 0;
+  background: $slate-200;
+  border-radius: $radius-full;
+  cursor: pointer;
+  width: 12px;
+  transition: width 0.3s, background 0.3s;
+  padding: 0;
+
+  &--done { background: $indigo-300; }
+  &--active { background: $indigo-600; width: 24px; }
+}
+
+.om__close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  color: $slate-400;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover { background: $slate-100; color: $slate-600; }
+}
+
+.om__body {
+  padding: $spacing-5 $spacing-6;
+  text-align: left;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: $font-weight-bold;
+    color: $slate-900;
+    margin: 0 0 $spacing-2;
+  }
+
+  p {
+    color: $slate-500;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.om__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-2xl;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-4;
+}
+
+.om__footer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 0 $spacing-6 $spacing-6;
+}
+
+.om__spacer { flex: 1; }
+
+.om__btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-lg;
+  color: $slate-500;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover { background: $slate-100; color: $slate-800; }
+}
+
+.om__btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: $indigo-600;
+  color: #fff;
+  border: 0;
+  border-radius: $radius-xl;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $indigo-700; }
+}

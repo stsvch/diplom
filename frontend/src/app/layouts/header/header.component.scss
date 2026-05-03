@@ -1,393 +1,363 @@
 @use '../../../styles/variables' as *;
 
-.header {
+// ─────────────────────────────────────────────
+// Header (topbar) — Figma Make
+// ─────────────────────────────────────────────
+.hd {
+  --hd-accent: #{$indigo-500};
+  --hd-accent-text: #{$indigo-600};
+  --hd-accent-light: #{$indigo-50};
+
+  &[data-role='teacher'] {
+    --hd-accent: #{$amber-500};
+    --hd-accent-text: #{$amber-600};
+    --hd-accent-light: #{$amber-50};
+  }
+  &[data-role='admin'] {
+    --hd-accent: #{$emerald-500};
+    --hd-accent-text: #{$emerald-600};
+    --hd-accent-light: #{$emerald-50};
+  }
+
   display: flex;
   align-items: center;
-  height: $header-height;
-  background-color: $bg-card;
-  border-bottom: 1px solid $border-color;
-  padding: 0 $spacing-6;
-  gap: $spacing-4;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: #fff;
+  border-bottom: 1px solid $slate-100;
+  font-family: $font-family;
   position: sticky;
   top: 0;
   z-index: $z-header;
 
-  &__left {
-    flex-shrink: 0;
-    min-width: 180px;
+  @media (min-width: $breakpoint-lg) {
+    padding: 14px $spacing-6;
   }
 
-  &__title {
-    font-size: $font-size-xl;
-    font-weight: $font-weight-bold;
-    color: $text-foreground;
-    margin: 0;
-    white-space: nowrap;
-  }
+  &__menu {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: $slate-500;
+    border: 0;
+    border-radius: $radius-lg;
+    cursor: pointer;
+    transition: background $transition-fast, color $transition-fast;
 
-  &__search {
-    flex: 1;
-    max-width: 480px;
-    margin: 0 auto;
+    &:hover {
+      background: $slate-100;
+      color: $slate-700;
+    }
 
-    @media (max-width: $breakpoint-md) {
+    @media (min-width: 1024px) {
       display: none;
     }
   }
 
-  &__search-wrapper {
+  &__spacer { flex: 1; }
+
+  &__group {
     position: relative;
-    display: flex;
-    align-items: center;
+  }
+}
+
+// Bell
+.hd__bell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: $slate-500;
+  border-radius: $radius-xl;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $slate-100;
+    color: $slate-700;
   }
 
-  &__search-icon {
+  &-dot {
     position: absolute;
-    left: $spacing-3;
-    color: $text-muted;
-    pointer-events: none;
-    display: flex;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--hd-accent);
   }
+}
 
-  &__search-input {
+// Profile
+.hd__profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-xl;
+  cursor: pointer;
+  transition: background $transition-fast;
+  font-family: inherit;
+
+  &:hover {
+    background: $slate-100;
+  }
+}
+
+.hd__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-lg;
+  background: var(--hd-accent);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+
+  img {
     width: 100%;
-    height: 40px;
-    padding: 0 $spacing-4 0 $spacing-8;
-    background-color: $bg-muted;
-    border: 1px solid $border-color;
-    border-radius: $radius-lg;
-    font-size: $font-size-sm;
-    color: $text-foreground;
-    font-family: $font-family;
-    transition: border-color $transition-fast, background-color $transition-fast;
-
-    &::placeholder {
-      color: $text-placeholder;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: $primary;
-      background-color: $bg-card;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
-    }
+    height: 100%;
+    object-fit: cover;
   }
+}
 
-  &__actions {
+.hd__user {
+  display: none;
+  flex-direction: column;
+  text-align: left;
+  line-height: 1.1;
+
+  @media (min-width: $breakpoint-sm) {
     display: flex;
-    align-items: center;
-    gap: $spacing-2;
-    margin-left: auto;
-    flex-shrink: 0;
+  }
+}
+
+.hd__user-name {
+  color: $slate-900;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.hd__user-role {
+  color: $slate-400;
+  font-size: $font-size-xs;
+  margin-top: 2px;
+}
+
+.hd__chev {
+  color: $slate-400;
+  display: inline-flex;
+}
+
+// ── Dropdown
+.hd__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid $slate-100;
+  border-radius: $radius-xl;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+  z-index: $z-dropdown;
+  overflow: hidden;
+  animation: hd-pop 0.16s ease-out;
+
+  &--notifications {
+    width: 360px;
+    max-width: calc(100vw - 32px);
   }
 
-  &__action-group {
-    position: relative;
+  &--profile {
+    width: 220px;
+    padding: 6px;
+  }
+}
+
+@keyframes hd-pop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hd__dropdown-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-3 $spacing-4;
+  border-bottom: 1px solid $slate-100;
+}
+
+.hd__dropdown-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $slate-900;
+}
+
+.hd__dropdown-action {
+  font-size: $font-size-xs;
+  color: var(--hd-accent-text);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover { text-decoration: underline; }
+}
+
+.hd__dropdown-body {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.hd__dropdown-empty {
+  padding: $spacing-6;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $slate-400;
+}
+
+.hd__dropdown-foot {
+  padding: 10px;
+  border-top: 1px solid $slate-100;
+  text-align: center;
+}
+
+.hd__dropdown-link {
+  background: transparent;
+  border: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: var(--hd-accent-text);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 6px 12px;
+  border-radius: $radius-lg;
+  transition: background $transition-fast;
+
+  &:hover { background: var(--hd-accent-light); }
+}
+
+// Notification item
+.hd__notif {
+  display: flex;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  border-bottom: 1px solid $slate-100;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover { background: $slate-50; }
+
+  &--unread {
+    background: var(--hd-accent-light);
+
+    &:hover { background: var(--hd-accent-light); }
+  }
+}
+
+.hd__notif-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-lg;
+  background: var(--hd-accent-light);
+  color: var(--hd-accent-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hd__notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hd__notif-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $slate-900;
+  margin: 0 0 2px;
+}
+
+.hd__notif-message {
+  font-size: $font-size-xs;
+  color: $slate-500;
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.hd__notif-time {
+  font-size: $font-size-xs;
+  color: $slate-400;
+}
+
+.hd__notif-close {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: $slate-400;
+  border-radius: $radius-md;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $slate-100;
+    color: $slate-700;
+  }
+}
+
+// Profile menu items
+.hd__menu-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: 8px 10px;
+  border-radius: $radius-lg;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $slate-50;
+    color: $slate-900;
   }
 
-  &__icon-btn {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: $radius-lg;
-    border: 1px solid $border-color;
-    background-color: $bg-card;
-    color: $text-secondary;
-    cursor: pointer;
-    transition: background-color $transition-fast, color $transition-fast;
+  &--danger {
+    color: $red-500;
 
     &:hover {
-      background-color: $bg-muted;
-      color: $text-foreground;
-    }
-  }
-
-  &__badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    background-color: $danger;
-    color: #fff;
-    font-size: 11px;
-    font-weight: $font-weight-bold;
-    border-radius: $radius-full;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid $bg-card;
-  }
-
-  &__profile-btn {
-    display: flex;
-    align-items: center;
-    gap: $spacing-2;
-    padding: $spacing-2 $spacing-3;
-    border-radius: $radius-lg;
-    border: 1px solid $border-color;
-    background-color: $bg-card;
-    cursor: pointer;
-    transition: background-color $transition-fast;
-
-    &:hover {
-      background-color: $bg-muted;
-    }
-
-    lucide-icon {
-      color: $text-muted;
-    }
-  }
-
-  &__avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: $radius-full;
-    background-color: $primary;
-    color: $primary-foreground;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-bold;
-    overflow: hidden;
-    flex-shrink: 0;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
-  &__user-name {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    color: $text-foreground;
-
-    @media (max-width: $breakpoint-md) {
-      display: none;
-    }
-  }
-
-  // Dropdown base
-  &__dropdown {
-    position: absolute;
-    top: calc(100% + $spacing-2);
-    right: 0;
-    background-color: $bg-card;
-    border: 1px solid $border-color;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-xl;
-    z-index: $z-dropdown;
-    animation: dropdown-in 0.15s ease;
-
-    &--notifications {
-      width: 360px;
-    }
-
-    &--profile {
-      width: 200px;
-      padding: $spacing-2;
-    }
-  }
-
-  &__dropdown-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: $spacing-3 $spacing-4;
-    border-bottom: 1px solid $border-color;
-  }
-
-  &__dropdown-title {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $text-foreground;
-  }
-
-  &__dropdown-action {
-    font-size: $font-size-xs;
-    color: $primary;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: $font-family;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__dropdown-body {
-    max-height: 320px;
-    overflow-y: auto;
-  }
-
-  &__dropdown-empty {
-    padding: $spacing-6;
-    text-align: center;
-    font-size: $font-size-sm;
-    color: $text-muted;
-  }
-
-  &__dropdown-divider {
-    height: 1px;
-    background-color: $border-color;
-    margin: $spacing-2 0;
-  }
-
-  &__dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: $spacing-3;
-    padding: $spacing-2 $spacing-3;
-    border-radius: $radius-md;
-    font-size: $font-size-sm;
-    color: $text-foreground;
-    text-decoration: none;
-    cursor: pointer;
-    background: none;
-    border: none;
-    width: 100%;
-    font-family: $font-family;
-    transition: background-color $transition-fast;
-
-    &:hover {
-      background-color: $bg-muted;
-    }
-
-    &--danger {
-      color: $danger;
-
-      &:hover {
-        background-color: $danger-light;
-      }
-    }
-  }
-
-  // Notification items
-  &__notif {
-    display: flex;
-    gap: $spacing-3;
-    padding: $spacing-3 $spacing-4;
-    border-bottom: 1px solid $border-color;
-    transition: background-color $transition-fast;
-    cursor: pointer;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover {
-      background-color: $bg-muted;
-    }
-
-    &--unread {
-      background-color: rgba($primary, 0.04);
-    }
-  }
-
-  &__notif-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: $radius-full;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    &[data-type='info'] {
-      background-color: rgba($info, 0.1);
-      color: $info;
-    }
-
-    &[data-type='success'] {
-      background-color: $success-light;
-      color: $success;
-    }
-
-    &[data-type='warning'] {
-      background-color: $warning-light;
-      color: $warning;
-    }
-  }
-
-  &__notif-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__notif-title {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $text-foreground;
-    margin: 0 0 2px;
-  }
-
-  &__notif-message {
-    font-size: $font-size-xs;
-    color: $text-secondary;
-    margin: 0 0 4px;
-    line-height: 1.4;
-  }
-
-  &__notif-time {
-    font-size: $font-size-xs;
-    color: $text-muted;
-  }
-
-  &__notif-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: $radius-sm;
-    border: none;
-    background: none;
-    color: $text-muted;
-    cursor: pointer;
-    flex-shrink: 0;
-
-    &:hover {
-      background-color: $bg-muted;
-      color: $text-foreground;
-    }
-  }
-
-  &__dropdown-footer {
-    padding: $spacing-2 $spacing-4;
-    border-top: 1px solid $border-color;
-    text-align: center;
-  }
-
-  &__dropdown-link {
-    background: none;
-    border: none;
-    font-size: $font-size-sm;
-    color: $primary;
-    cursor: pointer;
-    text-decoration: none;
-    font-family: $font-family;
-
-    &:hover {
-      text-decoration: underline;
+      background: $red-50;
+      color: $red-600;
     }
   }
 }
 
-@keyframes dropdown-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.hd__menu-divider {
+  height: 1px;
+  background: $slate-100;
+  margin: 6px 0;
 }

@@ -3,7 +3,7 @@ using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Blocks;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type")]
 [JsonDerivedType(typeof(TextBlockData), nameof(LessonBlockType.Text))]
 [JsonDerivedType(typeof(VideoBlockData), nameof(LessonBlockType.Video))]
 [JsonDerivedType(typeof(AudioBlockData), nameof(LessonBlockType.Audio))]

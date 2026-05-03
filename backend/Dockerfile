@@ -39,7 +39,13 @@ COPY src/Modules/Messaging/Messaging.Infrastructure/Messaging.Infrastructure.csp
 COPY src/Modules/Scheduling/Scheduling.Domain/Scheduling.Domain.csproj src/Modules/Scheduling/Scheduling.Domain/
 COPY src/Modules/Scheduling/Scheduling.Application/Scheduling.Application.csproj src/Modules/Scheduling/Scheduling.Application/
 COPY src/Modules/Scheduling/Scheduling.Infrastructure/Scheduling.Infrastructure.csproj src/Modules/Scheduling/Scheduling.Infrastructure/
-RUN dotnet restore
+COPY src/Modules/Payments/Payments.Domain/Payments.Domain.csproj src/Modules/Payments/Payments.Domain/
+COPY src/Modules/Payments/Payments.Application/Payments.Application.csproj src/Modules/Payments/Payments.Application/
+COPY src/Modules/Payments/Payments.Infrastructure/Payments.Infrastructure.csproj src/Modules/Payments/Payments.Infrastructure/
+COPY src/Modules/Tools/Tools.Domain/Tools.Domain.csproj src/Modules/Tools/Tools.Domain/
+COPY src/Modules/Tools/Tools.Application/Tools.Application.csproj src/Modules/Tools/Tools.Application/
+COPY src/Modules/Tools/Tools.Infrastructure/Tools.Infrastructure.csproj src/Modules/Tools/Tools.Infrastructure/
+RUN dotnet restore src/Host/EduPlatform.Host.csproj
 
 COPY . .
 RUN dotnet publish src/Host/EduPlatform.Host.csproj -c Release -o /app/publish
@@ -47,6 +53,8 @@ RUN dotnet publish src/Host/EduPlatform.Host.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
-ENTRYPOINT ["dotnet", "EduPlatform.Host.dll"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

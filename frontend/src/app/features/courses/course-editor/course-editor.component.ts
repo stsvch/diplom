@@ -2,7 +2,15 @@ import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  ChevronLeft,
+  Check,
+  TriangleAlert,
+  Eye,
+  Settings,
+  Plus,
+} from 'lucide-angular';
 import { CoursesService, PublishIssue } from '../services/courses.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
@@ -39,6 +47,13 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
   publishDialogOpen = signal(false);
   publishIssues = signal<PublishIssue[]>([]);
   publishing = signal(false);
+
+  readonly ChevronLeftIcon = ChevronLeft;
+  readonly CheckIcon = Check;
+  readonly TriangleAlertIcon = TriangleAlert;
+  readonly EyeIcon = Eye;
+  readonly SettingsIcon = Settings;
+  readonly PlusIcon = Plus;
 
   titleDraft = signal('');
   modules = computed<CourseModuleDetailDto[]>(() => this.course()?.modules ?? []);

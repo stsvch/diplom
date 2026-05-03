@@ -1,24 +1,37 @@
 import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, SlidersHorizontal, BookOpen, ChevronLeft, ChevronRight } from 'lucide-angular';
+import { RouterLink } from '@angular/router';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  LucideAngularModule,
+  Search,
+  SlidersHorizontal,
+  X,
+  Zap,
+} from 'lucide-angular';
 import { CoursesService } from '../services/courses.service';
 import { DisciplinesService } from '../services/disciplines.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
 import { CourseListDto, DisciplineDto } from '../models/course.model';
-import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 import { CourseCardComponent } from '../../../shared/components/course-card/course-card.component';
-import { ButtonComponent } from '../../../shared/components/button/button.component';
+import { AuthService } from '../../../core/services/auth.service';
+import { RevealDirective } from '../../../shared/directives/reveal.directive';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     LucideAngularModule,
-    SearchInputComponent,
     CourseCardComponent,
-    ButtonComponent,
+    RevealDirective,
   ],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.scss',
@@ -27,12 +40,18 @@ export class CatalogComponent implements OnInit {
   private readonly coursesService = inject(CoursesService);
   private readonly disciplinesService = inject(DisciplinesService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   readonly SearchIcon = Search;
   readonly SlidersIcon = SlidersHorizontal;
   readonly BookOpenIcon = BookOpen;
   readonly ChevronLeftIcon = ChevronLeft;
   readonly ChevronRightIcon = ChevronRight;
+  readonly ArrowLeftIcon = ArrowLeft;
+  readonly ArrowRightIcon = ArrowRight;
+  readonly XIcon = X;
+  readonly FilterIcon = Filter;
+  readonly ZapIcon = Zap;
 
   readonly loading = signal(false);
   readonly disciplinesLoading = signal(false);
@@ -70,6 +89,14 @@ export class CatalogComponent implements OnInit {
     { value: 'price_desc', label: 'Цена: по убыванию' },
   ];
 
+  readonly hasFilters = computed(
+    () =>
+      this.searchValue() !== '' ||
+      this.selectedDisciplineId() !== '' ||
+      this.selectedLevel() !== '' ||
+      this.selectedPrice() !== '',
+  );
+
   readonly pages = computed(() => {
     const total = this.totalPages();
     const cur = this.page();
@@ -85,6 +112,15 @@ export class CatalogComponent implements OnInit {
     }
     return result;
   });
+
+  readonly courseLinkPrefix = computed(() =>
+    this.authService.userRole() === 'Student' ? '/student/course' : '/course',
+  );
+
+  readonly isAuth = this.authService.isAuthenticated;
+  readonly isInsideDashboard = computed(
+    () => this.isAuth() && this.authService.userRole() !== null,
+  );
 
   private searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
@@ -158,6 +194,19 @@ export class CatalogComponent implements OnInit {
     this.loadCourses();
   }
 
+  clearFilters(): void {
+    this.searchValue.set('');
+    this.selectedDisciplineId.set('');
+    this.selectedLevel.set('');
+    this.selectedPrice.set('');
+    this.page.set(1);
+    this.loadCourses();
+  }
+
+  clearSearch(): void {
+    this.searchValue.set('');
+  }
+
   goToPage(p: number | null): void {
     if (p === null) return;
     this.page.set(p);
@@ -173,5 +222,5 @@ export class CatalogComponent implements OnInit {
     if (this.page() < this.totalPages()) this.goToPage(this.page() + 1);
   }
 
-  readonly skeletonItems = Array(12).fill(0);
+  readonly skeletonItems = Array(6).fill(0);
 }

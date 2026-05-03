@@ -1,0 +1,71 @@
+@if (item(); as it) {
+  <div class="lse">
+    <header class="lse__header">
+      <span class="lse__badge">
+        <lucide-icon [img]="icons.video" [size]="12" />
+        Live-занятие @if (section(); as sec) { · {{ sec.title }} }
+      </span>
+      <input
+        type="text"
+        class="lse__title"
+        [ngModel]="it.title"
+        (ngModelChange)="setTitle($event)"
+        placeholder="Название занятия"
+      />
+      <label class="lse__check">
+        <input
+          type="checkbox"
+          [checked]="it.isRequired"
+          (change)="setRequired($any($event.target).checked)"
+        />
+        <span>Обязательный элемент</span>
+      </label>
+    </header>
+
+    @if (!isReady()) {
+      <div class="lse__warning">
+        <lucide-icon [img]="icons.alert" [size]="16" />
+        <div>
+          <p class="lse__warning-title">Занятие не готово</p>
+          <p class="lse__warning-sub">
+            Откройте редактор расписания и заполните дату, время и ссылку на конференцию
+          </p>
+        </div>
+      </div>
+    } @else {
+      <div class="lse__preview">
+        <div class="lse__preview-icon"><lucide-icon [img]="icons.video" [size]="20" /></div>
+        <div>
+          <p class="lse__preview-title">{{ it.title }}</p>
+          <p class="lse__preview-meta">
+            <lucide-icon [img]="icons.cal" [size]="11" />
+            {{ formatDate(it.startTime) }}
+            @if (it.durationMinutes) {
+              · {{ it.durationMinutes }} мин
+            }
+            @if (it.maxStudents) {
+              · до {{ it.maxStudents }} участников
+            }
+          </p>
+          @if (it.meetingLink) {
+            <a class="lse__preview-link" [href]="it.meetingLink" target="_blank" rel="noopener">
+              <lucide-icon [img]="icons.link" [size]="11" />
+              Ссылка на встречу
+            </a>
+          }
+        </div>
+      </div>
+    }
+
+    <button class="lse__open-full" (click)="openFullEditor()">
+      <lucide-icon [img]="icons.edit" [size]="16" />
+      Открыть редактор расписания
+      <lucide-icon [img]="icons.external" [size]="14" />
+    </button>
+
+    <p class="lse__hint">
+      В полном редакторе расписания можно настроить дату, время, длительность, ссылку на встречу,
+      формат (групповое/индивидуальное) и лимит участников.
+    </p>
+  </div>
+}
