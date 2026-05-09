@@ -13,11 +13,11 @@ public class CreateAssignmentCommandValidator : AbstractValidator<CreateAssignme
             .NotEmpty().WithMessage("Название задания обязательно.")
             .MaximumLength(200).WithMessage("Название задания не должно превышать 200 символов.");
 
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Описание задания обязательно.");
+        // Description допустим пустым на этапе создания — задание создаётся как Draft.
+        // Строгая проверка переносится на момент перехода в Ready / при публикации курса.
 
         RuleFor(x => x.MaxScore)
-            .GreaterThan(0).WithMessage("Максимальный балл должен быть больше 0.");
+            .GreaterThanOrEqualTo(0).WithMessage("Максимальный балл не может быть отрицательным.");
 
         RuleFor(x => x.MaxAttempts)
             .GreaterThan(0).When(x => x.MaxAttempts.HasValue)

@@ -23,6 +23,7 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
     public DbSet<SubscriptionInvoice> SubscriptionInvoices => Set<SubscriptionInvoice>();
     public DbSet<SubscriptionAllocationRun> SubscriptionAllocationRuns => Set<SubscriptionAllocationRun>();
     public DbSet<SubscriptionAllocationLine> SubscriptionAllocationLines => Set<SubscriptionAllocationLine>();
+    public DbSet<SubscriptionUsage> SubscriptionUsages => Set<SubscriptionUsage>();
     public DbSet<PaymentMethodRef> PaymentMethods => Set<PaymentMethodRef>();
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
 
@@ -252,7 +253,7 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
             e.Property(x => x.Strategy).IsRequired().HasMaxLength(100);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
-            e.HasIndex(x => x.SubscriptionInvoiceId).IsUnique();
+            e.HasIndex(x => new { x.SubscriptionInvoiceId, x.Strategy }).IsUnique();
             e.HasIndex(x => new { x.UserId, x.CreatedAt });
         });
 
@@ -263,6 +264,7 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.Property(x => x.TeacherId).IsRequired().HasMaxLength(450);
             e.Property(x => x.TeacherName).IsRequired().HasMaxLength(300);
             e.Property(x => x.CourseTitle).IsRequired().HasMaxLength(500);
+            e.Property(x => x.Source).HasConversion<string>().HasMaxLength(50);
             e.Property(x => x.AllocationWeight).HasColumnType("decimal(18,6)");
             e.Property(x => x.ProgressPercent).HasColumnType("decimal(18,6)");
             e.Property(x => x.GrossAmount).HasColumnType("decimal(18,2)");
@@ -274,7 +276,20 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.HasIndex(x => x.SubscriptionAllocationRunId);
             e.HasIndex(x => new { x.TeacherId, x.CreatedAt });
             e.HasIndex(x => x.PayoutRecordId);
-            e.HasIndex(x => new { x.SubscriptionAllocationRunId, x.CourseId, x.TeacherId }).IsUnique();
+            // Уникальный ключ: для course-стратегии — (Run, CourseId, TeacherId);
+            // для live-session — (Run, BookingId, TeacherId). BookingId nullable, поэтому
+            // строки разных стратегий не конфликтуют.
+            e.HasIndex(x => new { x.SubscriptionAllocationRunId, x.CourseId, x.TeacherId, x.BookingId }).IsUnique();
+        });
+
+        modelBuilder.Entity<SubscriptionUsage>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
+            e.Property(x => x.Type).HasConversion<string>().HasMaxLength(32);
+            e.HasIndex(x => new { x.UserSubscriptionId, x.PeriodStart, x.Type });
+            e.HasIndex(x => x.SourceBookingId).IsUnique();
+            e.HasIndex(x => new { x.UserId, x.PeriodStart });
         });
 
         modelBuilder.Entity<PaymentMethodRef>(e =>

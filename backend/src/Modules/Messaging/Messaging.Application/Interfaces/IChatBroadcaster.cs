@@ -4,7 +4,7 @@ namespace Messaging.Application.Interfaces;
 
 public interface IChatBroadcaster
 {
-    Task MessageSentAsync(string chatId, MessageDto message);
+    Task MessageSentAsync(string chatId, MessageDto message, IReadOnlyCollection<string> participantIds);
     Task MessageEditedAsync(string chatId, MessageDto message);
     Task MessageDeletedAsync(string chatId, string messageId);
     Task MessagesReadAsync(string chatId, string userId);

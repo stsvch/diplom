@@ -1,0 +1,99 @@
+.pr-page {
+  padding: 48px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pr-header {
+  text-align: center;
+  margin-bottom: 40px;
+  h1 { margin: 0 0 8px; font-size: 32px; }
+  p { color: #6b7280; margin: 0; max-width: 540px; margin-inline: auto; }
+}
+
+.pr-loader { display: flex; justify-content: center; padding: 64px; }
+
+.pr-tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.pr-tier {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform .15s, box-shadow .15s;
+
+  &--featured {
+    border-color: #6366f1;
+    border-width: 2px;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15);
+  }
+
+  &--current { background: linear-gradient(180deg, #f5f3ff, #fff); }
+
+  &__ribbon {
+    position: absolute;
+    top: -12px; right: 16px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  &__header {
+    margin-bottom: 24px;
+    text-align: center;
+    h2 { margin: 0 0 4px; font-size: 22px; }
+  }
+
+  &__subtitle {
+    color: #6b7280; font-size: 13px; margin: 0 0 16px;
+    min-height: 36px;
+  }
+
+  &__price {
+    display: flex; align-items: baseline; justify-content: center; gap: 4px;
+  }
+
+  &__amount { font-size: 36px; font-weight: 700; color: #111827; }
+  &__period { color: #6b7280; font-size: 14px; }
+
+  &__features {
+    list-style: none; padding: 0; margin: 0 0 24px;
+    flex: 1;
+
+    li {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0;
+      font-size: 14px;
+      color: #374151;
+
+      lucide-icon {
+        color: #10b981;
+        flex-shrink: 0;
+      }
+    }
+
+    &__feature--off, .pr-tier__feature--off { color: #9ca3af; lucide-icon { color: #d1d5db; } }
+  }
+
+  &__cta {
+    display: flex; flex-direction: column;
+    app-button { width: 100%; }
+  }
+}
+
+.pr-tier__feature--off {
+  color: #9ca3af !important;
+  text-decoration: line-through;
+  lucide-icon { color: #d1d5db !important; }
+}

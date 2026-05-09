@@ -1,6 +1,18 @@
 <div class="stepper">
   @if (loading()) {
-    <div class="state">Загрузка…</div>
+    <div class="lvs-skel">
+      <div class="lvs-skel__title"></div>
+      <div class="lvs-skel__card">
+        <div class="lvs-skel__chip"></div>
+        <div class="lvs-skel__line lvs-skel__line--full"></div>
+        <div class="lvs-skel__line lvs-skel__line--md"></div>
+        <div class="lvs-skel__line lvs-skel__line--sm"></div>
+      </div>
+      <div class="lvs-skel__nav">
+        <div class="lvs-skel__btn"></div>
+        <div class="lvs-skel__btn lvs-skel__btn--primary"></div>
+      </div>
+    </div>
   } @else if (entries().length === 0) {
     <div class="state">В этом уроке пока нет блоков.</div>
   } @else if (isFinalScreen()) {

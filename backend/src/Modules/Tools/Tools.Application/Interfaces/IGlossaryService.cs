@@ -28,9 +28,10 @@ public interface IGlossaryService
         string teacherId,
         Guid courseId,
         string term,
-        string translation,
+        string? translation,
         string? definition,
         string? example,
+        string? note,
         IReadOnlyCollection<string>? tags,
         CancellationToken cancellationToken = default);
 
@@ -39,9 +40,10 @@ public interface IGlossaryService
         string teacherId,
         Guid courseId,
         string term,
-        string translation,
+        string? translation,
         string? definition,
         string? example,
+        string? note,
         IReadOnlyCollection<string>? tags,
         CancellationToken cancellationToken = default);
 
@@ -60,5 +62,19 @@ public interface IGlossaryService
         Guid wordId,
         string studentId,
         string outcome,
+        CancellationToken cancellationToken = default);
+
+    Task<DictionaryWordDto> UploadImageAsync(
+        Guid wordId,
+        string teacherId,
+        Stream stream,
+        string fileName,
+        string contentType,
+        long length,
+        CancellationToken cancellationToken = default);
+
+    Task<DictionaryWordDto> DeleteImageAsync(
+        Guid wordId,
+        string teacherId,
         CancellationToken cancellationToken = default);
 }

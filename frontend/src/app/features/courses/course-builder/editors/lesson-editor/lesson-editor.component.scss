@@ -46,14 +46,16 @@
   color: $slate-900;
   background: transparent;
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2px dashed $slate-200;
   padding: 4px 0;
   font-family: inherit;
   outline: none;
-  transition: border-color $transition-fast;
+  cursor: text;
+  transition: border-color $transition-fast, background $transition-fast;
 
   &::placeholder { color: $slate-300; }
-  &:focus { border-bottom-color: $indigo-400; }
+  &:hover { border-bottom-color: $indigo-200; background: rgba(99, 102, 241, 0.03); }
+  &:focus { border-bottom-color: $indigo-500; border-bottom-style: solid; background: rgba(99, 102, 241, 0.05); }
 }
 
 .le__check {
@@ -159,6 +161,10 @@
     .le-picker__icon { color: $slate-600; } }
   &.le-bt--code  { background: $orange-50; border-color: $orange-100;
     .le-picker__icon { color: $orange-600; } }
+  &.le-bt--quiz  { background: $emerald-50; border-color: $emerald-100;
+    .le-picker__icon { color: $emerald-600; } }
+  &.le-bt--assignment { background: $amber-50; border-color: $amber-100;
+    .le-picker__icon { color: $amber-700; } }
 }
 
 .le-picker__icon {
@@ -200,39 +206,61 @@
 // Inline + между блоками
 .le-add-inline {
   position: relative;
-  height: 12px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 2px 0;
+  margin: 4px 0;
+
+  // Светлая горизонтальная линия по середине, чтобы визуально намекать «между блоками»
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: $slate-100;
+    pointer-events: none;
+    transition: background $transition-fast;
+  }
 
   &__btn {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: $slate-100;
-    color: $slate-400;
-    border: 0;
+    background: #fff;
+    color: $indigo-500;
+    border: 1px dashed $indigo-200;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0;
-    transition: opacity $transition-fast, background $transition-fast, color $transition-fast;
+    opacity: 0.7;
+    transition: opacity $transition-fast, background $transition-fast, color $transition-fast, border-color $transition-fast, transform $transition-fast;
     z-index: 5;
 
     &:hover {
-      opacity: 1 !important;
-      background: $indigo-100;
-      color: $indigo-600;
+      opacity: 1;
+      background: $indigo-50;
+      color: $indigo-700;
+      border-color: $indigo-400;
+      border-style: solid;
+      transform: scale(1.1);
     }
   }
 
-  &:hover .le-add-inline__btn,
+  &:hover {
+    &::before { background: $indigo-200; }
+    .le-add-inline__btn { opacity: 1; }
+  }
+
   &--open .le-add-inline__btn {
     opacity: 1;
     background: $indigo-100;
-    color: $indigo-600;
+    color: $indigo-700;
+    border-color: $indigo-500;
+    border-style: solid;
   }
 
   &__menu {
@@ -593,6 +621,64 @@
     &::placeholder { color: $slate-600; }
   }
 
+  // Embed (Quiz / Assignment)
+  &__embed {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3;
+    background: $slate-50;
+    border: 1px solid $slate-200;
+    border-radius: $radius-xl;
+  }
+
+  &__embed-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-xl;
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: $shadow-sm;
+    border: 1px solid $slate-100;
+
+    &--quiz       { color: $emerald-600; }
+    &--assignment { color: $amber-700; }
+  }
+
+  &__embed-info { flex: 1; min-width: 0; }
+  &__embed-title {
+    color: $slate-700;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    margin: 0;
+  }
+  &__embed-hint {
+    color: $slate-400;
+    font-size: $font-size-xs;
+    margin: 2px 0 0;
+  }
+
+  &__select {
+    width: 100%;
+    padding: 8px 12px;
+    background: $slate-50;
+    border: 1px solid $slate-200;
+    border-radius: $radius-lg;
+    color: $slate-900;
+    font-family: inherit;
+    font-size: $font-size-sm;
+    outline: none;
+    transition: border-color $transition-fast, background $transition-fast;
+
+    &:focus {
+      background: #fff;
+      border-color: $indigo-400;
+    }
+  }
+
   // Open advanced editor
   &__open-advanced {
     display: inline-flex;
@@ -679,4 +765,131 @@
       border-color: $slate-300;
     }
   }
+}
+
+// ── Drag & drop (CDK) ────────────────────────────────
+.le-row {
+  display: block;
+  position: relative;
+}
+
+.le-block__grip {
+  cursor: grab;
+
+  &:active { cursor: grabbing; }
+}
+
+.le-row__placeholder {
+  height: 56px;
+  margin: 8px 0;
+  border-radius: $radius-lg;
+  background: rgba(99, 102, 241, 0.06);
+  border: 2px dashed rgba(99, 102, 241, 0.3);
+  transition: all 180ms ease;
+}
+
+.cdk-drag-preview {
+  border-radius: $radius-lg;
+  box-shadow:
+    0 12px 24px -8px rgba(15, 23, 42, 0.18),
+    0 4px 8px -2px rgba(15, 23, 42, 0.1);
+  background: #fff;
+}
+
+.cdk-drag-animating {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.le__blocks.cdk-drop-list-dragging .le-row:not(.cdk-drag-placeholder) {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+// ── File upload (Image / Audio / File блоки) ──────────
+.le-block__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  border: 2px dashed $slate-200;
+  border-radius: $radius-lg;
+  background: $slate-50;
+  color: $slate-500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 160ms ease;
+
+  &:hover {
+    border-color: $indigo-300;
+    background: rgba(238, 242, 255, 0.6);
+    color: $indigo-700;
+  }
+
+  p { margin: 0; font-size: $font-size-sm; }
+  small { color: $slate-400; font-size: $font-size-xs; }
+
+  &--busy {
+    cursor: progress;
+    border-color: $indigo-300;
+    background: rgba(238, 242, 255, 0.6);
+  }
+}
+
+.le-block__dropzone-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: $indigo-600;
+  border-radius: 50%;
+  animation: le-spin 720ms linear infinite;
+}
+
+@keyframes le-spin {
+  to { transform: rotate(360deg); }
+}
+
+.le-block__file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.le-block__file-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: $radius-lg;
+  background: $indigo-50;
+  color: $indigo-700;
+  border: 1px solid $indigo-100;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 140ms ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: $indigo-100;
+    border-color: $indigo-200;
+  }
+
+  &:has(input:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.le-block__file-divider {
+  font-size: $font-size-xs;
+  color: $slate-400;
+}
+
+.le-block__input--inline {
+  flex: 1;
+  min-width: 200px;
+  margin-top: 0;
 }

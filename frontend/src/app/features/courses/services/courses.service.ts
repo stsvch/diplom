@@ -64,6 +64,10 @@ export class CoursesService {
     return this.http.put<CourseDetailDto>(`${this.base}/courses/${id}`, data);
   }
 
+  updateCourseTags(id: string, tags: string[]): Observable<void> {
+    return this.http.put<void>(`${this.base}/courses/${id}/tags`, { tags });
+  }
+
   publishCourse(id: string, force = false): Observable<PublishValidationResponse> {
     const params = force ? '?force=true' : '';
     return this.http.post<PublishValidationResponse>(`${this.base}/courses/${id}/publish${params}`, {});

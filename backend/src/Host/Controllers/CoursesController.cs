@@ -5,6 +5,7 @@ using Courses.Application.Courses.Commands.EnrollCourse;
 using Courses.Application.Courses.Commands.PublishCourse;
 using Courses.Application.Courses.Commands.UnenrollCourse;
 using Courses.Application.Courses.Commands.UpdateCourse;
+using Courses.Application.Courses.Commands.UpdateCourseTags;
 using Courses.Application.Courses.Queries.GetCourseCatalog;
 using Courses.Application.Courses.Queries.GetCourseById;
 using Courses.Application.Courses.Queries.GetMyCourses;
@@ -109,7 +110,7 @@ public class CoursesController : ControllerBase
         var command = new CreateCourseCommand(
             userId, userName, request.DisciplineId, request.Title, request.Description,
             request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl, request.Tags,
+            request.Level, request.ImageUrl,
             request.HasCertificate, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
@@ -133,7 +134,7 @@ public class CoursesController : ControllerBase
         var command = new UpdateCourseCommand(
             id, userId, request.DisciplineId, request.Title, request.Description,
             request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl, request.Tags,
+            request.Level, request.ImageUrl,
             request.HasCertificate, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
@@ -142,6 +143,23 @@ public class CoursesController : ControllerBase
 
         await EnrichTeacherNamesAsync(result.Value, cancellationToken);
         return Ok(result.Value);
+    }
+
+    [HttpPut("{id:guid}/tags")]
+    [Authorize(Roles = "Teacher")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateTags(Guid id, [FromBody] UpdateCourseTagsRequest request, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var result = await _mediator.Send(new UpdateCourseTagsCommand(id, userId, request.Tags ?? new()), cancellationToken);
+        if (result.IsFailure)
+            return BadRequest(ApiError.FromMessage(result.Error!, "COURSE_TAGS_UPDATE_FAILED"));
+
+        return NoContent();
     }
 
     [HttpGet("{id:guid}/builder")]
@@ -350,9 +368,10 @@ public record CreateCourseRequest(
     bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    string? Tags,
     bool HasCertificate = false,
     DateTime? Deadline = null);
+
+public record UpdateCourseTagsRequest(List<string>? Tags);
 
 public record UpdateCourseRequest(
     Guid DisciplineId,
@@ -364,6 +383,5 @@ public record UpdateCourseRequest(
     bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    string? Tags,
     bool HasCertificate = false,
     DateTime? Deadline = null);

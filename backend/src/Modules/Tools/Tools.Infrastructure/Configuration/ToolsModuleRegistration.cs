@@ -19,6 +19,8 @@ public static class ToolsModuleRegistration
             options.UseNpgsql(connectionString));
         services.AddScoped<IToolsDbContext>(sp => sp.GetRequiredService<ToolsDbContext>());
 
+        services.AddScoped<IGlossaryImageStorage, MinioGlossaryImageStorage>();
+
         services.AddScoped<GlossaryService>();
         services.AddScoped<IGlossaryService>(sp => sp.GetRequiredService<GlossaryService>());
 

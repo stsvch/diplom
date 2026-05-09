@@ -16,6 +16,10 @@ public class SubscriptionPlan : BaseEntity, IAuditableEntity
     public int SortOrder { get; set; }
     public string? ProviderProductId { get; set; }
     public string? ProviderPriceId { get; set; }
+
+    public int IndividualSlotsPerMonth { get; set; }
+    public int GroupSlotsPerMonth { get; set; }
+
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

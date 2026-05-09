@@ -15,14 +15,6 @@
       @if ((it.submissionsCount ?? 0) > 0) {
         <p class="ae__meta">{{ it.submissionsCount }} отправок студентов</p>
       }
-      <label class="ae__check">
-        <input
-          type="checkbox"
-          [checked]="it.isRequired"
-          (change)="setRequired($any($event.target).checked)"
-        />
-        <span>Обязательный элемент</span>
-      </label>
     </header>
 
     <div class="ae__divider"></div>

@@ -58,6 +58,12 @@ public class UploadFileCommandHandler : IRequestHandler<UploadFileCommand, Resul
         if (!Enum.TryParse<AttachmentEntityType>(request.EntityType, ignoreCase: true, out var entityType))
             return Result.Failure<AttachmentDto>($"Unknown entity type: '{request.EntityType}'.");
 
+        // EntityId is optional only for entities whose id is not a Guid (chat messages live in MongoDB)
+        // or for which a parent doesn't exist yet at upload time (user avatar before profile save).
+        var allowsNullEntityId = entityType is AttachmentEntityType.ChatMessage or AttachmentEntityType.UserAvatar;
+        if (!allowsNullEntityId && request.EntityId is null)
+            return Result.Failure<AttachmentDto>($"entityId is required for entity type '{entityType}'.");
+
         // Create attachment entity to get Id before upload (needed for FileUrl)
         var attachment = new Attachment
         {

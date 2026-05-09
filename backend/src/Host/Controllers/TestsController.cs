@@ -73,7 +73,8 @@ public class TestsController : ControllerBase
             result.Value.Description,
             result.Value.MaxScore,
             result.Value.Deadline,
-            cancellationToken);
+            cancellationToken,
+            request.SectionId);
 
         return CreatedAtAction(nameof(GetById), new { id = result.Value!.Id }, result.Value);
     }
@@ -190,7 +191,8 @@ public record CreateTestRequest(
     DateTime? Deadline,
     bool ShuffleQuestions,
     bool ShuffleAnswers,
-    bool ShowCorrectAnswers);
+    bool ShowCorrectAnswers,
+    Guid? SectionId = null);
 
 public record UpdateTestRequest(
     Guid CourseId,

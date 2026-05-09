@@ -19,6 +19,8 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
     public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<CourseEnrollment> CourseEnrollments => Set<CourseEnrollment>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<CourseTag> CourseTags => Set<CourseTag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,7 +49,6 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
             entity.Property(e => e.TeacherName).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
-            entity.Property(e => e.Tags).HasMaxLength(1000);
             entity.Property(e => e.Level).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.OrderType).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.HasCertificate).HasDefaultValue(false);
@@ -139,6 +140,30 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
             entity.Property(e => e.Comment).HasMaxLength(5000);
             entity.HasIndex(e => e.CourseId);
             entity.HasIndex(e => new { e.CourseId, e.StudentId }).IsUnique();
+        });
+
+        modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Slug).IsRequired().HasMaxLength(80);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(80);
+            entity.Property(e => e.UsageCount).HasDefaultValue(0);
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.HasIndex(e => e.UsageCount);
+        });
+
+        modelBuilder.Entity<CourseTag>(entity =>
+        {
+            entity.HasKey(e => new { e.CourseId, e.TagId });
+            entity.HasOne(e => e.Course)
+                  .WithMany(c => c.CourseTags)
+                  .HasForeignKey(e => e.CourseId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Tag)
+                  .WithMany(t => t.CourseTags)
+                  .HasForeignKey(e => e.TagId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.TagId);
         });
     }
 }

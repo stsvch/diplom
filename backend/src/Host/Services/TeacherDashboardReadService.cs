@@ -250,13 +250,12 @@ public class TeacherDashboardReadService
             .Select(slot => new
             {
                 slot.Id,
-                slot.CourseId,
+                slot.RequiredCourseId,
                 slot.Title,
-                slot.CourseName,
                 slot.StartTime,
                 slot.EndTime,
                 slot.Status,
-                slot.IsGroupSession,
+                slot.SessionType,
                 slot.MaxStudents,
                 BookingsCount = slot.Bookings.Count(b => b.Status == BookingStatus.Booked)
             })
@@ -268,13 +267,13 @@ public class TeacherDashboardReadService
             .Select(slot => new TeacherDashboardSessionDto
             {
                 SlotId = slot.Id,
-                CourseId = slot.CourseId,
+                CourseId = slot.RequiredCourseId,
                 Title = slot.Title,
-                CourseName = slot.CourseName,
+                CourseName = null,
                 StartTime = slot.StartTime,
                 EndTime = slot.EndTime,
                 Status = slot.Status.ToString(),
-                IsGroupSession = slot.IsGroupSession,
+                IsGroupSession = slot.SessionType == SessionType.Group,
                 BookingsCount = slot.BookingsCount,
                 MaxStudents = slot.MaxStudents
             })

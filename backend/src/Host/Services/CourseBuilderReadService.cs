@@ -4,7 +4,6 @@ using Courses.Domain.Enums;
 using Courses.Infrastructure.Persistence;
 using EduPlatform.Host.Models.Courses;
 using Microsoft.EntityFrameworkCore;
-using Scheduling.Infrastructure.Persistence;
 using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
@@ -14,26 +13,22 @@ public class CourseBuilderReadService
     private const string TypeLesson = "Lesson";
     private const string TypeTest = "Test";
     private const string TypeAssignment = "Assignment";
-    private const string TypeLiveSession = "LiveSession";
 
     private readonly CoursesDbContext _coursesDb;
     private readonly ContentDbContext _contentDb;
     private readonly TestsDbContext _testsDb;
     private readonly AssignmentsDbContext _assignmentsDb;
-    private readonly SchedulingDbContext _schedulingDb;
 
     public CourseBuilderReadService(
         CoursesDbContext coursesDb,
         ContentDbContext contentDb,
         TestsDbContext testsDb,
-        AssignmentsDbContext assignmentsDb,
-        SchedulingDbContext schedulingDb)
+        AssignmentsDbContext assignmentsDb)
     {
         _coursesDb = coursesDb;
         _contentDb = contentDb;
         _testsDb = testsDb;
         _assignmentsDb = assignmentsDb;
-        _schedulingDb = schedulingDb;
     }
 
     public async Task<CourseBuilderReadResult> GetAsync(
@@ -64,9 +59,9 @@ public class CourseBuilderReadService
                 c.HasGrading,
                 c.HasCertificate,
                 c.Deadline,
-                c.Tags,
                 c.CreatedAt,
-                c.Enrollments.Count(e => e.Status == EnrollmentStatus.Active)))
+                c.Enrollments.Count(e => e.Status == EnrollmentStatus.Active),
+                c.CourseTags.Select(ct => ct.Tag.Name).ToList()))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (course is null)
@@ -81,13 +76,11 @@ public class CourseBuilderReadService
         var lessonItems = await BuildLessonItemsAsync(lessons, cancellationToken);
         var testItems = await BuildTestItemsAsync(courseId, cancellationToken);
         var assignmentItems = await BuildAssignmentItemsAsync(courseId, cancellationToken);
-        var liveSessionItems = await BuildLiveSessionItemsAsync(courseId, cancellationToken);
         var resourceItems = BuildStandaloneCourseItems(courseItems);
 
         var sourceItems = lessonItems
             .Concat(testItems)
             .Concat(assignmentItems)
-            .Concat(liveSessionItems)
             .ToList();
 
         ApplyCourseItemMetadata(sourceItems, courseItems);
@@ -154,8 +147,7 @@ public class CourseBuilderReadService
                 SectionsCount = sectionDtos.Count,
                 LessonsCount = lessonItems.Count,
                 TestsCount = testItems.Count,
-                AssignmentsCount = assignmentItems.Count,
-                LiveSessionsCount = liveSessionItems.Count
+                AssignmentsCount = assignmentItems.Count
             },
             Sections = sectionDtos,
             UnsectionedItems = unsectionedItems,
@@ -387,41 +379,6 @@ public class CourseBuilderReadService
         }).ToList();
     }
 
-    private async Task<List<CourseBuilderItemDto>> BuildLiveSessionItemsAsync(
-        Guid courseId,
-        CancellationToken cancellationToken)
-    {
-        var slots = await _schedulingDb.ScheduleSlots
-            .AsNoTracking()
-            .Where(s => s.CourseId == courseId)
-            .OrderBy(s => s.StartTime)
-            .Select(s => new LiveSessionRow(
-                s.Id,
-                s.Title,
-                s.Description,
-                s.StartTime,
-                s.EndTime,
-                s.MaxStudents,
-                s.MeetingLink,
-                s.Bookings.Count))
-            .ToListAsync(cancellationToken);
-
-        return slots.Select(s => new CourseBuilderItemDto
-        {
-            SourceId = s.Id,
-            Type = TypeLiveSession,
-            Title = s.Title,
-            Description = s.Description,
-            Status = s.StartTime < s.EndTime ? "Ready" : "NeedsContent",
-            StartTime = s.StartTime,
-            EndTime = s.EndTime,
-            DurationMinutes = s.EndTime > s.StartTime ? (int)(s.EndTime - s.StartTime).TotalMinutes : null,
-            MaxStudents = s.MaxStudents,
-            BookedCount = s.BookedCount,
-            MeetingLink = s.MeetingLink
-        }).ToList();
-    }
-
     private static CourseBuilderReadinessDto BuildReadiness(
         CourseRow course,
         List<CourseBuilderSectionDto> sections,
@@ -495,26 +452,6 @@ public class CourseBuilderReadService
                     }
                     break;
 
-                case TypeLiveSession:
-                    if (!item.StartTime.HasValue || !item.EndTime.HasValue || item.StartTime >= item.EndTime)
-                    {
-                        issues.Add(Error(
-                            "LIVE_SESSION_TIME_INVALID",
-                            $"У live-занятия «{item.Title}» некорректное время.",
-                            item.Type,
-                            item.SourceId,
-                            item.SectionId));
-                    }
-                    if (string.IsNullOrWhiteSpace(item.MeetingLink))
-                    {
-                        issues.Add(Warning(
-                            "LIVE_SESSION_MEETING_LINK_EMPTY",
-                            $"У live-занятия «{item.Title}» не указана ссылка на встречу.",
-                            item.Type,
-                            item.SourceId,
-                            item.SectionId));
-                    }
-                    break;
             }
         }
 
@@ -588,9 +525,9 @@ public class CourseBuilderReadService
         bool HasGrading,
         bool HasCertificate,
         DateTime? Deadline,
-        string? Tags,
         DateTime CreatedAt,
-        int StudentsCount);
+        int StudentsCount,
+        List<string> Tags);
 
     private sealed record SectionRow(
         Guid Id,
@@ -642,13 +579,4 @@ public class CourseBuilderReadService
         int MaxScore,
         int SubmissionsCount);
 
-    private sealed record LiveSessionRow(
-        Guid Id,
-        string Title,
-        string? Description,
-        DateTime StartTime,
-        DateTime EndTime,
-        int MaxStudents,
-        string? MeetingLink,
-        int BookedCount);
 }

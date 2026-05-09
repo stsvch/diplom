@@ -228,7 +228,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
 
     this.saveStatus.set('saving');
     this.contentService
-      .update(blockId, { data: draft.block.data, settings: draft.block.settings })
+      .update(blockId, { data: draft.block.data, settings: draft.block.settings }, draft.block.type)
       .subscribe({
         next: (updated) => {
           this.drafts.update((arr) =>

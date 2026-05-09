@@ -1,7 +1,17 @@
 using EduPlatform.Shared.Application.Models;
+using MediatR;
+using Messaging.Application.Commands.AddParticipant;
+using Messaging.Application.Commands.CreateCourseChat;
+using Messaging.Application.Commands.CreateDirectChat;
+using Messaging.Application.Commands.DeleteChat;
+using Messaging.Application.Commands.MarkAsRead;
+using Messaging.Application.Commands.RemoveParticipant;
+using Messaging.Application.Commands.SendMessage;
 using Messaging.Application.DTOs;
-using Messaging.Application.Interfaces;
-using Messaging.Domain.Documents;
+using Messaging.Application.Queries.GetChatById;
+using Messaging.Application.Queries.GetChatMessages;
+using Messaging.Application.Queries.GetUnreadCount;
+using Messaging.Application.Queries.GetUserChats;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -13,228 +23,117 @@ namespace EduPlatform.Host.Controllers;
 [Authorize]
 public class ChatsController : ControllerBase
 {
-    private readonly IMessagingRepository _repository;
-    private readonly IChatBroadcaster _broadcaster;
+    private readonly IMediator _mediator;
 
-    public ChatsController(IMessagingRepository repository, IChatBroadcaster broadcaster)
+    public ChatsController(IMediator mediator)
     {
-        _repository = repository;
-        _broadcaster = broadcaster;
+        _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUserChats()
+    public async Task<IActionResult> GetUserChats(CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chats = await _repository.GetUserChatsAsync(userId);
-        var unreadPerChat = await _repository.GetUnreadCountsPerChatAsync(userId);
-        var dtos = chats.Select(c => MapChatToDto(c, unreadPerChat.GetValueOrDefault(c.Id, 0))).ToList();
+        var dtos = await _mediator.Send(new GetUserChatsQuery(GetUserId()), ct);
         return Ok(dtos);
     }
 
     [HttpGet("unread-count")]
-    public async Task<IActionResult> GetUnreadCount()
+    public async Task<IActionResult> GetUnreadCount(CancellationToken ct)
     {
-        var userId = GetUserId();
-        var count = await _repository.GetUnreadCountAsync(userId);
+        var count = await _mediator.Send(new GetUnreadCountQuery(GetUserId()), ct);
         return Ok(new { count });
     }
 
     [HttpGet("{chatId}")]
-    public async Task<IActionResult> GetChatById(string chatId)
+    [Authorize(Policy = "ChatParticipant")]
+    public async Task<IActionResult> GetChatById(string chatId, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (!chat.ParticipantIds.Contains(userId))
-            return Forbid();
-
-        var unread = await _repository.GetUnreadCountsPerChatAsync(userId);
-        return Ok(MapChatToDto(chat, unread.GetValueOrDefault(chatId, 0)));
+        var result = await _mediator.Send(new GetChatByIdQuery(chatId, GetUserId()), ct);
+        return result.IsFailure
+            ? NotFound(ApiError.FromMessage(result.Error!, "CHAT_NOT_FOUND"))
+            : Ok(result.Value);
     }
 
     [HttpPost("direct")]
-    public async Task<IActionResult> GetOrCreateDirectChat([FromBody] CreateDirectChatRequest request)
+    public async Task<IActionResult> GetOrCreateDirectChat([FromBody] CreateDirectChatRequest request, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var userName = GetUserName();
-        if (userId == request.RecipientId)
-            return BadRequest(ApiError.FromMessage("Нельзя создать чат с самим собой", "INVALID_RECIPIENT"));
-
-        var chat = await _repository.GetOrCreateDirectChatAsync(
-            userId, userName,
-            request.RecipientId, request.RecipientName);
-
-        await _broadcaster.InstructUserJoinChatAsync(userId, chat.Id);
-        await _broadcaster.InstructUserJoinChatAsync(request.RecipientId, chat.Id);
-
-        return Ok(MapChatToDto(chat, 0));
+        var result = await _mediator.Send(new CreateDirectChatCommand(
+            GetUserId(), GetUserName(), request.RecipientId, request.RecipientName), ct);
+        return result.IsFailure
+            ? BadRequest(ApiError.FromMessage(result.Error!, "INVALID_RECIPIENT"))
+            : Ok(result.Value);
     }
 
     [HttpPost("course")]
     [Authorize(Roles = "Teacher")]
-    public async Task<IActionResult> CreateCourseChat([FromBody] CreateCourseChatRequest request)
+    public async Task<IActionResult> CreateCourseChat([FromBody] CreateCourseChatRequest request, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.CreateCourseChatAsync(
-            request.CourseId, request.CourseName,
-            request.ParticipantIds, request.ParticipantNames ?? new List<string>(),
-            ownerId: userId);
-
-        return Ok(MapChatToDto(chat, 0));
+        var result = await _mediator.Send(new CreateCourseChatCommand(
+            GetUserId(), request.CourseId, request.CourseName,
+            request.ParticipantIds, request.ParticipantNames), ct);
+        return result.IsFailure
+            ? BadRequest(ApiError.FromMessage(result.Error!, "COURSE_CHAT_CREATE_FAILED"))
+            : Ok(result.Value);
     }
 
     [HttpGet("{chatId}/messages")]
+    [Authorize(Policy = "ChatParticipant")]
     public async Task<IActionResult> GetChatMessages(
         string chatId,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 50)
+        [FromQuery] int pageSize = 50,
+        CancellationToken ct = default)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (!chat.ParticipantIds.Contains(userId))
-            return Forbid();
-
-        var messages = await _repository.GetChatMessagesAsync(chatId, page, pageSize);
-        var dtos = messages.Select(MapMessageToDto).ToList();
+        var dtos = await _mediator.Send(new GetChatMessagesQuery(chatId, page, pageSize), ct);
         return Ok(dtos);
     }
 
     [HttpPost("{chatId}/messages")]
-    public async Task<IActionResult> SendMessage(string chatId, [FromBody] SendMessageDto request)
+    [Authorize(Policy = "ChatParticipant")]
+    public async Task<IActionResult> SendMessage(string chatId, [FromBody] SendMessageDto request, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var userName = GetUserName();
-
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (!chat.ParticipantIds.Contains(userId))
-            return Forbid();
-        if (chat.IsArchived)
-            return BadRequest(ApiError.FromMessage("Чат архивирован", "CHAT_ARCHIVED"));
-
-        var hasText = !string.IsNullOrWhiteSpace(request.Text);
-        var hasAttachments = request.Attachments is { Count: > 0 };
-        if (!hasText && !hasAttachments)
-            return BadRequest(ApiError.FromMessage("Пустое сообщение", "EMPTY_MESSAGE"));
-
-        var message = new MessageDocument
-        {
-            ChatId = chatId,
-            SenderId = userId,
-            SenderName = userName,
-            Text = request.Text ?? string.Empty,
-            Attachments = request.Attachments?.Select(a => new MessageAttachment
-            {
-                FileName = a.FileName,
-                FileUrl = a.FileUrl,
-                ContentType = a.ContentType,
-                FileSize = a.FileSize
-            }).ToList() ?? new List<MessageAttachment>(),
-            SentAt = DateTime.UtcNow,
-            ReadBy = new List<string> { userId }
-        };
-
-        var saved = await _repository.SendMessageAsync(message);
-        var dto = MapMessageToDto(saved);
-        await _broadcaster.MessageSentAsync(chatId, dto);
-        return Ok(dto);
+        var result = await _mediator.Send(new SendMessageCommand(
+            chatId, GetUserId(), GetUserName(), request.Text ?? string.Empty, request.Attachments), ct);
+        return result.IsFailure
+            ? BadRequest(ApiError.FromMessage(result.Error!, "MESSAGE_SEND_FAILED"))
+            : Ok(result.Value);
     }
 
     [HttpPut("{chatId}/read")]
-    public async Task<IActionResult> MarkAsRead(string chatId)
+    [Authorize(Policy = "ChatParticipant")]
+    public async Task<IActionResult> MarkAsRead(string chatId, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (!chat.ParticipantIds.Contains(userId))
-            return Forbid();
-
-        await _repository.MarkMessagesAsReadAsync(chatId, userId);
-        await _broadcaster.MessagesReadAsync(chatId, userId);
+        await _mediator.Send(new MarkAsReadCommand(chatId, GetUserId()), ct);
         return Ok(new { message = "Сообщения отмечены как прочитанные" });
     }
 
-    [HttpPost("{chatId}/hide")]
-    public async Task<IActionResult> HideChat(string chatId)
-    {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (!chat.ParticipantIds.Contains(userId))
-            return Forbid();
-
-        await _repository.HideChatAsync(chatId, userId);
-        return Ok(new { message = "Чат скрыт" });
-    }
-
     [HttpDelete("{chatId}")]
-    public async Task<IActionResult> DeleteChat(string chatId)
+    [Authorize(Policy = "CourseChatOwner")]
+    public async Task<IActionResult> DeleteChat(string chatId, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-
-        if (chat.Type != "CourseChat")
-            return BadRequest(ApiError.FromMessage(
-                "Прямой чат нельзя удалить для всех. Используйте 'скрыть у себя'.",
-                "DIRECT_CHAT_CANNOT_BE_DELETED"));
-
-        if (chat.OwnerId != userId)
-            return Forbid();
-
-        await _repository.DeleteChatAsync(chatId);
-        await _broadcaster.ChatDeletedAsync(chatId);
+        await _mediator.Send(new DeleteChatCommand(chatId), ct);
         return Ok(new { message = "Чат удалён" });
     }
 
     [HttpPost("{chatId}/participants")]
-    public async Task<IActionResult> AddParticipant(string chatId, [FromBody] AddParticipantRequest request)
+    [Authorize(Policy = "CourseChatOwner")]
+    public async Task<IActionResult> AddParticipant(string chatId, [FromBody] AddParticipantRequest request, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (chat.Type != "CourseChat")
-            return BadRequest(ApiError.FromMessage("Только для курсового чата", "NOT_COURSE_CHAT"));
-        if (chat.OwnerId != userId)
-            return Forbid();
+        var result = await _mediator.Send(new AddParticipantCommand(chatId, request.UserId, request.UserName), ct);
+        if (result.IsFailure)
+            return BadRequest(ApiError.FromMessage(result.Error!, "ADD_PARTICIPANT_FAILED"));
 
-        var added = await _repository.AddParticipantAsync(chatId, request.UserId, request.UserName);
-        if (!added)
-            return Ok(new { message = "Участник уже в чате" });
-
-        await _broadcaster.ParticipantAddedAsync(chatId, new ParticipantDto { UserId = request.UserId, Name = request.UserName });
-        await _broadcaster.InstructUserJoinChatAsync(request.UserId, chatId);
-        return Ok(new { message = "Участник добавлен" });
+        return Ok(new { message = result.Value ? "Участник добавлен" : "Участник уже в чате" });
     }
 
     [HttpDelete("{chatId}/participants/{participantId}")]
-    public async Task<IActionResult> RemoveParticipant(string chatId, string participantId)
+    [Authorize(Policy = "CourseChatOwner")]
+    public async Task<IActionResult> RemoveParticipant(string chatId, string participantId, CancellationToken ct)
     {
-        var userId = GetUserId();
-        var chat = await _repository.GetChatByIdAsync(chatId);
-        if (chat == null)
-            return NotFound(ApiError.FromMessage("Чат не найден", "CHAT_NOT_FOUND"));
-        if (chat.Type != "CourseChat")
-            return BadRequest(ApiError.FromMessage("Только для курсового чата", "NOT_COURSE_CHAT"));
-        if (chat.OwnerId != userId)
-            return Forbid();
-
-        var removed = await _repository.RemoveParticipantAsync(chatId, participantId);
-        if (!removed)
-            return NotFound(ApiError.FromMessage("Участник не найден", "PARTICIPANT_NOT_FOUND"));
-
-        await _broadcaster.RemoveUserFromChatAsync(participantId, chatId);
-        await _broadcaster.ParticipantRemovedAsync(chatId, participantId);
-        return Ok(new { message = "Участник удалён" });
+        var result = await _mediator.Send(new RemoveParticipantCommand(chatId, participantId), ct);
+        return result.IsFailure
+            ? NotFound(ApiError.FromMessage(result.Error!, "PARTICIPANT_NOT_FOUND"))
+            : Ok(new { message = "Участник удалён" });
     }
 
     private string GetUserId() =>
@@ -249,43 +148,6 @@ public class ChatsController : ControllerBase
             name = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "Unknown";
         return name;
     }
-
-    private static ChatDto MapChatToDto(ChatDocument chat, int unreadCount) => new()
-    {
-        Id = chat.Id,
-        Type = chat.Type,
-        CourseId = chat.CourseId,
-        CourseName = chat.CourseName,
-        OwnerId = chat.OwnerId,
-        IsArchived = chat.IsArchived,
-        Participants = chat.Participants.Select(p => new ParticipantDto
-        {
-            UserId = p.UserId,
-            Name = p.Name
-        }).ToList(),
-        LastMessage = chat.LastMessage,
-        LastMessageAt = chat.LastMessageAt,
-        UnreadCount = unreadCount
-    };
-
-    internal static MessageDto MapMessageToDto(MessageDocument msg) => new()
-    {
-        Id = msg.Id,
-        ChatId = msg.ChatId,
-        SenderId = msg.SenderId,
-        SenderName = msg.SenderName,
-        Text = msg.Text,
-        Attachments = msg.Attachments.Select(a => new AttachmentDto
-        {
-            FileName = a.FileName,
-            FileUrl = a.FileUrl,
-            ContentType = a.ContentType,
-            FileSize = a.FileSize
-        }).ToList(),
-        SentAt = msg.SentAt,
-        ReadBy = msg.ReadBy,
-        IsEdited = msg.IsEdited
-    };
 }
 
 public class CreateDirectChatRequest

@@ -10,7 +10,7 @@ public class FileBlockDataValidator : IBlockDataValidator
     public BlockDataValidationResult Validate(LessonBlockData data)
     {
         var d = (FileBlockData)data;
-        if (d.AttachmentId == Guid.Empty)
+        if (!d.AttachmentId.HasValue || d.AttachmentId == Guid.Empty)
             return BlockDataValidationResult.Fail("Прикрепите файл.");
         return BlockDataValidationResult.Ok();
     }

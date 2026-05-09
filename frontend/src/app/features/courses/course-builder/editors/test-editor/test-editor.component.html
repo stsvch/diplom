@@ -1,10 +1,13 @@
 @if (item(); as it) {
   <div class="te">
+    <!-- ── Header ─────────────────────────────────── -->
     <header class="te__header">
-      <span class="te__badge">
-        <lucide-icon [img]="icons.test" [size]="12" />
-        Тест @if (section(); as sec) { · {{ sec.title }} }
-      </span>
+      <div class="te__eyebrow">
+        <lucide-icon [img]="icons.test" [size]="14" />
+        <span class="te__eyebrow-text">
+          Тест @if (section(); as sec) { · {{ sec.title }} }
+        </span>
+      </div>
       <input
         type="text"
         class="te__title"
@@ -12,51 +15,451 @@
         (ngModelChange)="setTitle($event)"
         placeholder="Название теста"
       />
-      @if ((it.questionsCount ?? 0) > 0) {
-        <p class="te__meta">
-          {{ it.questionsCount }} {{ it.questionsCount === 1 ? 'вопрос' : 'вопросов' }}
-          @if (it.points) { · {{ it.points }} баллов }
-          @if ((it.attemptsCount ?? 0) > 0) { · {{ it.attemptsCount }} попыток студентов }
-        </p>
+      @if (test(); as t) {
+        @if (questions().length > 0) {
+          <div class="te__stats">
+            <span>{{ questions().length }} {{ questions().length === 1 ? 'вопрос' : 'вопросов' }}</span>
+            <span class="te__stats-dot">·</span>
+            <span>{{ totalPoints() }} баллов</span>
+            @if (autoCount() > 0) {
+              <span class="te__stat-pill te__stat-pill--auto">
+                <lucide-icon [img]="icons.bot" [size]="11" />
+                {{ autoCount() }} авто
+              </span>
+            }
+            @if (manualCount() > 0) {
+              <span class="te__stat-pill te__stat-pill--manual">
+                <lucide-icon [img]="icons.user" [size]="11" />
+                {{ manualCount() }} вручную
+              </span>
+            }
+          </div>
+        }
       }
-      <label class="te__check">
-        <input
-          type="checkbox"
-          [checked]="it.isRequired"
-          (change)="setRequired($any($event.target).checked)"
-        />
-        <span>Обязательный элемент</span>
-      </label>
     </header>
 
-    <div class="te__divider"></div>
+    @if (loading()) {
+      <div class="te__loading">Загружаю тест…</div>
+    } @else if (test(); as t) {
+      <!-- ── Info-box про Авто/Вручную ─────────────── -->
+      <div class="te__info">
+        <lucide-icon [img]="icons.info" [size]="13" />
+        <p>
+          <strong class="te__info-auto">Автопроверка</strong> — система проверяет сама (выбор ответа).
+          <strong class="te__info-manual">Вручную</strong> — преподаватель проверяет каждый ответ (текст, код).
+        </p>
+      </div>
 
-    @if ((it.questionsCount ?? 0) === 0) {
-      <div class="te__empty">
-        <span class="te__empty-icon">
-          <lucide-icon [img]="icons.test" [size]="32" />
-        </span>
-        <h3>Тест пока пустой</h3>
-        <p>Добавьте вопросы — выбор ответа, открытый текст или код</p>
-        <span class="te__warn">
-          <lucide-icon [img]="icons.alert" [size]="12" />
-          Нет вопросов
-        </span>
+      <!-- ── Settings accordion ────────────────────── -->
+      <section class="te-settings" [class.te-settings--open]="settingsOpen()">
+        <button type="button" class="te-settings__toggle" (click)="toggleSettings()">
+          <lucide-icon [img]="icons.settings" [size]="14" />
+          <span>Настройки теста</span>
+          <lucide-icon
+            class="te-settings__chev"
+            [class.te-settings__chev--open]="settingsOpen()"
+            [img]="icons.chevron"
+            [size]="14"
+          />
+        </button>
+
+        @if (settingsOpen()) {
+          <div class="te-settings__body">
+            <div class="te-settings__row">
+              <label class="te-settings__field">
+                <span>Попыток</span>
+                <input
+                  type="number"
+                  min="1"
+                  class="te-settings__input"
+                  [ngModel]="t.maxAttempts ?? ''"
+                  (ngModelChange)="setMaxAttempts($event)"
+                  placeholder="∞"
+                />
+              </label>
+
+              <label class="te-settings__field">
+                <span>Лимит времени (мин)</span>
+                <input
+                  type="number"
+                  min="0"
+                  class="te-settings__input"
+                  [ngModel]="t.timeLimitMinutes ?? ''"
+                  (ngModelChange)="setTimeLimit($event)"
+                  placeholder="∞"
+                />
+              </label>
+            </div>
+
+            <div class="te-settings__field">
+              <span class="te-settings__field-row">
+                <span>Дедлайн</span>
+                <label class="te-settings__no-deadline">
+                  <input
+                    type="checkbox"
+                    [checked]="!t.deadline"
+                    (change)="toggleNoDeadline($any($event.target).checked)"
+                  />
+                  <span>Без дедлайна</span>
+                </label>
+              </span>
+              @if (t.deadline) {
+                <input
+                  type="datetime-local"
+                  class="te-settings__input"
+                  [ngModel]="formatDeadlineForInput(t.deadline)"
+                  (ngModelChange)="setDeadline($event)"
+                />
+              }
+            </div>
+
+            <div class="te-settings__toggles">
+              <label class="te-settings__check">
+                <input
+                  type="checkbox"
+                  [checked]="t.showCorrectAnswers"
+                  (change)="setShowCorrect($any($event.target).checked)"
+                />
+                <span>Показывать правильные ответы после прохождения</span>
+              </label>
+              <label class="te-settings__check">
+                <input
+                  type="checkbox"
+                  [checked]="t.shuffleAnswers"
+                  (change)="setShuffleAnswers($any($event.target).checked)"
+                />
+                <span>Перемешивать варианты ответов</span>
+              </label>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- ── Questions header ──────────────────────── -->
+      <div class="te-qs__head">
+        <h3>Вопросы</h3>
+        @if (questions().length === 0) {
+          <span class="te-qs__warn">
+            <lucide-icon [img]="icons.alert" [size]="11" />
+            Нет вопросов
+          </span>
+        }
       </div>
-    } @else {
-      <div class="te__filled">
-        <p>Статус: <strong>{{ it.status === 'Ready' ? 'Готов' : it.status === 'Published' ? 'Опубликован' : 'Черновик' }}</strong></p>
-      </div>
+
+      @if (questions().length === 0) {
+        <!-- ── Empty state ────────────────────────── -->
+        <div class="te__empty">
+          <span class="te__empty-icon">
+            <lucide-icon [img]="icons.test" [size]="40" />
+          </span>
+          <p class="te__empty-title">Тест пока пустой</p>
+          <p class="te__empty-hint">
+            Добавьте первый вопрос — выберите тип
+          </p>
+          <div class="te__empty-types">
+            @for (opt of questionTypes; track opt.type) {
+              <button
+                type="button"
+                class="te__empty-btn"
+                [attr.data-color]="opt.color"
+                (click)="addQuestion(opt.type)"
+              >
+                <lucide-icon [img]="opt.icon" [size]="14" />
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- ── Question cards ───────────────────────── -->
+        <div class="te-qs">
+          @for (q of questions(); track q.id; let idx = $index) {
+            @let cfg = configFor(q.type);
+            <article
+              class="te-q"
+              [attr.data-color]="cfg.color"
+              [class.te-q--collapsed]="isCollapsed(q.id)"
+            >
+              <header class="te-q__head">
+                <span class="te-q__grip">
+                  <lucide-icon [img]="icons.grip" [size]="14" />
+                </span>
+                <span class="te-q__num">{{ idx + 1 }}</span>
+
+                <div class="te-q__type-wrap">
+                  <button
+                    type="button"
+                    class="te-q__type-btn"
+                    [attr.data-color]="cfg.color"
+                    (click)="toggleTypeMenu(q.id)"
+                  >
+                    <lucide-icon [img]="cfg.icon" [size]="13" />
+                    {{ cfg.label }}
+                    <lucide-icon
+                      class="te-q__type-chev"
+                      [class.te-q__type-chev--open]="typeMenuFor() === q.id"
+                      [img]="icons.chevron"
+                      [size]="11"
+                    />
+                  </button>
+
+                  @if (typeMenuFor() === q.id) {
+                    <div class="te-q__type-overlay" (click)="closeTypeMenu()"></div>
+                    <div class="te-q__type-menu">
+                      @for (opt of questionTypes; track opt.type) {
+                        <button
+                          type="button"
+                          class="te-q__type-opt"
+                          [class.te-q__type-opt--active]="q.type === opt.type"
+                          (click)="setQuestionType(q, opt.type)"
+                        >
+                          <span class="te-q__type-opt-icon" [attr.data-color]="opt.color">
+                            <lucide-icon [img]="opt.icon" [size]="13" />
+                          </span>
+                          <span class="te-q__type-opt-text">
+                            <span class="te-q__type-opt-label">{{ opt.label }}</span>
+                            <span class="te-q__type-opt-desc">{{ opt.desc }}</span>
+                          </span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <span
+                  class="te-q__grade"
+                  [class.te-q__grade--auto]="cfg.gradeType === 'Auto'"
+                  [class.te-q__grade--manual]="cfg.gradeType === 'Manual'"
+                >
+                  @if (cfg.gradeType === 'Auto') {
+                    <lucide-icon [img]="icons.bot" [size]="11" />
+                    Авто
+                  } @else {
+                    <lucide-icon [img]="icons.user" [size]="11" />
+                    Вручную
+                  }
+                </span>
+
+                <span class="te-q__points">
+                  <input
+                    type="number"
+                    min="1"
+                    class="te-q__points-input"
+                    [ngModel]="q.points"
+                    (ngModelChange)="setPoints(q, $event)"
+                    title="Баллы за вопрос"
+                  />
+                  <span class="te-q__points-label">б.</span>
+                </span>
+
+                <button
+                  type="button"
+                  class="te-q__icon-btn"
+                  (click)="toggleCollapse(q.id)"
+                  [title]="isCollapsed(q.id) ? 'Раскрыть' : 'Свернуть'"
+                >
+                  <lucide-icon
+                    [img]="isCollapsed(q.id) ? icons.chevron : icons.chevronUp"
+                    [size]="14"
+                  />
+                </button>
+
+                <button
+                  type="button"
+                  class="te-q__icon-btn te-q__icon-btn--delete"
+                  (click)="removeQuestion(q)"
+                  title="Удалить вопрос"
+                >
+                  <lucide-icon [img]="icons.trash" [size]="13" />
+                </button>
+              </header>
+
+              @if (!isCollapsed(q.id)) {
+                <div class="te-q__body">
+                  <textarea
+                    class="te-q__text"
+                    rows="2"
+                    [ngModel]="q.text"
+                    (ngModelChange)="patchQuestion(q, { text: $event })"
+                    placeholder="Введите текст вопроса…"
+                  ></textarea>
+
+                  <!-- ── SingleChoice / MultipleChoice ── -->
+                  @if (isChoiceType(q.type)) {
+                    <div class="te-q__opts">
+                      <div class="te-q__opts-head">
+                        <span class="te-q__opts-label">
+                          {{ q.type === 'SingleChoice' ? 'Отметьте правильный ответ (○)' : 'Отметьте все правильные ответы (☐)' }}
+                        </span>
+                        @if (q.answerOptions.length > 0 && !hasAnyCorrect(q)) {
+                          <span class="te-q__opts-warn">
+                            <lucide-icon [img]="icons.alert" [size]="10" />
+                            Не выбран правильный
+                          </span>
+                        }
+                      </div>
+
+                      @for (opt of q.answerOptions; track opt.id; let oi = $index) {
+                        <div
+                          class="te-opt"
+                          [class.te-opt--correct]="opt.isCorrect"
+                        >
+                          <button
+                            type="button"
+                            class="te-opt__correct"
+                            [class.te-opt__correct--on]="opt.isCorrect"
+                            (click)="toggleOptionCorrect(q, opt)"
+                            [title]="q.type === 'SingleChoice' ? 'Выбрать правильный ответ' : 'Отметить как правильный'"
+                          >
+                            @if (q.type === 'SingleChoice') {
+                              <lucide-icon [img]="opt.isCorrect ? icons.singleActive : icons.single" [size]="18" />
+                            } @else {
+                              <lucide-icon [img]="opt.isCorrect ? icons.multiActive : icons.multi" [size]="18" />
+                            }
+                          </button>
+                          <input
+                            type="text"
+                            class="te-opt__text"
+                            [ngModel]="opt.text"
+                            (ngModelChange)="setOptionText(q, opt, $event)"
+                            [placeholder]="'Вариант ' + (oi + 1)"
+                          />
+                          <button
+                            type="button"
+                            class="te-opt__delete"
+                            [disabled]="q.answerOptions.length <= 1"
+                            (click)="removeOption(q, opt)"
+                            title="Удалить вариант"
+                          >
+                            <lucide-icon [img]="icons.trash" [size]="12" />
+                          </button>
+                        </div>
+                      }
+
+                      <button type="button" class="te-q__add-opt" (click)="addOption(q)">
+                        <lucide-icon [img]="icons.plus" [size]="13" />
+                        Добавить вариант
+                      </button>
+                    </div>
+                  }
+
+                  <!-- ── OpenAnswer ───────────────────── -->
+                  @if (isOpenAnswer(q.type)) {
+                    <div class="te-info-box te-info-box--blue">
+                      <lucide-icon [img]="icons.user" [size]="14" />
+                      <div>
+                        <p class="te-info-box__title">Студент напишет развёрнутый ответ</p>
+                        <p class="te-info-box__hint">Проверяется вручную преподавателем</p>
+                      </div>
+                    </div>
+                    <label class="te-q__expected">
+                      <span class="te-q__expected-label">
+                        Эталонный ответ (подсказка для проверки, студент не видит):
+                      </span>
+                      <textarea
+                        class="te-q__expected-text"
+                        rows="3"
+                        [ngModel]="expectedAnswer(q)"
+                        (ngModelChange)="setExpectedAnswer(q, $event)"
+                        placeholder="Опишите, что должно быть в правильном ответе…"
+                      ></textarea>
+                    </label>
+                  }
+
+                  <!-- ── Code ─────────────────────────── -->
+                  @if (isCode(q.type)) {
+                    <div class="te-info-box te-info-box--violet">
+                      <lucide-icon [img]="icons.code" [size]="14" />
+                      <div>
+                        <p class="te-info-box__title">Студент напишет код</p>
+                        <p class="te-info-box__hint">Проверяется вручную преподавателем</p>
+                      </div>
+                    </div>
+
+                    <label class="te-q__expected">
+                      <span class="te-q__expected-label">
+                        Эталонное решение (только для преподавателя):
+                      </span>
+                      <div class="te-q__code-shell">
+                        <div class="te-q__code-toolbar">
+                          <span class="te-q__code-dot te-q__code-dot--red"></span>
+                          <span class="te-q__code-dot te-q__code-dot--yellow"></span>
+                          <span class="te-q__code-dot te-q__code-dot--green"></span>
+                          <span class="te-q__code-lang">code</span>
+                        </div>
+                        <textarea
+                          class="te-q__code"
+                          rows="5"
+                          [ngModel]="expectedAnswer(q)"
+                          (ngModelChange)="setExpectedAnswer(q, $event)"
+                          placeholder="// эталонный код…"
+                        ></textarea>
+                      </div>
+                    </label>
+                  }
+
+                  <!-- ── Explanation ─────────────────── -->
+                  <div class="te-q__expl">
+                    <button
+                      type="button"
+                      class="te-q__expl-toggle"
+                      (click)="toggleExplanation(q.id)"
+                    >
+                      <lucide-icon [img]="icons.bulb" [size]="13" />
+                      {{ isExplanationOpen(q) ? 'Скрыть пояснение' : 'Добавить пояснение к ответу' }}
+                      <span class="te-q__expl-hint">(показывается студенту после ответа)</span>
+                    </button>
+                    @if (isExplanationOpen(q)) {
+                      <textarea
+                        class="te-q__expl-text"
+                        rows="2"
+                        [ngModel]="explanation(q)"
+                        (ngModelChange)="setExplanation(q, $event)"
+                        placeholder="Объясните правильный ответ…"
+                      ></textarea>
+                    }
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+
+        <!-- ── Add question (collapsed/expanded picker) ─ -->
+        @if (typePickerOpen()) {
+          <div class="te-add te-add--open">
+            <p class="te-add__title">Выберите тип вопроса:</p>
+            <div class="te-add__menu">
+              @for (opt of questionTypes; track opt.type) {
+                <button
+                  type="button"
+                  class="te-add__opt"
+                  [attr.data-color]="opt.color"
+                  (click)="addQuestion(opt.type)"
+                >
+                  <span class="te-add__opt-icon" [attr.data-color]="opt.color">
+                    <lucide-icon [img]="opt.icon" [size]="14" />
+                  </span>
+                  <span class="te-add__opt-text">
+                    <span class="te-add__opt-label">{{ opt.label }}</span>
+                    <span class="te-add__opt-desc">
+                      {{ opt.gradeType === 'Auto' ? '• Автопроверка' : '• Ручная проверка' }}
+                    </span>
+                  </span>
+                </button>
+              }
+            </div>
+            <button type="button" class="te-add__cancel" (click)="toggleTypePicker()">
+              Отмена
+            </button>
+          </div>
+        } @else {
+          <button type="button" class="te-add__btn" (click)="toggleTypePicker()">
+            <lucide-icon [img]="icons.plus" [size]="14" />
+            Добавить вопрос
+          </button>
+        }
+      }
     }
-
-    <button class="te__open-full" (click)="openFullEditor()">
-      <lucide-icon [img]="icons.edit" [size]="16" />
-      Открыть редактор вопросов и настроек
-      <lucide-icon [img]="icons.link" [size]="14" />
-    </button>
-
-    <p class="te__hint">
-      Полный редактор позволяет добавлять вопросы (один/несколько ответов, открытый текст, код), настраивать попытки, проходной балл, дедлайн и показ правильных ответов.
-    </p>
   </div>
 }

@@ -13,5 +13,7 @@ public record SubscriptionPlanDto(
     int SortOrder,
     string? ProviderProductId,
     string? ProviderPriceId,
+    int IndividualSlotsPerMonth,
+    int GroupSlotsPerMonth,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

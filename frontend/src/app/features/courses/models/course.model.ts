@@ -21,7 +21,7 @@ export interface CourseListDto {
   lessonsCount: number;
   duration?: number;
   progress?: number;
-  tags?: string;
+  tags: string[];
   isPublished: boolean;
   isArchived: boolean;
   archiveReason?: string | null;

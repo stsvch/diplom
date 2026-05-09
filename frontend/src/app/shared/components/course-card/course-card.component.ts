@@ -90,12 +90,7 @@ export class CourseCardComponent {
   }
 
   get tags(): string[] {
-    if (!this.course.tags) return [];
-    return this.course.tags
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean)
-      .slice(0, 3);
+    return [];
   }
 
   get courseLink(): string {

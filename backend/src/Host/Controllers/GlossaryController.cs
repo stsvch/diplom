@@ -65,6 +65,7 @@ public class GlossaryController : ControllerBase
                 request.Translation,
                 request.Definition,
                 request.Example,
+                request.Note,
                 request.Tags,
                 cancellationToken);
 
@@ -104,6 +105,7 @@ public class GlossaryController : ControllerBase
                 request.Translation,
                 request.Definition,
                 request.Example,
+                request.Note,
                 request.Tags,
                 cancellationToken);
 
@@ -137,6 +139,73 @@ public class GlossaryController : ControllerBase
         {
             await _glossaryService.DeleteWordAsync(id, userId, cancellationToken);
             return Ok(new { message = "Слово удалено." });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiError.FromMessage(ex.Message, "GLOSSARY_WORD_NOT_FOUND"));
+        }
+    }
+
+    [HttpPost("words/{id:guid}/image")]
+    [Authorize(Roles = "Teacher")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    [ProducesResponseType(typeof(DictionaryWordDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadImage(Guid id, IFormFile? file, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        if (file is null || file.Length == 0)
+            return BadRequest(ApiError.FromMessage("Файл не получен.", "GLOSSARY_IMAGE_EMPTY"));
+
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var result = await _glossaryService.UploadImageAsync(
+                id,
+                userId,
+                stream,
+                file.FileName,
+                file.ContentType,
+                file.Length,
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiError.FromMessage(ex.Message, "GLOSSARY_WORD_NOT_FOUND"));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiError.FromMessage(ex.Message, "GLOSSARY_IMAGE_INVALID"));
+        }
+    }
+
+    [HttpDelete("words/{id:guid}/image")]
+    [Authorize(Roles = "Teacher")]
+    [ProducesResponseType(typeof(DictionaryWordDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiError), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteImage(Guid id, CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        try
+        {
+            var result = await _glossaryService.DeleteImageAsync(id, userId, cancellationToken);
+            return Ok(result);
         }
         catch (UnauthorizedAccessException)
         {
@@ -226,9 +295,10 @@ public class GlossaryController : ControllerBase
 public record UpsertDictionaryWordRequest(
     Guid CourseId,
     string Term,
-    string Translation,
+    string? Translation,
     string? Definition,
     string? Example,
+    string? Note,
     List<string>? Tags);
 
 public record UpdateDictionaryWordProgressRequest(bool IsKnown);

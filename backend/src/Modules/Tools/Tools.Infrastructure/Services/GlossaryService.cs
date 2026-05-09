@@ -10,13 +10,28 @@ namespace Tools.Infrastructure.Services;
 
 public class GlossaryService : IGlossaryService
 {
+    private static readonly HashSet<string> AllowedImageContentTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif"
+    };
+
+    private const long MaxImageBytes = 5 * 1024 * 1024;
+
     private readonly IToolsDbContext _toolsDb;
     private readonly ICoursesDbContext _coursesDb;
+    private readonly IGlossaryImageStorage _imageStorage;
 
-    public GlossaryService(IToolsDbContext toolsDb, ICoursesDbContext coursesDb)
+    public GlossaryService(
+        IToolsDbContext toolsDb,
+        ICoursesDbContext coursesDb,
+        IGlossaryImageStorage imageStorage)
     {
         _toolsDb = toolsDb;
         _coursesDb = coursesDb;
+        _imageStorage = imageStorage;
     }
 
     public async Task<IReadOnlyList<DictionaryWordDto>> GetTeacherWordsAsync(
@@ -42,9 +57,7 @@ public class GlossaryService : IGlossaryService
             .ThenBy(word => word.CreatedAt)
             .ToListAsync(cancellationToken);
 
-        return words
-            .Select(word => MapWord(word, courseTitles.GetValueOrDefault(word.CourseId) ?? string.Empty, null))
-            .ToList();
+        return await MapWordsAsync(words, courseTitles, progressMap: null, cancellationToken);
     }
 
     public async Task<IReadOnlyList<DictionaryWordDto>> GetStudentWordsAsync(
@@ -69,19 +82,9 @@ public class GlossaryService : IGlossaryService
         if (words.Count == 0)
             return [];
 
-        var wordIds = words.Select(word => word.Id).ToList();
-        var progressMap = await _toolsDb.UserDictionaryProgress
-            .AsNoTracking()
-            .Where(progress => progress.UserId == studentId && wordIds.Contains(progress.WordId))
-            .ToDictionaryAsync(progress => progress.WordId, progress => progress, cancellationToken);
+        var progressMap = await LoadProgressMapAsync(studentId, words.Select(word => word.Id), cancellationToken);
 
-        var result = words
-            .Select(word =>
-            {
-                progressMap.TryGetValue(word.Id, out var progress);
-                return MapWord(word, courseTitles.GetValueOrDefault(word.CourseId) ?? string.Empty, progress);
-            })
-            .ToList();
+        var result = await MapWordsAsync(words, courseTitles, progressMap, cancellationToken);
 
         if (knownOnly)
         {
@@ -119,12 +122,9 @@ public class GlossaryService : IGlossaryService
         var progressMap = await LoadProgressMapAsync(studentId, words.Select(word => word.Id), cancellationToken);
         var now = DateTime.UtcNow;
 
-        return words
-            .Select(word =>
-            {
-                progressMap.TryGetValue(word.Id, out var progress);
-                return MapWord(word, courseTitles.GetValueOrDefault(word.CourseId) ?? string.Empty, progress);
-            })
+        var mapped = await MapWordsAsync(words, courseTitles, progressMap, cancellationToken);
+
+        return mapped
             .Where(word => !word.NextReviewAt.HasValue || word.NextReviewAt.Value <= now)
             .OrderBy(word => word.NextReviewAt.HasValue ? 0 : 1)
             .ThenBy(word => word.NextReviewAt ?? DateTime.MinValue)
@@ -140,9 +140,10 @@ public class GlossaryService : IGlossaryService
         string teacherId,
         Guid courseId,
         string term,
-        string translation,
+        string? translation,
         string? definition,
         string? example,
+        string? note,
         IReadOnlyCollection<string>? tags,
         CancellationToken cancellationToken = default)
     {
@@ -152,9 +153,10 @@ public class GlossaryService : IGlossaryService
         {
             CourseId = courseId,
             Term = NormalizeRequired(term, nameof(term), 200),
-            Translation = NormalizeRequired(translation, nameof(translation), 500),
+            Translation = NormalizeOptional(translation, nameof(translation), 500),
             Definition = NormalizeOptional(definition, nameof(definition), 4000),
             Example = NormalizeOptional(example, nameof(example), 4000),
+            Note = NormalizeOptional(note, nameof(note), 2000),
             Tags = NormalizeTags(tags),
             CreatedById = teacherId
         };
@@ -162,7 +164,7 @@ public class GlossaryService : IGlossaryService
         _toolsDb.DictionaryWords.Add(word);
         await _toolsDb.SaveChangesAsync(cancellationToken);
 
-        return MapWord(word, courseTitle, null);
+        return await MapWordAsync(word, courseTitle, null, cancellationToken);
     }
 
     public async Task<DictionaryWordDto> UpdateWordAsync(
@@ -170,9 +172,10 @@ public class GlossaryService : IGlossaryService
         string teacherId,
         Guid courseId,
         string term,
-        string translation,
+        string? translation,
         string? definition,
         string? example,
+        string? note,
         IReadOnlyCollection<string>? tags,
         CancellationToken cancellationToken = default)
     {
@@ -187,14 +190,15 @@ public class GlossaryService : IGlossaryService
 
         word.CourseId = courseId;
         word.Term = NormalizeRequired(term, nameof(term), 200);
-        word.Translation = NormalizeRequired(translation, nameof(translation), 500);
+        word.Translation = NormalizeOptional(translation, nameof(translation), 500);
         word.Definition = NormalizeOptional(definition, nameof(definition), 4000);
         word.Example = NormalizeOptional(example, nameof(example), 4000);
+        word.Note = NormalizeOptional(note, nameof(note), 2000);
         word.Tags = NormalizeTags(tags);
 
         await _toolsDb.SaveChangesAsync(cancellationToken);
 
-        return MapWord(word, courseTitle, null);
+        return await MapWordAsync(word, courseTitle, null, cancellationToken);
     }
 
     public async Task DeleteWordAsync(
@@ -210,8 +214,15 @@ public class GlossaryService : IGlossaryService
 
         await EnsureTeacherCourseAccessAsync(word.CourseId, teacherId, cancellationToken);
 
+        var imageKey = word.ImageStorageKey;
+
         _toolsDb.DictionaryWords.Remove(word);
         await _toolsDb.SaveChangesAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(imageKey))
+        {
+            await _imageStorage.DeleteAsync(imageKey, cancellationToken);
+        }
     }
 
     public async Task<DictionaryWordDto> SetStudentProgressAsync(
@@ -251,13 +262,9 @@ public class GlossaryService : IGlossaryService
 
         await _toolsDb.SaveChangesAsync(cancellationToken);
 
-        var courseTitle = await _coursesDb.Courses
-            .AsNoTracking()
-            .Where(course => course.Id == word.CourseId)
-            .Select(course => course.Title)
-            .FirstAsync(cancellationToken);
+        var courseTitle = await GetCourseTitleAsync(word.CourseId, cancellationToken);
 
-        return MapWord(word, courseTitle, progress);
+        return await MapWordAsync(word, courseTitle, progress, cancellationToken);
     }
 
     public async Task<DictionaryWordDto> ReviewWordAsync(
@@ -296,13 +303,77 @@ public class GlossaryService : IGlossaryService
 
         await _toolsDb.SaveChangesAsync(cancellationToken);
 
-        var courseTitle = await _coursesDb.Courses
-            .AsNoTracking()
-            .Where(course => course.Id == word.CourseId)
-            .Select(course => course.Title)
-            .FirstAsync(cancellationToken);
+        var courseTitle = await GetCourseTitleAsync(word.CourseId, cancellationToken);
 
-        return MapWord(word, courseTitle, progress);
+        return await MapWordAsync(word, courseTitle, progress, cancellationToken);
+    }
+
+    public async Task<DictionaryWordDto> UploadImageAsync(
+        Guid wordId,
+        string teacherId,
+        Stream stream,
+        string fileName,
+        string contentType,
+        long length,
+        CancellationToken cancellationToken = default)
+    {
+        if (length <= 0)
+            throw new InvalidOperationException("Файл пустой.");
+
+        if (length > MaxImageBytes)
+            throw new InvalidOperationException("Размер картинки не должен превышать 5 МБ.");
+
+        if (string.IsNullOrWhiteSpace(contentType) || !AllowedImageContentTypes.Contains(contentType))
+            throw new InvalidOperationException("Поддерживаются только изображения JPEG, PNG, WebP или GIF.");
+
+        var word = await _toolsDb.DictionaryWords
+            .FirstOrDefaultAsync(item => item.Id == wordId, cancellationToken);
+
+        if (word is null)
+            throw new KeyNotFoundException("Слово не найдено.");
+
+        var courseTitle = await EnsureTeacherCourseAccessAsync(word.CourseId, teacherId, cancellationToken);
+
+        var safeName = string.IsNullOrWhiteSpace(fileName) ? "image" : Path.GetFileName(fileName);
+        var newKey = await _imageStorage.UploadAsync(stream, safeName, contentType, cancellationToken);
+
+        var oldKey = word.ImageStorageKey;
+        word.ImageStorageKey = newKey;
+
+        await _toolsDb.SaveChangesAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(oldKey) && !string.Equals(oldKey, newKey, StringComparison.Ordinal))
+        {
+            await _imageStorage.DeleteAsync(oldKey, cancellationToken);
+        }
+
+        return await MapWordAsync(word, courseTitle, null, cancellationToken);
+    }
+
+    public async Task<DictionaryWordDto> DeleteImageAsync(
+        Guid wordId,
+        string teacherId,
+        CancellationToken cancellationToken = default)
+    {
+        var word = await _toolsDb.DictionaryWords
+            .FirstOrDefaultAsync(item => item.Id == wordId, cancellationToken);
+
+        if (word is null)
+            throw new KeyNotFoundException("Слово не найдено.");
+
+        var courseTitle = await EnsureTeacherCourseAccessAsync(word.CourseId, teacherId, cancellationToken);
+
+        var oldKey = word.ImageStorageKey;
+        word.ImageStorageKey = null;
+
+        await _toolsDb.SaveChangesAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(oldKey))
+        {
+            await _imageStorage.DeleteAsync(oldKey, cancellationToken);
+        }
+
+        return await MapWordAsync(word, courseTitle, null, cancellationToken);
     }
 
     private IQueryable<DictionaryWord> BuildWordQuery(
@@ -325,9 +396,10 @@ public class GlossaryService : IGlossaryService
             var pattern = $"%{searchValue}%";
             query = query.Where(word =>
                 EF.Functions.ILike(word.Term, pattern)
-                || EF.Functions.ILike(word.Translation, pattern)
+                || (word.Translation != null && EF.Functions.ILike(word.Translation, pattern))
                 || (word.Definition != null && EF.Functions.ILike(word.Definition, pattern))
                 || (word.Example != null && EF.Functions.ILike(word.Example, pattern))
+                || (word.Note != null && EF.Functions.ILike(word.Note, pattern))
                 || (word.Tags != null && EF.Functions.ILike(word.Tags, pattern)));
         }
 
@@ -397,6 +469,15 @@ public class GlossaryService : IGlossaryService
             .ToDictionaryAsync(course => course.Id, course => course.Title, cancellationToken);
     }
 
+    private async Task<string> GetCourseTitleAsync(Guid courseId, CancellationToken cancellationToken)
+    {
+        return await _coursesDb.Courses
+            .AsNoTracking()
+            .Where(course => course.Id == courseId)
+            .Select(course => course.Title)
+            .FirstAsync(cancellationToken);
+    }
+
     private async Task<Dictionary<Guid, UserDictionaryProgress>> LoadProgressMapAsync(
         string studentId,
         IEnumerable<Guid> wordIds,
@@ -410,6 +491,60 @@ public class GlossaryService : IGlossaryService
             .AsNoTracking()
             .Where(progress => progress.UserId == studentId && ids.Contains(progress.WordId))
             .ToDictionaryAsync(progress => progress.WordId, progress => progress, cancellationToken);
+    }
+
+    private async Task<List<DictionaryWordDto>> MapWordsAsync(
+        IReadOnlyList<DictionaryWord> words,
+        IReadOnlyDictionary<Guid, string> courseTitles,
+        IReadOnlyDictionary<Guid, UserDictionaryProgress>? progressMap,
+        CancellationToken cancellationToken)
+    {
+        var result = new List<DictionaryWordDto>(words.Count);
+        foreach (var word in words)
+        {
+            UserDictionaryProgress? progress = null;
+            progressMap?.TryGetValue(word.Id, out progress);
+            var title = courseTitles.TryGetValue(word.CourseId, out var t) ? t : string.Empty;
+            result.Add(await MapWordAsync(word, title, progress, cancellationToken));
+        }
+        return result;
+    }
+
+    private async Task<DictionaryWordDto> MapWordAsync(
+        DictionaryWord word,
+        string courseTitle,
+        UserDictionaryProgress? progress,
+        CancellationToken cancellationToken)
+    {
+        string? imageUrl = null;
+        if (!string.IsNullOrWhiteSpace(word.ImageStorageKey))
+        {
+            imageUrl = await _imageStorage.GetPresignedUrlAsync(word.ImageStorageKey, cancellationToken);
+        }
+
+        return new DictionaryWordDto
+        {
+            Id = word.Id,
+            CourseId = word.CourseId,
+            CourseTitle = courseTitle,
+            Term = word.Term,
+            Translation = word.Translation,
+            Definition = word.Definition,
+            Example = word.Example,
+            Note = word.Note,
+            ImageUrl = imageUrl,
+            Tags = ParseTags(word.Tags),
+            CreatedById = word.CreatedById,
+            IsKnown = progress?.IsKnown ?? false,
+            ReviewCount = progress?.ReviewCount ?? 0,
+            HardCount = progress?.HardCount ?? 0,
+            RepeatLaterCount = progress?.RepeatLaterCount ?? 0,
+            LastReviewedAt = progress?.LastReviewedAt,
+            LastOutcome = progress?.LastOutcome?.ToString(),
+            NextReviewAt = progress?.NextReviewAt,
+            CreatedAt = word.CreatedAt,
+            UpdatedAt = word.UpdatedAt
+        };
     }
 
     private static void ApplyOutcome(UserDictionaryProgress progress, DictionaryReviewOutcome outcome, DateTime reviewedAtUtc)
@@ -445,34 +580,6 @@ public class GlossaryService : IGlossaryService
             2 => TimeSpan.FromDays(3),
             3 => TimeSpan.FromDays(7),
             _ => TimeSpan.FromDays(14)
-        };
-    }
-
-    private static DictionaryWordDto MapWord(
-        DictionaryWord word,
-        string courseTitle,
-        UserDictionaryProgress? progress)
-    {
-        return new DictionaryWordDto
-        {
-            Id = word.Id,
-            CourseId = word.CourseId,
-            CourseTitle = courseTitle,
-            Term = word.Term,
-            Translation = word.Translation,
-            Definition = word.Definition,
-            Example = word.Example,
-            Tags = ParseTags(word.Tags),
-            CreatedById = word.CreatedById,
-            IsKnown = progress?.IsKnown ?? false,
-            ReviewCount = progress?.ReviewCount ?? 0,
-            HardCount = progress?.HardCount ?? 0,
-            RepeatLaterCount = progress?.RepeatLaterCount ?? 0,
-            LastReviewedAt = progress?.LastReviewedAt,
-            LastOutcome = progress?.LastOutcome?.ToString(),
-            NextReviewAt = progress?.NextReviewAt,
-            CreatedAt = word.CreatedAt,
-            UpdatedAt = word.UpdatedAt
         };
     }
 

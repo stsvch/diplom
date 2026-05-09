@@ -2,7 +2,7 @@ import { Injectable, inject, signal, effect } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
-import { MessageDto, AttachmentDto, ParticipantDto } from '../../features/messaging/models/messaging.model';
+import { MessageDto, ParticipantDto } from '../../features/messaging/models/messaging.model';
 
 @Injectable({
   providedIn: 'root',
@@ -136,13 +136,6 @@ export class ChatSignalRService {
 
   decrementUnreadCount(): void {
     this.adjustUnreadCount(-1);
-  }
-
-  sendMessage(chatId: string, text: string, attachments?: AttachmentDto[]): void {
-    if (!this.hubConnection) return;
-    this.hubConnection
-      .invoke('SendMessage', chatId, text, attachments ?? null)
-      .catch((err) => console.error('SendMessage error:', err));
   }
 
   joinChat(chatId: string): void {

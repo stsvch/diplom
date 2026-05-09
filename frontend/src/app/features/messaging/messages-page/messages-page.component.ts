@@ -25,7 +25,6 @@ import {
   Edit,
   UserPlus,
   Users,
-  EyeOff,
   Plus,
   ChevronLeft,
   Check,
@@ -79,7 +78,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   readonly EditIcon = Edit;
   readonly UserPlusIcon = UserPlus;
   readonly UsersIcon = Users;
-  readonly EyeOffIcon = EyeOff;
   readonly PlusIcon = Plus;
   readonly CheckIcon = Check;
   readonly ChevronLeftIcon = ChevronLeft;
@@ -132,6 +130,29 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   readonly excludedParticipantIds = computed(() =>
     (this.selectedChat()?.participants ?? []).map((p) => p.userId),
   );
+
+  readonly addParticipantCourseId = computed(() => {
+    const chat = this.selectedChat();
+    return chat?.type === 'CourseChat' ? chat.courseId : undefined;
+  });
+
+  readonly newDirectPickerRole = computed(() => {
+    const role = this.currentUser()?.role;
+    if (role === 'Teacher') return 'Student';
+    if (role === 'Student') return 'Teacher';
+    return undefined;
+  });
+
+  readonly newDirectPickerTeacherId = computed(() => {
+    return this.currentUser()?.role === 'Teacher' ? this.currentUser()?.id : undefined;
+  });
+
+  readonly newDirectPickerEmptyHint = computed(() => {
+    const role = this.currentUser()?.role;
+    if (role === 'Teacher') return 'Здесь появятся студенты, записанные на ваши курсы';
+    if (role === 'Student') return 'Начните вводить имя преподавателя';
+    return undefined;
+  });
 
   constructor() {
     effect(() => {
@@ -307,9 +328,10 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     this.uploading.set(true);
     let remaining = files.length;
     for (const file of files) {
-      this.fileService.upload(file, 'ChatMessage', chat.id).subscribe({
+      this.fileService.upload(file, 'ChatMessage').subscribe({
         next: (att) => {
           this.pendingAttachments.update((list) => [...list, {
+            attachmentId: att.id,
             fileName: att.fileName,
             fileUrl: att.fileUrl,
             contentType: att.contentType,
@@ -372,19 +394,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.messagingService.deleteMessage(messageId).subscribe({
       next: () => this.applyDeletedMessage(this.selectedChat()!.id, messageId),
-      error: (err) => this.error.set(parseApiError(err).message),
-    });
-  }
-
-  hideChat(): void {
-    const chat = this.selectedChat();
-    if (!chat) return;
-    if (!confirm('Скрыть чат у себя? Чат вернётся при новом сообщении.')) return;
-    this.messagingService.hideChat(chat.id).subscribe({
-      next: () => {
-        this.removeChatLocally(chat.id);
-        this.refreshUnreadCount();
-      },
       error: (err) => this.error.set(parseApiError(err).message),
     });
   }
@@ -513,17 +522,8 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
   }
 
-  getReadLabel(message: MessageDto): string {
-    if (!this.isOwnMessage(message)) return '';
-
-    const readerCount = message.readBy.filter((userId) => userId !== message.senderId).length;
-    if (readerCount === 0) return '';
-
-    if (this.selectedChat()?.type === 'DirectMessage') {
-      return 'прочитано';
-    }
-
-    return `прочитали: ${readerCount}`;
+  getReadLabel(_message: MessageDto): string {
+    return '';
   }
 
   private scrollToBottom(): void {
@@ -571,16 +571,6 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   }
 
   private applyMessagesRead(chatId: string, userId: string): void {
-    if (this.selectedChat()?.id === chatId) {
-      this.messages.update((list) =>
-        list.map((message) => (
-          message.readBy.includes(userId)
-            ? message
-            : { ...message, readBy: [...message.readBy, userId] }
-        )),
-      );
-    }
-
     if (userId === this.currentUser()?.id) {
       this.clearUnreadForChat(chatId);
     }

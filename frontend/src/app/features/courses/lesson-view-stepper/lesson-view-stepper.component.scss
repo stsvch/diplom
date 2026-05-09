@@ -108,6 +108,76 @@
   color: $text-muted;
 }
 
+.lvs-skel {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-8 $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  &__title {
+    height: 28px;
+    width: 60%;
+    border-radius: 8px;
+    background: $slate-100;
+    animation: lvs-skel-pulse 1.4s ease-in-out infinite;
+  }
+
+  &__card {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-left: 3px solid $indigo-200;
+    border-radius: $radius-2xl;
+    padding: $spacing-5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__chip {
+    width: 70px;
+    height: 18px;
+    border-radius: $radius-full;
+    background: $slate-100;
+    animation: lvs-skel-pulse 1.4s ease-in-out infinite;
+  }
+
+  &__line {
+    height: 12px;
+    border-radius: 6px;
+    background: $slate-100;
+    animation: lvs-skel-pulse 1.4s ease-in-out infinite;
+  }
+  &__line--full { width: 100%; }
+  &__line--md   { width: 80%; }
+  &__line--sm   { width: 50%; }
+
+  &__nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: $spacing-2;
+  }
+
+  &__btn {
+    flex: 1;
+    height: 40px;
+    border-radius: $radius-full;
+    background: $slate-100;
+    animation: lvs-skel-pulse 1.4s ease-in-out infinite;
+
+    &--primary {
+      background: $indigo-100;
+    }
+  }
+}
+
+@keyframes lvs-skel-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
 .final {
   max-width: 500px;
   margin: $spacing-12 auto;

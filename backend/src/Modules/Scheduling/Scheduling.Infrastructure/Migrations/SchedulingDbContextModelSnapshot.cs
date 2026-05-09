@@ -29,24 +29,18 @@ namespace Scheduling.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CourseId")
+                    b.Property<Guid?>("AvailabilityId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("CourseName")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsGroupSession")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("MaxStudents")
                         .HasColumnType("integer");
@@ -54,6 +48,14 @@ namespace Scheduling.Infrastructure.Migrations
                     b.Property<string>("MeetingLink")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("RequiredCourseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SessionType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
@@ -83,6 +85,10 @@ namespace Scheduling.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AvailabilityId", "StartTime");
+
+                    b.HasIndex("TeacherId", "StartTime");
+
                     b.ToTable("ScheduleSlots", "scheduling");
                 });
 
@@ -95,8 +101,14 @@ namespace Scheduling.Infrastructure.Migrations
                     b.Property<DateTime>("BookedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("SlotId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -113,11 +125,105 @@ namespace Scheduling.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid?>("SubscriptionUsageId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("SlotId");
+                    b.HasIndex("SlotId", "StudentId")
+                        .IsUnique();
+
+                    b.HasIndex("StudentId", "StartTime");
 
                     b.ToTable("SessionBookings", "scheduling");
+                });
+
+            modelBuilder.Entity("Scheduling.Domain.Entities.TeacherAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("BreakBetweenMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DayOfWeek")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("MaxStudents")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MeetingLink")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid?>("RequiredCourseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SessionType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("SlotDurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("SpecificDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("TeacherName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("ValidUntil")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequiredCourseId", "IsActive");
+
+                    b.HasIndex("TeacherId", "IsActive");
+
+                    b.ToTable("TeacherAvailabilities", "scheduling");
                 });
 
             modelBuilder.Entity("Scheduling.Domain.Entities.SessionBooking", b =>

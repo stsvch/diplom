@@ -70,10 +70,14 @@ public class UsersController : ControllerBase
         [FromQuery] string? q,
         [FromQuery] string? role,
         [FromQuery] int limit = 20,
+        [FromQuery] Guid? courseId = null,
+        [FromQuery] string? teacherId = null,
         CancellationToken cancellationToken = default)
     {
         var callerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var result = await _mediator.Send(new SearchUsersQuery(q, role, callerId, limit), cancellationToken);
+        var result = await _mediator.Send(
+            new SearchUsersQuery(q, role, callerId, limit, courseId, teacherId),
+            cancellationToken);
         return result.IsFailure ? BadRequest(ApiError.FromMessage(result.Error!, "SEARCH_FAILED")) : Ok(result.Value);
     }
 

@@ -6,16 +6,10 @@
         <span class="lp-brand__mark">
           <lucide-icon [img]="graduationCapIcon" [size]="16" />
         </span>
-        <span class="lp-brand__text">EduPlatform</span>
       </a>
 
       <div class="lp-nav__links">
         <a routerLink="/catalog">Каталог</a>
-        <a routerLink="/student/dashboard">Для студентов</a>
-        <a routerLink="/teacher/dashboard">Для преподавателей</a>
-        @if (showSwaggerLink) {
-          <a [href]="swaggerUrl" target="_blank" rel="noreferrer">API Docs</a>
-        }
       </div>
 
       <div class="lp-nav__actions">
@@ -23,7 +17,6 @@
           <a class="lp-btn lp-btn--ghost-soft" [routerLink]="primaryCtaLink()">В кабинет</a>
         } @else {
           <a class="lp-btn lp-btn--ghost-soft" routerLink="/login">Войти</a>
-          <a class="lp-btn lp-btn--gradient" routerLink="/register">Регистрация</a>
         }
       </div>
     </div>
@@ -40,11 +33,6 @@
 
     <div class="lp-hero__inner">
       <div class="lp-hero__copy">
-        <div class="lp-eyebrow anim-fade-up">
-          <lucide-icon [img]="sparklesIcon" [size]="14" />
-          <span>LMS + EdTech платформа для дипломного проекта</span>
-        </div>
-
         <h1 class="lp-hero__title anim-fade-up-delay-1">
           Платформа, где курсы, задания, аналитика
           <span class="lp-grad-text">и платежи</span>
@@ -53,22 +41,14 @@
 
         <p class="lp-hero__subtitle anim-fade-up-delay-2">
           Студент получает курсы, прогресс, словарь, кодовые упражнения и расписание.
-          Преподаватель — редактор контента, отчёты и выплаты. Администратор — модерацию,
-          аналитику и контроль платформы.
+          Преподаватель — редактор контента, отчёты и выплаты.
         </p>
 
         <div class="lp-hero__actions anim-fade-up-delay-3">
-          <a class="lp-btn lp-btn--gradient lp-btn--lg" [routerLink]="primaryCtaLink()">
-            Открыть платформу
+          <a class="lp-btn lp-btn--gradient lp-btn--lg" routerLink="/catalog">
+            Смотреть каталог
             <lucide-icon [img]="arrowRightIcon" [size]="16" />
           </a>
-          <a class="lp-btn lp-btn--glass lp-btn--lg" routerLink="/catalog">Смотреть каталог</a>
-          @if (showSwaggerLink) {
-            <a class="lp-btn lp-btn--glass-faint lp-btn--lg" [href]="swaggerUrl" target="_blank" rel="noreferrer">
-              API Docs
-              <lucide-icon [img]="code2Icon" [size]="15" />
-            </a>
-          }
         </div>
       </div>
 
@@ -188,10 +168,8 @@
               <span class="lp-role__dot">
                 @if (r.key === 'student') {
                   <lucide-icon [img]="graduationCapIcon" [size]="10" />
-                } @else if (r.key === 'teacher') {
-                  <lucide-icon [img]="bookOpenIcon" [size]="10" />
                 } @else {
-                  <lucide-icon [img]="shieldCheckIcon" [size]="10" />
+                  <lucide-icon [img]="bookOpenIcon" [size]="10" />
                 }
               </span>
               <span class="lp-role__label">{{ r.label }}</span>
@@ -223,7 +201,7 @@
   <section class="lp-section">
     <header class="lp-heading" appReveal>
       <span class="lp-heading__pill lp-heading__pill--indigo">РОЛИ И ВОЗМОЖНОСТИ</span>
-      <h2>Три роли. Один рабочий контур.</h2>
+      <h2>Две роли. Один рабочий контур.</h2>
       <p>Каждая роль получает свой персональный кабинет с полным набором инструментов</p>
     </header>
 
@@ -270,73 +248,6 @@
     </div>
   </section>
 
-  <!-- ──────────────────── DEV SECTION ──────────────────── -->
-  <section class="lp-section">
-    <div class="lp-dev" appReveal>
-      <div class="lp-dev__col">
-        <span class="lp-dev__pill">
-          <span class="lp-dev__live"></span>
-          ДЛЯ ЛОКАЛЬНОЙ РАЗРАБОТКИ
-        </span>
-        <h2 class="lp-dev__title">Готово к запуску прямо сейчас</h2>
-        <ul class="lp-dev__list">
-          @for (item of devChecklist; track item) {
-            <li>
-              <lucide-icon [img]="checkCircleIcon" [size]="16" class="lp-dev__check" />
-              <span>{{ item }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-
-      <div class="lp-dev__shortcuts">
-        <a class="lp-shortcut" routerLink="/catalog">
-          <lucide-icon [img]="bookOpenIcon" [size]="20" class="lp-shortcut__i lp-shortcut__i--indigo" />
-          <span>Каталог курсов</span>
-        </a>
-        <a class="lp-shortcut" [routerLink]="loginLink()">
-          <lucide-icon [img]="playIcon" [size]="20" class="lp-shortcut__i lp-shortcut__i--teal" />
-          <span>Войти в систему</span>
-        </a>
-        <a class="lp-shortcut" routerLink="/register">
-          <lucide-icon [img]="usersIcon" [size]="20" class="lp-shortcut__i lp-shortcut__i--amber" />
-          <span>Создать аккаунт</span>
-        </a>
-        @if (showSwaggerLink) {
-          <a class="lp-shortcut" [href]="swaggerUrl" target="_blank" rel="noreferrer">
-            <lucide-icon [img]="code2Icon" [size]="20" class="lp-shortcut__i lp-shortcut__i--rose" />
-            <span>Swagger / OpenAPI</span>
-          </a>
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- ──────────────────── CTA ──────────────────── -->
-  <section class="lp-cta">
-    <div class="lp-cta__orbs" aria-hidden="true">
-      <span class="lp-orb lp-orb--cta-1"></span>
-      <span class="lp-orb lp-orb--cta-2"></span>
-    </div>
-    <div class="lp-cta__inner" appReveal>
-      <h2>Начните прямо сейчас</h2>
-      <p>
-        Войдите в свой кабинет студента или преподавателя и начните работать с
-        полнофункциональной LMS-платформой
-      </p>
-      <div class="lp-cta__actions">
-        <a class="lp-btn lp-btn--white lp-btn--lg" routerLink="/student/dashboard">
-          Дашборд студента
-          <lucide-icon [img]="chevronRightIcon" [size]="18" />
-        </a>
-        <a class="lp-btn lp-btn--glass-light lp-btn--lg" routerLink="/teacher/dashboard">
-          Дашборд преподавателя
-          <lucide-icon [img]="chevronRightIcon" [size]="18" />
-        </a>
-      </div>
-    </div>
-  </section>
-
   <!-- ──────────────────── FOOTER ──────────────────── -->
   <footer class="lp-footer">
     <div class="lp-footer__inner">
@@ -344,14 +255,7 @@
         <span class="lp-brand__mark">
           <lucide-icon [img]="graduationCapIcon" [size]="14" />
         </span>
-        <span class="lp-brand__text">EduPlatform</span>
       </a>
-      <p class="lp-footer__copy">© 2026 EduPlatform. LMS + EdTech дипломный проект.</p>
-      <nav class="lp-footer__nav">
-        <a routerLink="/catalog">Каталог</a>
-        <a routerLink="/student/dashboard">Студент</a>
-        <a routerLink="/teacher/dashboard">Преподаватель</a>
-      </nav>
     </div>
   </footer>
 </div>

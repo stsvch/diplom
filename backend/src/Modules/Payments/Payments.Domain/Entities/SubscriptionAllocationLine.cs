@@ -1,4 +1,5 @@
 using EduPlatform.Shared.Domain;
+using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
@@ -10,8 +11,15 @@ public class SubscriptionAllocationLine : BaseEntity, IAuditableEntity
     public string UserId { get; set; } = string.Empty;
     public string TeacherId { get; set; } = string.Empty;
     public string TeacherName { get; set; } = string.Empty;
+
+    public SubscriptionAllocationSource Source { get; set; } = SubscriptionAllocationSource.CourseProgress;
+
     public Guid CourseId { get; set; }
     public string CourseTitle { get; set; } = string.Empty;
+
+    public Guid? BookingId { get; set; }
+    public int CompletedSessionsCount { get; set; }
+
     public decimal AllocationWeight { get; set; }
     public decimal ProgressPercent { get; set; }
     public int TotalLessons { get; set; }

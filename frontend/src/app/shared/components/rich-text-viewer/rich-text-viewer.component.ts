@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { renderMarkdown } from './markdown';
 
 @Component({
   selector: 'app-rich-text-viewer',
@@ -15,7 +16,8 @@ export class RichTextViewerComponent {
   private _safeContent: SafeHtml = '';
 
   @Input() set content(val: string) {
-    this._safeContent = this.sanitizer.bypassSecurityTrustHtml(val ?? '');
+    const html = renderMarkdown(val ?? '');
+    this._safeContent = this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   get safeContent(): SafeHtml {

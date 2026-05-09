@@ -29,4 +29,21 @@ public class EnrollmentReadService : IEnrollmentReadService
             .Select(e => e.CourseId)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<string>> GetActiveStudentIdsForTeacherAsync(string teacherId, CancellationToken cancellationToken = default)
+    {
+        var teacherCourseIds = await _context.Courses
+            .Where(c => c.TeacherId == teacherId)
+            .Select(c => c.Id)
+            .ToListAsync(cancellationToken);
+
+        if (teacherCourseIds.Count == 0)
+            return Array.Empty<string>();
+
+        return await _context.CourseEnrollments
+            .Where(e => teacherCourseIds.Contains(e.CourseId) && e.Status == EnrollmentStatus.Active)
+            .Select(e => e.StudentId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

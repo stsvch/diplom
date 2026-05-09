@@ -20,6 +20,7 @@ public class SaveAnswerCommandHandler : IRequestHandler<SaveAnswerCommand, Resul
     public async Task<Result<string>> Handle(SaveAnswerCommand request, CancellationToken cancellationToken)
     {
         var attempt = await _context.TestAttempts
+            .Include(a => a.Test)
             .FirstOrDefaultAsync(a => a.Id == request.AttemptId, cancellationToken);
 
         if (attempt is null)
@@ -30,6 +31,14 @@ public class SaveAnswerCommandHandler : IRequestHandler<SaveAnswerCommand, Resul
 
         if (attempt.Status != AttemptStatus.InProgress)
             return Result.Failure<string>("Попытка уже завершена.");
+
+        // Check time limit (server-side, чтобы клиент не мог обойти таймер).
+        if (attempt.Test.TimeLimitMinutes.HasValue)
+        {
+            var elapsed = DateTime.UtcNow - attempt.StartedAt;
+            if (elapsed > TimeSpan.FromMinutes(attempt.Test.TimeLimitMinutes.Value))
+                return Result.Failure<string>("Время на тест вышло — ответ не сохранён.");
+        }
 
         // Check question exists in the test
         var questionExists = await _context.Questions

@@ -6,9 +6,11 @@ public class DictionaryWord : BaseEntity, IAuditableEntity
 {
     public Guid CourseId { get; set; }
     public string Term { get; set; } = string.Empty;
-    public string Translation { get; set; } = string.Empty;
+    public string? Translation { get; set; }
     public string? Definition { get; set; }
     public string? Example { get; set; }
+    public string? Note { get; set; }
+    public string? ImageStorageKey { get; set; }
     public string? Tags { get; set; }
     public string CreatedById { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }

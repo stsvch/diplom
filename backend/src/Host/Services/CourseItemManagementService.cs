@@ -4,7 +4,6 @@ using Courses.Domain.Enums;
 using Courses.Infrastructure.Persistence;
 using EduPlatform.Host.Models.Courses;
 using Microsoft.EntityFrameworkCore;
-using Scheduling.Infrastructure.Persistence;
 using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
@@ -14,18 +13,15 @@ public class CourseItemManagementService
     private readonly CoursesDbContext _coursesDb;
     private readonly TestsDbContext _testsDb;
     private readonly AssignmentsDbContext _assignmentsDb;
-    private readonly SchedulingDbContext _schedulingDb;
 
     public CourseItemManagementService(
         CoursesDbContext coursesDb,
         TestsDbContext testsDb,
-        AssignmentsDbContext assignmentsDb,
-        SchedulingDbContext schedulingDb)
+        AssignmentsDbContext assignmentsDb)
     {
         _coursesDb = coursesDb;
         _testsDb = testsDb;
         _assignmentsDb = assignmentsDb;
-        _schedulingDb = schedulingDb;
     }
 
     public async Task<CourseItemMutationResult<CourseItemBackfillDto>> BackfillAsync(
@@ -61,14 +57,9 @@ public class CourseItemManagementService
         if (result.AssignmentsCount > 0)
             await _coursesDb.SaveChangesAsync(cancellationToken);
 
-        result.LiveSessionsCount = await BackfillLiveSessionsAsync(courseId, existing, cancellationToken);
-        if (result.LiveSessionsCount > 0)
-            await _coursesDb.SaveChangesAsync(cancellationToken);
-
         result.CreatedItemsCount = result.LessonsCount
             + result.TestsCount
-            + result.AssignmentsCount
-            + result.LiveSessionsCount;
+            + result.AssignmentsCount;
 
         return new CourseItemMutationResult<CourseItemBackfillDto>(CourseItemMutationStatus.Success, result);
     }
@@ -213,7 +204,14 @@ public class CourseItemManagementService
             AttachmentId = request.AttachmentId,
             ResourceKind = request.ResourceKind,
             OrderIndex = await GetNextOrderIndexAsync(courseId, request.SectionId, cancellationToken),
-            Status = CourseItemStatus.Ready,
+            // Если у внешней ссылки нет URL или у материала нет файла/URL — это черновик.
+            // При заполнении в редакторе статус автоматически переключится на Ready.
+            Status = ((request.Type == CourseItemType.ExternalLink && string.IsNullOrWhiteSpace(request.Url))
+                  || (request.Type == CourseItemType.Resource
+                      && !request.AttachmentId.HasValue
+                      && string.IsNullOrWhiteSpace(request.Url)))
+                ? CourseItemStatus.Draft
+                : CourseItemStatus.Ready,
             IsRequired = request.IsRequired,
             Points = request.Points,
             AvailableFrom = request.AvailableFrom,
@@ -414,15 +412,9 @@ public class CourseItemManagementService
                 return "Раздел курса не найден.";
         }
 
-        if (request.Type == CourseItemType.ExternalLink && string.IsNullOrWhiteSpace(request.Url))
-            return "Для внешней ссылки нужен URL.";
-
-        if (request.Type == CourseItemType.Resource
-            && !request.AttachmentId.HasValue
-            && string.IsNullOrWhiteSpace(request.Url))
-        {
-            return "Для материала нужен файл или URL.";
-        }
+        // На этапе создания не требуем URL/файл — элемент создаётся как Draft (черновик),
+        // преподаватель заполнит данные потом. Строгая проверка переносится в момент перехода
+        // в Ready / при публикации курса.
 
         return null;
     }
@@ -560,49 +552,6 @@ public class CourseItemManagementService
                     : CourseItemStatus.NeedsContent,
                 Points = assignment.MaxScore > 0 ? assignment.MaxScore : null,
                 Deadline = assignment.Deadline
-            });
-            created++;
-        }
-
-        return created;
-    }
-
-    private async Task<int> BackfillLiveSessionsAsync(
-        Guid courseId,
-        HashSet<(CourseItemType Type, Guid SourceId)> existing,
-        CancellationToken cancellationToken)
-    {
-        var nextOrder = await GetNextOrderIndexAsync(courseId, moduleId: null, cancellationToken);
-        var slots = await _schedulingDb.ScheduleSlots
-            .AsNoTracking()
-            .Where(s => s.CourseId == courseId)
-            .OrderBy(s => s.StartTime)
-            .Select(s => new
-            {
-                s.Id,
-                s.Title,
-                s.Description,
-                s.StartTime,
-                s.EndTime
-            })
-            .ToListAsync(cancellationToken);
-
-        var created = 0;
-        foreach (var slot in slots)
-        {
-            if (!existing.Add((CourseItemType.LiveSession, slot.Id)))
-                continue;
-
-            _coursesDb.CourseItems.Add(new CourseItem
-            {
-                CourseId = courseId,
-                Type = CourseItemType.LiveSession,
-                SourceId = slot.Id,
-                Title = slot.Title,
-                Description = slot.Description,
-                OrderIndex = nextOrder++,
-                Status = slot.StartTime < slot.EndTime ? CourseItemStatus.Ready : CourseItemStatus.NeedsContent,
-                Deadline = slot.StartTime
             });
             created++;
         }

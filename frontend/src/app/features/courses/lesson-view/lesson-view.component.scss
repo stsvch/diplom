@@ -93,6 +93,46 @@
   color: $text-muted;
 }
 
+.lv-skel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  &__card {
+    background: $bg-card;
+    border: 1px solid $border-color;
+    border-left: 3px solid $indigo-200;
+    border-radius: $radius-2xl;
+    padding: $spacing-5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__chip {
+    width: 70px;
+    height: 18px;
+    border-radius: $radius-full;
+    background: $slate-100;
+    animation: lv-skel-pulse 1.4s ease-in-out infinite;
+  }
+
+  &__line {
+    height: 12px;
+    border-radius: 6px;
+    background: $slate-100;
+    animation: lv-skel-pulse 1.4s ease-in-out infinite;
+  }
+  &__line--full { width: 100%; }
+  &__line--md   { width: 80%; }
+  &__line--sm   { width: 50%; }
+}
+
+@keyframes lv-skel-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
 .feedback {
   margin-top: $spacing-3;
   padding: $spacing-2 $spacing-3;

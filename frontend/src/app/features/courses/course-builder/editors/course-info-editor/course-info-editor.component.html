@@ -32,17 +32,61 @@
     </div>
 
     <div class="cie__field">
-      <label>Обложка (URL)</label>
-      <input
-        type="url"
-        class="cie__input"
-        [ngModel]="c.imageUrl"
-        (ngModelChange)="setImageUrl($event)"
-        placeholder="https://..."
-      />
+      <label>Обложка курса</label>
+
       @if (c.imageUrl) {
-        <img class="cie__preview" [src]="c.imageUrl" alt="" />
+        <div class="cie__cover-preview">
+          <img [src]="c.imageUrl" alt="" />
+          <button type="button" class="cie__cover-clear" (click)="clearImage()" title="Удалить обложку">
+            <lucide-icon [img]="icons.close" [size]="16" />
+          </button>
+        </div>
+      } @else {
+        <label
+          class="cie__dropzone"
+          [class.cie__dropzone--busy]="uploading()"
+          (drop)="onDropCover($event)"
+          (dragover)="onDragOverCover($event)"
+        >
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            [disabled]="uploading()"
+            (change)="onPickCover($event)"
+          />
+          @if (uploading()) {
+            <span class="cie__dropzone-spinner" aria-hidden="true"></span>
+            <p>Загружаем обложку…</p>
+          } @else {
+            <lucide-icon [img]="icons.upload" [size]="32" />
+            <p>Перетащите изображение сюда или нажмите для выбора</p>
+            <small>PNG, JPG, WebP — до 5 МБ</small>
+          }
+        </label>
       }
+
+      <div class="cie__cover-row">
+        <label class="cie__cover-pick">
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            [disabled]="uploading()"
+            (change)="onPickCover($event)"
+          />
+          <lucide-icon [img]="icons.upload" [size]="14" />
+          {{ c.imageUrl ? 'Заменить файл' : 'Загрузить файл' }}
+        </label>
+        <span class="cie__cover-divider">или</span>
+        <input
+          type="url"
+          class="cie__input cie__input--inline"
+          [ngModel]="c.imageUrl"
+          (ngModelChange)="setImageUrl($event)"
+          placeholder="вставьте ссылку https://…"
+        />
+      </div>
     </div>
 
     <div class="cie__row">
@@ -83,14 +127,13 @@
     </div>
 
     <div class="cie__field">
-      <label>Теги (через запятую)</label>
-      <input
-        type="text"
-        class="cie__input"
-        [ngModel]="c.tags"
-        (ngModelChange)="setTags($event)"
-        placeholder="например: дизайн, ux, прототипирование"
+      <label>Теги</label>
+      <app-tag-input
+        [tags]="c.tags ?? []"
+        placeholder="Введите тег и нажмите Enter"
+        (tagsChange)="setTags($event)"
       />
+      <p class="cie__hint">Существующие теги подскажутся при вводе. Если такого тега ещё нет — он создастся.</p>
     </div>
 
     <div class="cie__settings">
@@ -101,14 +144,6 @@
           (change)="setHasGrading($any($event.target).checked)"
         />
         <span>Курс с оценками</span>
-      </label>
-      <label class="cie__check">
-        <input
-          type="checkbox"
-          [checked]="c.hasCertificate"
-          (change)="setHasCertificate($any($event.target).checked)"
-        />
-        <span>Выдавать сертификат</span>
       </label>
     </div>
 

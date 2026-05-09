@@ -45,7 +45,6 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             HasGrading = request.HasGrading,
             Level = request.Level,
             ImageUrl = request.ImageUrl,
-            Tags = request.Tags,
             HasCertificate = request.HasCertificate,
             Deadline = request.Deadline,
             Discipline = discipline

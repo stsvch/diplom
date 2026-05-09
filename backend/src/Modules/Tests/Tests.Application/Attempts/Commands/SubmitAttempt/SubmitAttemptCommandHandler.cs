@@ -83,7 +83,18 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         }
 
         attempt.Score = totalScore;
-        attempt.CompletedAt = DateTime.UtcNow;
+        // Если у теста задан лимит времени и сабмит пришёл позже — фиксируем
+        // CompletedAt по моменту истечения, а не по фактическому времени отправки.
+        var now = DateTime.UtcNow;
+        if (test.TimeLimitMinutes.HasValue)
+        {
+            var deadline = attempt.StartedAt.AddMinutes(test.TimeLimitMinutes.Value);
+            attempt.CompletedAt = now > deadline ? deadline : now;
+        }
+        else
+        {
+            attempt.CompletedAt = now;
+        }
         attempt.Status = hasOpenAnswer ? AttemptStatus.NeedsReview : AttemptStatus.Completed;
 
         await _context.SaveChangesAsync(cancellationToken);

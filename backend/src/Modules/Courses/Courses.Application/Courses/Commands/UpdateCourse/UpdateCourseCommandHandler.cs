@@ -64,7 +64,6 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
         course.HasGrading = request.HasGrading;
         course.Level = request.Level;
         course.ImageUrl = request.ImageUrl;
-        course.Tags = request.Tags;
         course.HasCertificate = request.HasCertificate;
         course.Deadline = request.Deadline;
 

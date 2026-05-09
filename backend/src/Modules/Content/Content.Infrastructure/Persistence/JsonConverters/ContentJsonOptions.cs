@@ -9,6 +9,11 @@ public static class ContentJsonOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter() }
+        Converters =
+        {
+            new JsonStringEnumConverter(),
+            // Терпимый конвертер: при чтении принимает $type или старый type, при записи выводит $type первым.
+            new LessonBlockDataLenientConverter(),
+        }
     };
 }

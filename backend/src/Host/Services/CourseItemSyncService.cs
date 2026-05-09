@@ -55,11 +55,12 @@ public class CourseItemSyncService
         string? description,
         int maxScore,
         DateTime? deadline,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? moduleId = null)
     {
         return EnsureItemAsync(
             courseId,
-            moduleId: null,
+            moduleId,
             CourseItemType.Test,
             testId,
             title,
@@ -78,7 +79,8 @@ public class CourseItemSyncService
         string? description,
         int maxScore,
         DateTime? deadline,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid? moduleId = null)
     {
         var status = !string.IsNullOrWhiteSpace(description) && maxScore > 0
             ? CourseItemStatus.Ready
@@ -86,7 +88,7 @@ public class CourseItemSyncService
 
         return EnsureItemAsync(
             courseId,
-            moduleId: null,
+            moduleId,
             CourseItemType.Assignment,
             assignmentId,
             title,
@@ -95,32 +97,6 @@ public class CourseItemSyncService
             status,
             maxScore > 0 ? maxScore : null,
             deadline,
-            cancellationToken);
-    }
-
-    public Task EnsureLiveSessionItemAsync(
-        Guid? courseId,
-        Guid slotId,
-        string title,
-        string? description,
-        DateTime startTime,
-        DateTime endTime,
-        CancellationToken cancellationToken)
-    {
-        if (!courseId.HasValue)
-            return Task.CompletedTask;
-
-        return EnsureItemAsync(
-            courseId.Value,
-            moduleId: null,
-            CourseItemType.LiveSession,
-            slotId,
-            title,
-            description,
-            orderIndex: null,
-            startTime < endTime ? CourseItemStatus.Ready : CourseItemStatus.NeedsContent,
-            points: null,
-            deadline: startTime,
             cancellationToken);
     }
 

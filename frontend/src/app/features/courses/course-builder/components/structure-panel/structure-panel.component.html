@@ -71,8 +71,8 @@
             } @else {
               <span
                 class="sp__section-title"
-                (dblclick)="startEditSection(section)"
-                [title]="'Двойной клик чтобы переименовать'"
+                (click)="$event.stopPropagation(); startEditSection(section)"
+                [title]="'Кликните, чтобы переименовать'"
               >
                 {{ section.title }}
               </span>
@@ -136,9 +136,18 @@
                       <span
                         class="sp-item__title"
                         (dblclick)="$event.stopPropagation(); startEditItem(item)"
+                        [title]="'Двойной клик или иконка карандаша — переименовать'"
                       >
                         {{ item.title }}
                       </span>
+                      <button
+                        type="button"
+                        class="sp-item__edit"
+                        (click)="$event.stopPropagation(); startEditItem(item)"
+                        title="Переименовать"
+                      >
+                        <lucide-icon [img]="icons.edit" [size]="11" />
+                      </button>
                     }
 
                     <span class="sp-item__status">

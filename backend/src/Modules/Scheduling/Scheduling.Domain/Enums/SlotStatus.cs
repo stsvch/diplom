@@ -5,5 +5,6 @@ public enum SlotStatus
     Available,
     Booked,
     Completed,
-    Cancelled
+    Cancelled,
+    Full
 }

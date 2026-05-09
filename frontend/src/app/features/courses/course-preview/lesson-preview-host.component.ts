@@ -19,11 +19,23 @@ import { PreviewModeService } from '../services/preview-mode.service';
         </a>
       }
     </div>
-    <app-lesson-view-host></app-lesson-view-host>
+
+    <div class="preview-stage">
+      <app-lesson-view-host (ready)="onReady()"></app-lesson-view-host>
+
+      @if (!ready()) {
+        <div class="preview-loader" role="status" aria-live="polite">
+          <div class="preview-loader__spinner"></div>
+          <p class="preview-loader__text">Загружаем урок…</p>
+          <p class="preview-loader__hint">Подгружаем содержимое и блоки</p>
+        </div>
+      }
+    </div>
   `,
   styles: [
     `
       :host { display: block; }
+
       .preview-banner {
         position: sticky; top: 0; z-index: 10;
         display: flex; align-items: center; gap: 8px;
@@ -37,6 +49,56 @@ import { PreviewModeService } from '../services/preview-mode.service';
         color: #92400E; text-decoration: none; font-weight: 600;
       }
       .preview-banner__back:hover { text-decoration: underline; }
+
+      .preview-stage {
+        position: relative;
+        min-height: 60vh;
+      }
+
+      .preview-loader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: rgba(248, 250, 252, 0.96);
+        backdrop-filter: blur(2px);
+        z-index: 5;
+        animation: preview-fade-in 200ms ease-out;
+      }
+
+      .preview-loader__spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid #e0e7ff;
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: preview-spin 0.9s linear infinite;
+      }
+
+      .preview-loader__text {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #334155;
+      }
+
+      .preview-loader__hint {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: #64748b;
+      }
+
+      @keyframes preview-spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes preview-fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
     `,
   ],
 })
@@ -45,6 +107,7 @@ export class LessonPreviewHostComponent implements OnInit, OnDestroy {
   private readonly previewMode = inject(PreviewModeService);
 
   courseId = signal<string | null>(null);
+  ready = signal<boolean>(false);
 
   ngOnInit(): void {
     const cid = this.route.snapshot.queryParamMap.get('courseId');
@@ -54,5 +117,9 @@ export class LessonPreviewHostComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.previewMode.disable();
+  }
+
+  onReady(): void {
+    this.ready.set(true);
   }
 }

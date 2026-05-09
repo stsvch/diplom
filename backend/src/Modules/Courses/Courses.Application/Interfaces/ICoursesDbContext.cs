@@ -12,5 +12,7 @@ public interface ICoursesDbContext
     DbSet<CourseReview> CourseReviews { get; }
     DbSet<Lesson> Lessons { get; }
     DbSet<CourseEnrollment> CourseEnrollments { get; }
+    DbSet<Tag> Tags { get; }
+    DbSet<CourseTag> CourseTags { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

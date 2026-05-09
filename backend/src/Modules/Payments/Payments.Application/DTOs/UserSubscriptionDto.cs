@@ -12,4 +12,6 @@ public record UserSubscriptionDto(
     bool CancelAtPeriodEnd,
     DateTime? CanceledAt,
     DateTime StartedAt,
-    DateTime? EndedAt);
+    DateTime? EndedAt,
+    int IndividualSlotsPerMonth,
+    int GroupSlotsPerMonth);

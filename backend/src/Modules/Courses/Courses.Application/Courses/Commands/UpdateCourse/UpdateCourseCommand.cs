@@ -17,7 +17,6 @@ public record UpdateCourseCommand(
     bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    string? Tags,
     bool HasCertificate,
     DateTime? Deadline
 ) : IRequest<Result<CourseDetailDto>>;

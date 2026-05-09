@@ -11,6 +11,6 @@ public class UploadFileCommand : IRequest<Result<AttachmentDto>>
     public string ContentType { get; set; } = string.Empty;
     public long FileSize { get; set; }
     public string EntityType { get; set; } = string.Empty;
-    public Guid EntityId { get; set; }
+    public Guid? EntityId { get; set; }
     public string UploadedById { get; set; } = string.Empty;
 }

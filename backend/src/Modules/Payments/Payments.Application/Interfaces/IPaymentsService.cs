@@ -109,6 +109,8 @@ public interface IPaymentsService
         int sortOrder,
         string? providerProductId,
         string? providerPriceId,
+        int individualSlotsPerMonth,
+        int groupSlotsPerMonth,
         CancellationToken cancellationToken = default);
 
     Task<SubscriptionPlanDto> UpdateSubscriptionPlanAsync(
@@ -124,6 +126,12 @@ public interface IPaymentsService
         int sortOrder,
         string? providerProductId,
         string? providerPriceId,
+        int individualSlotsPerMonth,
+        int groupSlotsPerMonth,
+        CancellationToken cancellationToken = default);
+
+    Task<UserEntitlementsDto> GetMyEntitlementsAsync(
+        string userId,
         CancellationToken cancellationToken = default);
 
     Task<PagedResult<AdminPaymentRecordDto>> GetAdminPaymentRecordsAsync(

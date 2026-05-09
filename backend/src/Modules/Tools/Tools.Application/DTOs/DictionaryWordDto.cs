@@ -6,9 +6,11 @@ public class DictionaryWordDto
     public Guid CourseId { get; set; }
     public string CourseTitle { get; set; } = string.Empty;
     public string Term { get; set; } = string.Empty;
-    public string Translation { get; set; } = string.Empty;
+    public string? Translation { get; set; }
     public string? Definition { get; set; }
     public string? Example { get; set; }
+    public string? Note { get; set; }
+    public string? ImageUrl { get; set; }
     public List<string> Tags { get; set; } = [];
     public string CreatedById { get; set; } = string.Empty;
     public bool IsKnown { get; set; }

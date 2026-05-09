@@ -1,0 +1,103 @@
+<div class="create-course">
+  <a class="create-course__back" [routerLink]="['/teacher/courses']">
+    <lucide-icon [img]="icons.chevronLeft" [size]="16" />
+    К моим курсам
+  </a>
+
+  <div class="create-course__shell">
+    <header class="create-course__hero">
+      <div class="create-course__hero-icon">
+        <lucide-icon [img]="icons.sparkles" [size]="28" />
+      </div>
+      <h1 class="create-course__title">Создание курса</h1>
+      <p class="create-course__subtitle">
+        Выберите способ начала. Вы всегда сможете изменить структуру и содержимое позже.
+      </p>
+    </header>
+
+    @if (disciplinesError(); as err) {
+      <div class="create-course__alert">{{ err }}</div>
+    }
+
+    <div class="modes">
+      <button
+        type="button"
+        class="mode-card"
+        [class.mode-card--active]="mode() === 'empty'"
+        (click)="selectMode('empty')"
+      >
+        <span class="mode-card__dot" [class.mode-card__dot--on]="mode() === 'empty'"></span>
+        <span class="mode-card__icon mode-card__icon--indigo">
+          <lucide-icon [img]="icons.plus" [size]="18" />
+        </span>
+        <span class="mode-card__name">Пустой курс</span>
+        <span class="mode-card__desc">Создайте структуру с нуля самостоятельно</span>
+      </button>
+
+      <button
+        type="button"
+        class="mode-card"
+        [class.mode-card--active]="mode() === 'template'"
+        (click)="selectMode('template')"
+      >
+        <span class="mode-card__dot" [class.mode-card__dot--on]="mode() === 'template'"></span>
+        <span class="mode-card__icon mode-card__icon--purple">
+          <lucide-icon [img]="icons.layers" [size]="18" />
+        </span>
+        <span class="mode-card__name">По шаблону</span>
+        <span class="mode-card__desc">Готовая структура — останется только наполнить</span>
+      </button>
+    </div>
+
+    @if (mode() === 'template') {
+      <div class="templates">
+        <p class="templates__label">Выберите шаблон:</p>
+        <div class="templates__grid">
+          @for (tpl of templates; track tpl.id) {
+            <button
+              type="button"
+              class="tpl-card"
+              [class.tpl-card--active]="templateId() === tpl.id"
+              [attr.data-icon]="tpl.icon"
+              (click)="selectTemplate(tpl.id)"
+            >
+              <span class="tpl-card__icon">
+                <lucide-icon [img]="templateIcons[tpl.icon]" [size]="18" />
+              </span>
+              <span class="tpl-card__body">
+                <span class="tpl-card__name">{{ tpl.name }}</span>
+                <span class="tpl-card__desc">{{ tpl.description }}</span>
+                <span class="tpl-card__badges">
+                  @for (badge of tpl.badges; track $index) {
+                    <span class="tpl-card__badge">{{ badge }}</span>
+                  }
+                </span>
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="create-course__cta-row">
+      <button
+        type="button"
+        class="cta"
+        [disabled]="!canStart()"
+        (click)="start()"
+      >
+        @if (creating()) {
+          <span class="cta__spinner" aria-hidden="true"></span>
+          <span>Создаём курс…</span>
+        } @else {
+          <span>{{ ctaLabel() }}</span>
+          <lucide-icon [img]="icons.arrowRight" [size]="16" />
+        }
+      </button>
+    </div>
+
+    <p class="create-course__footnote">
+      Структуру, элементы и содержимое можно изменить в любой момент
+    </p>
+  </div>
+</div>

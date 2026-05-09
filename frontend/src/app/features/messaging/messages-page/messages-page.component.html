@@ -96,9 +96,6 @@
               <i-lucide [img]="UsersIcon" [size]="18"></i-lucide>
             </button>
           }
-          <button class="icon-btn" (click)="hideChat()" title="Скрыть у себя">
-            <i-lucide [img]="EyeOffIcon" [size]="18"></i-lucide>
-          </button>
           @if (canDeleteSelectedChat()) {
             <button class="icon-btn icon-btn--danger" (click)="deleteChat()" title="Удалить для всех">
               <i-lucide [img]="Trash2Icon" [size]="18"></i-lucide>
@@ -292,6 +289,9 @@
 @if (pickerMode() === 'newDirect') {
   <app-user-picker
     title="Новый чат"
+    [role]="newDirectPickerRole()"
+    [teacherId]="newDirectPickerTeacherId()"
+    [emptyHint]="newDirectPickerEmptyHint()"
     [excludedIds]="[currentUser()?.id ?? '']"
     (close)="closePicker()"
     (picked)="onUserPicked($event)"
@@ -302,6 +302,8 @@
   <app-user-picker
     title="Добавить участника"
     role="Student"
+    [courseId]="addParticipantCourseId()"
+    emptyHint="Студенты, записанные на курс, появятся здесь"
     [excludedIds]="excludedParticipantIds()"
     (close)="closePicker()"
     (picked)="onUserPicked($event)"

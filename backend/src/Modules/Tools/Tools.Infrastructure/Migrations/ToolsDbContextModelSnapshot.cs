@@ -48,6 +48,14 @@ namespace Tools.Infrastructure.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
 
+                    b.Property<string>("ImageStorageKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<string>("Tags")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
@@ -58,7 +66,6 @@ namespace Tools.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("Translation")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 

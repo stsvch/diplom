@@ -126,7 +126,6 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
       isFree: c.isFree,
       price: c.price ?? null,
       imageUrl: c.imageUrl ?? null,
-      tags: c.tags ?? null,
       orderType: s.orderType,
       hasGrading: s.hasGrading,
       hasCertificate: s.hasCertificate,

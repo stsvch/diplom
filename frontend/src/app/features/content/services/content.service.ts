@@ -35,16 +35,16 @@ export class ContentService {
   create(payload: CreateLessonBlockPayload): Observable<LessonBlockDto> {
     return this.http.post<LessonBlockDto>(this.base, {
       ...payload,
-      data: this.serializeBlockData(payload.data),
+      data: this.serializeBlockData(payload.data, payload.type),
     }).pipe(
       map((block) => this.normalizeBlock(block)),
     );
   }
 
-  update(id: string, payload: UpdateLessonBlockPayload): Observable<LessonBlockDto> {
+  update(id: string, payload: UpdateLessonBlockPayload, fallbackType?: LessonBlockType): Observable<LessonBlockDto> {
     return this.http.put<LessonBlockDto>(`${this.base}/${id}`, {
       ...payload,
-      data: this.serializeBlockData(payload.data),
+      data: this.serializeBlockData(payload.data, fallbackType),
     }).pipe(
       map((block) => this.normalizeBlock(block)),
     );
@@ -62,12 +62,21 @@ export class ContentService {
     return this.http.post<CodeExecutionResponse>(`${this.base}/${blockId}/execute-code`, { code });
   }
 
-  private serializeBlockData(data: LessonBlockData): Record<string, unknown> {
+  private serializeBlockData(
+    data: LessonBlockData,
+    fallbackType?: LessonBlockType,
+  ): Record<string, unknown> {
     const source = data as unknown as Record<string, unknown>;
     const { type, ...rest } = source;
+    const discriminator = (type as LessonBlockType | undefined) ?? fallbackType;
+    if (!discriminator) {
+      throw new Error('LessonBlockData is missing a type discriminator');
+    }
+    // Important: System.Text.Json requires $type to appear first in the object
+    // (polymorphic discriminator must precede other properties).
     return {
+      $type: discriminator,
       ...rest,
-      $type: type,
     };
   }
 

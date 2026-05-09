@@ -1,34 +1,26 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  AlertCircle,
   ArrowRight,
   BarChart2,
   Bell,
   BookOpen,
   Calendar,
   CheckCircle,
-  ChevronRight,
   Clock,
-  Code2,
   CreditCard,
   GraduationCap,
   LucideAngularModule,
   MessageSquare,
-  Play,
-  ShieldCheck,
-  Sparkles,
-  Star,
   Users,
   Zap,
 } from 'lucide-angular';
-import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user.model';
 import { RevealDirective } from '../../../shared/directives/reveal.directive';
 
 interface RoleEntry {
-  key: 'student' | 'teacher' | 'admin';
+  key: 'student' | 'teacher';
   label: string;
   gradient: string;
   badge: string;
@@ -63,24 +55,11 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   // Иконки
   readonly graduationCapIcon = GraduationCap;
-  readonly sparklesIcon = Sparkles;
   readonly arrowRightIcon = ArrowRight;
-  readonly chevronRightIcon = ChevronRight;
   readonly bookOpenIcon = BookOpen;
-  readonly playIcon = Play;
   readonly checkCircleIcon = CheckCircle;
-  readonly code2Icon = Code2;
   readonly clockIcon = Clock;
   readonly calendarIcon = Calendar;
-  readonly usersIcon = Users;
-  readonly shieldCheckIcon = ShieldCheck;
-  readonly bellIcon = Bell;
-  readonly zapIcon = Zap;
-  readonly starIcon = Star;
-  readonly alertIcon = AlertCircle;
-
-  readonly showSwaggerLink = !environment.production;
-  readonly swaggerUrl = '/swagger';
 
   // Текущая роль для авторизованных
   readonly currentRole = this.auth.userRole;
@@ -91,15 +70,14 @@ export class LandingComponent implements OnInit, OnDestroy {
   readonly heroProgress = signal(0);
   private roleTimer: ReturnType<typeof setInterval> | null = null;
 
-  readonly heroRoles: { key: string; label: string }[] = [
+  readonly heroRoles: { key: 'student' | 'teacher'; label: string }[] = [
     { key: 'student', label: 'STUDENT' },
     { key: 'teacher', label: 'TEACHER' },
-    { key: 'admin', label: 'ADMIN' },
   ];
 
   readonly stats: StatEntry[] = [
     { value: '18', label: 'типов учебных блоков', icon: BookOpen, gradient: 'indigo-purple' },
-    { value: '3', label: 'основные роли платформы', icon: Users, gradient: 'teal-cyan' },
+    { value: '2', label: 'роли — студент и преподаватель', icon: Users, gradient: 'teal-cyan' },
     { value: '1-click', label: 'локальный запуск со Stripe', icon: Zap, gradient: 'amber-orange' },
     { value: 'Real-time', label: 'уведомления и чаты', icon: Bell, gradient: 'rose-pink' },
   ];
@@ -137,22 +115,6 @@ export class LandingComponent implements OnInit, OnDestroy {
         'Общение со студентами',
       ],
     },
-    {
-      key: 'admin',
-      label: 'Admin',
-      role: 'Admin',
-      gradient: 'emerald-teal',
-      badge: 'ADMIN',
-      subtitle: 'Полный контроль над платформой: пользователи, модерация и аналитика',
-      features: [
-        'Управление пользователями',
-        'Модерация курсов',
-        'Platform health метрики',
-        'Настройки платформы',
-        'Архивация и экспорт',
-        'Admin analytics',
-      ],
-    },
   ];
 
   readonly features: FeatureEntry[] = [
@@ -165,7 +127,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       icon: BarChart2,
       title: 'Прогресс и аналитика',
-      description: 'Дашборды для студента, преподавателя и администратора с прогрессом и KPI',
+      description: 'Дашборды для студента и преподавателя с прогрессом и KPI',
       gradient: 'teal-cyan',
     },
     {
@@ -186,18 +148,6 @@ export class LandingComponent implements OnInit, OnDestroy {
       description: 'Платные курсы, teacher payouts, refunds/disputes и subscription allocation',
       gradient: 'violet-purple',
     },
-    {
-      icon: ShieldCheck,
-      title: 'Администрирование',
-      description: 'Управление пользователями, модерация курсов, настройки и platform analytics',
-      gradient: 'emerald-teal',
-    },
-  ];
-
-  readonly devChecklist: string[] = [
-    'One-click запуск start-local-dev.cmd для локального Stripe flow',
-    'Swagger поднимается на backend в development-режиме',
-    'Роуты разделены по ролям: student, teacher, admin',
   ];
 
   ngOnInit(): void {
@@ -217,10 +167,10 @@ export class LandingComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Куда вести "Открыть платформу" — на dashboard если авторизован, иначе на регистрацию */
+  /** Куда вести "В кабинет" — на dashboard если авторизован */
   primaryCtaLink(): string {
     if (!this.isAuth()) {
-      return '/register';
+      return '/login';
     }
     switch (this.currentRole()) {
       case UserRole.Student:
@@ -230,14 +180,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       case UserRole.Admin:
         return '/admin/dashboard';
       default:
-        return '/register';
+        return '/login';
     }
-  }
-
-  loginLink(): string {
-    if (this.isAuth()) {
-      return this.primaryCtaLink();
-    }
-    return '/login';
   }
 }

@@ -41,6 +41,7 @@ public static class CoursesModuleRegistration
         services.AddScoped<ICoursePaymentReadService, CoursePaymentReadService>();
         services.AddScoped<ICourseAccessProvisioningService, CourseAccessProvisioningService>();
         services.AddScoped<ICourseAccessRevocationService, CourseAccessRevocationService>();
+        services.AddScoped<Courses.Application.Tags.ITagSynchronizer, Services.TagSynchronizer>();
 
         // MediatR
         services.AddMediatR(cfg =>

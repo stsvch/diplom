@@ -582,7 +582,13 @@ namespace Payments.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("AvailableAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("CompletedLessons")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompletedSessionsCount")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("CourseId")
@@ -622,6 +628,11 @@ namespace Payments.Infrastructure.Persistence.Migrations
                     b.Property<decimal>("ProviderFeeAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<Guid>("SubscriptionAllocationRunId")
                         .HasColumnType("uuid");
 
@@ -660,7 +671,7 @@ namespace Payments.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TeacherId", "CreatedAt");
 
-                    b.HasIndex("SubscriptionAllocationRunId", "CourseId", "TeacherId")
+                    b.HasIndex("SubscriptionAllocationRunId", "CourseId", "TeacherId", "BookingId")
                         .IsUnique();
 
                     b.ToTable("SubscriptionAllocationLines", "payments");
@@ -741,7 +752,7 @@ namespace Payments.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubscriptionInvoiceId")
+                    b.HasIndex("SubscriptionInvoiceId", "Strategy")
                         .IsUnique();
 
                     b.HasIndex("UserId", "CreatedAt");
@@ -946,6 +957,12 @@ namespace Payments.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<int>("GroupSlotsPerMonth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IndividualSlotsPerMonth")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -981,6 +998,52 @@ namespace Payments.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsActive", "SortOrder");
 
                     b.ToTable("SubscriptionPlans", "payments");
+                });
+
+            modelBuilder.Entity("Payments.Domain.Entities.SubscriptionUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsRefunded")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("PeriodStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("RefundedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SourceBookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<Guid>("UserSubscriptionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceBookingId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "PeriodStart");
+
+                    b.HasIndex("UserSubscriptionId", "PeriodStart", "Type");
+
+                    b.ToTable("SubscriptionUsages", "payments");
                 });
 
             modelBuilder.Entity("Payments.Domain.Entities.TeacherPayoutAccount", b =>

@@ -1,20 +1,23 @@
+using Messaging.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Messaging.Domain.Documents;
 
+[BsonIgnoreExtraElements]
 public class ChatDocument
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
-    public string Type { get; set; } = "DirectMessage"; // DirectMessage | CourseChat
+
+    [BsonRepresentation(BsonType.String)]
+    public ChatType Type { get; set; } = ChatType.DirectMessage;
     public string? CourseId { get; set; }
     public string? CourseName { get; set; }
     public List<string> ParticipantIds { get; set; } = new();
     public List<ParticipantInfo> Participants { get; set; } = new();
     public string? OwnerId { get; set; }
-    public List<string> HiddenBy { get; set; } = new();
     public bool IsArchived { get; set; }
     public string? LastMessage { get; set; }
     public DateTime? LastMessageAt { get; set; }

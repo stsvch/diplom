@@ -21,7 +21,6 @@ public sealed class CourseItemBackfillDto
     public int LessonsCount { get; set; }
     public int TestsCount { get; set; }
     public int AssignmentsCount { get; set; }
-    public int LiveSessionsCount { get; set; }
 }
 
 public sealed class CourseItemDto

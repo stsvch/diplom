@@ -6,6 +6,7 @@ using Content.Infrastructure.Configuration;
 using Content.Infrastructure.Persistence;
 using Courses.Infrastructure.Configuration;
 using Courses.Infrastructure.Persistence;
+using EduPlatform.Host.Authorization;
 using EduPlatform.Host.Middleware;
 using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Behaviors;
@@ -14,6 +15,7 @@ using FluentValidation;
 using Grading.Infrastructure.Configuration;
 using Grading.Infrastructure.Persistence;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Notifications.Infrastructure.Configuration;
 using Notifications.Infrastructure.Hubs;
@@ -51,6 +53,10 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        // LessonBlockData — полиморфный value object. Кастомный converter:
+        //   пишет $type первым свойством, при чтении принимает $type или legacy type.
+        options.JsonSerializerOptions.Converters.Add(
+            new Content.Infrastructure.Persistence.JsonConverters.LessonBlockDataLenientConverter());
     });
 
 // Swagger
@@ -110,6 +116,17 @@ builder.Services.AddScoped<CourseItemSyncService>();
 builder.Services.AddScoped<CourseItemManagementService>();
 builder.Services.AddScoped<CourseReviewService>();
 builder.Services.AddScoped<AdminAnalyticsReadService>();
+builder.Services.AddHostedService<ChatAttachmentCleanupService>();
+
+// Chat authorization policies
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuthorizationHandler, ChatParticipantAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, CourseChatOwnerAuthorizationHandler>();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ChatParticipant", policy => policy.Requirements.Add(new ChatParticipantRequirement()));
+    options.AddPolicy("CourseChatOwner", policy => policy.Requirements.Add(new CourseChatOwnerRequirement()));
+});
 
 // CORS
 builder.Services.AddCors(options =>
@@ -133,6 +150,7 @@ using (var scope = app.Services.CreateScope())
     await AuthModuleRegistration.SeedRolesAsync(scope.ServiceProvider);
     await AuthModuleRegistration.SeedAdminAsync(scope.ServiceProvider, builder.Configuration);
     await AuthModuleRegistration.SeedTestStudentsAsync(scope.ServiceProvider);
+    await AuthModuleRegistration.SeedTestTeachersAsync(scope.ServiceProvider);
 
     var coursesDb = scope.ServiceProvider.GetRequiredService<CoursesDbContext>();
     await coursesDb.Database.MigrateAsync();

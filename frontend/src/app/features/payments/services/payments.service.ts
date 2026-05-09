@@ -18,6 +18,7 @@ import {
   TeacherSettlementDto,
   TeacherSettlementSummaryDto,
   TeacherSubscriptionAllocationDto,
+  UserEntitlementsDto,
   UserSubscriptionDto,
 } from '../models/payments.model';
 
@@ -47,6 +48,10 @@ export class PaymentsService {
 
   getMySubscriptions(): Observable<UserSubscriptionDto[]> {
     return this.http.get<UserSubscriptionDto[]>(`${this.base}/me/subscriptions`);
+  }
+
+  getMyEntitlements(): Observable<UserEntitlementsDto> {
+    return this.http.get<UserEntitlementsDto>(`${this.base}/me/entitlements`);
   }
 
   getMySubscriptionHistory(): Observable<SubscriptionPaymentAttemptDto[]> {

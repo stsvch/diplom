@@ -220,4 +220,43 @@ public static class AuthModuleRegistration
             }
         }
     }
+
+    public static async Task SeedTestTeachersAsync(IServiceProvider serviceProvider)
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var teacherRole = UserRole.Teacher.ToString();
+        const string password = "Test1234";
+
+        for (var i = 1; i <= 3; i++)
+        {
+            var email = $"teacher{i}@mail.ru";
+
+            if (await userManager.FindByEmailAsync(email) is not null)
+                continue;
+
+            var teacher = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                FirstName = "Teacher",
+                LastName = i.ToString(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await userManager.CreateAsync(teacher, password);
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join("; ", createResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to seed test teacher {email}: {errors}");
+            }
+
+            var roleResult = await userManager.AddToRoleAsync(teacher, teacherRole);
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join("; ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to assign Teacher role to {email}: {errors}");
+            }
+        }
+    }
 }

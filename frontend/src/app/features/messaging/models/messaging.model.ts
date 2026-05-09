@@ -4,6 +4,7 @@ export interface ParticipantDto {
 }
 
 export interface AttachmentDto {
+  attachmentId?: string;
   fileName: string;
   fileUrl: string;
   contentType: string;
@@ -31,7 +32,6 @@ export interface MessageDto {
   text: string;
   attachments: AttachmentDto[];
   sentAt: string;
-  readBy: string[];
   isEdited: boolean;
 }
 

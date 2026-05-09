@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { parseApiError } from '../../../core/models/api-error.model';
 import { UserRole } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { TagInputComponent } from '../../../shared/components/tag-input/tag-input.component';
 import { CourseListDto } from '../../courses/models/course.model';
 import { CoursesService } from '../../courses/services/courses.service';
 import {
@@ -19,13 +20,15 @@ interface GlossaryEditorModel {
   translation: string;
   definition: string;
   example: string;
-  tags: string;
+  note: string;
+  tags: string[];
+  imageUrl: string | null;
 }
 
 @Component({
   selector: 'app-glossary-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TagInputComponent],
   templateUrl: './glossary-page.component.html',
   styleUrl: './glossary-page.component.scss',
 })
@@ -44,6 +47,10 @@ export class GlossaryPageComponent implements OnInit {
   readonly deletingWordId = signal<string | null>(null);
   readonly progressWordId = signal<string | null>(null);
   readonly editingWordId = signal<string | null>(null);
+  readonly creatorOpen = signal(false);
+  readonly imageUploading = signal(false);
+  readonly imageDeleting = signal(false);
+  readonly dragActive = signal(false);
   readonly error = signal<string | null>(null);
   readonly courses = signal<CourseListDto[]>([]);
   readonly words = signal<DictionaryWordDto[]>([]);
@@ -60,6 +67,7 @@ export class GlossaryPageComponent implements OnInit {
   readonly studyCompletedCount = signal(0);
 
   editor: GlossaryEditorModel = this.createEmptyEditor();
+  private pendingImageFile: File | null = null;
 
   readonly currentStudyWord = computed(() => {
     const queue = this.studyQueue();
@@ -72,6 +80,40 @@ export class GlossaryPageComponent implements OnInit {
     current: this.currentStudyWord() ? this.studyCompletedCount() + 1 : this.studyCompletedCount(),
     remaining: Math.max(this.studyQueue().length - 1, 0),
   }));
+
+  get previewWord(): DictionaryWordDto {
+    return {
+      id: 'preview',
+      courseId: this.editor.courseId,
+      courseTitle: this.courses().find((c) => c.id === this.editor.courseId)?.title ?? '',
+      term: this.editor.term.trim() || 'Заголовок карточки',
+      translation: this.editor.translation.trim() || null,
+      definition: this.editor.definition.trim() || null,
+      example: this.editor.example.trim() || null,
+      note: this.editor.note.trim() || null,
+      imageUrl: this.editor.imageUrl,
+      tags: this.editor.tags,
+      createdById: '',
+      isKnown: false,
+      reviewCount: 0,
+      hardCount: 0,
+      repeatLaterCount: 0,
+      lastReviewedAt: null,
+      lastOutcome: null,
+      nextReviewAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+    };
+  }
+
+  readonly wordsCountLabel = computed(() => {
+    const n = this.words().length;
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return `${n} карточка`;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} карточки`;
+    return `${n} карточек`;
+  });
 
   ngOnInit(): void {
     this.loadCourses();
@@ -128,9 +170,12 @@ export class GlossaryPageComponent implements OnInit {
   startCreate(): void {
     this.editingWordId.set(null);
     this.editor = this.createEmptyEditor();
+    this.pendingImageFile = null;
     if (!this.editor.courseId) {
       this.editor.courseId = this.selectedCourseId() || this.courses()[0]?.id || '';
     }
+    this.error.set(null);
+    this.creatorOpen.set(true);
   }
 
   editWord(word: DictionaryWordDto): void {
@@ -138,43 +183,63 @@ export class GlossaryPageComponent implements OnInit {
     this.editor = {
       courseId: word.courseId,
       term: word.term,
-      translation: word.translation,
+      translation: word.translation ?? '',
       definition: word.definition ?? '',
       example: word.example ?? '',
-      tags: word.tags.join(', '),
+      note: word.note ?? '',
+      tags: [...word.tags],
+      imageUrl: word.imageUrl ?? null,
     };
+    this.pendingImageFile = null;
+    this.error.set(null);
+    this.creatorOpen.set(true);
   }
 
-  cancelEdit(): void {
+  closeCreator(): void {
+    this.creatorOpen.set(false);
     this.editingWordId.set(null);
     this.editor = this.createEmptyEditor();
+    this.pendingImageFile = null;
+    this.error.set(null);
   }
 
   saveWord(): void {
+    if (!this.editor.term.trim()) {
+      this.error.set('Заголовок обязателен.');
+      return;
+    }
+    if (!this.editor.courseId) {
+      this.error.set('Выберите курс.');
+      return;
+    }
+
     this.error.set(null);
     this.saving.set(true);
 
     const payload: UpsertDictionaryWordRequest = {
       courseId: this.editor.courseId,
-      term: this.editor.term,
-      translation: this.editor.translation,
+      term: this.editor.term.trim(),
+      translation: this.editor.translation.trim() || null,
       definition: this.editor.definition.trim() || null,
       example: this.editor.example.trim() || null,
-      tags: this.editor.tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      note: this.editor.note.trim() || null,
+      tags: this.editor.tags,
     };
 
-    const request$ = this.editingWordId()
-      ? this.glossaryService.updateWord(this.editingWordId()!, payload)
+    const editingId = this.editingWordId();
+    const request$ = editingId
+      ? this.glossaryService.updateWord(editingId, payload)
       : this.glossaryService.createWord(payload);
 
     request$.subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.cancelEdit();
-        this.reloadWords();
+      next: (saved) => {
+        if (!editingId && this.pendingImageFile) {
+          this.uploadPendingImage(saved);
+        } else {
+          this.saving.set(false);
+          this.closeCreator();
+          this.reloadWords();
+        }
       },
       error: (err) => {
         this.error.set(parseApiError(err).message);
@@ -183,7 +248,124 @@ export class GlossaryPageComponent implements OnInit {
     });
   }
 
+  private uploadPendingImage(saved: DictionaryWordDto): void {
+    const file = this.pendingImageFile!;
+    this.glossaryService.uploadImage(saved.id, file).subscribe({
+      next: () => {
+        this.pendingImageFile = null;
+        this.saving.set(false);
+        this.closeCreator();
+        this.reloadWords();
+      },
+      error: (err) => {
+        this.error.set(parseApiError(err).message);
+        this.saving.set(false);
+        this.pendingImageFile = null;
+        this.editingWordId.set(saved.id);
+        this.editor.imageUrl = null;
+        this.reloadWords();
+      },
+    });
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (file) {
+      this.processSelectedImage(file);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragActive.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragActive.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragActive.set(false);
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      this.processSelectedImage(file);
+    }
+  }
+
+  private processSelectedImage(file: File): void {
+    if (!file.type.startsWith('image/')) {
+      this.error.set('Поддерживаются только изображения.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.error.set('Размер картинки не должен превышать 5 МБ.');
+      return;
+    }
+
+    const wordId = this.editingWordId();
+    if (wordId) {
+      this.error.set(null);
+      this.imageUploading.set(true);
+      this.glossaryService.uploadImage(wordId, file).subscribe({
+        next: (updated) => {
+          this.imageUploading.set(false);
+          this.editor.imageUrl = updated.imageUrl ?? null;
+          this.updateWordInList(updated);
+        },
+        error: (err) => {
+          this.error.set(parseApiError(err).message);
+          this.imageUploading.set(false);
+        },
+      });
+      return;
+    }
+
+    this.error.set(null);
+    this.pendingImageFile = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.editor.imageUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage(): void {
+    const wordId = this.editingWordId();
+    if (!wordId) {
+      this.editor.imageUrl = null;
+      this.pendingImageFile = null;
+      return;
+    }
+
+    this.error.set(null);
+    this.imageDeleting.set(true);
+
+    this.glossaryService.deleteImage(wordId).subscribe({
+      next: (updated) => {
+        this.imageDeleting.set(false);
+        this.editor.imageUrl = null;
+        this.updateWordInList(updated);
+      },
+      error: (err) => {
+        this.error.set(parseApiError(err).message);
+        this.imageDeleting.set(false);
+      },
+    });
+  }
+
+  onTagsChanged(tags: string[]): void {
+    this.editor.tags = tags;
+  }
+
   deleteWord(wordId: string): void {
+    if (!confirm('Удалить эту карточку?')) return;
     this.error.set(null);
     this.deletingWordId.set(wordId);
 
@@ -191,7 +373,7 @@ export class GlossaryPageComponent implements OnInit {
       next: () => {
         this.deletingWordId.set(null);
         if (this.editingWordId() === wordId) {
-          this.cancelEdit();
+          this.closeCreator();
         }
         this.reloadWords();
       },
@@ -223,9 +405,7 @@ export class GlossaryPageComponent implements OnInit {
 
   reviewCurrentWord(outcome: DictionaryReviewOutcome): void {
     const current = this.currentStudyWord();
-    if (!current) {
-      return;
-    }
+    if (!current) return;
 
     this.error.set(null);
     this.studySaving.set(true);
@@ -247,6 +427,10 @@ export class GlossaryPageComponent implements OnInit {
 
   trackWord(_: number, word: DictionaryWordDto): string {
     return word.id;
+  }
+
+  trackTag(_: number, tag: string): string {
+    return tag;
   }
 
   private loadCourses(): void {
@@ -281,17 +465,16 @@ export class GlossaryPageComponent implements OnInit {
       translation: '',
       definition: '',
       example: '',
-      tags: '',
+      note: '',
+      tags: [],
+      imageUrl: null,
     };
   }
 
   private advanceStudyQueue(updated: DictionaryWordDto): void {
     const currentIndex = this.studyIndex();
     const queue = [...this.studyQueue()];
-
-    if (currentIndex < 0 || currentIndex >= queue.length) {
-      return;
-    }
+    if (currentIndex < 0 || currentIndex >= queue.length) return;
 
     const currentWordId = updated.id;
     queue.splice(currentIndex, 1);
@@ -318,18 +501,9 @@ export class GlossaryPageComponent implements OnInit {
   }
 
   private maybeRefillStudyQueue(force = false): void {
-    if (!this.studyMode()) {
-      return;
-    }
-
-    if (!force && this.studyQueue().length >= 4) {
-      return;
-    }
-
-    if (this.studyLoading()) {
-      return;
-    }
-
+    if (!this.studyMode()) return;
+    if (!force && this.studyQueue().length >= 4) return;
+    if (this.studyLoading()) return;
     this.loadStudyBatch(false);
   }
 
@@ -356,14 +530,11 @@ export class GlossaryPageComponent implements OnInit {
               this.studyIndex.set(0);
             }
           }
-
           this.studyLoading.set(false);
         },
         error: (err) => {
           this.error.set(parseApiError(err).message);
-          if (reset) {
-            this.studyQueue.set([]);
-          }
+          if (reset) this.studyQueue.set([]);
           this.studyLoading.set(false);
         },
       });

@@ -1,4 +1,6 @@
 using EduPlatform.Shared.Application.Contracts;
+using FluentValidation;
+using Messaging.Application.Commands.SendMessage;
 using Messaging.Application.Interfaces;
 using Messaging.Infrastructure.Repositories;
 using Messaging.Infrastructure.Services;
@@ -26,6 +28,10 @@ public static class MessagingModuleRegistration
         services.AddScoped<IMessagingRepository, MongoMessagingRepository>();
         services.AddScoped<IChatBroadcaster, SignalRChatBroadcaster>();
         services.AddScoped<IChatAdmin, ChatAdminService>();
+
+        var applicationAssembly = typeof(SendMessageCommand).Assembly;
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
+        services.AddValidatorsFromAssembly(applicationAssembly);
 
         return services;
     }

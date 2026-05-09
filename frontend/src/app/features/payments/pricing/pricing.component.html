@@ -1,0 +1,86 @@
+<div class="pr-page">
+  <header class="pr-header">
+    <h1>Тарифы</h1>
+    <p>Выберите подписку, чтобы открыть бронирование живых занятий с преподавателями.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="pr-loader"><lucide-icon [img]="icons.loader" [size]="32" /></div>
+  } @else {
+    <div class="pr-tiers">
+      <!-- Free tier -->
+      <article class="pr-tier">
+        <header class="pr-tier__header">
+          <h2>Free</h2>
+          <p class="pr-tier__subtitle">Базовый доступ к платформе</p>
+          <div class="pr-tier__price">
+            <span class="pr-tier__amount">$0</span>
+            <span class="pr-tier__period">/ мес</span>
+          </div>
+        </header>
+        <ul class="pr-tier__features">
+          @for (f of freeFeatures(); track f.text) {
+            <li [class.pr-tier__feature--off]="!f.included">
+              <lucide-icon [img]="icons.check" [size]="14" />
+              {{ f.text }}
+            </li>
+          }
+        </ul>
+        <div class="pr-tier__cta">
+          @if (!activeSubscription()) {
+            <app-button variant="ghost" [disabled]="true">Текущий план</app-button>
+          } @else {
+            <app-button variant="ghost" [disabled]="true">—</app-button>
+          }
+        </div>
+      </article>
+
+      <!-- Paid tiers -->
+      @for (plan of plans(); track plan.id) {
+        <article class="pr-tier"
+                 [class.pr-tier--featured]="plan.isFeatured"
+                 [class.pr-tier--current]="isCurrentPlan(plan.id)">
+          @if (plan.isFeatured) {
+            <span class="pr-tier__ribbon">
+              <lucide-icon [img]="icons.sparkles" [size]="12" />
+              Популярный
+            </span>
+          }
+          <header class="pr-tier__header">
+            <h2>{{ plan.name }}</h2>
+            <p class="pr-tier__subtitle">{{ plan.description }}</p>
+            <div class="pr-tier__price">
+              <span class="pr-tier__amount">{{ formatPrice(plan.price, plan.currency) }}</span>
+              <span class="pr-tier__period">/ мес</span>
+            </div>
+          </header>
+          <ul class="pr-tier__features">
+            @for (f of featuresFor(plan); track f.text) {
+              <li [class.pr-tier__feature--off]="!f.included">
+                <lucide-icon [img]="icons.check" [size]="14" />
+                {{ f.text }}
+              </li>
+            }
+          </ul>
+          <div class="pr-tier__cta">
+            @if (isCurrentPlan(plan.id)) {
+              <app-button variant="primary" [disabled]="true">
+                <lucide-icon [img]="icons.check" [size]="14" /> Текущий план
+              </app-button>
+            } @else {
+              <app-button [variant]="plan.isFeatured ? 'primary' : 'secondary'"
+                          [disabled]="checkingOutPlanId() === plan.id"
+                          (click)="subscribe(plan)">
+                @if (checkingOutPlanId() === plan.id) {
+                  Готовим оплату...
+                } @else {
+                  Подписаться
+                }
+              </app-button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

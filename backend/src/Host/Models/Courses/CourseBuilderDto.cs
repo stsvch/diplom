@@ -41,14 +41,13 @@ public sealed class CourseBuilderCourseDto
     public bool HasGrading { get; set; }
     public bool HasCertificate { get; set; }
     public DateTime? Deadline { get; set; }
-    public string? Tags { get; set; }
+    public List<string> Tags { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public int StudentsCount { get; set; }
     public int SectionsCount { get; set; }
     public int LessonsCount { get; set; }
     public int TestsCount { get; set; }
     public int AssignmentsCount { get; set; }
-    public int LiveSessionsCount { get; set; }
 }
 
 public sealed class CourseBuilderSectionDto

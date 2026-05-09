@@ -5,7 +5,7 @@ export interface AttachmentDto {
   contentType: string;
   fileSize: number;
   entityType: string;
-  entityId: string;
+  entityId: string | null;
   uploadedById: string;
   createdAt: string;
 }

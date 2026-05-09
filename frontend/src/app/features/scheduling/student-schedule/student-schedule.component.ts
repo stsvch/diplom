@@ -7,19 +7,26 @@ import {
   Clock,
   Users,
   User,
-  BookOpen,
   Search,
   CheckCircle,
   X,
   Loader2,
-  BookmarkCheck,
+  ArrowLeft,
+  Sparkles,
 } from 'lucide-angular';
 import { SchedulingService } from '../services/scheduling.service';
-import { ScheduleSlotDto, SlotStatus } from '../models/scheduling.model';
+import {
+  CalendarSlotDto,
+  ScheduleSlotDto,
+  SessionType,
+  TeacherWithScheduleDto,
+} from '../models/scheduling.model';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { parseApiError } from '../../../core/models/api-error.model';
+import { PaymentsService } from '../../payments/services/payments.service';
+import { UserEntitlementsDto } from '../../payments/models/payments.model';
 
 @Component({
   selector: 'app-student-schedule',
@@ -30,135 +37,163 @@ import { parseApiError } from '../../../core/models/api-error.model';
 })
 export class StudentScheduleComponent implements OnInit {
   private readonly schedulingService = inject(SchedulingService);
+  private readonly paymentsService = inject(PaymentsService);
   private readonly toastService = inject(ToastService);
 
-  readonly CalendarIcon = Calendar;
-  readonly ClockIcon = Clock;
-  readonly UsersIcon = Users;
-  readonly UserIcon = User;
-  readonly BookOpenIcon = BookOpen;
-  readonly SearchIcon = Search;
-  readonly CheckCircleIcon = CheckCircle;
-  readonly XIcon = X;
-  readonly Loader2Icon = Loader2;
-  readonly BookmarkCheckIcon = BookmarkCheck;
+  readonly icons = {
+    calendar: Calendar,
+    clock: Clock,
+    users: Users,
+    user: User,
+    search: Search,
+    check: CheckCircle,
+    x: X,
+    loader: Loader2,
+    back: ArrowLeft,
+    sparkles: Sparkles,
+  };
 
-  readonly SlotStatus = SlotStatus;
+  readonly SessionT = SessionType;
 
-  readonly activeTab = signal<'available' | 'myBookings'>('available');
-  readonly availableSlots = signal<ScheduleSlotDto[]>([]);
-  readonly myBookings = signal<ScheduleSlotDto[]>([]);
-  readonly loadingAvailable = signal(false);
+  readonly entitlements = signal<UserEntitlementsDto | null>(null);
+  readonly teachers = signal<TeacherWithScheduleDto[]>([]);
+  readonly bookings = signal<ScheduleSlotDto[]>([]);
+  readonly calendar = signal<CalendarSlotDto[]>([]);
+
+  readonly selectedTeacher = signal<TeacherWithScheduleDto | null>(null);
+  readonly searchQuery = signal('');
+  readonly activeTab = signal<'browse' | 'mine'>('browse');
+
+  readonly loadingTeachers = signal(false);
+  readonly loadingCalendar = signal(false);
   readonly loadingBookings = signal(false);
-  readonly booking = signal<string | null>(null);
-  readonly cancelling = signal<string | null>(null);
-  readonly courseFilter = signal('');
+  readonly bookingSlot = signal<string | null>(null);
+  readonly cancellingSlot = signal<string | null>(null);
 
-  readonly filteredSlots = computed(() => {
-    const filter = this.courseFilter().toLowerCase().trim();
-    const slots = this.availableSlots();
-    if (!filter) return slots;
-    return slots.filter(
-      (s) =>
-        (s.courseName ?? '').toLowerCase().includes(filter) ||
-        s.title.toLowerCase().includes(filter) ||
-        s.teacherName.toLowerCase().includes(filter),
-    );
+  readonly filteredTeachers = computed(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    const list = this.teachers();
+    return q ? list.filter((t) => t.teacherName.toLowerCase().includes(q)) : list;
   });
 
-  readonly upcomingBookings = computed(() => {
-    const now = new Date();
-    return this.myBookings().filter((s) => new Date(s.startTime) > now);
-  });
-
-  readonly pastBookings = computed(() => {
-    const now = new Date();
-    return this.myBookings().filter((s) => new Date(s.startTime) <= now);
+  readonly groupedCalendar = computed(() => {
+    const map = new Map<string, CalendarSlotDto[]>();
+    for (const slot of this.calendar()) {
+      const dateKey = slot.startTime.slice(0, 10);
+      const arr = map.get(dateKey) ?? [];
+      arr.push(slot);
+      map.set(dateKey, arr);
+    }
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, slots]) => ({ date, slots }));
   });
 
   ngOnInit(): void {
-    this.loadAvailableSlots();
+    this.loadEntitlements();
+    this.loadTeachers();
     this.loadMyBookings();
   }
 
-  private loadAvailableSlots(): void {
-    this.loadingAvailable.set(true);
-    this.schedulingService.getAvailableSlots().subscribe({
-      next: (slots) => {
-        this.availableSlots.set(slots);
-        this.loadingAvailable.set(false);
-      },
-      error: (err) => {
-        this.toastService.error(parseApiError(err).message);
-        this.loadingAvailable.set(false);
-      },
+  private loadEntitlements(): void {
+    this.paymentsService.getMyEntitlements().subscribe({
+      next: (e) => this.entitlements.set(e),
+      error: () => { /* фича не критична */ },
+    });
+  }
+
+  private loadTeachers(): void {
+    this.loadingTeachers.set(true);
+    this.schedulingService.getTeachersWithSchedule().subscribe({
+      next: (list) => { this.teachers.set(list); this.loadingTeachers.set(false); },
+      error: (err) => { this.toastService.error(parseApiError(err).message); this.loadingTeachers.set(false); },
     });
   }
 
   private loadMyBookings(): void {
     this.loadingBookings.set(true);
     this.schedulingService.getMyBookings().subscribe({
-      next: (slots) => {
-        this.myBookings.set(slots);
-        this.loadingBookings.set(false);
-      },
-      error: (err) => {
-        this.toastService.error(parseApiError(err).message);
-        this.loadingBookings.set(false);
-      },
+      next: (list) => { this.bookings.set(list); this.loadingBookings.set(false); },
+      error: (err) => { this.toastService.error(parseApiError(err).message); this.loadingBookings.set(false); },
     });
   }
 
-  setTab(tab: 'available' | 'myBookings'): void {
+  selectTeacher(teacher: TeacherWithScheduleDto): void {
+    this.selectedTeacher.set(teacher);
+    this.loadCalendar(teacher.teacherId);
+  }
+
+  backToList(): void {
+    this.selectedTeacher.set(null);
+    this.calendar.set([]);
+  }
+
+  setTab(tab: 'browse' | 'mine'): void {
     this.activeTab.set(tab);
   }
 
-  bookSlot(slot: ScheduleSlotDto): void {
-    this.booking.set(slot.id);
-    this.schedulingService.bookSlot(slot.id).subscribe({
-      next: () => {
-        this.booking.set(null);
-        this.toastService.success('Вы успешно записались на занятие!');
-        this.loadAvailableSlots();
+  private loadCalendar(teacherId: string): void {
+    this.loadingCalendar.set(true);
+    const today = new Date();
+    const from = today.toISOString().slice(0, 10);
+    const to = new Date(today.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    this.schedulingService.getTeacherCalendar(teacherId, from, to).subscribe({
+      next: (slots) => { this.calendar.set(slots); this.loadingCalendar.set(false); },
+      error: (err) => { this.toastService.error(parseApiError(err).message); this.loadingCalendar.set(false); },
+    });
+  }
+
+  bookSlot(slot: CalendarSlotDto): void {
+    if (slot.isBookedByCurrentUser) return;
+    if (!slot.isAvailable) return;
+
+    this.bookingSlot.set(slot.startTime);
+    this.schedulingService.bookSlot({
+      availabilityId: slot.availabilityId,
+      startTime: slot.startTime,
+    }).subscribe({
+      next: (resp) => {
+        this.bookingSlot.set(null);
+        this.toastService.success(resp.message);
+        if (this.selectedTeacher()) this.loadCalendar(this.selectedTeacher()!.teacherId);
         this.loadMyBookings();
+        this.loadEntitlements();
       },
       error: (err) => {
         this.toastService.error(parseApiError(err).message);
-        this.booking.set(null);
+        this.bookingSlot.set(null);
       },
     });
   }
 
   cancelBooking(slot: ScheduleSlotDto): void {
     if (!confirm('Отменить запись на это занятие?')) return;
-    this.cancelling.set(slot.id);
+    this.cancellingSlot.set(slot.id);
     this.schedulingService.cancelBooking(slot.id).subscribe({
-      next: () => {
-        this.cancelling.set(null);
-        this.toastService.success('Запись отменена.');
-        this.loadAvailableSlots();
+      next: (resp) => {
+        this.cancellingSlot.set(null);
+        this.toastService.success(resp.message);
         this.loadMyBookings();
+        this.loadEntitlements();
       },
       error: (err) => {
         this.toastService.error(parseApiError(err).message);
-        this.cancelling.set(null);
+        this.cancellingSlot.set(null);
       },
     });
   }
 
-  formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
+  formatTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  formatDateLong(date: string): string {
+    return new Date(date).toLocaleDateString('ru-RU', {
+      weekday: 'short', day: '2-digit', month: 'long',
     });
   }
 
-  formatTime(dateStr: string): string {
-    return new Date(dateStr).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  getSpotsLeft(slot: ScheduleSlotDto): number {
-    return slot.maxStudents - slot.bookedCount;
+  formatDayShort(iso: string): string {
+    return new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
   }
 }

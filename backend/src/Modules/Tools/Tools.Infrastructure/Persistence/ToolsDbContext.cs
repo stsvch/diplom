@@ -26,9 +26,11 @@ public class ToolsDbContext : BaseDbContext, IToolsDbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.CourseId).IsRequired();
             entity.Property(e => e.Term).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Translation).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Translation).HasMaxLength(500);
             entity.Property(e => e.Definition).HasMaxLength(4000);
             entity.Property(e => e.Example).HasMaxLength(4000);
+            entity.Property(e => e.Note).HasMaxLength(2000);
+            entity.Property(e => e.ImageStorageKey).HasMaxLength(500);
             entity.Property(e => e.Tags).HasMaxLength(1000);
             entity.Property(e => e.CreatedById).IsRequired().HasMaxLength(450);
             entity.HasIndex(e => new { e.CourseId, e.Term });

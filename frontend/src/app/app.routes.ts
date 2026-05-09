@@ -60,6 +60,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'pricing',
+        loadComponent: () =>
+          import('./features/payments/pricing/pricing.component').then(
+            (m) => m.PricingComponent,
+          ),
+      },
+      {
         path: 'course/:id',
         loadComponent: () =>
           import('./features/courses/course-detail/course-detail.component').then(
@@ -201,6 +208,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'pricing',
+        loadComponent: () =>
+          import('./features/payments/pricing/pricing.component').then(
+            (m) => m.PricingComponent,
+          ),
+      },
+      {
         path: 'glossary',
         loadComponent: () =>
           import('./features/tools/glossary-page/glossary-page.component').then(
@@ -250,32 +264,16 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'courses/create',
-        loadComponent: () =>
-          import('./features/courses/create-course/create-course.component').then(
-            (m) => m.CreateCourseComponent,
-          ),
-      },
-      {
-        path: 'courses/edit/:id',
-        loadComponent: () =>
-          import('./features/courses/create-course/create-course.component').then(
-            (m) => m.CreateCourseComponent,
-          ),
-      },
-      {
-        path: 'courses/:id/editor',
-        loadComponent: () =>
-          import('./features/courses/course-editor/course-editor.component').then(
-            (m) => m.CourseEditorComponent,
-          ),
-      },
-      {
         path: 'courses/:id/builder',
         loadComponent: () =>
           import('./features/courses/course-builder/course-builder.component').then(
             (m) => m.CourseBuilderComponent,
           ),
+      },
+      {
+        path: 'courses/:id/editor',
+        redirectTo: 'courses/:id/builder',
+        pathMatch: 'full',
       },
       {
         path: 'courses/:id/preview',

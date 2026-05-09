@@ -1,0 +1,46 @@
+<div class="ti">
+  <div class="ti__chips">
+    @for (tag of tags; track tag; let i = $index) {
+      <span class="ti__chip">
+        {{ tag }}
+        <button
+          type="button"
+          class="ti__chip-x"
+          (click)="removeTag(i)"
+          [attr.aria-label]="'Удалить тег ' + tag"
+        >
+          <lucide-icon [img]="icons.close" [size]="12" />
+        </button>
+      </span>
+    }
+    <input
+      #inputEl
+      class="ti__input"
+      type="text"
+      [value]="inputValue()"
+      (input)="onInput($any($event.target).value)"
+      (keydown)="onKeyDown($event)"
+      (blur)="onBlur()"
+      [placeholder]="tags.length === 0 ? placeholder : ''"
+    />
+  </div>
+
+  @if (suggestionsOpen() && suggestions().length > 0) {
+    <ul class="ti__suggestions" role="listbox">
+      @for (s of suggestions(); track s.id; let i = $index) {
+        <li
+          class="ti__suggestion"
+          [class.ti__suggestion--active]="i === highlightedIndex()"
+          role="option"
+          (mousedown)="selectSuggestion(s.name)"
+        >
+          <lucide-icon [img]="icons.tag" [size]="13" class="ti__suggestion-icon" />
+          <span class="ti__suggestion-name">{{ s.name }}</span>
+          @if (s.usageCount > 0) {
+            <span class="ti__suggestion-count">{{ s.usageCount }}</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

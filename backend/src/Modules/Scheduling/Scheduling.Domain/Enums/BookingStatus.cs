@@ -4,5 +4,6 @@ public enum BookingStatus
 {
     Booked,
     Completed,
-    Cancelled
+    Cancelled,
+    LateCancelled
 }

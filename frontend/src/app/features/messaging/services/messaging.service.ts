@@ -59,10 +59,6 @@ export class MessagingService {
     return this.http.put<{ message: string }>(`${this.base}/${chatId}/read`, {});
   }
 
-  hideChat(chatId: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/${chatId}/hide`, {});
-  }
-
   deleteChat(chatId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.base}/${chatId}`);
   }
@@ -84,10 +80,18 @@ export class MessagingService {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/messages/${messageId}`);
   }
 
-  searchUsers(q: string, role?: string, limit = 20): Observable<UserSummaryDto[]> {
+  searchUsers(
+    q: string,
+    role?: string,
+    limit = 20,
+    courseId?: string,
+    teacherId?: string,
+  ): Observable<UserSummaryDto[]> {
     let params = new HttpParams().set('limit', String(limit));
     if (q) params = params.set('q', q);
     if (role) params = params.set('role', role);
+    if (courseId) params = params.set('courseId', courseId);
+    if (teacherId) params = params.set('teacherId', teacherId);
     return this.http.get<UserSummaryDto[]>(`${environment.apiUrl}/users/search`, { params });
   }
 }

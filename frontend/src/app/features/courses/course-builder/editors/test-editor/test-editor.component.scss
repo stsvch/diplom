@@ -3,32 +3,33 @@
 :host { display: block; }
 
 .te {
-  max-width: 40rem;
+  max-width: 44rem;
   margin: 0 auto;
-  padding: $spacing-10 $spacing-8;
+  padding: $spacing-8 $spacing-6;
   display: flex;
   flex-direction: column;
-  gap: $spacing-4;
+  gap: $spacing-5;
 }
 
+// ── Header ─────────────────────────────────────────────
 .te__header {
   display: flex;
   flex-direction: column;
   gap: $spacing-2;
 }
 
-.te__badge {
-  display: inline-flex;
+.te__eyebrow {
+  display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: $radius-full;
-  background: $orange-50;
   color: $orange-600;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
-  width: fit-content;
+
+  lucide-icon { color: $orange-500; }
 }
+
+.te__eyebrow-text { color: $orange-600; }
 
 .te__title {
   width: 100%;
@@ -43,108 +44,898 @@
   outline: none;
 
   &::placeholder { color: $slate-300; }
-  &:focus { border-bottom-color: $orange-500; }
+  &:focus { border-bottom-color: $orange-400; }
 }
 
-.te__meta {
-  margin: 0;
+.te__stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   font-size: $font-size-xs;
   color: $slate-400;
 }
 
-.te__check {
+.te__stats-dot { color: $slate-300; }
+
+.te__stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+
+  &--auto   { background: $emerald-50; color: $emerald-600; }
+  &--manual { background: $purple-50;  color: $purple-600;  }
+}
+
+.te__loading {
+  text-align: center;
+  padding: $spacing-8;
+  color: $slate-500;
+  font-size: $font-size-sm;
+}
+
+// ── Info-box ───────────────────────────────────────────
+.te__info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: $slate-50;
+  border: 1px solid $slate-100;
+  border-radius: $radius-xl;
+
+  lucide-icon { color: $slate-400; margin-top: 2px; flex-shrink: 0; }
+  p { margin: 0; font-size: $font-size-xs; color: $slate-500; line-height: 1.5; }
+}
+
+.te__info-auto   { color: $emerald-600; font-weight: $font-weight-medium; }
+.te__info-manual { color: $purple-600;  font-weight: $font-weight-medium; }
+
+// ── Settings accordion ─────────────────────────────────
+.te-settings {
+  border: 1px solid $slate-100;
+  border-radius: $radius-2xl;
+  background: #fff;
+  overflow: hidden;
+}
+
+.te-settings__toggle {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: $spacing-2;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 0;
+  background: $slate-50;
+  font: inherit;
   font-size: $font-size-sm;
+  color: $slate-700;
+  cursor: pointer;
+  transition: background 140ms ease;
+
+  &:hover { background: $slate-100; }
+
+  lucide-icon { color: $slate-400; }
+}
+
+.te-settings__chev {
+  margin-left: auto;
+  color: $slate-400;
+  transition: transform 160ms ease;
+
+  &--open { transform: rotate(180deg); }
+}
+
+.te-settings__body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid $slate-100;
+}
+
+.te-settings__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.te-settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: $font-size-xs;
+  color: $slate-500;
+}
+
+.te-settings__field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.te-settings__no-deadline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
   color: $slate-500;
   cursor: pointer;
-  width: fit-content;
+  user-select: none;
 
   input { accent-color: $orange-500; }
 }
 
-.te__divider {
-  height: 1px;
-  background: $slate-100;
+.te-settings__input {
+  padding: 8px 10px;
+  border: 1px solid $slate-200;
+  border-radius: $radius-md;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $slate-900;
+  background: $slate-50;
+  outline: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+
+  &::placeholder { color: $slate-300; }
+  &:focus {
+    background: #fff;
+    border-color: $orange-300;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+  }
 }
 
+.te-settings__toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.te-settings__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  cursor: pointer;
+  user-select: none;
+
+  input { accent-color: $orange-500; }
+}
+
+// ── Questions section header ───────────────────────────
+.te-qs__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: -8px;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $slate-700;
+  }
+}
+
+.te-qs__warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-size-xs;
+  color: $amber-700;
+  background: $amber-50;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+
+  lucide-icon { color: $amber-500; }
+}
+
+// ── Empty state ────────────────────────────────────────
 .te__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: $spacing-8;
-  background: $slate-50;
+  padding: $spacing-8 $spacing-4;
+  background: #fff;
   border: 2px dashed $slate-200;
   border-radius: $radius-2xl;
-
-  &-icon {
-    color: $slate-300;
-    margin-bottom: $spacing-3;
-  }
-
-  h3 {
-    color: $slate-700;
-    margin: 0 0 6px;
-  }
-
-  p {
-    color: $slate-500;
-    font-size: $font-size-sm;
-    margin: 0 0 $spacing-3;
-  }
 }
 
-.te__warn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: $radius-full;
-  background: $amber-50;
-  color: $amber-600;
-  font-size: $font-size-xs;
-}
-
-.te__filled {
-  background: $emerald-50;
-  border: 1px solid $emerald-100;
-  border-radius: $radius-xl;
-  padding: 12px $spacing-4;
-
-  p {
-    margin: 0;
-    color: $emerald-700;
-    font-size: $font-size-sm;
-
-    strong { color: $emerald-800; }
-  }
-}
-
-.te__open-full {
+.te__empty-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: $spacing-2;
-  padding: 14px $spacing-5;
-  background: $orange-500;
-  color: #fff;
-  border: 0;
-  border-radius: $radius-xl;
-  font-family: inherit;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  cursor: pointer;
-  transition: background $transition-fast;
-
-  &:hover { background: $orange-600; }
+  width: 64px;
+  height: 64px;
+  border-radius: $radius-2xl;
+  background: $slate-50;
+  color: $slate-300;
+  margin-bottom: $spacing-3;
 }
 
-.te__hint {
+.te__empty-title {
+  font-size: $font-size-base;
+  color: $slate-700;
+  margin: 0 0 4px;
+}
+
+.te__empty-hint {
+  font-size: $font-size-sm;
+  color: $slate-400;
+  margin: 0 0 $spacing-4;
+  max-width: 420px;
+}
+
+.te__empty-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.te__empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: $radius-xl;
+  border: 2px solid;
+  background: #fff;
+  font: inherit;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: opacity 140ms ease;
+
+  &:hover { opacity: 0.85; }
+
+  &[data-color='orange'] { background: $orange-50; color: $orange-600; border-color: $orange-200; }
+  &[data-color='amber']  { background: $amber-50;  color: $amber-700;  border-color: $amber-200;  }
+  &[data-color='blue']   { background: $blue-50;   color: $blue-600;   border-color: $blue-100;   }
+  &[data-color='violet'] { background: $purple-50; color: $violet-600; border-color: $purple-300; }
+}
+
+// ── Question cards ─────────────────────────────────────
+.te-qs {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.te-q {
+  background: #fff;
+  border: 1px solid $slate-200;
+  border-radius: $radius-2xl;
+  overflow: visible;
+  transition: border-color 160ms ease;
+
+  &[data-color='orange'] { border-left: 3px solid $orange-400; }
+  &[data-color='amber']  { border-left: 3px solid $amber-400;  }
+  &[data-color='blue']   { border-left: 3px solid $blue-400;   }
+  &[data-color='violet'] { border-left: 3px solid $violet-500; }
+}
+
+.te-q__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid $slate-100;
+  background: rgba($slate-50, 0.6);
+
+  .te-q--collapsed & { border-bottom: 0; }
+}
+
+.te-q__grip {
+  display: inline-flex;
+  align-items: center;
+  color: $slate-300;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.te-q__num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+
+  .te-q[data-color='orange'] & { background: $orange-100; color: $orange-700; }
+  .te-q[data-color='amber']  & { background: $amber-100;  color: $amber-700;  }
+  .te-q[data-color='blue']   & { background: $blue-100;   color: $blue-600;   }
+  .te-q[data-color='violet'] & { background: $purple-100; color: $violet-700; }
+}
+
+// ── Type picker (button + dropdown) ────────────────────
+.te-q__type-wrap {
+  position: relative;
+}
+
+.te-q__type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: $radius-xl;
+  border: 1px solid;
+  font: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: opacity 140ms ease;
+
+  &:hover { opacity: 0.85; }
+
+  &[data-color='orange'] { background: $orange-50; color: $orange-600; border-color: $orange-200; }
+  &[data-color='amber']  { background: $amber-50;  color: $amber-700;  border-color: $amber-200;  }
+  &[data-color='blue']   { background: $blue-50;   color: $blue-600;   border-color: $blue-100;   }
+  &[data-color='violet'] { background: $purple-50; color: $violet-600; border-color: $purple-300; }
+}
+
+.te-q__type-chev {
+  transition: transform 160ms ease;
+  &--open { transform: rotate(180deg); }
+}
+
+.te-q__type-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.te-q__type-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  width: 280px;
+  background: #fff;
+  border: 1px solid $slate-100;
+  border-radius: $radius-2xl;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.te-q__type-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  border-radius: $radius-lg;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease;
+  font: inherit;
+
+  &:hover { background: $slate-50; }
+  &--active { background: $slate-50; }
+}
+
+.te-q__type-opt-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-lg;
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  &[data-color='orange'] { background: $orange-50; color: $orange-600; }
+  &[data-color='amber']  { background: $amber-50;  color: $amber-700;  }
+  &[data-color='blue']   { background: $blue-50;   color: $blue-600;   }
+  &[data-color='violet'] { background: $purple-50; color: $violet-600; }
+}
+
+.te-q__type-opt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.te-q__type-opt-label {
+  font-size: $font-size-sm;
+  color: $slate-800;
+  line-height: 1.3;
+}
+
+.te-q__type-opt-desc {
+  font-size: 11px;
+  color: $slate-400;
+  line-height: 1.3;
+}
+
+// ── Grade badge (Авто / Вручную) ───────────────────────
+.te-q__grade {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  border: 1px solid;
+
+  &--auto   { background: $emerald-50; color: $emerald-600; border-color: $emerald-100; }
+  &--manual { background: $purple-50;  color: $purple-700;  border-color: $purple-100;  }
+}
+
+// ── Points / icon buttons ──────────────────────────────
+.te-q__points {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.te-q__points-input {
+  width: 40px;
+  padding: 3px 4px;
+  border: 1px solid $slate-200;
+  border-radius: $radius-md;
+  font: inherit;
+  font-size: $font-size-xs;
+  text-align: center;
+  outline: none;
+  background: #fff;
+
+  &:focus { border-color: $orange-300; }
+}
+
+.te-q__points-label { font-size: $font-size-xs; color: $slate-400; }
+
+.te-q__icon-btn {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: $slate-300;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+
+  &:hover { background: $slate-100; color: $slate-600; }
+
+  &--delete:hover { background: rgba(244, 63, 94, 0.08); color: $rose-500; }
+}
+
+// ── Question body ──────────────────────────────────────
+.te-q__body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.te-q__text {
+  width: 100%;
+  padding: 8px 0 6px;
+  border: 0;
+  border-bottom: 2px solid $slate-100;
+  background: transparent;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $slate-800;
+  outline: none;
+  resize: vertical;
+  min-height: 48px;
+  transition: border-color 140ms ease;
+
+  &:focus { border-bottom-color: $orange-300; }
+  &::placeholder { color: $slate-300; }
+}
+
+// ── Options (single / multiple) ────────────────────────
+.te-q__opts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.te-q__opts-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.te-q__opts-label {
   font-size: $font-size-xs;
   color: $slate-400;
-  text-align: center;
+}
+
+.te-q__opts-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: $amber-700;
+  background: $amber-50;
+  padding: 1px 8px;
+  border-radius: $radius-full;
+
+  lucide-icon { color: $amber-500; }
+}
+
+.te-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: $slate-50;
+  border: 1px solid $slate-100;
+  border-radius: $radius-lg;
+  transition: background 140ms ease, border-color 140ms ease;
+
+  &--correct {
+    background: $emerald-50;
+    border-color: $emerald-100;
+  }
+}
+
+.te-opt__correct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: $slate-300;
+  cursor: pointer;
+  transition: color 140ms ease;
+  flex-shrink: 0;
+
+  &:hover { color: $slate-500; }
+  &--on   { color: $emerald-500; }
+}
+
+.te-opt__text {
+  flex: 1;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  outline: none;
+
+  &::placeholder { color: $slate-300; }
+
+  .te-opt--correct & { color: $emerald-700; }
+}
+
+.te-opt__delete {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: $slate-300;
+  border-radius: $radius-md;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 140ms ease, color 140ms ease;
+
+  &:hover:not(:disabled) { background: rgba(244, 63, 94, 0.08); color: $rose-500; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+.te-q__add-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 0;
+  background: transparent;
+  color: $indigo-600;
+  border-radius: $radius-lg;
+  font: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  align-self: flex-start;
+
+  &:hover { background: $indigo-50; color: $indigo-700; }
+}
+
+// ── Info box (text / code) ─────────────────────────────
+.te-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid;
+  border-radius: $radius-xl;
+
+  lucide-icon { flex-shrink: 0; margin-top: 2px; }
+
+  &--blue {
+    background: $blue-50;
+    border-color: $blue-100;
+    lucide-icon { color: $blue-400; }
+
+    .te-info-box__title { color: #1d4ed8; }
+    .te-info-box__hint  { color: $blue-500; }
+  }
+
+  &--violet {
+    background: $purple-50;
+    border-color: $purple-300;
+    lucide-icon { color: $violet-600; }
+
+    .te-info-box__title { color: $violet-700; }
+    .te-info-box__hint  { color: $violet-600; }
+  }
+}
+
+.te-info-box__title {
   margin: 0;
+  font-size: $font-size-xs;
+}
+
+.te-info-box__hint {
+  margin: 2px 0 0;
+  font-size: $font-size-xs;
+}
+
+// ── Expected answer / Code ─────────────────────────────
+.te-q__expected {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.te-q__expected-label {
+  font-size: $font-size-xs;
+  color: $slate-500;
+}
+
+.te-q__expected-text {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid $slate-200;
+  border-radius: $radius-xl;
+  background: $slate-50;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  outline: none;
+  resize: vertical;
+  transition: background 140ms ease, border-color 140ms ease;
+
+  &::placeholder { color: $slate-300; }
+  &:focus { background: #fff; border-color: $blue-400; }
+}
+
+.te-q__code-shell {
+  border-radius: $radius-xl;
+  overflow: hidden;
+  border: 1px solid $slate-200;
+}
+
+.te-q__code-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: $slate-900;
+}
+
+.te-q__code-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+
+  &--red    { background: #f87171; }
+  &--yellow { background: #facc15; }
+  &--green  { background: #4ade80; }
+}
+
+.te-q__code-lang {
+  font-size: 11px;
+  color: $slate-500;
+  margin-left: 4px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+}
+
+.te-q__code {
+  width: 100%;
+  padding: 12px;
+  background: #0a0a0a;
+  color: #4ade80;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: $font-size-xs;
   line-height: 1.5;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+
+  &::placeholder { color: #4b5563; }
+}
+
+// ── Explanation ────────────────────────────────────────
+.te-q__expl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.te-q__expl-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: $slate-400;
+  font: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: color 140ms ease;
+
+  &:hover { color: $orange-600; }
+
+  lucide-icon { color: currentColor; }
+}
+
+.te-q__expl-hint {
+  color: $slate-300;
+  margin-left: 2px;
+}
+
+.te-q__expl-text {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid $orange-100;
+  border-radius: $radius-xl;
+  background: $orange-50;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $slate-700;
+  outline: none;
+  resize: vertical;
+  transition: background 140ms ease, border-color 140ms ease;
+
+  &::placeholder { color: $slate-300; }
+  &:focus { background: #fff; border-color: $orange-300; }
+}
+
+// ── Add question button ────────────────────────────────
+.te-add__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed $slate-200;
+  border-radius: $radius-2xl;
+  background: transparent;
+  color: $slate-400;
+  font: inherit;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all 160ms ease;
+
+  &:hover {
+    color: $orange-600;
+    border-color: $orange-300;
+    background: $orange-50;
+  }
+}
+
+.te-add--open {
+  border: 2px solid $orange-200;
+  background: $orange-50;
+  border-radius: $radius-2xl;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.te-add__title {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $orange-700;
+}
+
+.te-add__menu {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+
+  @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
+}
+
+.te-add__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 2px solid;
+  border-radius: $radius-xl;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity 140ms ease;
+
+  &:hover { opacity: 0.85; }
+
+  &[data-color='orange'] { border-color: $orange-200; }
+  &[data-color='amber']  { border-color: $amber-200;  }
+  &[data-color='blue']   { border-color: $blue-100;   }
+  &[data-color='violet'] { border-color: $purple-300; }
+}
+
+.te-add__opt-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-lg;
+  flex-shrink: 0;
+
+  &[data-color='orange'] { background: $orange-50; color: $orange-600; }
+  &[data-color='amber']  { background: $amber-50;  color: $amber-700;  }
+  &[data-color='blue']   { background: $blue-50;   color: $blue-600;   }
+  &[data-color='violet'] { background: $purple-50; color: $violet-600; }
+}
+
+.te-add__opt-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.te-add__opt-label {
+  font-size: $font-size-xs;
+  line-height: 1.3;
+
+  .te-add__opt[data-color='orange'] & { color: $orange-600; }
+  .te-add__opt[data-color='amber']  & { color: $amber-700;  }
+  .te-add__opt[data-color='blue']   & { color: $blue-600;   }
+  .te-add__opt[data-color='violet'] & { color: $violet-600; }
+}
+
+.te-add__opt-desc {
+  font-size: 11px;
+  color: $slate-400;
+  line-height: 1.3;
+}
+
+.te-add__cancel {
+  border: 0;
+  background: transparent;
+  color: $slate-400;
+  font: inherit;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  padding: 4px;
+  align-self: center;
+  transition: color 140ms ease;
+
+  &:hover { color: $slate-600; }
 }

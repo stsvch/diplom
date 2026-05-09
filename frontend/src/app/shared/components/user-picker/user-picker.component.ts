@@ -44,7 +44,7 @@ import { UserSummaryDto } from '../../../features/messaging/models/messaging.mod
           } @else if (users().length === 0) {
             <div class="picker__empty">
               <lucide-icon [img]="UserIconRef" [size]="24"></lucide-icon>
-              <p>{{ query() ? 'Никого не найдено' : 'Начните вводить имя' }}</p>
+              <p>{{ query() ? 'Никого не найдено' : (emptyHint ?? 'Начните вводить имя') }}</p>
             </div>
           } @else {
             @for (u of users(); track u.id) {
@@ -131,6 +131,9 @@ export class UserPickerComponent implements OnInit {
   @Input() title = 'Выберите пользователя';
   @Input() role?: string;
   @Input() excludedIds: string[] = [];
+  @Input() courseId?: string;
+  @Input() teacherId?: string;
+  @Input() emptyHint?: string;
   @Output() close = new EventEmitter<void>();
   @Output() picked = new EventEmitter<UserSummaryDto>();
 
@@ -160,7 +163,7 @@ export class UserPickerComponent implements OnInit {
 
   private runSearch(q: string): void {
     this.loading.set(true);
-    this.messaging.searchUsers(q, this.role).subscribe({
+    this.messaging.searchUsers(q, this.role, 20, this.courseId, this.teacherId).subscribe({
       next: (list) => {
         this.users.set(list);
         this.loading.set(false);

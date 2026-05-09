@@ -1,414 +1,172 @@
-@use '../../../../styles/variables' as v;
+.ss-page { padding: 24px; max-width: 1200px; margin: 0 auto; }
 
-.student-schedule {
-  padding: v.$spacing-6;
-  max-width: 1200px;
-  margin: 0 auto;
+.ss-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 16px;
+  h1 { margin: 0 0 6px; font-size: 24px; }
+}
 
-  &__header {
-    margin-bottom: v.$spacing-6;
+.ss-subtitle { color: #6b7280; margin: 0; }
+
+.ss-quota {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin-bottom: 24px;
+  align-items: center;
+
+  &__plan {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    padding: 4px 10px; border-radius: 999px; font-weight: 500;
   }
 
-  &__title {
-    font-size: v.$font-size-3xl;
-    font-weight: v.$font-weight-bold;
-    color: v.$text-foreground;
-    margin: 0 0 v.$spacing-1;
-  }
+  &__item { display: inline-flex; align-items: center; gap: 6px; color: #374151; }
+  &__cta { color: #b45309; }
+}
 
-  &__subtitle {
-    font-size: v.$font-size-base;
-    color: v.$text-muted;
-    margin: 0;
-  }
+.ss-tabs {
+  display: flex; gap: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
 
-  &__tabs {
-    display: flex;
-    gap: v.$spacing-1;
-    border-bottom: 2px solid v.$border-color;
-    margin-bottom: v.$spacing-5;
-  }
+.ss-tab {
+  background: none; border: none;
+  padding: 10px 14px; cursor: pointer;
+  color: #6b7280;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  display: inline-flex; align-items: center; gap: 8px;
 
-  &__tab {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-2;
-    padding: v.$spacing-3 v.$spacing-4;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    font-size: v.$font-size-sm;
-    font-weight: v.$font-weight-medium;
-    color: v.$text-muted;
-    cursor: pointer;
-    transition: color v.$transition-fast, border-color v.$transition-fast;
-
-    &:hover {
-      color: v.$text-foreground;
-    }
-
-    &--active {
-      color: v.$primary;
-      border-bottom-color: v.$primary;
-    }
-  }
-
-  &__tab-count {
-    background: v.$primary-light;
-    color: v.$primary;
-    border-radius: v.$radius-full;
-    padding: 0 v.$spacing-2;
-    font-size: v.$font-size-xs;
-    font-weight: v.$font-weight-semibold;
-    min-width: 20px;
-    text-align: center;
-  }
-
-  &__search {
-    margin-bottom: v.$spacing-5;
-  }
-
-  &__loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: v.$spacing-12;
-    gap: v.$spacing-4;
-    color: v.$text-muted;
-  }
-
-  &__empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: v.$spacing-12;
-    gap: v.$spacing-4;
-    text-align: center;
-
-    h3 {
-      font-size: v.$font-size-xl;
-      font-weight: v.$font-weight-semibold;
-      color: v.$text-foreground;
-      margin: 0;
-    }
-
-    p {
-      color: v.$text-muted;
-      margin: 0;
-    }
-  }
-
-  &__empty-icon {
-    color: v.$text-placeholder;
-  }
-
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: v.$spacing-4;
-  }
-
-  &__section {
-    margin-bottom: v.$spacing-8;
-  }
-
-  &__section-title {
-    font-size: v.$font-size-lg;
-    font-weight: v.$font-weight-semibold;
-    color: v.$text-foreground;
-    margin: 0 0 v.$spacing-4;
+  &--active { color: #111827; border-bottom-color: #6366f1; }
+  &__count {
+    background: #e5e7eb; color: #374151;
+    border-radius: 999px; padding: 1px 8px; font-size: 12px;
   }
 }
 
-// Search input
-.search-wrap {
-  position: relative;
-  max-width: 400px;
+.ss-search {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 16px;
 
-  &__icon {
-    position: absolute;
-    left: v.$spacing-3;
-    top: 50%;
-    transform: translateY(-50%);
-    color: v.$text-muted;
-    pointer-events: none;
-  }
-
-  &__input {
-    width: 100%;
-    padding: v.$spacing-3 v.$spacing-4 v.$spacing-3 calc(v.$spacing-3 * 2 + 16px);
-    border: 1px solid v.$border-input;
-    border-radius: v.$radius-sm;
-    background: v.$bg-input;
-    font-size: v.$font-size-sm;
-    color: v.$text-foreground;
-    box-sizing: border-box;
-    transition: border-color v.$transition-fast;
-
-    &:focus {
-      outline: none;
-      border-color: v.$primary;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    &::placeholder {
-      color: v.$text-placeholder;
-    }
+  input {
+    flex: 1; border: none; background: transparent; font: inherit; outline: none;
   }
 }
 
-// Slot card (available)
-.slot-card {
-  background: v.$bg-card;
-  border: 1px solid v.$border-color;
-  border-radius: v.$radius-lg;
-  padding: v.$spacing-5;
-  box-shadow: v.$shadow-sm;
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-3;
-  transition: box-shadow v.$transition-fast, transform v.$transition-fast;
+.ss-loader { display: flex; justify-content: center; padding: 64px; }
+.ss-empty {
+  text-align: center; padding: 48px 24px;
+  color: #6b7280;
+  border: 1px dashed #e5e7eb; border-radius: 12px;
+}
+
+.ss-teachers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.ss-teacher {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 20px; cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
 
   &:hover {
-    box-shadow: v.$shadow-md;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   }
 
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: v.$spacing-3;
+  &__avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff; font-weight: 600; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
   }
 
-  &__icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: v.$radius-md;
-    background: v.$primary-light;
-    color: v.$primary;
-    flex-shrink: 0;
+  h3 { margin: 0 0 8px; font-size: 16px; }
 
-    &--group {
-      background: #EDE9FE;
-      color: #7C3AED;
-    }
+  &__props {
+    list-style: none; padding: 0; margin: 0 0 12px;
+    font-size: 13px;
+    li { display: flex; align-items: center; gap: 6px; color: #6b7280; margin-bottom: 4px; }
   }
+}
 
-  &__title-wrap {
-    flex: 1;
-    min-width: 0;
+.ss-back {
+  background: none; border: none; cursor: pointer;
+  color: #6366f1; padding: 0; margin-bottom: 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit;
+  &:hover { text-decoration: underline; }
+}
+
+.ss-calendar-wrapper { h2 { margin: 0 0 16px; font-size: 20px; } }
+
+.ss-day { margin-bottom: 24px; }
+.ss-day__title {
+  font-size: 14px; color: #374151; margin: 0 0 8px;
+  text-transform: capitalize;
+}
+
+.ss-day__slots {
+  display: grid; gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.ss-slot {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 10px 12px; cursor: pointer; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+  font: inherit;
+
+  &:not(:disabled):hover {
+    border-color: #6366f1;
+    background: #eef2ff;
   }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+  &--booked {
+    border-color: #10b981; background: #ecfdf5;
+    opacity: 1 !important;
+  }
+  &--full { background: #f9fafb; color: #9ca3af; }
 
+  &__time { font-weight: 600; }
   &__type {
-    font-size: v.$font-size-xs;
-    color: v.$text-muted;
-    font-weight: v.$font-weight-medium;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 12px; color: #6b7280;
+    display: inline-flex; align-items: center; gap: 4px;
   }
-
-  &__title {
-    font-size: v.$font-size-base;
-    font-weight: v.$font-weight-semibold;
-    color: v.$text-foreground;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  &__badge {
+    font-size: 11px; color: #047857;
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
   }
+}
 
-  &__teacher,
-  &__course {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-1;
-    font-size: v.$font-size-sm;
-    color: v.$text-muted;
-    margin: 0;
+.ss-bookings { display: flex; flex-direction: column; gap: 12px; }
 
-    lucide-icon {
-      flex-shrink: 0;
-    }
+.ss-booking {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 16px; align-items: center;
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 16px;
+
+  &__date { display: flex; flex-direction: column; align-items: center; }
+  &__day { font-size: 13px; color: #6b7280; text-transform: uppercase; }
+  &__time { font-size: 18px; font-weight: 600; }
+  &__main {
+    h3 { margin: 0 0 4px; font-size: 15px; }
+    p { margin: 0 0 8px; color: #6b7280; font-size: 13px; }
   }
-
   &__meta {
-    display: flex;
-    flex-direction: column;
-    gap: v.$spacing-2;
+    display: flex; align-items: center; gap: 10px;
+    a { color: #6366f1; font-size: 13px; }
   }
-
-  &__meta-item {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-2;
-    font-size: v.$font-size-sm;
-    color: v.$text-secondary;
-
-    lucide-icon {
-      color: v.$text-muted;
-      flex-shrink: 0;
-    }
-
-    &--warn {
-      color: v.$warning-dark;
-
-      lucide-icon {
-        color: v.$warning;
-      }
-    }
-  }
-
-  &__description {
-    font-size: v.$font-size-sm;
-    color: v.$text-muted;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  &__footer {
-    margin-top: auto;
-    padding-top: v.$spacing-3;
-    border-top: 1px solid v.$border-color;
-    display: flex;
-    justify-content: flex-end;
-  }
-}
-
-// Booking card (my bookings)
-.booking-card {
-  background: v.$bg-card;
-  border: 1px solid v.$border-color;
-  border-radius: v.$radius-lg;
-  padding: v.$spacing-5;
-  box-shadow: v.$shadow-sm;
-  display: flex;
-  flex-direction: column;
-  gap: v.$spacing-3;
-
-  &--upcoming {
-    border-left: 3px solid v.$primary;
-  }
-
-  &--past {
-    opacity: 0.8;
-  }
-
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: v.$spacing-3;
-  }
-
-  &__icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: v.$radius-md;
-    background: v.$primary-light;
-    color: v.$primary;
-    flex-shrink: 0;
-
-    &--group {
-      background: #EDE9FE;
-      color: #7C3AED;
-    }
-
-    &--muted {
-      background: v.$bg-muted;
-      color: v.$text-muted;
-    }
-  }
-
-  &__title-wrap {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &__type {
-    font-size: v.$font-size-xs;
-    color: v.$text-muted;
-    font-weight: v.$font-weight-medium;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  &__title {
-    font-size: v.$font-size-base;
-    font-weight: v.$font-weight-semibold;
-    color: v.$text-foreground;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__teacher,
-  &__course {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-1;
-    font-size: v.$font-size-sm;
-    color: v.$text-muted;
-    margin: 0;
-
-    lucide-icon {
-      flex-shrink: 0;
-    }
-  }
-
-  &__meta {
-    display: flex;
-    flex-direction: column;
-    gap: v.$spacing-2;
-  }
-
-  &__meta-item {
-    display: flex;
-    align-items: center;
-    gap: v.$spacing-2;
-    font-size: v.$font-size-sm;
-    color: v.$text-secondary;
-
-    lucide-icon {
-      color: v.$text-muted;
-      flex-shrink: 0;
-    }
-  }
-
-  &__link {
-    display: inline-flex;
-    align-items: center;
-    gap: v.$spacing-1;
-    font-size: v.$font-size-sm;
-    color: v.$primary;
-    text-decoration: none;
-    font-weight: v.$font-weight-medium;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  &__actions {
-    padding-top: v.$spacing-3;
-    border-top: 1px solid v.$border-color;
-  }
-}
-
-// Spin animation
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }

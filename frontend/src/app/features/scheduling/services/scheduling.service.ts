@@ -2,20 +2,36 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ScheduleSlotDto, CreateSlotRequest, UpdateSlotRequest, BookingDto } from '../models/scheduling.model';
+import {
+  ScheduleSlotDto,
+  UpdateSlotRequest,
+  BookingDto,
+  TeacherAvailabilityDto,
+  CalendarSlotDto,
+  CreateAvailabilityRequest,
+  BookSlotRequest,
+  TeacherWithScheduleDto,
+} from '../models/scheduling.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SchedulingService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/schedule`;
 
-  // Teacher endpoints
-  createSlot(data: CreateSlotRequest): Observable<ScheduleSlotDto> {
-    return this.http.post<ScheduleSlotDto>(`${this.base}/slots`, data);
+  // ---- Учитель: правила расписания ----
+  getMyAvailability(): Observable<TeacherAvailabilityDto[]> {
+    return this.http.get<TeacherAvailabilityDto[]>(`${this.base}/availability/my`);
   }
 
+  createAvailability(data: CreateAvailabilityRequest): Observable<TeacherAvailabilityDto> {
+    return this.http.post<TeacherAvailabilityDto>(`${this.base}/availability`, data);
+  }
+
+  deleteAvailability(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/availability/${id}`);
+  }
+
+  // ---- Учитель: материализованные слоты ----
   getMySlots(status?: string): Observable<ScheduleSlotDto[]> {
     let params = new HttpParams();
     if (status) params = params.set('status', status);
@@ -42,17 +58,24 @@ export class SchedulingService {
     return this.http.get<BookingDto[]>(`${this.base}/slots/${id}/bookings`);
   }
 
-  // Student endpoints
-  getAvailableSlots(): Observable<ScheduleSlotDto[]> {
-    return this.http.get<ScheduleSlotDto[]>(`${this.base}/available`);
+  // ---- Студент: календарь учителя и бронирование ----
+  getTeachersWithSchedule(): Observable<TeacherWithScheduleDto[]> {
+    return this.http.get<TeacherWithScheduleDto[]>(`${this.base}/teachers`);
   }
 
-  bookSlot(id: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/slots/${id}/book`, {});
+  getTeacherCalendar(teacherId: string, from?: string, to?: string): Observable<CalendarSlotDto[]> {
+    let params = new HttpParams();
+    if (from) params = params.set('from', from);
+    if (to) params = params.set('to', to);
+    return this.http.get<CalendarSlotDto[]>(`${this.base}/teachers/${teacherId}/calendar`, { params });
   }
 
-  cancelBooking(id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.base}/slots/${id}/book`);
+  bookSlot(data: BookSlotRequest): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/book`, data);
+  }
+
+  cancelBooking(slotId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/slots/${slotId}/book`);
   }
 
   getMyBookings(): Observable<ScheduleSlotDto[]> {

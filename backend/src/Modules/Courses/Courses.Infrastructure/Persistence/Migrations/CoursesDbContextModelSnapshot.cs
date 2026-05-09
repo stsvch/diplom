@@ -96,10 +96,6 @@ namespace Courses.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("Tags")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.Property<string>("TeacherId")
                         .IsRequired()
                         .HasMaxLength(450)
@@ -313,6 +309,21 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.ToTable("CourseReviews", "courses");
                 });
 
+            modelBuilder.Entity("Courses.Domain.Entities.CourseTag", b =>
+                {
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CourseId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("CourseTags", "courses");
+                });
+
             modelBuilder.Entity("Courses.Domain.Entities.Discipline", b =>
                 {
                     b.Property<Guid>("Id")
@@ -382,6 +393,40 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.ToTable("Lessons", "courses");
                 });
 
+            modelBuilder.Entity("Courses.Domain.Entities.Tag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("UsageCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("UsageCount");
+
+                    b.ToTable("Tags", "courses");
+                });
+
             modelBuilder.Entity("Courses.Domain.Entities.Course", b =>
                 {
                     b.HasOne("Courses.Domain.Entities.Discipline", "Discipline")
@@ -444,6 +489,25 @@ namespace Courses.Infrastructure.Persistence.Migrations
                     b.Navigation("Course");
                 });
 
+            modelBuilder.Entity("Courses.Domain.Entities.CourseTag", b =>
+                {
+                    b.HasOne("Courses.Domain.Entities.Course", "Course")
+                        .WithMany("CourseTags")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Courses.Domain.Entities.Tag", "Tag")
+                        .WithMany("CourseTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("Courses.Domain.Entities.Lesson", b =>
                 {
                     b.HasOne("Courses.Domain.Entities.CourseModule", "Module")
@@ -457,6 +521,8 @@ namespace Courses.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Courses.Domain.Entities.Course", b =>
                 {
+                    b.Navigation("CourseTags");
+
                     b.Navigation("Enrollments");
 
                     b.Navigation("Items");
@@ -476,6 +542,11 @@ namespace Courses.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Courses.Domain.Entities.Discipline", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("Courses.Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("CourseTags");
                 });
 #pragma warning restore 612, 618
         }

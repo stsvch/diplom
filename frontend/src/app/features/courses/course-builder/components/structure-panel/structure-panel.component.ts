@@ -19,7 +19,6 @@ import {
   Paperclip,
   Plus,
   Trash2,
-  Video,
   X,
 } from 'lucide-angular';
 import { CourseBuilderStore } from '../../state/course-builder.store';
@@ -54,7 +53,6 @@ export class StructurePanelComponent {
     bookOpen: BookOpen,
     test: ClipboardCheck,
     assignment: FileEdit,
-    live: Video,
     material: Paperclip,
     link: Link2,
     layers: Layers,
@@ -85,7 +83,6 @@ export class StructurePanelComponent {
     { type: 'Lesson',       label: 'Урок',          desc: 'Текст, видео, изображения, файлы',   icon: BookOpen,        color: 'indigo' },
     { type: 'Test',         label: 'Тест',          desc: 'Вопросы с баллами и проходным порогом', icon: ClipboardCheck, color: 'orange' },
     { type: 'Assignment',   label: 'Задание',       desc: 'Практическая работа',                  icon: FileEdit,        color: 'rose' },
-    { type: 'LiveSession',  label: 'Live-занятие',  desc: 'Онлайн-встреча по расписанию',         icon: Video,           color: 'teal' },
     { type: 'Resource',     label: 'Материал',      desc: 'Файл, PDF, презентация',               icon: Paperclip,       color: 'slate' },
     { type: 'ExternalLink', label: 'Внешняя ссылка',desc: 'Ресурс вне платформы',                 icon: Link2,           color: 'violet' },
   ];
@@ -95,7 +92,6 @@ export class StructurePanelComponent {
       case 'Lesson': return this.icons.bookOpen;
       case 'Test': return this.icons.test;
       case 'Assignment': return this.icons.assignment;
-      case 'LiveSession': return this.icons.live;
       case 'Resource': return this.icons.material;
       case 'ExternalLink': return this.icons.link;
     }
@@ -106,7 +102,6 @@ export class StructurePanelComponent {
       case 'Lesson': return 'sp-item--indigo';
       case 'Test': return 'sp-item--orange';
       case 'Assignment': return 'sp-item--rose';
-      case 'LiveSession': return 'sp-item--teal';
       case 'Resource': return 'sp-item--slate';
       case 'ExternalLink': return 'sp-item--violet';
     }

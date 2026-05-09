@@ -47,7 +47,8 @@ export interface BannerBlockData {
 
 export interface FileBlockData {
   type: 'File';
-  attachmentId: string;
+  /** Null до загрузки файла. */
+  attachmentId: string | null;
   displayName?: string;
   description?: string;
 }

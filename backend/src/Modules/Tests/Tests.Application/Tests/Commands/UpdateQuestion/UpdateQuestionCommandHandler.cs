@@ -32,8 +32,6 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         if (question.Test.CreatedById != request.CreatedById)
             return Result.Failure<QuestionDto>("Вы не являетесь автором этого теста.");
 
-        var oldPoints = question.Points;
-
         question.Type = request.Type;
         question.Text = request.Text;
         question.Points = request.Points;
@@ -42,23 +40,51 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         question.Explanation = request.Explanation;
         question.ExpectedAnswer = request.ExpectedAnswer;
 
-        // Remove old options
-        _context.AnswerOptions.RemoveRange(question.AnswerOptions);
+        // Merge AnswerOptions:
+        //  - Id есть и совпадает → обновляем поля
+        //  - Id null или не найден → добавляем новый
+        //  - в БД есть, но в request нет → удаляем
+        // Так избегаем конфликта delete-and-recreate с EF tracker, из-за которого
+        // ловили DbUpdateConcurrencyException при автосохранении.
+        var existingById = question.AnswerOptions.ToDictionary(o => o.Id);
+        var keepIds = new HashSet<Guid>();
 
-        // Add new options
-        question.AnswerOptions.Clear();
         for (int i = 0; i < request.AnswerOptions.Count; i++)
         {
-            var opt = request.AnswerOptions[i];
-            question.AnswerOptions.Add(new AnswerOption
+            var input = request.AnswerOptions[i];
+            if (input.Id.HasValue && existingById.TryGetValue(input.Id.Value, out var existing))
             {
-                QuestionId = question.Id,
-                Text = opt.Text,
-                IsCorrect = opt.IsCorrect,
-                OrderIndex = i,
-                MatchingPairValue = opt.MatchingPairValue
-            });
+                existing.Text = input.Text;
+                existing.IsCorrect = input.IsCorrect;
+                existing.OrderIndex = i;
+                existing.MatchingPairValue = input.MatchingPairValue;
+                keepIds.Add(existing.Id);
+            }
+            else
+            {
+                // Важно: НЕ через question.AnswerOptions.Add(...). BaseEntity.Id генерится в
+                // конструкторе как Guid.NewGuid(), и EF detect-changes на tracked-родителе
+                // принимает new entity с не-default Id за Modified → UPDATE WHERE Id=...,
+                // 0 affected → DbUpdateConcurrencyException.
+                // _context.AnswerOptions.Add форсит state=Added.
+                var newOpt = new AnswerOption
+                {
+                    QuestionId = question.Id,
+                    Text = input.Text,
+                    IsCorrect = input.IsCorrect,
+                    OrderIndex = i,
+                    MatchingPairValue = input.MatchingPairValue
+                };
+                _context.AnswerOptions.Add(newOpt);
+            }
         }
+
+        // Удаляем существующие, которых нет в новом списке (по Id).
+        var toRemove = existingById.Values
+            .Where(o => !keepIds.Contains(o.Id))
+            .ToList();
+        if (toRemove.Count > 0)
+            _context.AnswerOptions.RemoveRange(toRemove);
 
         // Recalculate MaxScore
         var test = question.Test;

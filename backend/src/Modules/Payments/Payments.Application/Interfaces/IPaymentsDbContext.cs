@@ -19,6 +19,7 @@ public interface IPaymentsDbContext
     DbSet<SubscriptionInvoice> SubscriptionInvoices { get; }
     DbSet<SubscriptionAllocationRun> SubscriptionAllocationRuns { get; }
     DbSet<SubscriptionAllocationLine> SubscriptionAllocationLines { get; }
+    DbSet<SubscriptionUsage> SubscriptionUsages { get; }
     DbSet<PaymentMethodRef> PaymentMethods { get; }
     DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

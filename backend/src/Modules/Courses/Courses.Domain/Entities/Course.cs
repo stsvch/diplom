@@ -22,7 +22,6 @@ public class Course : BaseEntity, IAuditableEntity
     public DateTime? Deadline { get; set; }
     public string? ImageUrl { get; set; }
     public CourseLevel Level { get; set; }
-    public string? Tags { get; set; }
     public double? RatingAverage { get; set; }
     public int RatingCount { get; set; }
     public int ReviewsCount { get; set; }
@@ -34,4 +33,5 @@ public class Course : BaseEntity, IAuditableEntity
     public ICollection<CourseItem> Items { get; set; } = new List<CourseItem>();
     public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
+    public ICollection<CourseTag> CourseTags { get; set; } = new List<CourseTag>();
 }

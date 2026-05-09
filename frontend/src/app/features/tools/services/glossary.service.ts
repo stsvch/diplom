@@ -61,4 +61,14 @@ export class GlossaryService {
   reviewWord(id: string, outcome: DictionaryReviewOutcome): Observable<DictionaryWordDto> {
     return this.http.post<DictionaryWordDto>(`${this.base}/words/${id}/review`, { outcome });
   }
+
+  uploadImage(id: string, file: File): Observable<DictionaryWordDto> {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    return this.http.post<DictionaryWordDto>(`${this.base}/words/${id}/image`, form);
+  }
+
+  deleteImage(id: string): Observable<DictionaryWordDto> {
+    return this.http.delete<DictionaryWordDto>(`${this.base}/words/${id}/image`);
+  }
 }

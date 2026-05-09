@@ -15,5 +15,6 @@ public class StudentEnrolledCoursesSpec : Specification<CourseEnrollment>
         Query.Include(e => e.Course).ThenInclude(c => c.Discipline);
         Query.Include(e => e.Course).ThenInclude(c => c.Modules).ThenInclude(m => m.Lessons);
         Query.Include(e => e.Course).ThenInclude(c => c.Enrollments);
+        Query.Include(e => e.Course).ThenInclude(c => c.CourseTags).ThenInclude(ct => ct.Tag);
     }
 }

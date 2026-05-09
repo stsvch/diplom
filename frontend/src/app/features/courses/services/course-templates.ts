@@ -13,74 +13,51 @@ export interface CourseTemplate {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: 'mini' | 'tests' | 'homework';
+  badges: string[];
   modules: TemplateModule[];
 }
 
 export const COURSE_TEMPLATES: CourseTemplate[] = [
   {
-    id: 'empty',
-    name: 'Пустой курс',
-    description: 'Начните с чистого листа и добавьте модули сами',
-    icon: 'file-plus',
-    modules: [],
-  },
-  {
-    id: 'lecture',
-    name: 'Лекционный курс',
-    description: '3 модуля по 3 лекции — для теоретических курсов',
-    icon: 'graduation-cap',
+    id: 'mini',
+    name: 'Мини-курс',
+    description: '2 раздела, по 2 урока в каждом. Идеально для короткого курса или мастер-класса.',
+    icon: 'mini',
+    badges: ['Урок', 'Урок'],
     modules: [
       {
-        title: 'Введение',
-        lessons: [
-          { title: 'Знакомство с темой' },
-          { title: 'История и основные понятия' },
-          { title: 'Практическая значимость' },
-        ],
+        title: 'Раздел 1',
+        lessons: [{ title: 'Урок 1' }, { title: 'Урок 2' }],
       },
       {
-        title: 'Основы',
-        lessons: [
-          { title: 'Базовые принципы' },
-          { title: 'Ключевые концепции' },
-          { title: 'Примеры применения' },
-        ],
-      },
-      {
-        title: 'Заключение',
-        lessons: [
-          { title: 'Обобщение материала' },
-          { title: 'Связь с другими темами' },
-          { title: 'Итоговая рефлексия' },
-        ],
+        title: 'Раздел 2',
+        lessons: [{ title: 'Урок 1' }, { title: 'Урок 2' }],
       },
     ],
   },
   {
-    id: 'intensive',
-    name: 'Интенсив',
-    description: '10 уроков подряд без деления на модули',
-    icon: 'zap',
-    modules: [
-      {
-        title: 'Полный курс',
-        lessons: Array.from({ length: 10 }, (_, i) => ({ title: `Урок ${i + 1}` })),
-      },
-    ],
-  },
-  {
-    id: 'quiz-course',
+    id: 'with-tests',
     name: 'Курс с тестами',
-    description: '5 модулей, каждый завершается контрольным уроком',
-    icon: 'clipboard-check',
-    modules: Array.from({ length: 5 }, (_, i) => ({
-      title: `Тема ${i + 1}`,
-      lessons: [
-        { title: 'Лекция' },
-        { title: 'Разбор примеров' },
-        { title: `Тест по теме ${i + 1}` },
-      ],
-    })),
+    description: '3 раздела: урок → тест в каждом. Для курсов с проверкой знаний.',
+    icon: 'tests',
+    badges: ['Урок', 'Тест'],
+    modules: [
+      { title: 'Раздел 1', lessons: [{ title: 'Урок' }, { title: 'Контрольный урок' }] },
+      { title: 'Раздел 2', lessons: [{ title: 'Урок' }, { title: 'Контрольный урок' }] },
+      { title: 'Раздел 3', lessons: [{ title: 'Урок' }, { title: 'Контрольный урок' }] },
+    ],
+  },
+  {
+    id: 'with-homework',
+    name: 'Курс с заданиями',
+    description: '3 раздела: урок → задание. Для практико-ориентированных курсов.',
+    icon: 'homework',
+    badges: ['Урок', 'Задание'],
+    modules: [
+      { title: 'Раздел 1', lessons: [{ title: 'Урок' }, { title: 'Практическая работа' }] },
+      { title: 'Раздел 2', lessons: [{ title: 'Урок' }, { title: 'Практическая работа' }] },
+      { title: 'Раздел 3', lessons: [{ title: 'Урок' }, { title: 'Практическая работа' }] },
+    ],
   },
 ];

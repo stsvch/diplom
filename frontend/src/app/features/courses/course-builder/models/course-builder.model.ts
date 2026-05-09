@@ -4,7 +4,6 @@ export type CourseItemType =
   | 'Lesson'
   | 'Test'
   | 'Assignment'
-  | 'LiveSession'
   | 'Resource'
   | 'ExternalLink';
 
@@ -74,14 +73,13 @@ export interface CourseBuilderCourseDto {
   hasGrading: boolean;
   hasCertificate: boolean;
   deadline?: string | null;
-  tags?: string | null;
+  tags: string[];
   createdAt: string;
   studentsCount: number;
   sectionsCount: number;
   lessonsCount: number;
   testsCount: number;
   assignmentsCount: number;
-  liveSessionsCount: number;
 }
 
 export interface CourseBuilderReadinessIssueDto {
@@ -175,7 +173,6 @@ export interface CourseItemBackfillDto {
   lessonsCount: number;
   testsCount: number;
   assignmentsCount: number;
-  liveSessionsCount: number;
 }
 
 // ── UI selection ──
@@ -191,7 +188,6 @@ export const COURSE_ITEM_TYPE_LABELS: Record<CourseItemType, string> = {
   Lesson: 'Урок',
   Test: 'Тест',
   Assignment: 'Задание',
-  LiveSession: 'Live-занятие',
   Resource: 'Материал',
   ExternalLink: 'Ссылка',
 };
@@ -200,7 +196,6 @@ export const COURSE_ITEM_TYPE_DESCRIPTIONS: Record<CourseItemType, string> = {
   Lesson: 'Текст, видео, изображения, файлы',
   Test: 'Вопросы с баллами и проходным порогом',
   Assignment: 'Практическая работа с ручной проверкой',
-  LiveSession: 'Онлайн-встреча по расписанию',
   Resource: 'Файл, PDF, презентация',
   ExternalLink: 'Ресурс вне платформы',
 };

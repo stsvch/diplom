@@ -21,6 +21,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
     private readonly ISubscriptionAllocationReadService _subscriptionAllocationReadService;
     private readonly ICourseAccessProvisioningService _courseAccessProvisioningService;
     private readonly ICourseAccessRevocationService _courseAccessRevocationService;
+    private readonly ISubscriptionEntitlementProvider _entitlementProvider;
     private readonly PaymentsOptions _paymentsOptions;
     private readonly IConfiguration _configuration;
 
@@ -32,6 +33,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         ISubscriptionAllocationReadService subscriptionAllocationReadService,
         ICourseAccessProvisioningService courseAccessProvisioningService,
         ICourseAccessRevocationService courseAccessRevocationService,
+        ISubscriptionEntitlementProvider entitlementProvider,
         IOptions<PaymentsOptions> paymentsOptions,
         IConfiguration configuration)
     {
@@ -42,8 +44,27 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         _subscriptionAllocationReadService = subscriptionAllocationReadService;
         _courseAccessProvisioningService = courseAccessProvisioningService;
         _courseAccessRevocationService = courseAccessRevocationService;
+        _entitlementProvider = entitlementProvider;
         _paymentsOptions = paymentsOptions.Value;
         _configuration = configuration;
+    }
+
+    public async Task<UserEntitlementsDto> GetMyEntitlementsAsync(
+        string userId,
+        CancellationToken cancellationToken = default)
+    {
+        var ent = await _entitlementProvider.GetForUserAsync(userId, cancellationToken);
+        return new UserEntitlementsDto(
+            ent.HasActiveSubscription,
+            ent.PlanName,
+            ent.IndividualSlotsPerMonth,
+            ent.IndividualSlotsUsed,
+            ent.IndividualSlotsRemaining,
+            ent.GroupSlotsPerMonth,
+            ent.GroupSlotsUsed,
+            ent.GroupSlotsRemaining,
+            ent.CurrentPeriodStart,
+            ent.CurrentPeriodEnd);
     }
 
     public async Task<TeacherPayoutAccountDto> GetTeacherPayoutAccountAsync(
@@ -392,6 +413,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         int sortOrder,
         string? providerProductId,
         string? providerPriceId,
+        int individualSlotsPerMonth,
+        int groupSlotsPerMonth,
         CancellationToken cancellationToken = default)
     {
         var plan = new SubscriptionPlan();
@@ -407,7 +430,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             isFeatured,
             sortOrder,
             providerProductId,
-            providerPriceId);
+            providerPriceId,
+            individualSlotsPerMonth,
+            groupSlotsPerMonth);
 
         _context.SubscriptionPlans.Add(plan);
         await _context.SaveChangesAsync(cancellationToken);
@@ -427,6 +452,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         int sortOrder,
         string? providerProductId,
         string? providerPriceId,
+        int individualSlotsPerMonth,
+        int groupSlotsPerMonth,
         CancellationToken cancellationToken = default)
     {
         var plan = await _context.SubscriptionPlans
@@ -446,7 +473,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             isFeatured,
             sortOrder,
             providerProductId,
-            providerPriceId);
+            providerPriceId,
+            individualSlotsPerMonth,
+            groupSlotsPerMonth);
 
         await _context.SaveChangesAsync(cancellationToken);
         return MapSubscriptionPlan(plan);
@@ -1062,7 +1091,15 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 x.CancelAtPeriodEnd,
                 x.CanceledAt,
                 x.StartedAt,
-                x.EndedAt))
+                x.EndedAt,
+                _context.SubscriptionPlans
+                    .Where(p => p.Id == x.SubscriptionPlanId)
+                    .Select(p => p.IndividualSlotsPerMonth)
+                    .FirstOrDefault(),
+                _context.SubscriptionPlans
+                    .Where(p => p.Id == x.SubscriptionPlanId)
+                    .Select(p => p.GroupSlotsPerMonth)
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }
 
@@ -2977,6 +3014,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             x.SortOrder,
             x.ProviderProductId,
             x.ProviderPriceId,
+            x.IndividualSlotsPerMonth,
+            x.GroupSlotsPerMonth,
             x.CreatedAt,
             x.UpdatedAt);
     }
@@ -2996,6 +3035,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             plan.SortOrder,
             plan.ProviderProductId,
             plan.ProviderPriceId,
+            plan.IndividualSlotsPerMonth,
+            plan.GroupSlotsPerMonth,
             plan.CreatedAt,
             plan.UpdatedAt);
     }
@@ -3012,7 +3053,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         bool isFeatured,
         int sortOrder,
         string? providerProductId,
-        string? providerPriceId)
+        string? providerPriceId,
+        int individualSlotsPerMonth,
+        int groupSlotsPerMonth)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new InvalidOperationException("Название тарифа обязательно.");
@@ -3022,6 +3065,10 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             throw new InvalidOperationException("Валюта тарифа обязательна.");
         if (billingIntervalCount <= 0)
             throw new InvalidOperationException("Интервал тарифа должен быть больше нуля.");
+        if (individualSlotsPerMonth < 0)
+            throw new InvalidOperationException("Количество индивидуальных занятий не может быть отрицательным.");
+        if (groupSlotsPerMonth < 0)
+            throw new InvalidOperationException("Количество групповых занятий не может быть отрицательным.");
 
         if (!Enum.TryParse<SubscriptionBillingInterval>(billingInterval, true, out var parsedInterval))
             throw new InvalidOperationException("Некорректный billing interval тарифа.");
@@ -3037,6 +3084,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         plan.SortOrder = sortOrder;
         plan.ProviderProductId = string.IsNullOrWhiteSpace(providerProductId) ? null : providerProductId.Trim();
         plan.ProviderPriceId = string.IsNullOrWhiteSpace(providerPriceId) ? null : providerPriceId.Trim();
+        plan.IndividualSlotsPerMonth = individualSlotsPerMonth;
+        plan.GroupSlotsPerMonth = groupSlotsPerMonth;
     }
 
     private static Expression<Func<PaymentAttempt, PaymentAttemptDto>> MapPaymentAttemptProjection()

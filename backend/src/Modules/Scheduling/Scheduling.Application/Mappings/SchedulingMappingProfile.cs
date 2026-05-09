@@ -15,5 +15,7 @@ public class SchedulingMappingProfile : Profile
                 opt => opt.MapFrom(s => s.Bookings.Count(b => b.Status == Domain.Enums.BookingStatus.Booked)))
             .ForMember(d => d.Bookings,
                 opt => opt.MapFrom(s => s.Bookings.ToList()));
+
+        CreateMap<TeacherAvailability, TeacherAvailabilityDto>();
     }
 }

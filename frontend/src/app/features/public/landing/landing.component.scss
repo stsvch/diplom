@@ -826,15 +826,21 @@
 // Roles
 // ─────────────────────────────────────────────────────────────
 .lp-roles {
-  max-width: $container-max;
+  max-width: 880px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-6;
+  align-items: stretch;
 
   @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.lp-role-card {
+  display: flex;
+  flex-direction: column;
 }
 
 .lp-role-card {
@@ -1158,14 +1164,8 @@
     max-width: $container-max;
     margin: 0 auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: $spacing-4;
-
-    @media (min-width: $breakpoint-md) {
-      flex-direction: row;
-      justify-content: space-between;
-    }
+    justify-content: center;
   }
 
   &__copy {

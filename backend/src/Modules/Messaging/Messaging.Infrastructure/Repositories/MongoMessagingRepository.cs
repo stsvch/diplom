@@ -1,5 +1,6 @@
 using Messaging.Application.Interfaces;
 using Messaging.Domain.Documents;
+using Messaging.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,11 +10,13 @@ public class MongoMessagingRepository : IMessagingRepository
 {
     private readonly IMongoCollection<ChatDocument> _chats;
     private readonly IMongoCollection<MessageDocument> _messages;
+    private readonly IMongoCollection<ReadReceiptDocument> _receipts;
 
     public MongoMessagingRepository(IMongoDatabase database)
     {
         _chats = database.GetCollection<ChatDocument>("chats");
         _messages = database.GetCollection<MessageDocument>("messages");
+        _receipts = database.GetCollection<ReadReceiptDocument>("read_receipts");
         CreateIndexes();
     }
 
@@ -24,7 +27,7 @@ public class MongoMessagingRepository : IMessagingRepository
 
         // Unique partial index: at most one CourseChat per CourseId
         var courseIdIndex = Builders<ChatDocument>.IndexKeys.Ascending(c => c.CourseId);
-        var courseChatFilter = Builders<ChatDocument>.Filter.Eq(c => c.Type, "CourseChat");
+        var courseChatFilter = Builders<ChatDocument>.Filter.Eq(c => c.Type, ChatType.CourseChat);
         _chats.Indexes.CreateOne(new CreateIndexModel<ChatDocument>(
             courseIdIndex,
             new CreateIndexOptions<ChatDocument>
@@ -34,18 +37,22 @@ public class MongoMessagingRepository : IMessagingRepository
                 Name = "courseId_unique_when_coursechat"
             }));
 
-        var messageIndex = Builders<MessageDocument>.IndexKeys.Ascending(m => m.ChatId);
-        _messages.Indexes.CreateOne(new CreateIndexModel<MessageDocument>(messageIndex));
+        var messageIndex = Builders<MessageDocument>.IndexKeys
+            .Ascending(m => m.ChatId)
+            .Descending(m => m.SentAt);
+        _messages.Indexes.CreateOne(new CreateIndexModel<MessageDocument>(messageIndex,
+            new CreateIndexOptions { Name = "chatId_sentAt_desc" }));
+
+        var receiptIndex = Builders<ReadReceiptDocument>.IndexKeys
+            .Ascending(r => r.ChatId)
+            .Ascending(r => r.UserId);
+        _receipts.Indexes.CreateOne(new CreateIndexModel<ReadReceiptDocument>(receiptIndex,
+            new CreateIndexOptions { Unique = true, Name = "chatId_userId_unique" }));
     }
 
     public async Task<List<ChatDocument>> GetUserChatsAsync(string userId)
     {
-        var filter = Builders<ChatDocument>.Filter.And(
-            Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId),
-            Builders<ChatDocument>.Filter.Not(
-                Builders<ChatDocument>.Filter.AnyEq(c => c.HiddenBy, userId)
-            )
-        );
+        var filter = Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId);
         return await _chats.Find(filter)
             .SortByDescending(c => c.LastMessageAt)
             .ToListAsync();
@@ -60,7 +67,7 @@ public class MongoMessagingRepository : IMessagingRepository
     public async Task<ChatDocument?> GetByCourseIdAsync(string courseId)
     {
         var filter = Builders<ChatDocument>.Filter.And(
-            Builders<ChatDocument>.Filter.Eq(c => c.Type, "CourseChat"),
+            Builders<ChatDocument>.Filter.Eq(c => c.Type, ChatType.CourseChat),
             Builders<ChatDocument>.Filter.Eq(c => c.CourseId, courseId)
         );
         return await _chats.Find(filter).FirstOrDefaultAsync();
@@ -71,7 +78,7 @@ public class MongoMessagingRepository : IMessagingRepository
         string userId2, string userName2)
     {
         var filter = Builders<ChatDocument>.Filter.And(
-            Builders<ChatDocument>.Filter.Eq(c => c.Type, "DirectMessage"),
+            Builders<ChatDocument>.Filter.Eq(c => c.Type, ChatType.DirectMessage),
             Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId1),
             Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId2)
         );
@@ -82,7 +89,7 @@ public class MongoMessagingRepository : IMessagingRepository
 
         var chat = new ChatDocument
         {
-            Type = "DirectMessage",
+            Type = ChatType.DirectMessage,
             ParticipantIds = new List<string> { userId1, userId2 },
             Participants = new List<ParticipantInfo>
             {
@@ -111,7 +118,7 @@ public class MongoMessagingRepository : IMessagingRepository
 
         var chat = new ChatDocument
         {
-            Type = "CourseChat",
+            Type = ChatType.CourseChat,
             CourseId = courseId,
             CourseName = courseName,
             OwnerId = ownerId,
@@ -147,8 +154,7 @@ public class MongoMessagingRepository : IMessagingRepository
         var chatFilter = Builders<ChatDocument>.Filter.Eq(c => c.Id, message.ChatId);
         var update = Builders<ChatDocument>.Update
             .Set(c => c.LastMessage, BuildMessagePreview(message))
-            .Set(c => c.LastMessageAt, message.SentAt)
-            .Set(c => c.HiddenBy, new List<string>()); // surface chat back for everyone on new message
+            .Set(c => c.LastMessageAt, message.SentAt);
         await _chats.UpdateOneAsync(chatFilter, update);
 
         return message;
@@ -156,71 +162,53 @@ public class MongoMessagingRepository : IMessagingRepository
 
     public async Task MarkMessagesAsReadAsync(string chatId, string userId)
     {
-        var filter = Builders<MessageDocument>.Filter.And(
-            Builders<MessageDocument>.Filter.Eq(m => m.ChatId, chatId),
-            Builders<MessageDocument>.Filter.Not(
-                Builders<MessageDocument>.Filter.AnyEq(m => m.ReadBy, userId)
-            )
-        );
+        var filter = Builders<ReadReceiptDocument>.Filter.And(
+            Builders<ReadReceiptDocument>.Filter.Eq(r => r.ChatId, chatId),
+            Builders<ReadReceiptDocument>.Filter.Eq(r => r.UserId, userId));
 
-        var update = Builders<MessageDocument>.Update.AddToSet(m => m.ReadBy, userId);
-        await _messages.UpdateManyAsync(filter, update);
+        var update = Builders<ReadReceiptDocument>.Update
+            .Set(r => r.LastReadAt, DateTime.UtcNow)
+            .SetOnInsert(r => r.ChatId, chatId)
+            .SetOnInsert(r => r.UserId, userId);
+
+        await _receipts.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
     }
 
     public async Task<int> GetUnreadCountAsync(string userId)
     {
-        var chatFilter = Builders<ChatDocument>.Filter.And(
-            Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId),
-            Builders<ChatDocument>.Filter.Not(
-                Builders<ChatDocument>.Filter.AnyEq(c => c.HiddenBy, userId)
-            )
-        );
-        var chatIds = await _chats.Find(chatFilter)
-            .Project(c => c.Id)
-            .ToListAsync();
-
-        if (!chatIds.Any())
-            return 0;
-
-        var messageFilter = Builders<MessageDocument>.Filter.And(
-            Builders<MessageDocument>.Filter.In(m => m.ChatId, chatIds),
-            Builders<MessageDocument>.Filter.Ne(m => m.SenderId, userId),
-            Builders<MessageDocument>.Filter.Not(
-                Builders<MessageDocument>.Filter.AnyEq(m => m.ReadBy, userId)
-            )
-        );
-
-        return (int)await _messages.CountDocumentsAsync(messageFilter);
+        var perChat = await GetUnreadCountsPerChatAsync(userId);
+        return perChat.Values.Sum();
     }
 
     public async Task<Dictionary<string, int>> GetUnreadCountsPerChatAsync(string userId)
     {
-        var chatFilter = Builders<ChatDocument>.Filter.And(
-            Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId),
-            Builders<ChatDocument>.Filter.Not(
-                Builders<ChatDocument>.Filter.AnyEq(c => c.HiddenBy, userId)
-            )
-        );
+        var chatFilter = Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId);
         var chatIds = await _chats.Find(chatFilter)
             .Project(c => c.Id)
             .ToListAsync();
 
-        if (!chatIds.Any()) return new Dictionary<string, int>();
+        if (chatIds.Count == 0) return new Dictionary<string, int>();
 
-        var messageFilter = Builders<MessageDocument>.Filter.And(
-            Builders<MessageDocument>.Filter.In(m => m.ChatId, chatIds),
-            Builders<MessageDocument>.Filter.Ne(m => m.SenderId, userId),
-            Builders<MessageDocument>.Filter.Not(
-                Builders<MessageDocument>.Filter.AnyEq(m => m.ReadBy, userId)
-            )
-        );
+        var receiptFilter = Builders<ReadReceiptDocument>.Filter.And(
+            Builders<ReadReceiptDocument>.Filter.In(r => r.ChatId, chatIds),
+            Builders<ReadReceiptDocument>.Filter.Eq(r => r.UserId, userId));
+        var receipts = await _receipts.Find(receiptFilter).ToListAsync();
+        var lastReadByChat = receipts.ToDictionary(r => r.ChatId, r => r.LastReadAt);
 
-        var grouped = await _messages.Aggregate()
-            .Match(messageFilter)
-            .Group(m => m.ChatId, g => new { ChatId = g.Key, Count = g.Count() })
-            .ToListAsync();
+        var result = new Dictionary<string, int>(chatIds.Count);
+        foreach (var chatId in chatIds)
+        {
+            var lastReadAt = lastReadByChat.GetValueOrDefault(chatId, DateTime.MinValue);
+            var msgFilter = Builders<MessageDocument>.Filter.And(
+                Builders<MessageDocument>.Filter.Eq(m => m.ChatId, chatId),
+                Builders<MessageDocument>.Filter.Ne(m => m.SenderId, userId),
+                Builders<MessageDocument>.Filter.Gt(m => m.SentAt, lastReadAt));
+            var count = (int)await _messages.CountDocumentsAsync(msgFilter);
+            if (count > 0)
+                result[chatId] = count;
+        }
 
-        return grouped.ToDictionary(x => x.ChatId, x => x.Count);
+        return result;
     }
 
     public async Task<bool> DeleteMessageAsync(string messageId, string userId)
@@ -305,13 +293,6 @@ public class MongoMessagingRepository : IMessagingRepository
     {
         var filter = Builders<ChatDocument>.Filter.Eq(c => c.Id, chatId);
         var update = Builders<ChatDocument>.Update.Set(c => c.IsArchived, archived);
-        await _chats.UpdateOneAsync(filter, update);
-    }
-
-    public async Task HideChatAsync(string chatId, string userId)
-    {
-        var filter = Builders<ChatDocument>.Filter.Eq(c => c.Id, chatId);
-        var update = Builders<ChatDocument>.Update.AddToSet(c => c.HiddenBy, userId);
         await _chats.UpdateOneAsync(filter, update);
     }
 

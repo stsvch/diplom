@@ -3,9 +3,11 @@ export interface DictionaryWordDto {
   courseId: string;
   courseTitle: string;
   term: string;
-  translation: string;
+  translation?: string | null;
   definition?: string | null;
   example?: string | null;
+  note?: string | null;
+  imageUrl?: string | null;
   tags: string[];
   createdById: string;
   isKnown: boolean;
@@ -28,9 +30,10 @@ export interface GlossaryFilters {
 export interface UpsertDictionaryWordRequest {
   courseId: string;
   term: string;
-  translation: string;
+  translation?: string | null;
   definition?: string | null;
   example?: string | null;
+  note?: string | null;
   tags: string[];
 }
 

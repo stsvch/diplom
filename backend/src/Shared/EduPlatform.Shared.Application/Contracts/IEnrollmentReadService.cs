@@ -5,4 +5,6 @@ public interface IEnrollmentReadService
     Task<IReadOnlyList<string>> GetActiveStudentIdsAsync(Guid courseId, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Guid>> GetActiveCourseIdsForStudentAsync(string studentId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<string>> GetActiveStudentIdsForTeacherAsync(string teacherId, CancellationToken cancellationToken = default);
 }

@@ -45,6 +45,7 @@ public static class ContentModuleRegistration
         services.AddScoped<IFileStorageService, MinioFileStorageService>();
         services.AddScoped<ILessonContentCleaner, LessonContentCleaner>();
         services.AddScoped<IContentReadService, ContentReadService>();
+        services.AddScoped<IAttachmentCleaner, AttachmentCleaner>();
         services.AddSingleton<ICodeExecutor, ProcessCodeExecutor>();
 
         // Block graders

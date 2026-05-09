@@ -69,7 +69,8 @@ public class AssignmentsController : ControllerBase
             result.Value.Description,
             result.Value.MaxScore,
             result.Value.Deadline,
-            ct);
+            ct,
+            request.SectionId);
         return Ok(result.Value);
     }
 
@@ -178,7 +179,8 @@ public record CreateAssignmentRequest(
     int? MaxAttempts,
     int MaxScore,
     AssignmentSubmissionFormat? SubmissionFormat = null,
-    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null);
+    IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null,
+    Guid? SectionId = null);
 
 public record UpdateAssignmentRequest(
     Guid CourseId,

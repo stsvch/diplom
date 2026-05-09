@@ -11,11 +11,11 @@ export class FileService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}`;
 
-  upload(file: File, entityType: string, entityId: string): Observable<AttachmentDto> {
+  upload(file: File, entityType: string, entityId?: string): Observable<AttachmentDto> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('entityType', entityType);
-    formData.append('entityId', entityId);
+    if (entityId) formData.append('entityId', entityId);
     return this.http.post<AttachmentDto>(`${this.base}/files/upload`, formData);
   }
 

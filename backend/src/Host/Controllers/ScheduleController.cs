@@ -1,21 +1,20 @@
-using Calendar.Application.Calendar.Commands.CreateCalendarEvent;
-using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
-using EduPlatform.Shared.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Notifications.Application.Notifications.Commands.CreateNotification;
 using Scheduling.Application.Scheduling.Commands.BookSlot;
 using Scheduling.Application.Scheduling.Commands.CancelBooking;
 using Scheduling.Application.Scheduling.Commands.CancelSlot;
 using Scheduling.Application.Scheduling.Commands.CompleteSlot;
-using Scheduling.Application.Scheduling.Commands.CreateSlot;
+using Scheduling.Application.Scheduling.Commands.CreateAvailability;
+using Scheduling.Application.Scheduling.Commands.DeleteAvailability;
 using Scheduling.Application.Scheduling.Commands.UpdateSlot;
-using Scheduling.Application.Scheduling.Queries.GetAvailableSlots;
+using Scheduling.Application.Scheduling.Queries.GetMyAvailability;
 using Scheduling.Application.Scheduling.Queries.GetMyBookings;
 using Scheduling.Application.Scheduling.Queries.GetSlotById;
+using Scheduling.Application.Scheduling.Queries.GetTeacherCalendar;
 using Scheduling.Application.Scheduling.Queries.GetTeacherSlots;
+using Scheduling.Application.Scheduling.Queries.GetTeachersWithSchedule;
 using Scheduling.Domain.Enums;
 using System.Security.Claims;
 
@@ -27,67 +26,61 @@ namespace EduPlatform.Host.Controllers;
 public class ScheduleController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly CourseItemSyncService _courseItems;
 
-    public ScheduleController(IMediator mediator, CourseItemSyncService courseItems)
+    public ScheduleController(IMediator mediator)
     {
         _mediator = mediator;
-        _courseItems = courseItems;
     }
 
-    // ---- Teacher endpoints ----
+    // ---- Учитель: правила расписания ----
 
-    [HttpPost("slots")]
+    [HttpGet("availability/my")]
     [Authorize(Roles = "Teacher")]
-    public async Task<IActionResult> CreateSlot([FromBody] CreateSlotRequest request, CancellationToken ct)
+    public async Task<IActionResult> GetMyAvailability(CancellationToken ct)
+    {
+        var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var rules = await _mediator.Send(new GetMyAvailabilityQuery(teacherId), ct);
+        return Ok(rules);
+    }
+
+    [HttpPost("availability")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> CreateAvailability([FromBody] CreateAvailabilityRequest request, CancellationToken ct)
     {
         var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var teacherName = $"{User.FindFirstValue(ClaimTypes.GivenName)} {User.FindFirstValue(ClaimTypes.Surname)}".Trim();
         if (string.IsNullOrEmpty(teacherName))
             teacherName = User.FindFirstValue(ClaimTypes.Name) ?? "Преподаватель";
 
-        var command = new CreateSlotCommand(
+        var command = new CreateAvailabilityCommand(
             teacherId, teacherName,
-            request.CourseId, request.CourseName,
-            request.Title, request.Description,
+            request.Kind, request.DayOfWeek, request.SpecificDate,
             request.StartTime, request.EndTime,
-            request.IsGroupSession, request.MaxStudents,
-            request.MeetingLink);
+            request.SlotDurationMinutes, request.BreakBetweenMinutes,
+            request.ValidFrom, request.ValidUntil,
+            request.SessionType, request.MaxStudents,
+            request.Title, request.Description, request.MeetingLink,
+            request.RequiredCourseId);
 
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure)
-            return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_CREATE_FAILED"));
-
-        await _courseItems.EnsureLiveSessionItemAsync(
-            result.Value!.CourseId,
-            result.Value.Id,
-            result.Value.Title,
-            result.Value.Description,
-            result.Value.StartTime,
-            result.Value.EndTime,
-            ct);
-
-        // Create calendar event for the teacher
-        try
-        {
-            await _mediator.Send(new CreateCalendarEventCommand(
-                teacherId,
-                request.CourseId,
-                result.Value!.Title,
-                request.Description,
-                request.StartTime.Date,
-                request.StartTime.ToString("HH:mm"),
-                CalendarEventType.Lesson,
-                "ScheduleSlot",
-                result.Value.Id), ct);
-        }
-        catch
-        {
-            // Calendar event creation is optional
-        }
+            return BadRequest(ApiError.FromMessage(result.Error!, "AVAILABILITY_CREATE_FAILED"));
 
         return Ok(result.Value);
     }
+
+    [HttpDelete("availability/{id:guid}")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> DeleteAvailability(Guid id, CancellationToken ct)
+    {
+        var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var result = await _mediator.Send(new DeleteAvailabilityCommand(id, teacherId), ct);
+        if (result.IsFailure)
+            return BadRequest(ApiError.FromMessage(result.Error!, "AVAILABILITY_DELETE_FAILED"));
+        return Ok(new { message = result.Value });
+    }
+
+    // ---- Учитель: материализованные слоты ----
 
     [HttpGet("slots/my")]
     [Authorize(Roles = "Teacher")]
@@ -95,15 +88,11 @@ public class ScheduleController : ControllerBase
     {
         var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         SlotStatus? slotStatus = null;
-
         if (!string.IsNullOrEmpty(status))
         {
-            if (status.Equals("completed", StringComparison.OrdinalIgnoreCase))
-                slotStatus = SlotStatus.Completed;
-            else if (status.Equals("cancelled", StringComparison.OrdinalIgnoreCase))
-                slotStatus = SlotStatus.Cancelled;
-            else if (status.Equals("upcoming", StringComparison.OrdinalIgnoreCase))
-                slotStatus = SlotStatus.Available;
+            if (status.Equals("completed", StringComparison.OrdinalIgnoreCase)) slotStatus = SlotStatus.Completed;
+            else if (status.Equals("cancelled", StringComparison.OrdinalIgnoreCase)) slotStatus = SlotStatus.Cancelled;
+            else if (status.Equals("upcoming", StringComparison.OrdinalIgnoreCase)) slotStatus = SlotStatus.Available;
         }
 
         var slots = await _mediator.Send(new GetTeacherSlotsQuery(teacherId, slotStatus), ct);
@@ -121,16 +110,6 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(command, ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_UPDATE_FAILED"));
-
-        await _courseItems.EnsureLiveSessionItemAsync(
-            result.Value!.CourseId,
-            result.Value.Id,
-            result.Value.Title,
-            result.Value.Description,
-            result.Value.StartTime,
-            result.Value.EndTime,
-            ct);
-
         return Ok(result.Value);
     }
 
@@ -142,7 +121,6 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(new CancelSlotCommand(id, teacherId), ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_CANCEL_FAILED"));
-
         return Ok(new { message = result.Value });
     }
 
@@ -154,7 +132,6 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(new CompleteSlotCommand(id, teacherId), ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_COMPLETE_FAILED"));
-
         return Ok(new { message = result.Value });
     }
 
@@ -164,7 +141,6 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(new GetSlotByIdQuery(id), ct);
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "SLOT_NOT_FOUND"));
-
         return Ok(result.Value);
     }
 
@@ -176,56 +152,51 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(new GetSlotByIdQuery(id), ct);
         if (result.IsFailure)
             return NotFound(ApiError.FromMessage(result.Error!, "SLOT_NOT_FOUND"));
-
         if (result.Value!.TeacherId != teacherId)
             return Forbid();
-
         return Ok(result.Value.Bookings);
     }
 
-    // ---- Student endpoints ----
+    // ---- Студент: календарь учителя и бронирование ----
 
-    [HttpGet("available")]
-    [Authorize(Roles = "Student")]
-    public async Task<IActionResult> GetAvailableSlots(CancellationToken ct)
+    [HttpGet("teachers")]
+    [Authorize]
+    public async Task<IActionResult> GetTeachersWithSchedule(CancellationToken ct)
     {
-        var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        var slots = await _mediator.Send(new GetAvailableSlotsQuery(studentId), ct);
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var teachers = await _mediator.Send(new GetTeachersWithScheduleQuery(currentUserId), ct);
+        return Ok(teachers);
+    }
+
+    [HttpGet("teachers/{teacherId}/calendar")]
+    [Authorize]
+    public async Task<IActionResult> GetTeacherCalendar(
+        string teacherId,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
+        CancellationToken ct)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var fromDate = from ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        var toDate = to ?? fromDate.AddDays(28);
+        var slots = await _mediator.Send(new GetTeacherCalendarQuery(teacherId, fromDate, toDate, currentUserId), ct);
         return Ok(slots);
     }
 
-    [HttpPost("slots/{id:guid}/book")]
+    [HttpPost("book")]
     [Authorize(Roles = "Student")]
-    public async Task<IActionResult> BookSlot(Guid id, CancellationToken ct)
+    public async Task<IActionResult> BookSlot([FromBody] BookSlotRequest request, CancellationToken ct)
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var studentName = $"{User.FindFirstValue(ClaimTypes.GivenName)} {User.FindFirstValue(ClaimTypes.Surname)}".Trim();
         if (string.IsNullOrEmpty(studentName))
             studentName = User.FindFirstValue(ClaimTypes.Name) ?? "Студент";
 
-        var result = await _mediator.Send(new BookSlotCommand(id, studentId, studentName), ct);
+        var result = await _mediator.Send(
+            new BookSlotCommand(request.AvailabilityId, request.StartTime, studentId, studentName), ct);
+
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "SLOT_BOOK_FAILED"));
-
-        // Send notification to teacher
-        try
-        {
-            var slotResult = await _mediator.Send(new GetSlotByIdQuery(id), ct);
-            if (slotResult.IsSuccess)
-            {
-                await _mediator.Send(new CreateNotificationCommand(
-                    slotResult.Value!.TeacherId,
-                    NotificationType.Course,
-                    "Новая запись на занятие",
-                    $"{studentName} записался(-ась) на занятие «{slotResult.Value.Title}».",
-                    $"/teacher/schedule"), ct);
-            }
-        }
-        catch
-        {
-            // Notification is optional
-        }
-
         return Ok(new { message = result.Value });
     }
 
@@ -237,7 +208,6 @@ public class ScheduleController : ControllerBase
         var result = await _mediator.Send(new CancelBookingCommand(id, studentId), ct);
         if (result.IsFailure)
             return BadRequest(ApiError.FromMessage(result.Error!, "BOOKING_CANCEL_FAILED"));
-
         return Ok(new { message = result.Value });
     }
 
@@ -251,16 +221,24 @@ public class ScheduleController : ControllerBase
     }
 }
 
-public record CreateSlotRequest(
-    Guid? CourseId,
-    string? CourseName,
+public record CreateAvailabilityRequest(
+    AvailabilityKind Kind,
+    DayOfWeek? DayOfWeek,
+    DateOnly? SpecificDate,
+    TimeOnly StartTime,
+    TimeOnly EndTime,
+    int SlotDurationMinutes,
+    int BreakBetweenMinutes,
+    DateOnly ValidFrom,
+    DateOnly? ValidUntil,
+    SessionType SessionType,
+    int MaxStudents,
     string Title,
     string? Description,
-    DateTime StartTime,
-    DateTime EndTime,
-    bool IsGroupSession,
-    int MaxStudents,
-    string? MeetingLink);
+    string? MeetingLink,
+    Guid? RequiredCourseId);
+
+public record BookSlotRequest(Guid AvailabilityId, DateTime StartTime);
 
 public record UpdateSlotRequest(
     string? Title,

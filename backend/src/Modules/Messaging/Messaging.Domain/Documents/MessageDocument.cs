@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Messaging.Domain.Documents;
 
+[BsonIgnoreExtraElements]
 public class MessageDocument
 {
     [BsonId]
@@ -14,12 +15,12 @@ public class MessageDocument
     public string Text { get; set; } = string.Empty;
     public List<MessageAttachment> Attachments { get; set; } = new();
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
-    public List<string> ReadBy { get; set; } = new();
     public bool IsEdited { get; set; }
 }
 
 public class MessageAttachment
 {
+    public Guid? AttachmentId { get; set; }
     public string FileName { get; set; } = string.Empty;
     public string FileUrl { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;

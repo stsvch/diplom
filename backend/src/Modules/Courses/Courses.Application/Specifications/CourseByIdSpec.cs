@@ -11,5 +11,6 @@ public class CourseByIdSpec : Specification<Course>
         Query.Include(c => c.Discipline);
         Query.Include(c => c.Modules).ThenInclude(m => m.Lessons);
         Query.Include(c => c.Enrollments);
+        Query.Include(c => c.CourseTags).ThenInclude(ct => ct.Tag);
     }
 }

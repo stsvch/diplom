@@ -36,7 +36,9 @@
       "Bash(git check-ignore *)",
       "Bash(git status *)",
       "Bash(git add *)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(grep -E \"\\\\.\\(cs|ts|tsx\\)$\")",
+      "Bash(npx --no-install tsc --noEmit -p tsconfig.app.json)"
     ]
   }
 }

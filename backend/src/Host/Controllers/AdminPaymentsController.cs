@@ -67,6 +67,8 @@ public class AdminPaymentsController : ControllerBase
                 request.SortOrder,
                 request.ProviderProductId,
                 request.ProviderPriceId,
+                request.IndividualSlotsPerMonth,
+                request.GroupSlotsPerMonth,
                 cancellationToken));
         }
         catch (InvalidOperationException ex)
@@ -98,6 +100,8 @@ public class AdminPaymentsController : ControllerBase
                 request.SortOrder,
                 request.ProviderProductId,
                 request.ProviderPriceId,
+                request.IndividualSlotsPerMonth,
+                request.GroupSlotsPerMonth,
                 cancellationToken));
         }
         catch (InvalidOperationException ex)
@@ -147,4 +151,6 @@ public record UpsertSubscriptionPlanRequest(
     bool IsFeatured,
     int SortOrder,
     string? ProviderProductId,
-    string? ProviderPriceId);
+    string? ProviderPriceId,
+    int IndividualSlotsPerMonth,
+    int GroupSlotsPerMonth);

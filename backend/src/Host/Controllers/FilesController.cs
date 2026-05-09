@@ -31,7 +31,7 @@ public class FilesController : ControllerBase
     public async Task<IActionResult> Upload(
         IFormFile file,
         [FromForm] string entityType,
-        [FromForm] Guid entityId,
+        [FromForm] Guid? entityId,
         CancellationToken cancellationToken)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

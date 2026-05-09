@@ -21,5 +21,4 @@ public interface IMessagingRepository
     Task<bool> AddParticipantAsync(string chatId, string userId, string userName);
     Task<bool> RemoveParticipantAsync(string chatId, string userId);
     Task SetArchivedAsync(string chatId, bool archived);
-    Task HideChatAsync(string chatId, string userId);
 }

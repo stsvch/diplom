@@ -10,18 +10,23 @@ namespace Scheduling.Application.Scheduling.Commands.CancelBooking;
 
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, Result<string>>
 {
+    private const int LateCancelWindowHours = 24;
+
     private readonly ISchedulingDbContext _context;
     private readonly ICalendarEventPublisher _calendar;
     private readonly INotificationDispatcher _notifications;
+    private readonly ISubscriptionEntitlementProvider _entitlements;
 
     public CancelBookingCommandHandler(
         ISchedulingDbContext context,
         ICalendarEventPublisher calendar,
-        INotificationDispatcher notifications)
+        INotificationDispatcher notifications,
+        ISubscriptionEntitlementProvider entitlements)
     {
         _context = context;
         _calendar = calendar;
         _notifications = notifications;
+        _entitlements = entitlements;
     }
 
     public async Task<Result<string>> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
@@ -38,24 +43,29 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         if (booking == null)
             return Result.Failure<string>("Запись не найдена.");
 
-        booking.Status = BookingStatus.Cancelled;
+        var hoursToStart = (slot.StartTime - DateTime.UtcNow).TotalHours;
+        var inGracePeriod = hoursToStart >= LateCancelWindowHours;
 
-        // Restore slot to Available if it was Booked
-        if (slot.Status == SlotStatus.Booked)
-        {
+        booking.Status = inGracePeriod ? BookingStatus.Cancelled : BookingStatus.LateCancelled;
+
+        if (slot.Status == SlotStatus.Full)
             slot.Status = SlotStatus.Available;
-        }
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        if (inGracePeriod)
+            await _entitlements.RefundUsageAsync(booking.Id, cancellationToken);
 
         await _calendar.DeleteBySourceForUserAsync("ScheduleSlot", slot.Id, request.StudentId, cancellationToken);
 
         await _notifications.PublishAsync(new NotificationRequest(
             slot.TeacherId, NotificationType.Message,
-            "Запись отменена",
+            inGracePeriod ? "Запись отменена" : "Запись отменена с опозданием",
             $"Студент отменил запись на «{slot.Title}»",
             "/teacher/schedule"), cancellationToken);
 
-        return Result.Success("Запись отменена.");
+        return Result.Success(inGracePeriod
+            ? "Запись отменена, занятие возвращено в квоту."
+            : "Запись отменена. По правилам платформы занятие списано (отмена менее чем за 24 часа).");
     }
 }

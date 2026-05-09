@@ -4,7 +4,7 @@
       <h1 class="teacher-courses__title">Мои курсы</h1>
       <p class="teacher-courses__subtitle">Управляйте созданными вами курсами</p>
     </div>
-    <a routerLink="/teacher/courses/create">
+    <a routerLink="/teacher/courses/new">
       <app-button variant="primary">
         <lucide-icon [img]="PlusIcon" [size]="18" />
         Создать курс
@@ -44,7 +44,7 @@
       <lucide-icon [img]="BookOpenIcon" [size]="64" class="teacher-courses__empty-icon" />
       <h3 class="teacher-courses__empty-title">У вас ещё нет курсов</h3>
       <p class="teacher-courses__empty-text">Создайте свой первый курс и начните обучать студентов</p>
-      <a routerLink="/teacher/courses/create">
+      <a routerLink="/teacher/courses/new">
         <app-button variant="primary">
           <lucide-icon [img]="PlusIcon" [size]="18" />
           Создать курс
@@ -108,7 +108,7 @@
               <td>
                 <div class="tc-actions">
                   @if (canManageCourse(course)) {
-                    <a [routerLink]="['/teacher/courses', course.id, 'editor']" title="Редактор структуры">
+                    <a [routerLink]="['/teacher/courses', course.id, 'builder']" title="Редактор структуры">
                       <app-button variant="ghost" size="sm">
                         <lucide-icon [img]="EditIcon" [size]="16" />
                       </app-button>

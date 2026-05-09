@@ -5,7 +5,6 @@ public enum CourseItemType
     Lesson,
     Test,
     Assignment,
-    LiveSession,
     Resource,
     ExternalLink
 }

@@ -1,5 +1,6 @@
 export interface TestDto {
   id: string;
+  courseId?: string;
   title: string;
   description?: string;
   timeLimitMinutes?: number;

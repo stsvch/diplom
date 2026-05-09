@@ -1,291 +1,269 @@
-<div class="teacher-schedule">
-  <div class="teacher-schedule__header">
+<div class="ts-page">
+  <header class="ts-header">
     <div>
-      <h1 class="teacher-schedule__title">Расписание занятий</h1>
-      <p class="teacher-schedule__subtitle">Управляйте своими занятиями и записями</p>
+      <h1>Моё расписание</h1>
+      <p class="ts-subtitle">Настройте часы, в которые вы можете проводить занятия. Студенты будут видеть свободные слоты в вашем календаре.</p>
     </div>
     <app-button variant="primary" (click)="openCreateModal()">
-      <lucide-icon [img]="PlusIcon" [size]="18" />
-      Создать занятие
+      <lucide-icon [img]="icons.plus" [size]="16" />
+      Добавить расписание
     </app-button>
-  </div>
+  </header>
 
-  <!-- Tabs -->
-  <div class="teacher-schedule__tabs">
-    <button
-      class="teacher-schedule__tab"
-      [class.teacher-schedule__tab--active]="activeTab() === 'upcoming'"
-      (click)="setTab('upcoming')"
-    >
-      Предстоящие
-      @if (upcomingSlots().length > 0) {
-        <span class="teacher-schedule__tab-count">{{ upcomingSlots().length }}</span>
-      }
-    </button>
-    <button
-      class="teacher-schedule__tab"
-      [class.teacher-schedule__tab--active]="activeTab() === 'completed'"
-      (click)="setTab('completed')"
-    >
-      Завершённые
-      @if (completedSlots().length > 0) {
-        <span class="teacher-schedule__tab-count">{{ completedSlots().length }}</span>
-      }
-    </button>
-  </div>
-
-  <!-- Slot list -->
   @if (loading()) {
-    <div class="teacher-schedule__loading">
-      <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />
-      <p>Загрузка расписания...</p>
-    </div>
-  } @else if (displayedSlots().length === 0) {
-    <div class="teacher-schedule__empty">
-      <lucide-icon [img]="CalendarIcon" [size]="56" class="teacher-schedule__empty-icon" />
-      <h3>Занятий нет</h3>
-      @if (activeTab() === 'upcoming') {
-        <p>Создайте своё первое занятие</p>
-        <app-button variant="primary" (click)="openCreateModal()">
-          <lucide-icon [img]="PlusIcon" [size]="16" />
-          Создать занятие
-        </app-button>
-      } @else {
-        <p>Завершённые занятия появятся здесь</p>
-      }
-    </div>
+    <div class="ts-loader"><lucide-icon [img]="icons.loader" [size]="32" /></div>
   } @else {
-    <div class="teacher-schedule__grid">
-      @for (slot of displayedSlots(); track slot.id) {
-        <div class="slot-card" [class.slot-card--completed]="slot.status === SlotStatus.Completed" [class.slot-card--cancelled]="slot.status === SlotStatus.Cancelled">
-          <div class="slot-card__header">
-            <div class="slot-card__icon-wrap" [class.slot-card__icon-wrap--group]="slot.isGroupSession">
-              <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="20" />
-            </div>
-            <div class="slot-card__title-wrap">
-              <span class="slot-card__type">{{ slot.isGroupSession ? 'Групповое' : 'Индивидуальное' }}</span>
-              <h3 class="slot-card__title">{{ slot.title }}</h3>
-            </div>
-            <app-badge [variant]="getStatusVariant(slot.status)">
-              {{ getStatusLabel(slot.status) }}
-            </app-badge>
-          </div>
+    @if (rules().length === 0) {
+      <div class="ts-empty">
+        <lucide-icon [img]="icons.calendar" [size]="48" />
+        <h2>У вас пока нет расписания</h2>
+        <p>Добавьте первое правило — например, «Каждый понедельник 17:00–21:00, индивидуальные занятия по 60 минут».</p>
+      </div>
+    }
 
-          @if (slot.courseName) {
-            <div class="slot-card__course">
-              <lucide-icon [img]="BookOpenIcon" [size]="14" />
-              {{ slot.courseName }}
-            </div>
-          }
-
-          <div class="slot-card__meta">
-            <div class="slot-card__meta-item">
-              <lucide-icon [img]="CalendarIcon" [size]="14" />
-              {{ formatDate(slot.startTime) }}
-            </div>
-            <div class="slot-card__meta-item">
-              <lucide-icon [img]="ClockIcon" [size]="14" />
-              {{ formatTime(slot.startTime) }} — {{ formatTime(slot.endTime) }}
-            </div>
-            <div class="slot-card__meta-item">
-              <lucide-icon [img]="slot.isGroupSession ? UsersIcon : UserIcon" [size]="14" />
-              @if (slot.isGroupSession) {
-                {{ slot.bookedCount }} / {{ slot.maxStudents }} записей
-              } @else {
-                @if (slot.bookedCount > 0 && slot.bookings.length > 0) {
-                  {{ slot.bookings[0].studentName }}
-                } @else {
-                  Нет записей
-                }
-              }
-            </div>
-          </div>
-
-          @if (slot.status === SlotStatus.Completed) {
-            <div class="slot-card__completed-badge">
-              <lucide-icon [img]="CheckCircleIcon" [size]="16" />
-              Занятие завершено
-            </div>
-          }
-
-          @if (slot.status !== SlotStatus.Cancelled && slot.status !== SlotStatus.Completed) {
-            <div class="slot-card__actions">
-              @if (slot.meetingLink) {
-                <button class="slot-card__action-btn slot-card__action-btn--link" (click)="copyLink(slot.meetingLink!, $event)">
-                  <lucide-icon [img]="CopyIcon" [size]="14" />
-                  Ссылка
+    @if (recurringRules().length > 0) {
+      <section class="ts-section">
+        <h2 class="ts-section-title">
+          <lucide-icon [img]="icons.repeat" [size]="18" />
+          Повторяющиеся правила
+        </h2>
+        <div class="ts-rules-grid">
+          @for (rule of recurringRules(); track rule.id) {
+            <article class="ts-rule" [class.ts-rule--inactive]="!rule.isActive">
+              <header class="ts-rule__header">
+                <div class="ts-rule__title">
+                  <h3>{{ rule.title }}</h3>
+                  @if (!rule.isActive) {
+                    <app-badge variant="neutral">Скрыто</app-badge>
+                  }
+                </div>
+                <button class="ts-icon-btn ts-icon-btn--danger"
+                        [disabled]="deletingId() === rule.id"
+                        (click)="deleteRule(rule)">
+                  <lucide-icon [img]="icons.trash" [size]="16" />
                 </button>
+              </header>
+              @if (rule.description) {
+                <p class="ts-rule__desc">{{ rule.description }}</p>
               }
-              <button
-                class="slot-card__action-btn slot-card__action-btn--complete"
-                (click)="completeSlot(slot, $event)"
-                [disabled]="completing() === slot.id"
-              >
-                @if (completing() === slot.id) {
-                  <lucide-icon [img]="Loader2Icon" [size]="14" class="spin" />
-                } @else {
-                  <lucide-icon [img]="CheckIcon" [size]="14" />
+              <ul class="ts-rule__props">
+                <li><lucide-icon [img]="icons.calendar" [size]="14" /> {{ formatDayOfWeek(rule.dayOfWeek) }}</li>
+                <li><lucide-icon [img]="icons.clock" [size]="14" /> {{ formatTime(rule.startTime) }}–{{ formatTime(rule.endTime) }} (по {{ rule.slotDurationMinutes }} мин)</li>
+                <li>
+                  @if (rule.sessionType === SessionT.Individual) {
+                    <lucide-icon [img]="icons.user" [size]="14" /> Индивидуальное
+                  } @else {
+                    <lucide-icon [img]="icons.users" [size]="14" /> Группа до {{ rule.maxStudents }}
+                  }
+                </li>
+                <li>
+                  <lucide-icon [img]="icons.range" [size]="14" />
+                  с {{ formatDate(rule.validFrom) }}@if (rule.validUntil) { по {{ formatDate(rule.validUntil) }} } @else { бессрочно }
+                </li>
+                @if (rule.meetingLink) {
+                  <li class="ts-rule__link"><lucide-icon [img]="icons.link" [size]="14" /> {{ rule.meetingLink }}</li>
                 }
-                Завершить
-              </button>
-              <button
-                class="slot-card__action-btn slot-card__action-btn--cancel"
-                (click)="cancelSlot(slot, $event)"
-                [disabled]="cancelling() === slot.id"
-              >
-                @if (cancelling() === slot.id) {
-                  <lucide-icon [img]="Loader2Icon" [size]="14" class="spin" />
-                } @else {
-                  <lucide-icon [img]="XIcon" [size]="14" />
-                }
-                Отменить
-              </button>
-            </div>
+              </ul>
+            </article>
           }
         </div>
-      }
+      </section>
+    }
+
+    @if (oneOffRules().length > 0) {
+      <section class="ts-section">
+        <h2 class="ts-section-title">Разовые занятия</h2>
+        <div class="ts-rules-grid">
+          @for (rule of oneOffRules(); track rule.id) {
+            <article class="ts-rule" [class.ts-rule--inactive]="!rule.isActive">
+              <header class="ts-rule__header">
+                <h3>{{ rule.title }}</h3>
+                <button class="ts-icon-btn ts-icon-btn--danger"
+                        [disabled]="deletingId() === rule.id"
+                        (click)="deleteRule(rule)">
+                  <lucide-icon [img]="icons.trash" [size]="16" />
+                </button>
+              </header>
+              <ul class="ts-rule__props">
+                <li><lucide-icon [img]="icons.calendar" [size]="14" /> {{ formatDate(rule.specificDate) }}</li>
+                <li><lucide-icon [img]="icons.clock" [size]="14" /> {{ formatTime(rule.startTime) }}–{{ formatTime(rule.endTime) }}</li>
+                <li>
+                  @if (rule.sessionType === SessionT.Individual) {
+                    <lucide-icon [img]="icons.user" [size]="14" /> Индивидуальное
+                  } @else {
+                    <lucide-icon [img]="icons.users" [size]="14" /> Группа до {{ rule.maxStudents }}
+                  }
+                </li>
+              </ul>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  @if (showCreateModal()) {
+    <div class="ts-modal-backdrop" (click)="closeCreateModal()">
+      <div class="ts-modal" (click)="$event.stopPropagation()">
+        <header class="ts-modal__header">
+          <h2>Новое расписание</h2>
+        </header>
+
+        <div class="ts-modal__body">
+          <div class="ts-field">
+            <label>Тип</label>
+            <div class="ts-radio-group">
+              <label>
+                <input type="radio" name="kind"
+                       [checked]="form().kind === Kind.Recurring"
+                       (change)="updateForm('kind', Kind.Recurring)">
+                Повторяющееся
+              </label>
+              <label>
+                <input type="radio" name="kind"
+                       [checked]="form().kind === Kind.OneOff"
+                       (change)="updateForm('kind', Kind.OneOff)">
+                Разовое
+              </label>
+            </div>
+          </div>
+
+          @if (form().kind === Kind.Recurring) {
+            <div class="ts-field">
+              <label>День недели</label>
+              <select [ngModel]="form().dayOfWeek" (ngModelChange)="updateForm('dayOfWeek', $event)">
+                @for (d of daysOfWeek; track d.value) {
+                  <option [ngValue]="d.value">{{ d.label }}</option>
+                }
+              </select>
+            </div>
+          } @else {
+            <div class="ts-field">
+              <label>Дата</label>
+              <input type="date" [ngModel]="form().specificDate" (ngModelChange)="updateForm('specificDate', $event)">
+            </div>
+          }
+
+          <div class="ts-row">
+            <div class="ts-field">
+              <label>Начало</label>
+              <input type="time" [ngModel]="form().startTime" (ngModelChange)="updateForm('startTime', $event)">
+            </div>
+            <div class="ts-field">
+              <label>Конец</label>
+              <input type="time" [ngModel]="form().endTime" (ngModelChange)="updateForm('endTime', $event)">
+            </div>
+          </div>
+
+          <!-- Timeline для выбранного дня -->
+          <div class="ts-timeline">
+            <div class="ts-timeline__label">Занятые интервалы этого дня:</div>
+            <div class="ts-timeline__bar">
+              @for (busy of busyIntervalsForFormDay(); track busy.title + busy.startMin) {
+                <div class="ts-timeline__busy"
+                     [style.left.%]="toPercent(busy.startMin)"
+                     [style.width.%]="intervalWidth(busy.startMin, busy.endMin)"
+                     [title]="busy.title + ': ' + formatMinutes(busy.startMin) + '–' + formatMinutes(busy.endMin)">
+                  <span>{{ busy.title }}</span>
+                </div>
+              }
+              @if (formInterval(); as cur) {
+                <div class="ts-timeline__current"
+                     [class.ts-timeline__current--conflict]="formConflict()"
+                     [style.left.%]="toPercent(cur.startMin)"
+                     [style.width.%]="intervalWidth(cur.startMin, cur.endMin)">
+                </div>
+              }
+            </div>
+            <div class="ts-timeline__hours">
+              @for (h of timelineHours; track h) {
+                <span>{{ formatHour(h) }}</span>
+              }
+            </div>
+            @if (busyIntervalsForFormDay().length === 0) {
+              <div class="ts-timeline__hint">В этот день у вас пока нет других правил — всё свободно.</div>
+            }
+            @if (formConflict(); as c) {
+              <div class="ts-timeline__error">
+                ⚠ Этот интервал пересекается с правилом «{{ c.title }}» ({{ formatMinutes(c.startMin) }}–{{ formatMinutes(c.endMin) }}).
+              </div>
+            }
+          </div>
+
+          <div class="ts-row">
+            <div class="ts-field">
+              <label>Длительность слота (мин)</label>
+              <input type="number" min="15" step="15" [ngModel]="form().slotDurationMinutes" (ngModelChange)="updateForm('slotDurationMinutes', $event)">
+            </div>
+            <div class="ts-field">
+              <label>Перерыв между (мин)</label>
+              <input type="number" min="0" step="5" [ngModel]="form().breakBetweenMinutes" (ngModelChange)="updateForm('breakBetweenMinutes', $event)">
+            </div>
+          </div>
+
+          @if (form().kind === Kind.Recurring) {
+            <div class="ts-row">
+              <div class="ts-field">
+                <label>Действует с</label>
+                <input type="date" [ngModel]="form().validFrom" (ngModelChange)="updateForm('validFrom', $event)">
+              </div>
+              <div class="ts-field">
+                <label>До (необязательно)</label>
+                <input type="date" [ngModel]="form().validUntil" (ngModelChange)="updateForm('validUntil', $event)">
+              </div>
+            </div>
+          }
+
+          <div class="ts-field">
+            <label>Тип занятия</label>
+            <div class="ts-radio-group">
+              <label>
+                <input type="radio" name="sessionType"
+                       [checked]="form().sessionType === SessionT.Individual"
+                       (change)="updateForm('sessionType', SessionT.Individual)">
+                Индивидуальное
+              </label>
+              <label>
+                <input type="radio" name="sessionType"
+                       [checked]="form().sessionType === SessionT.Group"
+                       (change)="updateForm('sessionType', SessionT.Group)">
+                Групповое
+              </label>
+            </div>
+          </div>
+
+          @if (form().sessionType === SessionT.Group) {
+            <div class="ts-field">
+              <label>Макс. студентов в группе</label>
+              <input type="number" min="2" [ngModel]="form().maxStudents" (ngModelChange)="updateForm('maxStudents', $event)">
+            </div>
+          }
+
+          <div class="ts-field">
+            <label>Название</label>
+            <input type="text" [ngModel]="form().title" (ngModelChange)="updateForm('title', $event)" placeholder="Например, English B2">
+          </div>
+
+          <div class="ts-field">
+            <label>Описание (необязательно)</label>
+            <textarea rows="2" [ngModel]="form().description" (ngModelChange)="updateForm('description', $event)"></textarea>
+          </div>
+
+          <div class="ts-field">
+            <label>Ссылка на встречу (Zoom/Meet)</label>
+            <input type="url" [ngModel]="form().meetingLink" (ngModelChange)="updateForm('meetingLink', $event)" placeholder="https://...">
+          </div>
+        </div>
+
+        <footer class="ts-modal__footer">
+          <app-button variant="ghost" (click)="closeCreateModal()">Отмена</app-button>
+          <app-button variant="primary"
+                      [disabled]="creating() || !!formConflict()"
+                      (click)="createRule()">
+            @if (creating()) { Сохраняю... } @else { Создать }
+          </app-button>
+        </footer>
+      </div>
     </div>
   }
 </div>
-
-<!-- Create Modal -->
-@if (showCreateModal()) {
-  <div class="modal-backdrop" (click)="closeCreateModal()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <div class="modal__header">
-        <h2 class="modal__title">Создать занятие</h2>
-        <button class="modal__close" (click)="closeCreateModal()">
-          <lucide-icon [img]="XIcon" [size]="20" />
-        </button>
-      </div>
-
-      <div class="modal__body">
-        <!-- Type toggle -->
-        <div class="form-group">
-          <label class="form-label">Тип занятия</label>
-          <div class="type-toggle">
-            <button
-              class="type-toggle__btn"
-              [class.type-toggle__btn--active]="!form().isGroupSession"
-              (click)="updateForm('isGroupSession', false)"
-            >
-              <lucide-icon [img]="UserIcon" [size]="16" />
-              Индивидуальное
-            </button>
-            <button
-              class="type-toggle__btn"
-              [class.type-toggle__btn--active]="form().isGroupSession"
-              (click)="updateForm('isGroupSession', true)"
-            >
-              <lucide-icon [img]="UsersIcon" [size]="16" />
-              Групповое
-            </button>
-          </div>
-        </div>
-
-        <!-- Title -->
-        <div class="form-group">
-          <label class="form-label">Название занятия *</label>
-          <input
-            class="form-input"
-            type="text"
-            placeholder="Например: Консультация по React"
-            [value]="form().title"
-            (input)="updateForm('title', $any($event.target).value)"
-          />
-        </div>
-
-        <!-- Date -->
-        <div class="form-group">
-          <label class="form-label">Дата *</label>
-          <input
-            class="form-input"
-            type="date"
-            [value]="form().date"
-            (input)="updateForm('date', $any($event.target).value)"
-          />
-        </div>
-
-        <!-- Time -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Начало *</label>
-            <input
-              class="form-input"
-              type="time"
-              [value]="form().startTime"
-              (input)="updateForm('startTime', $any($event.target).value)"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Конец *</label>
-            <input
-              class="form-input"
-              type="time"
-              [value]="form().endTime"
-              (input)="updateForm('endTime', $any($event.target).value)"
-            />
-          </div>
-        </div>
-
-        <!-- Course (optional) -->
-        <div class="form-group">
-          <label class="form-label">Курс (необязательно)</label>
-          <input
-            class="form-input"
-            type="text"
-            placeholder="Название курса"
-            [value]="form().courseName"
-            (input)="updateForm('courseName', $any($event.target).value)"
-          />
-        </div>
-
-        <!-- Max students (group only) -->
-        @if (form().isGroupSession) {
-          <div class="form-group">
-            <label class="form-label">Максимум студентов</label>
-            <input
-              class="form-input"
-              type="number"
-              min="2"
-              max="100"
-              [value]="form().maxStudents"
-              (input)="updateForm('maxStudents', +$any($event.target).value)"
-            />
-          </div>
-        }
-
-        <!-- Meeting link -->
-        <div class="form-group">
-          <label class="form-label">Ссылка на видеозвонок (необязательно)</label>
-          <input
-            class="form-input"
-            type="url"
-            placeholder="https://meet.google.com/..."
-            [value]="form().meetingLink"
-            (input)="updateForm('meetingLink', $any($event.target).value)"
-          />
-        </div>
-
-        <!-- Description -->
-        <div class="form-group">
-          <label class="form-label">Описание (необязательно)</label>
-          <textarea
-            class="form-input form-input--textarea"
-            rows="3"
-            placeholder="Дополнительная информация о занятии"
-            [value]="form().description"
-            (input)="updateForm('description', $any($event.target).value)"
-          ></textarea>
-        </div>
-      </div>
-
-      <div class="modal__footer">
-        <app-button variant="outline" (click)="closeCreateModal()">Отмена</app-button>
-        <app-button variant="primary" [loading]="creating()" (click)="createSlot()">
-          Создать занятие
-        </app-button>
-      </div>
-    </div>
-  </div>
-}

@@ -16,8 +16,11 @@ public class SignalRChatBroadcaster : IChatBroadcaster
         _connectionTracker = connectionTracker;
     }
 
-    public Task MessageSentAsync(string chatId, MessageDto message) =>
-        _hub.Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessage", message);
+    public Task MessageSentAsync(string chatId, MessageDto message, IReadOnlyCollection<string> participantIds)
+    {
+        var groups = participantIds.Select(id => $"user_{id}").ToList();
+        return _hub.Clients.Groups(groups).SendAsync("ReceiveMessage", message);
+    }
 
     public Task MessageEditedAsync(string chatId, MessageDto message) =>
         _hub.Clients.Group($"chat_{chatId}").SendAsync("ReceiveMessageEdited", message);

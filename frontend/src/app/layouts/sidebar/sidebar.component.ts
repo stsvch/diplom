@@ -100,7 +100,6 @@ export class SidebarComponent implements OnInit {
       return [
         { label: 'Дашборд', route: '/teacher/dashboard', icon: LayoutDashboard },
         { label: 'Мои курсы', route: '/teacher/courses', icon: BookOpen },
-        { label: 'Создать курс', route: '/teacher/courses/new', icon: PlusSquare },
         { label: 'Проверка работ', route: '/teacher/assignments', icon: ClipboardCheck, badge: pending || undefined },
         { label: 'Журнал оценок', route: '/teacher/gradebook', icon: BookMarked },
         { label: 'Календарь', route: '/teacher/calendar', icon: Calendar },

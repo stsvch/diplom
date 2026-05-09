@@ -25,7 +25,24 @@
 
   <main class="view-page__body">
     @if (loading()) {
-      <div class="state">Загрузка…</div>
+      <div class="lv-skel">
+        <div class="lv-skel__card">
+          <div class="lv-skel__chip"></div>
+          <div class="lv-skel__line lv-skel__line--full"></div>
+          <div class="lv-skel__line lv-skel__line--md"></div>
+          <div class="lv-skel__line lv-skel__line--sm"></div>
+        </div>
+        <div class="lv-skel__card">
+          <div class="lv-skel__chip"></div>
+          <div class="lv-skel__line lv-skel__line--md"></div>
+          <div class="lv-skel__line lv-skel__line--full"></div>
+        </div>
+        <div class="lv-skel__card">
+          <div class="lv-skel__chip"></div>
+          <div class="lv-skel__line lv-skel__line--full"></div>
+          <div class="lv-skel__line lv-skel__line--sm"></div>
+        </div>
+      </div>
     } @else if (entries().length === 0) {
       <div class="empty">В этом уроке пока нет контента.</div>
     } @else {

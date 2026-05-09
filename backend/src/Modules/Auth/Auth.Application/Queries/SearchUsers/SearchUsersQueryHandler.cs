@@ -1,4 +1,5 @@
 using Auth.Domain.Entities;
+using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,10 +10,14 @@ namespace Auth.Application.Queries.SearchUsers;
 public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, Result<List<UserSummaryDto>>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IEnrollmentReadService _enrollmentReader;
 
-    public SearchUsersQueryHandler(UserManager<ApplicationUser> userManager)
+    public SearchUsersQueryHandler(
+        UserManager<ApplicationUser> userManager,
+        IEnrollmentReadService enrollmentReader)
     {
         _userManager = userManager;
+        _enrollmentReader = enrollmentReader;
     }
 
     public async Task<Result<List<UserSummaryDto>>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
@@ -33,6 +38,19 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, Result<
         var filtered = source.AsEnumerable();
         if (!string.IsNullOrWhiteSpace(request.ExcludeUserId))
             filtered = filtered.Where(u => u.Id != request.ExcludeUserId);
+
+        if (request.RestrictToCourseId.HasValue)
+        {
+            var enrolled = await _enrollmentReader.GetActiveStudentIdsAsync(request.RestrictToCourseId.Value, cancellationToken);
+            var allowed = enrolled.ToHashSet();
+            filtered = filtered.Where(u => allowed.Contains(u.Id));
+        }
+        else if (!string.IsNullOrWhiteSpace(request.RestrictToTeacherId))
+        {
+            var connected = await _enrollmentReader.GetActiveStudentIdsForTeacherAsync(request.RestrictToTeacherId, cancellationToken);
+            var allowed = connected.ToHashSet();
+            filtered = filtered.Where(u => allowed.Contains(u.Id));
+        }
 
         if (!string.IsNullOrWhiteSpace(request.Query))
         {

@@ -48,15 +48,15 @@ public class UpdateSlotCommandHandler : IRequestHandler<UpdateSlotCommand, Resul
         await _context.SaveChangesAsync(cancellationToken);
 
         await _calendar.UpsertAsync(new CalendarEventUpsert(
-            slot.TeacherId, slot.CourseId, slot.Title, slot.Description,
+            slot.TeacherId, slot.RequiredCourseId, slot.Title, slot.Description,
             DateTime.SpecifyKind(slot.StartTime.Date, DateTimeKind.Utc),
             slot.StartTime.ToString("HH:mm"),
             CalendarEventType.Workshop, "ScheduleSlot", slot.Id), cancellationToken);
 
-        foreach (var booking in slot.Bookings.Where(b => b.Status != BookingStatus.Cancelled))
+        foreach (var booking in slot.Bookings.Where(b => b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.LateCancelled))
         {
             await _calendar.UpsertAsync(new CalendarEventUpsert(
-                booking.StudentId, slot.CourseId, slot.Title, slot.Description,
+                booking.StudentId, slot.RequiredCourseId, slot.Title, slot.Description,
                 DateTime.SpecifyKind(slot.StartTime.Date, DateTimeKind.Utc),
                 slot.StartTime.ToString("HH:mm"),
                 CalendarEventType.Workshop, "ScheduleSlot", slot.Id), cancellationToken);

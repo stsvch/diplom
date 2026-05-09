@@ -20,7 +20,7 @@ interface CourseInfoPatch {
   title?: string;
   description?: string;
   imageUrl?: string;
-  tags?: string;
+  tags?: string[];
   isFree?: boolean;
   price?: number | null;
   deadline?: string | null;
@@ -100,7 +100,6 @@ export class CourseBuilderStore {
             hasGrading: patch.hasGrading ?? c.hasGrading,
             level: c.level as any,
             imageUrl: patch.imageUrl ?? c.imageUrl,
-            tags: patch.tags ?? c.tags,
             hasCertificate: patch.hasCertificate ?? c.hasCertificate,
             deadline: patch.deadline ?? c.deadline,
           } as any);
@@ -157,6 +156,32 @@ export class CourseBuilderStore {
     if (!b) return;
     this.builder.set({ ...b, course: { ...b.course, ...patch } as any });
     this.isDirty.set(true);
+
+    // Теги меняются по action chip add/remove — сохраняем сразу через отдельный endpoint,
+    // не дёргая основной apply со всеми полями курса.
+    if (patch.tags !== undefined) {
+      const courseId = this.courseId();
+      if (courseId) {
+        this.saveStatus.set('saving');
+        this.coursesApi.updateCourseTags(courseId, patch.tags).subscribe({
+          next: () => {
+            this.saveStatus.set('saved');
+            this.lastSaved.set(new Date());
+            this.isDirty.set(false);
+          },
+          error: () => {
+            this.saveStatus.set('error');
+            this.toast.error('Не удалось сохранить теги');
+          },
+        });
+      }
+      // Остальные поля не дёргаем для tag-only patch
+      const { tags: _t, ...rest } = patch;
+      if (Object.keys(rest).length === 0) return;
+      this.courseInfoSave$.next(rest);
+      return;
+    }
+
     this.courseInfoSave$.next(patch);
   }
 
@@ -207,16 +232,20 @@ export class CourseBuilderStore {
     const courseId = this.courseId();
     if (!courseId) return;
 
+    // Если раздел не указан — берём первый существующий, чтобы новый элемент
+    // не зависал в группе «Без раздела».
+    const targetSectionId = sectionId ?? this.sections()[0]?.id ?? null;
+    if (!targetSectionId) {
+      this.toast.error('Сначала создайте раздел курса');
+      return;
+    }
+
     if (type === 'Lesson') {
-      if (!sectionId) {
-        this.toast.error('Урок нужно создавать внутри раздела');
-        return;
-      }
-      this.coursesApi.createLesson(sectionId, { title: 'Новый урок' }).subscribe({
+      this.coursesApi.createLesson(targetSectionId, { title: 'Новый урок' }).subscribe({
         next: (lesson) => {
           this.refresh();
           setTimeout(() => {
-            this.selection.set({ kind: 'item', sectionId, itemId: lesson.id });
+            this.selection.set({ kind: 'item', sectionId: targetSectionId, itemId: lesson.id });
           }, 200);
         },
         error: () => this.toast.error('Не удалось создать урок'),
@@ -229,15 +258,11 @@ export class CourseBuilderStore {
         .post<{ id: string }>(`${this.base}/tests`, {
           title: 'Новый тест',
           courseId,
+          sectionId: targetSectionId,
           maxAttempts: 3,
         })
         .subscribe({
-          next: (created) => {
-            this.refresh();
-            setTimeout(() => {
-              this.selection.set({ kind: 'item', sectionId, itemId: created.id });
-            }, 200);
-          },
+          next: (created) => this.selectAfterRefresh(created.id, targetSectionId),
           error: () => this.toast.error('Не удалось создать тест'),
         });
       return;
@@ -248,43 +273,13 @@ export class CourseBuilderStore {
         .post<{ id: string }>(`${this.base}/assignments`, {
           title: 'Новое задание',
           courseId,
+          sectionId: targetSectionId,
           description: '',
           maxScore: 100,
         })
         .subscribe({
-          next: (created) => {
-            this.refresh();
-            setTimeout(() => {
-              this.selection.set({ kind: 'item', sectionId, itemId: created.id });
-            }, 200);
-          },
+          next: (created) => this.selectAfterRefresh(created.id, targetSectionId),
           error: () => this.toast.error('Не удалось создать задание'),
-        });
-      return;
-    }
-
-    if (type === 'LiveSession') {
-      const start = new Date();
-      start.setDate(start.getDate() + 1);
-      start.setMinutes(0, 0, 0);
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
-      this.http
-        .post<{ id: string }>(`${this.base}/schedule/slots`, {
-          courseId,
-          title: 'Новое live-занятие',
-          startTime: start.toISOString(),
-          endTime: end.toISOString(),
-          isGroupSession: true,
-          maxStudents: 30,
-        })
-        .subscribe({
-          next: (created) => {
-            this.refresh();
-            setTimeout(() => {
-              this.selection.set({ kind: 'item', sectionId, itemId: created.id });
-            }, 200);
-          },
-          error: () => this.toast.error('Не удалось создать live-занятие'),
         });
       return;
     }
@@ -293,7 +288,7 @@ export class CourseBuilderStore {
       this.api
         .createStandaloneItem(courseId, {
           type,
-          sectionId,
+          sectionId: targetSectionId,
           title: type === 'Resource' ? 'Новый материал' : 'Новая ссылка',
           url: type === 'ExternalLink' ? 'https://' : null,
         })
@@ -301,7 +296,7 @@ export class CourseBuilderStore {
           next: (item) => {
             this.refresh();
             setTimeout(() => {
-              this.selection.set({ kind: 'item', sectionId, itemId: item.sourceId });
+              this.selection.set({ kind: 'item', sectionId: targetSectionId, itemId: item.sourceId });
             }, 200);
           },
           error: (err) => {
@@ -309,6 +304,23 @@ export class CourseBuilderStore {
           },
         });
     }
+  }
+
+  /**
+   * Test/Assignment создаются за один POST с sectionId — бэк сразу проставляет
+   * ModuleId. После создания достаточно refresh + select.
+   */
+  private selectAfterRefresh(sourceId: string, sectionId: string): void {
+    const courseId = this.courseId();
+    if (!courseId) return;
+
+    this.api.getBuilder(courseId).subscribe({
+      next: (data) => {
+        this.builder.set(data);
+        this.selection.set({ kind: 'item', sectionId, itemId: sourceId });
+      },
+      error: () => this.toast.error('Элемент создан, но список курса не обновился'),
+    });
   }
 
   removeItem(item: CourseBuilderItemDto): void {
@@ -321,7 +333,10 @@ export class CourseBuilderStore {
           this.selection.set({ kind: 'none' });
           this.refresh();
         },
-        error: () => this.toast.error('Не удалось удалить элемент'),
+        error: (err) => {
+          const msg = err?.error?.message ?? err?.message ?? 'Не удалось удалить элемент';
+          this.toast.error(msg);
+        },
       });
       return;
     }
@@ -330,7 +345,6 @@ export class CourseBuilderStore {
     if (item.type === 'Lesson') url = `${this.base}/lessons/${item.sourceId}`;
     else if (item.type === 'Test') url = `${this.base}/tests/${item.sourceId}`;
     else if (item.type === 'Assignment') url = `${this.base}/assignments/${item.sourceId}`;
-    else if (item.type === 'LiveSession') url = `${this.base}/schedule/slots/${item.sourceId}`;
     if (!url) return;
 
     this.http.delete(url).subscribe({
@@ -338,7 +352,10 @@ export class CourseBuilderStore {
         this.selection.set({ kind: 'none' });
         this.refresh();
       },
-      error: () => this.toast.error('Не удалось удалить элемент'),
+      error: (err) => {
+        const msg = err?.error?.message ?? err?.message ?? 'Не удалось удалить элемент';
+        this.toast.error(msg);
+      },
     });
   }
 
@@ -352,8 +369,6 @@ export class CourseBuilderStore {
       this.http.put(`${this.base}/tests/${item.sourceId}`, { title }).subscribe();
     } else if (item.type === 'Assignment') {
       this.http.put(`${this.base}/assignments/${item.sourceId}`, { title }).subscribe();
-    } else if (item.type === 'LiveSession') {
-      this.http.put(`${this.base}/schedule/slots/${item.sourceId}`, { title }).subscribe();
     } else if (item.courseItemId) {
       this.api
         .updateStandaloneItem(courseId, item.courseItemId, {

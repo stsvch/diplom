@@ -6,6 +6,10 @@
     <ProjectReference Include="..\..\..\Shared\EduPlatform.Shared.Infrastructure\EduPlatform.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Minio" Version="7.0.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

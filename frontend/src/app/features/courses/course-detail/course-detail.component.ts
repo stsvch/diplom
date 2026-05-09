@@ -196,10 +196,7 @@ export class CourseDetailComponent implements OnInit {
   }
 
   get tags(): string[] {
-    return (this.course()?.tags ?? '')
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
+    return [];
   }
 
   get totalLessons(): number {

@@ -101,6 +101,18 @@ public class PaymentsController : ControllerBase
         return Ok(await _paymentsService.GetMySubscriptionsAsync(studentId, cancellationToken));
     }
 
+    [HttpGet("me/entitlements")]
+    [Authorize]
+    [ProducesResponseType(typeof(UserEntitlementsDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyEntitlements(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized();
+
+        return Ok(await _paymentsService.GetMyEntitlementsAsync(userId, cancellationToken));
+    }
+
     [HttpGet("me/subscription-history")]
     [Authorize(Roles = "Student")]
     [ProducesResponseType(typeof(IReadOnlyList<SubscriptionPaymentAttemptDto>), StatusCodes.Status200OK)]

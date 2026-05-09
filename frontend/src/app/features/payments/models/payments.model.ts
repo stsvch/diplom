@@ -21,6 +21,8 @@ export interface SubscriptionPlanDto {
   sortOrder: number;
   providerProductId?: string | null;
   providerPriceId?: string | null;
+  individualSlotsPerMonth: number;
+  groupSlotsPerMonth: number;
   createdAt: string;
   updatedAt?: string | null;
 }
@@ -38,6 +40,21 @@ export interface UserSubscriptionDto {
   canceledAt?: string | null;
   startedAt: string;
   endedAt?: string | null;
+  individualSlotsPerMonth: number;
+  groupSlotsPerMonth: number;
+}
+
+export interface UserEntitlementsDto {
+  hasActiveSubscription: boolean;
+  planName?: string | null;
+  individualSlotsPerMonth: number;
+  individualSlotsUsed: number;
+  individualSlotsRemaining: number;
+  groupSlotsPerMonth: number;
+  groupSlotsUsed: number;
+  groupSlotsRemaining: number;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
 }
 
 export interface SubscriptionPaymentAttemptDto {

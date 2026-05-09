@@ -40,7 +40,7 @@ public class LessonContentCleaner : ILessonContentCleaner
         var blockIds = blocks.Select(b => b.Id).ToList();
 
         var attachments = await _context.Attachments
-            .Where(a => a.EntityType == AttachmentEntityType.LessonBlock && blockIds.Contains(a.EntityId))
+            .Where(a => a.EntityType == AttachmentEntityType.LessonBlock && a.EntityId != null && blockIds.Contains(a.EntityId.Value))
             .ToListAsync(cancellationToken);
 
         foreach (var att in attachments)
