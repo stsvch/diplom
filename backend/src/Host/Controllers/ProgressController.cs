@@ -1,3 +1,4 @@
+// Файл: ProgressController.cs
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Models;
@@ -16,6 +17,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер ProgressController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/progress")]
 public class ProgressController : ControllerBase
@@ -128,7 +130,7 @@ public class ProgressController : ControllerBase
     {
         var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        // Get all lesson IDs this student has progress for
+        // Собираем идентификаторы уроков, по которым у студента есть прогресс.
         var completedLessonIds = await _progressDb.LessonProgresses
             .Where(p => p.StudentId == studentId && p.IsCompleted)
             .Select(p => p.LessonId)
@@ -137,14 +139,14 @@ public class ProgressController : ControllerBase
         if (!completedLessonIds.Any())
             return Ok(new MyProgressDto { Courses = new List<CourseProgressDto>() });
 
-        // Find which courses those lessons belong to
+        // Определяем курсы, к которым относятся найденные уроки.
         var lessonCourseMap = await _coursesDb.CourseModules
             .Include(m => m.Lessons)
             .Where(m => m.Lessons.Any(l => completedLessonIds.Contains(l.Id)))
             .Select(m => new { m.CourseId, LessonIds = m.Lessons.Select(l => l.Id).ToList() })
             .ToListAsync(ct);
 
-        // Get all lessons per enrolled course
+        // Загружаем все уроки по каждому курсу студента.
         var enrolledCourseIds = await _coursesDb.CourseEnrollments
             .Where(e => e.StudentId == studentId)
             .Select(e => e.CourseId)

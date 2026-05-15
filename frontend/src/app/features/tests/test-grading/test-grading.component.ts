@@ -1,3 +1,4 @@
+// test-grading.component.ts
 import {
   Component,
   inject,
@@ -31,6 +32,7 @@ interface GradeEntry {
   comment: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-test-grading',
   standalone: true,
@@ -56,6 +58,7 @@ export class TestGradingComponent implements OnInit {
   readonly MessageIcon = MessageSquare;
   readonly UserIcon = User;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly attempt = signal<TestAttemptDetailDto | null>(null);
@@ -64,6 +67,7 @@ export class TestGradingComponent implements OnInit {
   testId = '';
   attemptId = '';
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.testId = this.route.snapshot.paramMap.get('testId') ?? '';
     this.attemptId = this.route.snapshot.paramMap.get('attemptId') ?? '';
@@ -74,11 +78,12 @@ export class TestGradingComponent implements OnInit {
 
   loadAttempt(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.getAttempt(this.attemptId).subscribe({
       next: (data) => {
         this.attempt.set(data);
 
-        // Build grade entries for OpenAnswer questions
+        // Формируем записи оценивания для вопросов OpenAnswer.
         const entries: GradeEntry[] = [];
         for (const response of data.responses ?? []) {
           const q = data.questions?.find((q) => q.id === response.questionId);

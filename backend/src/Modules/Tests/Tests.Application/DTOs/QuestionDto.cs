@@ -1,7 +1,12 @@
+// QuestionDto.cs
+
 using Tests.Domain.Enums;
 
 namespace Tests.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные QuestionDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class QuestionDto
 {
     public Guid Id { get; set; }

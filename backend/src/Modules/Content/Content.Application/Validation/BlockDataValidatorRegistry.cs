@@ -1,8 +1,11 @@
+// BlockDataValidatorRegistry.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 
 namespace Content.Application.Validation;
 
+// Тип class: ключевой элемент файла BlockDataValidatorRegistry.cs.
 public class BlockDataValidatorRegistry : IBlockDataValidatorRegistry
 {
     private readonly Dictionary<LessonBlockType, IBlockDataValidator> _validators;

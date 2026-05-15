@@ -1,3 +1,4 @@
+// assignment-editor.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { AssignmentsService } from '../../../assignments/services/assignments.se
 import { AssignmentDto } from '../../../assignments/models/assignment.model';
 import { AssignmentBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-assignment-editor',
   standalone: true,
@@ -59,10 +61,13 @@ export class AssignmentEditorComponent implements OnInit {
 
   private readonly service = inject(AssignmentsService);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   items = signal<AssignmentDto[]>([]);
   loading = signal(true);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.service.getMyAssignments().subscribe({
       next: (list) => {
         this.items.set(list);

@@ -1,3 +1,4 @@
+// progress.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,6 +9,7 @@ import {
   MyProgressDto,
 } from '../models/progress.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -16,6 +18,7 @@ export class ProgressService {
   private readonly base = `${environment.apiUrl}/progress`;
 
   completeLesson(lessonId: string): Observable<LessonProgressDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<LessonProgressDto>(`${this.base}/lessons/${lessonId}/complete`, {});
   }
 

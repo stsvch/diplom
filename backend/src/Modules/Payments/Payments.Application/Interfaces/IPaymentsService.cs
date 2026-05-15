@@ -1,8 +1,10 @@
+// IPaymentsService.cs
 using Payments.Application.DTOs;
 using EduPlatform.Shared.Application.Models;
 
 namespace Payments.Application.Interfaces;
 
+// Контракт application-слоя отделяет бизнес-сценарии от конкретной инфраструктуры.
 public interface IPaymentsService
 {
     Task<TeacherPayoutAccountDto> GetTeacherPayoutAccountAsync(
@@ -24,10 +26,6 @@ public interface IPaymentsService
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<TeacherSettlementDto>> GetTeacherSettlementsAsync(
-        string teacherId,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<TeacherSubscriptionAllocationDto>> GetTeacherSubscriptionAllocationsAsync(
         string teacherId,
         CancellationToken cancellationToken = default);
 
@@ -79,18 +77,6 @@ public interface IPaymentsService
         string studentId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<RefundRecordDto>> GetMyRefundsAsync(
-        string studentId,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<DisputeRecordDto>> GetMyDisputesAsync(
-        string studentId,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<DisputeRecordDto>> GetTeacherDisputesAsync(
-        string teacherId,
-        CancellationToken cancellationToken = default);
-
     Task<IReadOnlyList<SubscriptionPlanDto>> GetActiveSubscriptionPlansAsync(
         CancellationToken cancellationToken = default);
 
@@ -138,17 +124,6 @@ public interface IPaymentsService
         string? search,
         int page,
         int pageSize,
-        CancellationToken cancellationToken = default);
-
-    Task<RefundRecordDto> CreateAdminRefundAsync(
-        Guid paymentAttemptId,
-        decimal? amount,
-        string? reason,
-        string adminId,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<AdminSubscriptionAllocationRunDto>> GetAdminSubscriptionAllocationRunsAsync(
-        int take = 20,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<PaymentMethodRefDto>> GetMyPaymentMethodsAsync(

@@ -1,5 +1,7 @@
+// hints-panel.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host { display: block; height: 100%; }
 
 .hp {
@@ -35,6 +37,7 @@
   cursor: pointer;
   transition: background $transition-fast, color $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover { color: $slate-700; }
 
   &--active {
@@ -64,7 +67,7 @@
   padding: $spacing-4;
 }
 
-// ── Progress card ──
+// Карточка прогресса.
 .hp__progress {
   background: linear-gradient(135deg, $indigo-50, $purple-50);
   border: 1px solid $indigo-100;
@@ -107,7 +110,7 @@
   }
 }
 
-// ── Issues ──
+// Проблемы.
 .hp__items {
   display: flex;
   flex-direction: column;
@@ -162,7 +165,7 @@
   }
 }
 
-// ── Success ──
+// Успех.
 .hp-success {
   background: $emerald-50;
   border: 1px solid $emerald-100;
@@ -186,7 +189,7 @@
   }
 }
 
-// ── Hints ──
+// Подсказки.
 .hp-hint {
   &__head {
     display: flex;
@@ -307,7 +310,7 @@
   }
 }
 
-// ── Footer ──
+// Подвал.
 .hp__footer {
   padding: $spacing-3 $spacing-4;
   border-top: 1px solid $slate-100;
@@ -381,6 +384,7 @@
 
   &:hover { background: $slate-100; color: $slate-700; }
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: 1023px) {
     display: inline-flex;
   }

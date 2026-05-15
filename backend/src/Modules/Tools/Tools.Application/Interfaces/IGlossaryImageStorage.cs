@@ -1,5 +1,7 @@
+// Файл: IGlossaryImageStorage.cs
 namespace Tools.Application.Interfaces;
 
+// Интерфейс IGlossaryImageStorage задаёт контракт сервиса между слоями или модулями.
 public interface IGlossaryImageStorage
 {
     Task<string> UploadAsync(

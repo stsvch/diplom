@@ -1,8 +1,13 @@
+// TeacherAvailability.cs
+
 using EduPlatform.Shared.Domain;
 using Scheduling.Domain.Enums;
 
 namespace Scheduling.Domain.Entities;
 
+/// <summary>
+/// Тип TeacherAvailability относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class TeacherAvailability : BaseEntity, IAuditableEntity
 {
     public string TeacherId { get; set; } = string.Empty;

@@ -1,3 +1,4 @@
+// test-result.component.ts
 import {
   Component,
   inject,
@@ -25,6 +26,7 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ProgressBarComponent } from '../../../shared/components/progress-bar/progress-bar.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-test-result',
   standalone: true,
@@ -52,6 +54,7 @@ export class TestResultComponent implements OnInit {
   readonly Loader2Icon = Loader2;
   readonly MessageIcon = MessageSquare;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly attempt = signal<TestAttemptDetailDto | null>(null);
   readonly myAttempts = signal<{ id: string; attemptNumber: number; status: string }[]>([]);
@@ -90,6 +93,7 @@ export class TestResultComponent implements OnInit {
     return this.myAttempts().length < this.maxAttempts;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.testId = this.route.snapshot.paramMap.get('testId') ?? '';
     this.attemptId = this.route.snapshot.paramMap.get('attemptId') ?? '';
@@ -105,6 +109,7 @@ export class TestResultComponent implements OnInit {
 
   loadAttempt(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.getAttempt(this.attemptId).subscribe({
       next: (data) => {
         this.attempt.set(data);

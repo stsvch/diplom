@@ -1,7 +1,9 @@
+// avatar.component.ts
 import { Component, Input, signal, OnChanges, SimpleChanges } from '@angular/core';
 
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-avatar',
   standalone: true,
@@ -15,8 +17,10 @@ export class AvatarComponent implements OnChanges {
   @Input() size: AvatarSize = 'md';
   @Input() fallback = '';
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   imageError = signal(false);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['src']) {
       this.imageError.set(false);

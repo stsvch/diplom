@@ -1,4 +1,7 @@
+<!-- toast.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="toast-container">
+  <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
   @for (toast of toasts(); track toast.id) {
     <div class="toast" [class]="'toast--' + toast.type">
       <span class="toast__icon">

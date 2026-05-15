@@ -1,10 +1,14 @@
+<!-- app-layout.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="app-layout">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (mobileOpen()) {
     <div class="app-layout__overlay" (click)="closeMobile()"></div>
   }
   <app-sidebar class="app-layout__sidebar" />
   <div class="app-layout__main">
     <app-header class="app-layout__header" />
+    <!-- Основная область страницы показывает рабочий контент пользователя. -->
     <main class="app-layout__content">
       <router-outlet />
     </main>

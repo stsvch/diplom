@@ -1,9 +1,11 @@
+// auth.interceptor.ts
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
+// Interceptor добавляет Bearer token и credentials к API-запросам, а при 401 пытается обновить access token через refresh endpoint.
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -11,7 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const isRefreshRequest = req.url.includes('/auth/refresh');
   const isAuthEndpoint = req.url.includes('/auth/');
 
-  // Добавить токен и credentials
+  // Access token уходит в Authorization, а credentials нужны для refresh-cookie на auth endpoints.
   const token = authService.getAccessToken();
   let authReq = req;
 
@@ -26,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // При 401 (кроме refresh) — пробуем обновить токен
+      // При 401 вне refresh-запроса пробуем получить новый access token и повторить исходный запрос.
       if (error.status === 401 && !isRefreshRequest) {
         return authService.refreshToken().pipe(
           switchMap((res) => {

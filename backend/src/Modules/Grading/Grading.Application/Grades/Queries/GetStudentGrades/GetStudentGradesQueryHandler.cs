@@ -1,3 +1,5 @@
+// GetStudentGradesQueryHandler.cs
+
 using Grading.Application.DTOs;
 using Grading.Application.Interfaces;
 using MediatR;
@@ -5,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grading.Application.Grades.Queries.GetStudentGrades;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetStudentGradesQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetStudentGradesQueryHandler : IRequestHandler<GetStudentGradesQuery, List<GradeDto>>
 {
     private readonly IGradingDbContext _context;
@@ -14,6 +19,7 @@ public class GetStudentGradesQueryHandler : IRequestHandler<GetStudentGradesQuer
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<GradeDto>> Handle(GetStudentGradesQuery request, CancellationToken cancellationToken)
     {
         var grades = await _context.Grades

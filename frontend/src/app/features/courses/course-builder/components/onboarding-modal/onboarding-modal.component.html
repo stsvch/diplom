@@ -1,4 +1,7 @@
+<!-- onboarding-modal.component.html -->
+<!-- Условный блок переключает состояние отображения по данным компонента. -->
 @if (open) {
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="om" (click)="finish()">
     <div class="om__card" (click)="$event.stopPropagation()">
       <div class="om__head">

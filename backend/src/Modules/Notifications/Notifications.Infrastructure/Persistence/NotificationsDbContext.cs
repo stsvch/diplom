@@ -1,3 +1,4 @@
+// Файл: NotificationsDbContext.cs
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Notifications.Application.Interfaces;
@@ -5,6 +6,7 @@ using Notifications.Domain.Entities;
 
 namespace Notifications.Infrastructure.Persistence;
 
+// DbContext NotificationsDbContext описывает EF Core-модель и границы хранения данных модуля.
 public class NotificationsDbContext : BaseDbContext, INotificationsDbContext
 {
     public NotificationsDbContext(DbContextOptions<NotificationsDbContext> options) : base(options) { }

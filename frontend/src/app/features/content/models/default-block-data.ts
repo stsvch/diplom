@@ -1,9 +1,11 @@
+// default-block-data.ts
 import { LessonBlockType } from './block-type.model';
 import {
   LessonBlockData,
   LessonBlockSettings,
 } from './block-data.model';
 
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export const DEFAULT_SETTINGS: LessonBlockSettings = {
   points: 1,
   requiredForCompletion: true,

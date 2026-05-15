@@ -1,5 +1,7 @@
+// course-info-editor.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .cie {
@@ -65,6 +67,7 @@
   color: $slate-900;
   transition: border-color $transition-fast, background $transition-fast, box-shadow $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:focus {
     outline: none;
     background: #fff;
@@ -208,6 +211,7 @@
   grid-template-columns: 1fr 1fr;
   gap: $spacing-4;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: $breakpoint-sm) {
     grid-template-columns: 1fr;
   }

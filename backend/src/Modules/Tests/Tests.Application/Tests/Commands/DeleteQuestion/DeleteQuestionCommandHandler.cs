@@ -1,3 +1,5 @@
+// DeleteQuestionCommandHandler.cs
+
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +7,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Commands.DeleteQuestion;
 
+/// <summary>
+/// Обработчик CQRS-команды DeleteQuestionCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class DeleteQuestionCommandHandler : IRequestHandler<DeleteQuestionCommand, Result<string>>
 {
     private readonly ITestsDbContext _context;
@@ -14,6 +19,7 @@ public class DeleteQuestionCommandHandler : IRequestHandler<DeleteQuestionComman
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(DeleteQuestionCommand request, CancellationToken cancellationToken)
     {
         var question = await _context.Questions
@@ -30,7 +36,7 @@ public class DeleteQuestionCommandHandler : IRequestHandler<DeleteQuestionComman
 
         _context.Questions.Remove(question);
 
-        // Recalculate MaxScore
+        // Пересчитываем максимальный балл теста после изменения вопросов.
         var remainingPoints = await _context.Questions
             .Where(q => q.TestId == test.Id && q.Id != question.Id)
             .SumAsync(q => q.Points, cancellationToken);

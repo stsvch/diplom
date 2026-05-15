@@ -1,4 +1,7 @@
+<!-- structure-panel.component.html -->
+<!-- Боковая панель хранит вспомогательную навигацию и контекст. -->
 <aside class="sp">
+  <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
   <header class="sp__header">
     <p class="sp__count">
       {{ store.sections().length }} разд. · {{ store.totalItems() }} элем.
@@ -16,11 +19,13 @@
   >
     <lucide-icon [img]="icons.bookOpen" [size]="16" />
     <span>Информация о курсе</span>
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (!store.course()?.title) {
       <span class="sp__warn-badge">!</span>
     }
   </button>
 
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="sp__scroll">
     @if (store.sections().length === 0) {
       <div class="sp__empty">
@@ -246,6 +251,7 @@
     }
   </div>
 
+  <!-- Нижняя часть секции завершает основной сценарий экрана. -->
   <footer class="sp__footer">
     <button class="sp__add-section" (click)="store.addSection()">
       <lucide-icon [img]="icons.plus" [size]="14" />

@@ -1,7 +1,12 @@
+// TestResponse.cs
+
 using EduPlatform.Shared.Domain;
 
 namespace Tests.Domain.Entities;
 
+/// <summary>
+/// Тип TestResponse относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class TestResponse : BaseEntity
 {
     public Guid AttemptId { get; set; }

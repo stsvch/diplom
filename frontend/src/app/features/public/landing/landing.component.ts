@@ -1,3 +1,4 @@
+// landing.component.ts
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -43,6 +44,7 @@ interface StatEntry {
   gradient: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -66,6 +68,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   readonly isAuth = this.auth.isAuthenticated;
 
   // Hero floating "role" widget — анимированное переключение
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly activeRoleIndex = signal(0);
   readonly heroProgress = signal(0);
   private roleTimer: ReturnType<typeof setInterval> | null = null;
@@ -145,11 +148,12 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       icon: CreditCard,
       title: 'Оплата и подписки',
-      description: 'Платные курсы, teacher payouts, refunds/disputes и subscription allocation',
+      description: 'Платные курсы, teacher payouts, подписки и платформенная выручка',
       gradient: 'violet-purple',
     },
   ];
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     // Цикл анимации роли (каждые 2.5 сек)
     this.roleTimer = setInterval(() => {

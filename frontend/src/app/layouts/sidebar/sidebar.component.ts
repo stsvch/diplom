@@ -1,3 +1,4 @@
+// sidebar.component.ts
 import { Component, computed, inject, signal, OnInit, effect, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import {
@@ -42,6 +43,7 @@ export interface NavItem {
   badge?: number;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-sidebar',
   standalone: true,
@@ -73,6 +75,7 @@ export class SidebarComponent implements OnInit {
 
   readonly unreadNotifications = this.signalRService.unreadCount;
   readonly unreadMessages = this.chatSignalRService.unreadCount;
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   pendingAssignments = signal(0);
 
   readonly roleKey = computed<'student' | 'teacher' | 'admin'>(() => {
@@ -125,6 +128,7 @@ export class SidebarComponent implements OnInit {
       { label: 'Дашборд', route: '/student/dashboard', icon: LayoutDashboard },
       { label: 'Мои курсы', route: '/student/courses', icon: BookOpen },
       { label: 'Каталог курсов', route: '/student/catalog', icon: Library },
+      { label: 'Оценки', route: '/student/grades', icon: BookMarked },
       { label: 'Календарь', route: '/student/calendar', icon: Calendar },
       { label: 'Сообщения', route: '/student/messages', icon: MessageSquare, badge: msg || undefined },
       { label: 'Уведомления', route: '/student/notifications', icon: Bell, badge: notif || undefined },
@@ -147,9 +151,11 @@ export class SidebarComponent implements OnInit {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {}
 
   private loadCounters(role: UserRole): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.notificationsService.getUnreadCount().subscribe({
       error: () => this.signalRService.setUnreadCount(0),
     });

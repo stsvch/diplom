@@ -1,7 +1,12 @@
+// TeacherAvailabilityDto.cs
+
 using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные TeacherAvailabilityDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class TeacherAvailabilityDto
 {
     public Guid Id { get; set; }

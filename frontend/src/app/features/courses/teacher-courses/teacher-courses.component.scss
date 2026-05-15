@@ -1,5 +1,7 @@
+// teacher-courses.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .teacher-courses {
   padding: v.$spacing-6;
   max-width: 1400px;
@@ -12,6 +14,7 @@
     margin-bottom: v.$spacing-6;
     gap: v.$spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-sm) {
       flex-direction: column;
     }
@@ -69,6 +72,7 @@
   &__row {
     transition: background v.$transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:last-child td {
       border-bottom: none;
     }
@@ -113,7 +117,7 @@
   }
 }
 
-// Course cell
+// Ячейка курса.
 .course-cell {
   display: flex;
   align-items: center;
@@ -161,7 +165,7 @@
   }
 }
 
-// Stats
+// Статистика.
 .tc-stat {
   display: inline-flex;
   align-items: center;
@@ -179,14 +183,14 @@
   color: v.$text-secondary;
 }
 
-// Actions
+// Действия.
 .tc-actions {
   display: flex;
   align-items: center;
   gap: v.$spacing-1;
 }
 
-// Skeleton
+// Скелетон загрузки.
 .skeleton-cell {
   height: 14px;
   border-radius: v.$radius-sm;

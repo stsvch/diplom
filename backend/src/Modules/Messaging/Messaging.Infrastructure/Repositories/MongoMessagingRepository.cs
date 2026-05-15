@@ -1,3 +1,4 @@
+// MongoMessagingRepository.cs
 using Messaging.Application.Interfaces;
 using Messaging.Domain.Documents;
 using Messaging.Domain.Enums;
@@ -6,6 +7,7 @@ using MongoDB.Driver;
 
 namespace Messaging.Infrastructure.Repositories;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class MongoMessagingRepository : IMessagingRepository
 {
     private readonly IMongoCollection<ChatDocument> _chats;
@@ -25,7 +27,7 @@ public class MongoMessagingRepository : IMessagingRepository
         var chatIndex = Builders<ChatDocument>.IndexKeys.Ascending(c => c.ParticipantIds);
         _chats.Indexes.CreateOne(new CreateIndexModel<ChatDocument>(chatIndex));
 
-        // Unique partial index: at most one CourseChat per CourseId
+        // Уникальный частичный индекс разрешает только один CourseChat на CourseId.
         var courseIdIndex = Builders<ChatDocument>.IndexKeys.Ascending(c => c.CourseId);
         var courseChatFilter = Builders<ChatDocument>.Filter.Eq(c => c.Type, ChatType.CourseChat);
         _chats.Indexes.CreateOne(new CreateIndexModel<ChatDocument>(
@@ -256,7 +258,7 @@ public class MongoMessagingRepository : IMessagingRepository
 
     public async Task<bool> DeleteChatAsync(string chatId)
     {
-        // Delete messages first to minimize orphan window
+        // Сначала удаляем сообщения, чтобы сократить окно появления orphan-данных.
         await _messages.DeleteManyAsync(Builders<MessageDocument>.Filter.Eq(m => m.ChatId, chatId));
         var chatResult = await _chats.DeleteOneAsync(Builders<ChatDocument>.Filter.Eq(c => c.Id, chatId));
         return chatResult.DeletedCount > 0;
@@ -264,7 +266,7 @@ public class MongoMessagingRepository : IMessagingRepository
 
     public async Task<bool> AddParticipantAsync(string chatId, string userId, string userName)
     {
-        // Idempotent: only update if userId not already in ParticipantIds
+        // Идемпотентно обновляем чат только если userId еще не входит в ParticipantIds.
         var filter = Builders<ChatDocument>.Filter.And(
             Builders<ChatDocument>.Filter.Eq(c => c.Id, chatId),
             Builders<ChatDocument>.Filter.Not(Builders<ChatDocument>.Filter.AnyEq(c => c.ParticipantIds, userId))
@@ -287,6 +289,16 @@ public class MongoMessagingRepository : IMessagingRepository
 
         var result = await _chats.UpdateOneAsync(filter, update);
         return result.ModifiedCount > 0;
+    }
+
+    public async Task UpdateCourseChatNameAsync(string courseId, string courseName)
+    {
+        var filter = Builders<ChatDocument>.Filter.And(
+            Builders<ChatDocument>.Filter.Eq(c => c.Type, ChatType.CourseChat),
+            Builders<ChatDocument>.Filter.Eq(c => c.CourseId, courseId));
+
+        var update = Builders<ChatDocument>.Update.Set(c => c.CourseName, courseName);
+        await _chats.UpdateOneAsync(filter, update);
     }
 
     public async Task SetArchivedAsync(string chatId, bool archived)

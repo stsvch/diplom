@@ -1,3 +1,4 @@
+// Файл: GetCourseProgressQueryHandler.cs
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Progress.Application.DTOs;
@@ -5,6 +6,7 @@ using Progress.Application.Interfaces;
 
 namespace Progress.Application.Progress.Queries.GetCourseProgress;
 
+// Обработчик запроса GetCourseProgressQueryHandler собирает данные чтения без изменения состояния.
 public class GetCourseProgressQueryHandler : IRequestHandler<GetCourseProgressQuery, CourseProgressDto>
 {
     private readonly IProgressDbContext _context;

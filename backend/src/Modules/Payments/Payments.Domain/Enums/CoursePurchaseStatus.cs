@@ -1,10 +1,8 @@
+// CoursePurchaseStatus.cs
 namespace Payments.Domain.Enums;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public enum CoursePurchaseStatus
 {
-    Active = 0,
-    PartiallyRefunded = 1,
-    Refunded = 2,
-    Revoked = 3,
-    Disputed = 4
+    Active = 0
 }

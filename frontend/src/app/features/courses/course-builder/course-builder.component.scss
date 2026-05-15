@@ -1,5 +1,7 @@
+// course-builder.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host {
   display: block;
   height: 100vh;
@@ -81,6 +83,7 @@
 }
 
 // Mobile: панели скрываются, открываются по кнопкам в TopBar
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (max-width: 1023px) {
   .cb-shell__left,
   .cb-shell__right {

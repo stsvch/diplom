@@ -1,3 +1,5 @@
+// GetAssignmentByIdQueryHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using AutoMapper;
@@ -7,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Queries.GetAssignmentById;
 
+/// <summary>
+/// Обработчик сценария: читает задание по id вместе со сдачами, чтобы открыть детальную карточку для просмотра или проверки.
+/// </summary>
 public class GetAssignmentByIdQueryHandler : IRequestHandler<GetAssignmentByIdQuery, Result<AssignmentDetailDto>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -18,6 +23,7 @@ public class GetAssignmentByIdQueryHandler : IRequestHandler<GetAssignmentByIdQu
         _mapper = mapper;
     }
 
+    // Последовательно выполняет сценарий: читает задание по id вместе со сдачами, чтобы открыть детальную карточку для просмотра или проверки.
     public async Task<Result<AssignmentDetailDto>> Handle(GetAssignmentByIdQuery request, CancellationToken cancellationToken)
     {
         var assignment = await _db.Assignments

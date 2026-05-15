@@ -1,3 +1,4 @@
+// Файл: TeacherDashboardReadService.cs
 using Assignments.Domain.Enums;
 using Assignments.Infrastructure.Persistence;
 using Auth.Domain.Entities;
@@ -16,6 +17,7 @@ using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис чтения TeacherDashboardReadService собирает модель чтения для API без изменения состояния.
 public class TeacherDashboardReadService
 {
     private readonly CoursesDbContext _coursesDb;
@@ -82,6 +84,9 @@ public class TeacherDashboardReadService
 
         var lessonIds = lessonRows.Select(x => x.LessonId).Distinct().ToList();
         var activeStudentIds = activeEnrollments.Select(x => x.StudentId).Distinct().ToList();
+        var activeEnrollmentKeys = activeEnrollments
+            .Select(x => (x.CourseId, x.StudentId))
+            .ToHashSet();
 
         var completedProgressRows = lessonIds.Count == 0 || activeStudentIds.Count == 0
             ? []
@@ -99,14 +104,11 @@ public class TeacherDashboardReadService
             .ToDictionary(g => g.Key, g => g.First().CourseId);
 
         var completedByStudentCourse = completedProgressRows
-            .Select(row => new
-            {
-                row.StudentId,
-                CourseId = lessonCourseById.TryGetValue(row.LessonId, out var courseId) ? courseId : Guid.Empty
-            })
-            .Where(x => x.CourseId != Guid.Empty)
-            .GroupBy(x => new { x.StudentId, x.CourseId })
-            .ToDictionary(g => (g.Key.StudentId, g.Key.CourseId), g => g.Count());
+            .Where(row => lessonCourseById.ContainsKey(row.LessonId))
+            .GroupBy(row => new { row.StudentId, CourseId = lessonCourseById[row.LessonId] })
+            .ToDictionary(
+                g => (g.Key.StudentId, g.Key.CourseId),
+                g => g.Select(x => x.LessonId).Distinct().Count());
 
         var totalLessonsByCourse = lessonRows
             .GroupBy(x => x.CourseId)
@@ -139,53 +141,82 @@ public class TeacherDashboardReadService
             .GroupBy(x => x.CourseId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.StudentId).Distinct().Count());
 
-        var gradeRows = courseIds.Count == 0
+        var gradeRows = courseIds.Count == 0 || activeStudentIds.Count == 0
             ? []
             : await _gradingDb.Grades
                 .AsNoTracking()
-                .Where(g => courseIds.Contains(g.CourseId))
+                .Where(g => courseIds.Contains(g.CourseId) && activeStudentIds.Contains(g.StudentId))
                 .Select(g => new
                 {
                     g.CourseId,
+                    g.StudentId,
                     Percent = g.MaxScore > 0 ? g.Score / g.MaxScore * 100m : 0m
                 })
                 .ToListAsync(cancellationToken);
+
+        gradeRows = gradeRows
+            .Where(g => activeEnrollmentKeys.Contains((g.CourseId, g.StudentId)))
+            .ToList();
 
         var averageGradeByCourse = gradeRows
             .GroupBy(x => x.CourseId)
             .ToDictionary(g => g.Key, g => g.Any() ? Math.Round(g.Average(x => x.Percent), 1) : 0m);
 
-        var pendingAssignmentRows = await _assignmentsDb.AssignmentSubmissions
-            .AsNoTracking()
-            .Where(s =>
-                s.Assignment.CreatedById == teacherId
-                && (s.Status == SubmissionStatus.Submitted || s.Status == SubmissionStatus.UnderReview))
-            .Select(s => new
-            {
-                Kind = "Assignment",
-                SourceId = s.AssignmentId,
-                ReviewId = s.Id,
-                s.StudentId,
-                s.SubmittedAt,
-                CourseId = s.Assignment.CourseId,
-                Title = s.Assignment.Title
-            })
-            .ToListAsync(cancellationToken);
+        var pendingAssignmentRows = courseIds.Count == 0 || activeStudentIds.Count == 0
+            ? []
+            : await _assignmentsDb.AssignmentSubmissions
+                .AsNoTracking()
+                .Where(s =>
+                    s.Assignment.CourseId.HasValue
+                    && courseIds.Contains(s.Assignment.CourseId.Value)
+                    && s.Assignment.CreatedById == teacherId
+                    && activeStudentIds.Contains(s.StudentId)
+                    && (s.Status == SubmissionStatus.Submitted || s.Status == SubmissionStatus.UnderReview))
+                .Select(s => new
+                {
+                    Kind = "Assignment",
+                    SourceId = s.AssignmentId,
+                    ReviewId = s.Id,
+                    s.StudentId,
+                    s.SubmittedAt,
+                    CourseId = s.Assignment.CourseId,
+                    Title = s.Assignment.Title
+                })
+                .ToListAsync(cancellationToken);
 
-        var pendingTestRows = await _testsDb.TestAttempts
-            .AsNoTracking()
-            .Where(a => a.Test.CreatedById == teacherId && a.Status == AttemptStatus.NeedsReview)
-            .Select(a => new
-            {
-                Kind = "Test",
-                SourceId = a.TestId,
-                ReviewId = a.Id,
-                a.StudentId,
-                SubmittedAt = a.CompletedAt ?? a.StartedAt,
-                CourseId = a.Test.CourseId,
-                Title = a.Test.Title
-            })
-            .ToListAsync(cancellationToken);
+        pendingAssignmentRows = pendingAssignmentRows
+            .Where(row =>
+                row.CourseId.HasValue
+                && activeEnrollmentKeys.Contains((row.CourseId.Value, row.StudentId)))
+            .ToList();
+
+        var pendingTestRows = courseIds.Count == 0 || activeStudentIds.Count == 0
+            ? []
+            : await _testsDb.TestAttempts
+                .AsNoTracking()
+                .Where(a =>
+                    a.Test.CourseId.HasValue
+                    && courseIds.Contains(a.Test.CourseId.Value)
+                    && a.Test.CreatedById == teacherId
+                    && activeStudentIds.Contains(a.StudentId)
+                    && a.Status == AttemptStatus.NeedsReview)
+                .Select(a => new
+                {
+                    Kind = "Test",
+                    SourceId = a.TestId,
+                    ReviewId = a.Id,
+                    a.StudentId,
+                    SubmittedAt = a.CompletedAt ?? a.StartedAt,
+                    CourseId = a.Test.CourseId,
+                    Title = a.Test.Title
+                })
+                .ToListAsync(cancellationToken);
+
+        pendingTestRows = pendingTestRows
+            .Where(row =>
+                row.CourseId.HasValue
+                && activeEnrollmentKeys.Contains((row.CourseId.Value, row.StudentId)))
+            .ToList();
 
         var pendingReviewRows = pendingAssignmentRows
             .Concat(pendingTestRows)
@@ -269,7 +300,10 @@ public class TeacherDashboardReadService
                 SlotId = slot.Id,
                 CourseId = slot.RequiredCourseId,
                 Title = slot.Title,
-                CourseName = null,
+                CourseName = slot.RequiredCourseId.HasValue
+                             && courseNames.TryGetValue(slot.RequiredCourseId.Value, out var courseName)
+                    ? courseName
+                    : null,
                 StartTime = slot.StartTime,
                 EndTime = slot.EndTime,
                 Status = slot.Status.ToString(),

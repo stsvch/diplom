@@ -1,3 +1,4 @@
+// ResetPasswordCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.ResetPassword;
 
+// Обработчик сценария: принимает email, reset token и новый пароль, затем сбрасывает пароль через ASP.NET Identity.
 public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

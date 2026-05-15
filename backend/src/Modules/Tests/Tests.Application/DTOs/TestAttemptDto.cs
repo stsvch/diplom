@@ -1,7 +1,12 @@
+// TestAttemptDto.cs
+
 using Tests.Domain.Enums;
 
 namespace Tests.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные TestAttemptDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class TestAttemptDto
 {
     public Guid Id { get; set; }

@@ -1,8 +1,11 @@
+<!-- glossary-page.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="glossary">
   <div class="glossary__bg-blob glossary__bg-blob--top"></div>
   <div class="glossary__bg-blob glossary__bg-blob--bottom"></div>
 
   <div class="glossary__container">
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (creatorOpen() && isTeacher()) {
       <button type="button" class="glossary__back" (click)="closeCreator()">
         <span class="glossary__back-icon">←</span> К списку карточек
@@ -422,6 +425,7 @@
   </div>
 </div>
 
+<!-- Альтернативный шаблон используется для пустых или загрузочных состояний. -->
 <ng-template #cardTpl let-word let-preview="preview">
   <article class="card">
     <div class="card__head">

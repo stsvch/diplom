@@ -1,3 +1,4 @@
+// teacher-courses.component.ts
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -18,6 +19,7 @@ import { CourseListDto } from '../models/course.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-teacher-courses',
   standalone: true,
@@ -38,6 +40,7 @@ export class TeacherCoursesComponent implements OnInit {
   readonly ArchiveIcon = Archive;
   readonly MoreVerticalIcon = MoreVertical;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly publishing = signal<string | null>(null);
   readonly archiving = signal<string | null>(null);
@@ -47,12 +50,14 @@ export class TeacherCoursesComponent implements OnInit {
 
   readonly skeletonItems = Array(5).fill(0);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadCourses();
   }
 
   loadCourses(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getMyCourses().subscribe({
       next: (data) => {
         this.courses.set(data);

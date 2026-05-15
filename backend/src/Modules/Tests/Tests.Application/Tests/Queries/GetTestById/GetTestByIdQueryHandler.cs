@@ -1,3 +1,5 @@
+// GetTestByIdQueryHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +9,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Queries.GetTestById;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetTestByIdQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetTestByIdQueryHandler : IRequestHandler<GetTestByIdQuery, Result<TestDetailDto>>
 {
     private readonly ITestsDbContext _context;
@@ -18,6 +23,7 @@ public class GetTestByIdQueryHandler : IRequestHandler<GetTestByIdQuery, Result<
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestDetailDto>> Handle(GetTestByIdQuery request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

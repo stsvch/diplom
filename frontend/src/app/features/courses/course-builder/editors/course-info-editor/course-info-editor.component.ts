@@ -1,3 +1,4 @@
+// course-info-editor.component.ts
 import { Component, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +8,7 @@ import { FileService } from '../../../../../core/services/file.service';
 import { ToastService } from '../../../../../shared/components/toast/toast.service';
 import { TagInputComponent } from '../../../../../shared/components/tag-input/tag-input.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-course-info-editor',
   standalone: true,
@@ -21,6 +23,7 @@ export class CourseInfoEditorComponent {
   private readonly toast = inject(ToastService);
 
   readonly icons = { info: Info, upload: Upload, close: X };
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly uploading = signal(false);
 
   setTitle(value: string): void {
@@ -54,11 +57,7 @@ export class CourseInfoEditorComponent {
     }
   }
 
-  setHasGrading(value: boolean): void {
-    this.store.patchCourseInfo({ hasGrading: value });
-  }
-
-  // ── Cover upload ───────────────────────────────────────
+  // Загрузка обложки.
 
   onPickCover(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -92,6 +91,7 @@ export class CourseInfoEditorComponent {
     }
 
     this.uploading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.files.upload(file, 'CourseCover', courseId).subscribe({
       next: (att) => {
         this.uploading.set(false);

@@ -1,3 +1,5 @@
+// ReorderBlocksCommandHandler.cs
+
 using Content.Application.Interfaces;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.LessonBlocks.Commands.ReorderBlocks;
 
+// Тип class: ключевой элемент файла ReorderBlocksCommandHandler.cs.
 public class ReorderBlocksCommandHandler : IRequestHandler<ReorderBlocksCommand, Result<string>>
 {
     private readonly IContentDbContext _context;
@@ -14,6 +17,7 @@ public class ReorderBlocksCommandHandler : IRequestHandler<ReorderBlocksCommand,
         _context = context;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(ReorderBlocksCommand request, CancellationToken cancellationToken)
     {
         var blocks = await _context.LessonBlocks

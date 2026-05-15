@@ -1,8 +1,11 @@
+// LessonBlockAnswer.cs
+
 using System.Text.Json.Serialization;
 using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Answers;
 
+// Value object class: описывает структуру ответа студента для проверки блока.
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(SingleChoiceAnswer), nameof(LessonBlockType.SingleChoice))]
 [JsonDerivedType(typeof(MultipleChoiceAnswer), nameof(LessonBlockType.MultipleChoice))]

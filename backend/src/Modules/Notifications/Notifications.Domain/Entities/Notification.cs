@@ -1,8 +1,10 @@
+// Файл: Notification.cs
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
 
 namespace Notifications.Domain.Entities;
 
+// Класс Notification инкапсулирует ответственность соответствующего сценария.
 public class Notification : BaseEntity
 {
     public string UserId { get; set; } = string.Empty;

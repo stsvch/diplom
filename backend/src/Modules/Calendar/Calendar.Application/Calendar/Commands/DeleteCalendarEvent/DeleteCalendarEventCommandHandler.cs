@@ -1,3 +1,4 @@
+// DeleteCalendarEventCommandHandler.cs
 using Calendar.Application.Interfaces;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendar.Application.Calendar.Commands.DeleteCalendarEvent;
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class DeleteCalendarEventCommandHandler : IRequestHandler<DeleteCalendarEventCommand, Result>
 {
     private readonly ICalendarDbContext _context;

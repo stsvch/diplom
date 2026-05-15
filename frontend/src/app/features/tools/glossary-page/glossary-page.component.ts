@@ -1,3 +1,4 @@
+// glossary-page.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ interface GlossaryEditorModel {
   imageUrl: string | null;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-glossary-page',
   standalone: true,
@@ -39,6 +41,7 @@ export class GlossaryPageComponent implements OnInit {
   private readonly studyBatchSize = 12;
 
   readonly userRole = this.authService.userRole;
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly isTeacher = computed(() => this.userRole() === UserRole.Teacher);
   readonly isStudent = computed(() => this.userRole() === UserRole.Student);
   readonly loading = signal(true);
@@ -115,6 +118,7 @@ export class GlossaryPageComponent implements OnInit {
     return `${n} карточек`;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadCourses();
   }
@@ -127,6 +131,7 @@ export class GlossaryPageComponent implements OnInit {
       courseId: this.selectedCourseId() || undefined,
       search: this.search().trim() || undefined,
       knownOnly: this.isStudent() ? this.knownOnly() : undefined,
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: (words) => {
         this.words.set(words);

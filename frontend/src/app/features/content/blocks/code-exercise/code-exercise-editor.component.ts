@@ -1,3 +1,4 @@
+// code-exercise-editor.component.ts
 import { Component, EventEmitter, Input, Output, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -9,6 +10,7 @@ const LANGUAGES = [
   { value: 'python', label: 'Python' },
 ];
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-code-exercise-editor',
   standalone: true,
@@ -111,6 +113,7 @@ export class CodeExerciseEditorComponent {
 
   languages = LANGUAGES;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   monacoOptions = computed(() => ({
     theme: 'vs-dark',
     language: this.mapLang(this.data?.language ?? 'csharp'),

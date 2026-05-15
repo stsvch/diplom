@@ -1,9 +1,11 @@
+// AuthMappingProfile.cs
 using Auth.Application.DTOs;
 using Auth.Domain.Entities;
 using AutoMapper;
 
 namespace Auth.Application.Mappings;
 
+// Профиль AutoMapper для Auth: собирает UserProfileDto из Identity-пользователя, а роль заполняется отдельно из UserManager.
 public class AuthMappingProfile : Profile
 {
     public AuthMappingProfile()

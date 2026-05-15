@@ -1,3 +1,4 @@
+// GetPlatformSettingsQueryHandler.cs
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Queries.GetPlatformSettings;
 
+// Обработчик сценария: читает текущие singleton-настройки платформы для публичных страниц и админки.
 public class GetPlatformSettingsQueryHandler : IRequestHandler<GetPlatformSettingsQuery, Result<PlatformSettingsDto>>
 {
     private readonly IAuthDbContext _context;

@@ -1,4 +1,7 @@
+<!-- teacher-course-reports.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="teacher-course-reports">
+  <!-- Содержательная секция группирует связанный блок данных. -->
   <section class="hero">
     <div class="hero__copy">
       <p class="hero__eyebrow">Reports / Teacher</p>
@@ -36,6 +39,7 @@
     </div>
   </section>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (dashboardLoading() || reportLoading()) {
     <div class="state">Загружаю аналитику по курсу...</div>
   } @else if (error()) {

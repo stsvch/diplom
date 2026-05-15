@@ -1,3 +1,4 @@
+// Файл: SignalRNotificationSender.cs
 using Microsoft.AspNetCore.SignalR;
 using Notifications.Application.DTOs;
 using Notifications.Application.Interfaces;
@@ -5,6 +6,7 @@ using Notifications.Infrastructure.Hubs;
 
 namespace Notifications.Infrastructure.Services;
 
+// Сервис SignalRNotificationSender инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class SignalRNotificationSender : INotificationSender
 {
     private readonly IHubContext<NotificationHub> _hubContext;

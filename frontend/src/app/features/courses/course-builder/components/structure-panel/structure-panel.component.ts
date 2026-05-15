@@ -1,3 +1,4 @@
+// structure-panel.component.ts
 import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +39,7 @@ interface ItemTypeOption {
   color: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-structure-panel',
   standalone: true,
@@ -69,6 +71,7 @@ export class StructurePanelComponent {
   };
 
   /** Список ID секций для DnD connect-lists (items могут перемещаться между секциями) */
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly sectionDropListIds = computed(() =>
     this.store.sections().map((s) => 'sp-section-' + s.id),
   );

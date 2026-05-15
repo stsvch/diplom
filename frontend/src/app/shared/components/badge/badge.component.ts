@@ -1,8 +1,10 @@
+// badge.component.ts
 import { Component, Input } from '@angular/core';
 
 export type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'neutral';
 export type BadgeSize = 'sm' | 'md';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-badge',
   standalone: true,

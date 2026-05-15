@@ -1,5 +1,7 @@
+// block-editor-host.component.scss
 @use '../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .editor {
   display: flex;
   flex-direction: column;
@@ -25,6 +27,7 @@
   flex-direction: column;
   gap: $spacing-1;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--inline {
     flex-direction: column;
     flex: 0 0 auto;

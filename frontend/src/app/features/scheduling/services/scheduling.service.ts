@@ -1,3 +1,4 @@
+// scheduling.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,6 +14,7 @@ import {
   TeacherWithScheduleDto,
 } from '../models/scheduling.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class SchedulingService {
   private readonly http = inject(HttpClient);
@@ -20,6 +22,7 @@ export class SchedulingService {
 
   // ---- Учитель: правила расписания ----
   getMyAvailability(): Observable<TeacherAvailabilityDto[]> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<TeacherAvailabilityDto[]>(`${this.base}/availability/my`);
   }
 

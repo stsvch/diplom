@@ -1,13 +1,12 @@
+// admin-payments.component.ts
 import { Component, OnInit, computed, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LucideAngularModule, Search, RotateCcw, X } from 'lucide-angular';
+import { LucideAngularModule, Search, X } from 'lucide-angular';
 import { Subject, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 import {
   AdminPaymentRecordDto,
-  AdminRefundRequest,
-  AdminSubscriptionAllocationRunDto,
   AdminSubscriptionPlanDto,
   UpsertSubscriptionPlanRequest,
 } from '../models/admin.model';
@@ -15,6 +14,7 @@ import { AdminService, PagedResult } from '../services/admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-payments',
   standalone: true,
@@ -28,24 +28,19 @@ export class AdminPaymentsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly SearchIcon = Search;
-  readonly RefundIcon = RotateCcw;
   readonly XIcon = X;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly searchText = signal('');
   readonly page = signal(1);
   readonly pageSize = signal(20);
 
   readonly loading = signal(false);
-  readonly refunding = signal(false);
   readonly savingPlan = signal(false);
   readonly data = signal<PagedResult<AdminPaymentRecordDto> | null>(null);
   readonly totalPages = computed(() => this.data()?.totalPages ?? 1);
   readonly subscriptionPlans = signal<AdminSubscriptionPlanDto[]>([]);
-  readonly subscriptionAllocationRuns = signal<AdminSubscriptionAllocationRunDto[]>([]);
 
-  readonly refundOpenFor = signal<AdminPaymentRecordDto | null>(null);
-  readonly refundAmount = signal('');
-  readonly refundReason = signal('');
   readonly editingPlan = signal<AdminSubscriptionPlanDto | null>(null);
   readonly planModalOpen = signal(false);
   readonly planName = signal('');
@@ -62,6 +57,7 @@ export class AdminPaymentsComponent implements OnInit {
 
   private readonly search$ = new Subject<string>();
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.search$
       .pipe(
@@ -99,6 +95,7 @@ export class AdminPaymentsComponent implements OnInit {
       search: this.searchText() || undefined,
       page: this.page(),
       pageSize: this.pageSize(),
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: (data) => {
         this.data.set(data);
@@ -207,53 +204,6 @@ export class AdminPaymentsComponent implements OnInit {
     });
   }
 
-  openRefund(item: AdminPaymentRecordDto): void {
-    this.refundOpenFor.set(item);
-    this.refundAmount.set(item.remainingRefundableAmount.toFixed(2));
-    this.refundReason.set('');
-  }
-
-  cancelRefund(): void {
-    this.refundOpenFor.set(null);
-    this.refundAmount.set('');
-    this.refundReason.set('');
-  }
-
-  submitRefund(): void {
-    const payment = this.refundOpenFor();
-    if (!payment) return;
-
-    const amount = Number(this.refundAmount().replace(',', '.'));
-    if (!Number.isFinite(amount) || amount <= 0) {
-      this.toast.warning('Укажите корректную сумму refund');
-      return;
-    }
-    if (amount > payment.remainingRefundableAmount) {
-      this.toast.warning('Сумма refund превышает доступный остаток');
-      return;
-    }
-
-    const request: AdminRefundRequest = {
-      paymentAttemptId: payment.paymentAttemptId,
-      amount,
-      reason: this.refundReason().trim() || undefined,
-    };
-
-    this.refunding.set(true);
-    this.admin.createRefund(request).subscribe({
-      next: () => {
-        this.refunding.set(false);
-        this.toast.success('Refund создан');
-        this.cancelRefund();
-        this.load();
-      },
-      error: (err) => {
-        this.refunding.set(false);
-        this.toast.error(parseApiError(err).message);
-      },
-    });
-  }
-
   formatAmount(amount: number, currency: string): string {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
@@ -280,9 +230,6 @@ export class AdminPaymentsComponent implements OnInit {
       Failed: 'Ошибка',
       Canceled: 'Отменено',
       Expired: 'Истекло',
-      Refunded: 'Возвращено',
-      PartiallyRefunded: 'Частичный возврат',
-      Disputed: 'Спор',
     };
     return map[status] ?? status;
   }
@@ -290,31 +237,7 @@ export class AdminPaymentsComponent implements OnInit {
   paymentStatusClass(status: string): string {
     const normalized = status.toLowerCase();
     if (normalized.includes('succeeded')) return 'badge badge--ok';
-    if (normalized.includes('disput')) return 'badge badge--danger';
-    if (normalized.includes('refund')) return 'badge badge--warn';
     if (normalized.includes('pending') || normalized.includes('initiated')) return 'badge badge--neutral';
-    return 'badge badge--danger';
-  }
-
-  disputeStatusLabel(status?: string | null): string {
-    const map: Record<string, string> = {
-      NeedsResponse: 'Нужен ответ',
-      UnderReview: 'На рассмотрении',
-      Won: 'Выигран',
-      Lost: 'Проигран',
-      WarningNeedsResponse: 'Раннее предупреждение',
-      WarningUnderReview: 'Warning на рассмотрении',
-      WarningClosed: 'Warning закрыт',
-      Prevented: 'Предотвращён',
-    };
-    return status ? map[status] ?? status : '';
-  }
-
-  disputeStatusClass(status?: string | null): string {
-    if (!status) return 'badge badge--neutral';
-    if (status === 'Won' || status === 'WarningClosed' || status === 'Prevented') return 'badge badge--ok';
-    if (status === 'NeedsResponse' || status === 'WarningNeedsResponse') return 'badge badge--warn';
-    if (status === 'UnderReview' || status === 'WarningUnderReview') return 'badge badge--neutral';
     return 'badge badge--danger';
   }
 
@@ -329,22 +252,6 @@ export class AdminPaymentsComponent implements OnInit {
     return `каждые ${count} ${interval === 'год' ? 'г.' : 'мес.'}`;
   }
 
-  allocationStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      Applied: 'Распределено',
-      Skipped: 'Пропущено',
-      Reversed: 'Сторнировано',
-      Canceled: 'Отменено',
-    };
-    return map[status] ?? status;
-  }
-
-  allocationStatusClass(status: string): string {
-    if (status === 'Applied') return 'badge badge--ok';
-    if (status === 'Skipped') return 'badge badge--warn';
-    return 'badge badge--danger';
-  }
-
   private loadPage(): void {
     this.loading.set(true);
     this.errorHandledLoad();
@@ -353,11 +260,9 @@ export class AdminPaymentsComponent implements OnInit {
   private errorHandledLoad(): void {
     forkJoin({
       plans: this.admin.getSubscriptionPlans(),
-      allocationRuns: this.admin.getSubscriptionAllocationRuns(),
     }).subscribe({
-      next: ({ plans, allocationRuns }) => {
+      next: ({ plans }) => {
         this.subscriptionPlans.set(plans);
-        this.subscriptionAllocationRuns.set(allocationRuns);
         this.load();
       },
       error: (err) => {

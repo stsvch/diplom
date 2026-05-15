@@ -1,4 +1,7 @@
+<!-- admin-users.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="admin-users">
+  <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
   <header class="admin-users__head">
     <h1>Пользователи</h1>
     <button class="btn btn--primary" (click)="openCreate()">
@@ -29,6 +32,7 @@
     </label>
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="state">Загрузка...</div>
   } @else if (data(); as d) {

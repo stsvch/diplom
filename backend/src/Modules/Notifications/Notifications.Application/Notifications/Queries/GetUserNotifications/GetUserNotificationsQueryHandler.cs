@@ -1,3 +1,4 @@
+// Файл: GetUserNotificationsQueryHandler.cs
 using AutoMapper;
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Shared.Domain;
@@ -8,6 +9,7 @@ using Notifications.Application.Interfaces;
 
 namespace Notifications.Application.Notifications.Queries.GetUserNotifications;
 
+// Обработчик запроса GetUserNotificationsQueryHandler собирает данные чтения без изменения состояния.
 public class GetUserNotificationsQueryHandler : IRequestHandler<GetUserNotificationsQuery, Result<PagedResult<NotificationDto>>>
 {
     private readonly INotificationsDbContext _context;

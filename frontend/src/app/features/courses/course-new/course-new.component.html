@@ -1,3 +1,5 @@
+<!-- course-new.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="create-course">
   <a class="create-course__back" [routerLink]="['/teacher/courses']">
     <lucide-icon [img]="icons.chevronLeft" [size]="16" />
@@ -5,6 +7,7 @@
   </a>
 
   <div class="create-course__shell">
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="create-course__hero">
       <div class="create-course__hero-icon">
         <lucide-icon [img]="icons.sparkles" [size]="28" />
@@ -15,6 +18,7 @@
       </p>
     </header>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (disciplinesError(); as err) {
       <div class="create-course__alert">{{ err }}</div>
     }

@@ -1,14 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+// student-payments.component.ts
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { PaymentsService } from '../services/payments.service';
 import {
-  CoursePurchaseDto,
-  DisputeRecordDto,
   PaymentAttemptDto,
-  PaymentMethodRefDto,
-  RefundRecordDto,
   SubscriptionInvoiceDto,
   SubscriptionPaymentAttemptDto,
   SubscriptionPlanDto,
@@ -16,6 +13,17 @@ import {
 } from '../models/payments.model';
 import { parseApiError } from '../../../core/models/api-error.model';
 
+export interface HistoryItem {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: string;
+  failureMessage?: string | null;
+}
+
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-student-payments',
   standalone: true,
@@ -27,24 +35,75 @@ export class StudentPaymentsComponent implements OnInit {
   private readonly paymentsService = inject(PaymentsService);
   private readonly route = inject(ActivatedRoute);
 
-  readonly loading = signal(true);
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loadingAttempt = signal(false);
   readonly error = signal<string | null>(null);
   readonly currentAttemptState = signal<'success' | 'cancel' | null>(null);
   readonly currentAttempt = signal<PaymentAttemptDto | null>(null);
   readonly currentSubscriptionAttemptState = signal<'success' | 'cancel' | null>(null);
   readonly currentSubscriptionAttempt = signal<SubscriptionPaymentAttemptDto | null>(null);
-  readonly removingPaymentMethodId = signal<string | null>(null);
-  readonly history = signal<PaymentAttemptDto[]>([]);
+
+  readonly courseHistory = signal<PaymentAttemptDto[]>([]);
   readonly subscriptions = signal<UserSubscriptionDto[]>([]);
   readonly subscriptionHistory = signal<SubscriptionPaymentAttemptDto[]>([]);
   readonly subscriptionInvoices = signal<SubscriptionInvoiceDto[]>([]);
-  readonly purchases = signal<CoursePurchaseDto[]>([]);
-  readonly refunds = signal<RefundRecordDto[]>([]);
-  readonly disputes = signal<DisputeRecordDto[]>([]);
-  readonly paymentMethods = signal<PaymentMethodRefDto[]>([]);
   readonly subscriptionPlans = signal<SubscriptionPlanDto[]>([]);
 
+  readonly activeSubscription = computed(() =>
+    this.subscriptions().find((s) => s.status !== 'Canceled' && s.status !== 'Revoked') ?? null,
+  );
+
+  readonly offeredPlan = computed(() => {
+    if (this.activeSubscription()) return null;
+    return this.subscriptionPlans().find((p) => p.isActive) ?? null;
+  });
+
+  readonly history = computed<HistoryItem[]>(() => {
+    const items: HistoryItem[] = [];
+    const invoices = this.subscriptionInvoices();
+    const hasInvoices = invoices.length > 0;
+
+    for (const invoice of invoices) {
+      items.push({
+        id: `inv-${invoice.id}`,
+        date: invoice.paidAt || invoice.createdAt,
+        description: invoice.planName,
+        amount: invoice.amountPaid || invoice.amountDue,
+        currency: invoice.currency,
+        status: invoice.status,
+        failureMessage: invoice.failureMessage,
+      });
+    }
+
+    for (const attempt of this.subscriptionHistory()) {
+      if (hasInvoices && attempt.status === 'Succeeded') continue;
+      items.push({
+        id: `sub-${attempt.id}`,
+        date: attempt.completedAt || attempt.createdAt,
+        description: attempt.planName,
+        amount: attempt.amount,
+        currency: attempt.currency,
+        status: attempt.status,
+        failureMessage: attempt.failureMessage,
+      });
+    }
+
+    for (const attempt of this.courseHistory()) {
+      items.push({
+        id: `att-${attempt.id}`,
+        date: attempt.completedAt || attempt.createdAt,
+        description: attempt.courseTitle,
+        amount: attempt.amount,
+        currency: attempt.currency,
+        status: attempt.status,
+        failureMessage: attempt.failureMessage,
+      });
+    }
+
+    return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  });
+
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadPage();
 
@@ -62,12 +121,12 @@ export class StudentPaymentsComponent implements OnInit {
         this.currentAttempt.set(null);
       } else if (state === 'cancel') {
         this.loadingAttempt.set(true);
+        // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
         this.paymentsService.cancelPaymentAttempt(attemptId).subscribe({
           next: (attempt) => {
             this.currentAttempt.set(attempt);
             this.loadingAttempt.set(false);
-            this.loadHistory();
-            this.loadPurchases();
+            this.loadCourseHistory();
           },
           error: () => this.loadCurrentAttempt(attemptId),
         });
@@ -105,12 +164,10 @@ export class StudentPaymentsComponent implements OnInit {
   }
 
   formatDate(value: string): string {
-    return new Date(value).toLocaleString('ru-RU', {
+    return new Date(value).toLocaleDateString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 
@@ -120,12 +177,9 @@ export class StudentPaymentsComponent implements OnInit {
       Initiated: 'Создана',
       PendingProvider: 'Ожидает оплату',
       Succeeded: 'Оплачено',
-      Failed: 'Ошибка оплаты',
+      Failed: 'Ошибка',
       Canceled: 'Отменено',
       Expired: 'Истекло',
-      Refunded: 'Возврат',
-      PartiallyRefunded: 'Частичный возврат',
-      Disputed: 'Спор',
       Open: 'Открыт',
       Paid: 'Оплачен',
       Void: 'Аннулирован',
@@ -137,15 +191,7 @@ export class StudentPaymentsComponent implements OnInit {
       Unpaid: 'Не оплачена',
       Paused: 'Приостановлена',
       Trialing: 'Пробный период',
-      Revoked: 'Доступ отозван',
-      NeedsResponse: 'Нужен ответ',
-      UnderReview: 'На рассмотрении',
-      Won: 'Выигран',
-      Lost: 'Проигран',
-      WarningNeedsResponse: 'Раннее предупреждение',
-      WarningUnderReview: 'Warning на рассмотрении',
-      WarningClosed: 'Warning закрыт',
-      Prevented: 'Предотвращён',
+      Revoked: 'Отозвана',
     };
 
     return map[status] ?? status;
@@ -154,17 +200,13 @@ export class StudentPaymentsComponent implements OnInit {
   getStatusClass(status: string): string {
     const normalized = status.toLowerCase();
     if (
-      normalized.includes('success')
-      || normalized.includes('succeeded')
-      || normalized.includes('active')
+      normalized.includes('succeeded')
+      || normalized === 'active'
       || normalized === 'paid'
     ) {
       return 'status status--success';
     }
-    if (normalized.includes('won') || normalized.includes('prevented') || normalized.includes('closed')) {
-      return 'status status--success';
-    }
-    if (normalized.includes('refund') || normalized === 'open' || normalized.includes('pending') || normalized.includes('initiated')) {
+    if (normalized.includes('pending') || normalized.includes('initiated') || normalized === 'open' || normalized === 'trialing') {
       return 'status status--warning';
     }
     return 'status status--danger';
@@ -182,15 +224,15 @@ export class StudentPaymentsComponent implements OnInit {
     if (!attempt) return null;
 
     if (attempt.status === 'Succeeded') {
-      return 'Оплата подтверждена. Доступ к курсу уже выдан или будет доступен сразу после обновления страницы.';
+      return 'Оплата подтверждена. Доступ к курсу уже выдан.';
     }
 
     if (this.currentAttemptState() === 'success') {
-      return 'Checkout завершён. Ждём подтверждения оплаты по webhook от провайдера. Не запускайте повторную оплату, пока статус не обновится.';
+      return 'Checkout завершён. Ждём подтверждения от провайдера.';
     }
 
     if (this.currentAttemptState() === 'cancel') {
-      return 'Checkout был отменён до подтверждения оплаты. Эту попытку можно запустить заново.';
+      return 'Checkout был отменён. Попытку можно запустить заново.';
     }
 
     return null;
@@ -198,10 +240,10 @@ export class StudentPaymentsComponent implements OnInit {
 
   getCurrentAttemptNoticeClass(attempt: PaymentAttemptDto | null): string {
     if (attempt?.status === 'Succeeded') {
-      return 'payments-card__notice payments-card__notice--success';
+      return 'payments-banner payments-banner--success';
     }
 
-    return 'payments-card__notice payments-card__notice--warning';
+    return 'payments-banner payments-banner--warning';
   }
 
   canRetrySubscriptionAttempt(attempt: SubscriptionPaymentAttemptDto): boolean {
@@ -216,15 +258,15 @@ export class StudentPaymentsComponent implements OnInit {
     if (!attempt) return null;
 
     if (attempt.status === 'Succeeded') {
-      return 'Подписка подтверждена. Статус активной подписки уже обновлён или подтянется после перезагрузки страницы.';
+      return 'Подписка подтверждена.';
     }
 
     if (this.currentSubscriptionAttemptState() === 'success') {
-      return 'Checkout завершён. Ждём webhook от провайдера для финального статуса подписки. Не запускайте повторное оформление, пока статус не обновится.';
+      return 'Checkout завершён. Ждём подтверждения от провайдера.';
     }
 
     if (this.currentSubscriptionAttemptState() === 'cancel') {
-      return 'Checkout подписки был отменён. Эту попытку можно запустить заново.';
+      return 'Checkout подписки был отменён. Попытку можно запустить заново.';
     }
 
     return null;
@@ -232,30 +274,15 @@ export class StudentPaymentsComponent implements OnInit {
 
   getCurrentSubscriptionAttemptNoticeClass(attempt: SubscriptionPaymentAttemptDto | null): string {
     if (attempt?.status === 'Succeeded') {
-      return 'payments-card__notice payments-card__notice--success';
+      return 'payments-banner payments-banner--success';
     }
 
-    return 'payments-card__notice payments-card__notice--warning';
+    return 'payments-banner payments-banner--warning';
   }
 
-  hasBlockingSubscription(): boolean {
-    return this.subscriptions().some((subscription) => subscription.status !== 'Canceled');
-  }
-
-  getSubscriptionIntervalLabel(plan: SubscriptionPlanDto): string {
+  getPlanIntervalLabel(plan: SubscriptionPlanDto): string {
     const count = plan.billingIntervalCount;
     const interval = plan.billingInterval === 'Year' ? 'год' : 'месяц';
-
-    if (count === 1) {
-      return interval === 'год' ? 'в год' : 'в месяц';
-    }
-
-    return `каждые ${count} ${interval === 'год' ? 'г.' : 'мес.'}`;
-  }
-
-  getSubscriptionAttemptIntervalLabel(attempt: SubscriptionPaymentAttemptDto): string {
-    const count = attempt.billingIntervalCount;
-    const interval = attempt.billingInterval === 'Year' ? 'год' : 'месяц';
 
     if (count === 1) {
       return interval === 'год' ? 'в год' : 'в месяц';
@@ -282,35 +309,17 @@ export class StudentPaymentsComponent implements OnInit {
     this.startSubscriptionCheckout(attempt.subscriptionPlanId);
   }
 
-  removePaymentMethod(paymentMethodId: string): void {
-    this.error.set(null);
-    this.removingPaymentMethodId.set(paymentMethodId);
-
-    this.paymentsService.removePaymentMethod(paymentMethodId).subscribe({
-      next: () => this.loadPaymentMethods(() => this.removingPaymentMethodId.set(null)),
-      error: (err) => {
-        this.error.set(parseApiError(err).message);
-        this.removingPaymentMethodId.set(null);
-      },
-    });
-  }
-
   private loadPage(): void {
-    this.loading.set(true);
-    this.loadHistory();
+    this.loadCourseHistory();
     this.loadSubscriptions();
     this.loadSubscriptionHistory();
     this.loadSubscriptionInvoices();
-    this.loadPurchases();
-    this.loadRefunds();
-    this.loadDisputes();
     this.loadSubscriptionPlans();
-    this.loadPaymentMethods(() => this.loading.set(false));
   }
 
-  private loadHistory(): void {
+  private loadCourseHistory(): void {
     this.paymentsService.getMyPaymentHistory().subscribe({
-      next: (history) => this.history.set(history),
+      next: (history) => this.courseHistory.set(history),
       error: (err) => this.error.set(parseApiError(err).message),
     });
   }
@@ -321,20 +330,12 @@ export class StudentPaymentsComponent implements OnInit {
       next: (attempt) => {
         this.currentAttempt.set(attempt);
         this.loadingAttempt.set(false);
-        this.loadHistory();
-        this.loadPurchases();
+        this.loadCourseHistory();
       },
       error: (err) => {
         this.error.set(parseApiError(err).message);
         this.loadingAttempt.set(false);
       },
-    });
-  }
-
-  private loadPurchases(): void {
-    this.paymentsService.getMyPurchases().subscribe({
-      next: (purchases) => this.purchases.set(purchases),
-      error: (err) => this.error.set(parseApiError(err).message),
     });
   }
 
@@ -356,33 +357,6 @@ export class StudentPaymentsComponent implements OnInit {
     this.paymentsService.getMySubscriptionInvoices().subscribe({
       next: (invoices) => this.subscriptionInvoices.set(invoices),
       error: (err) => this.error.set(parseApiError(err).message),
-    });
-  }
-
-  private loadRefunds(): void {
-    this.paymentsService.getMyRefunds().subscribe({
-      next: (refunds) => this.refunds.set(refunds),
-      error: (err) => this.error.set(parseApiError(err).message),
-    });
-  }
-
-  private loadDisputes(): void {
-    this.paymentsService.getMyDisputes().subscribe({
-      next: (disputes) => this.disputes.set(disputes),
-      error: (err) => this.error.set(parseApiError(err).message),
-    });
-  }
-
-  private loadPaymentMethods(onDone?: () => void): void {
-    this.paymentsService.getMyPaymentMethods().subscribe({
-      next: (methods) => {
-        this.paymentMethods.set(methods);
-        onDone?.();
-      },
-      error: (err) => {
-        this.error.set(parseApiError(err).message);
-        onDone?.();
-      },
     });
   }
 

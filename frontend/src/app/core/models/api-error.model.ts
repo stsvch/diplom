@@ -1,3 +1,5 @@
+// api-error.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface ApiError {
   message: string;
   code?: string;

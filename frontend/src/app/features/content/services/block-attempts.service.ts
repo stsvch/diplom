@@ -1,3 +1,4 @@
+// block-attempts.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,12 +11,14 @@ import {
   SubmitAttemptResult,
 } from '../models';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class BlockAttemptsService {
   private readonly http = inject(HttpClient);
   private readonly base = environment.apiUrl;
 
   submitAttempt(blockId: string, answers: LessonBlockAnswer): Observable<SubmitAttemptResult> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<SubmitAttemptResult>(
       `${this.base}/lesson-blocks/${blockId}/attempts`,
       { answers },

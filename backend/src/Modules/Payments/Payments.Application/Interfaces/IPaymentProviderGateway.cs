@@ -1,5 +1,7 @@
+// IPaymentProviderGateway.cs
 namespace Payments.Application.Interfaces;
 
+// Контракт application-слоя отделяет бизнес-сценарии от конкретной инфраструктуры.
 public interface IPaymentProviderGateway
 {
     bool IsConfigured { get; }
@@ -36,10 +38,6 @@ public interface IPaymentProviderGateway
 
     Task<ProviderCheckoutSessionResult> CreateSubscriptionCheckoutSessionAsync(
         ProviderSubscriptionCheckoutSessionRequest request,
-        CancellationToken cancellationToken = default);
-
-    Task<ProviderRefundResult> CreateRefundAsync(
-        ProviderRefundRequest request,
         CancellationToken cancellationToken = default);
 
     Task<ProviderTransferResult> CreateTransferAsync(
@@ -98,26 +96,6 @@ public record ProviderCheckoutSessionResult(
     string SessionId,
     string CheckoutUrl);
 
-public record ProviderRefundRequest(
-    string PaymentIntentId,
-    decimal Amount,
-    string Currency,
-    string? Reason,
-    Guid PaymentAttemptId,
-    Guid CourseId,
-    string TeacherId,
-    string StudentId,
-    string? RequestedByAdminId);
-
-public record ProviderRefundResult(
-    string ProviderRefundId,
-    string PaymentIntentId,
-    decimal Amount,
-    string Currency,
-    string? Status,
-    string? Reason,
-    string? FailureMessage);
-
 public record ProviderTransferRequest(
     Guid PayoutRecordId,
     string TeacherId,
@@ -148,8 +126,6 @@ public record StripeWebhookEvent(
     string EventType,
     string? ProviderAccountId,
     string? ProviderTransferId,
-    string? ProviderRefundId,
-    string? ProviderDisputeId,
     string? ProviderInvoiceId,
     string? SessionId,
     string? ProviderSubscriptionId,
@@ -160,11 +136,6 @@ public record StripeWebhookEvent(
     string? InvoiceBillingReason,
     string? PaymentStatus,
     string? FailureMessage,
-    string? RefundStatus,
-    string? RefundReason,
-    string? DisputeStatus,
-    string? DisputeReason,
-    DateTime? DisputeEvidenceDueBy,
     DateTime? CurrentPeriodStart,
     DateTime? CurrentPeriodEnd,
     bool? CancelAtPeriodEnd,

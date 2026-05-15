@@ -1,8 +1,11 @@
+// CodeExerciseSanitizer.cs
+
 using Content.Domain.ValueObjects.Answers;
 using Content.Domain.ValueObjects.Blocks;
 
 namespace Content.Application.CodeExecution;
 
+// Компонент запуска кода class: описывает или выполняет проверку code exercise блоков.
 public static class CodeExerciseSanitizer
 {
     public static CodeExerciseBlockData SanitizeBlockDataForStudent(CodeExerciseBlockData data)

@@ -1,7 +1,10 @@
+// ReorderBlockData.cs
+
 using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Blocks;
 
+// Value object class: описывает структуру JSON-данных блока урока.
 public class ReorderBlockData : LessonBlockData
 {
     public override LessonBlockType Type => LessonBlockType.Reorder;

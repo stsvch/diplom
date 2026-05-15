@@ -1,3 +1,4 @@
+// Файл: AdminUsersController.cs
 using Auth.Application.Commands.Admin.BlockUser;
 using Auth.Application.Commands.Admin.ChangeUserRole;
 using Auth.Application.Commands.Admin.CreateUser;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AdminUsersController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/admin/users")]
 [Authorize(Roles = "Admin")]
@@ -99,5 +101,7 @@ public class AdminUsersController : ControllerBase
     }
 }
 
+// API-модель CreateUserRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateUserRequest(string Email, string FirstName, string LastName, string Role, string Password);
+// API-модель ChangeRoleRequest фиксирует тело запроса или результат для действия контроллера.
 public record ChangeRoleRequest(string Role);

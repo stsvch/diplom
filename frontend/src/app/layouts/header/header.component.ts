@@ -1,3 +1,4 @@
+// header.component.ts
 import {
   Component,
   computed,
@@ -31,6 +32,7 @@ import { NotificationsService } from '../../features/notifications/services/noti
 import { NotificationDto, NotificationType } from '../../features/notifications/models/notification.model';
 import { UserRole } from '../../core/models/user.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -63,6 +65,7 @@ export class HeaderComponent implements OnInit {
 
   readonly currentUser = this.authService.currentUser;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   notificationsOpen = signal(false);
   profileOpen = signal(false);
 
@@ -112,6 +115,7 @@ export class HeaderComponent implements OnInit {
     });
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.loadUnreadCount();
@@ -124,6 +128,7 @@ export class HeaderComponent implements OnInit {
   }
 
   private loadRecentNotifications(): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.notificationsService.getNotifications({ page: 1, pageSize: 5, isRead: false }).subscribe({
       next: (result) => this.recentNotifications.set(result.items),
     });

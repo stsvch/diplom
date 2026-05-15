@@ -1,7 +1,9 @@
+// Файл: ICalendarEventPublisher.cs
 using EduPlatform.Shared.Domain.Enums;
 
 namespace EduPlatform.Shared.Application.Contracts;
 
+// Межмодульный контракт CalendarEventUpsert передаёт минимальные данные между контекстами модулей.
 public record CalendarEventUpsert(
     string? UserId,
     Guid? CourseId,
@@ -13,6 +15,7 @@ public record CalendarEventUpsert(
     string SourceType,
     Guid SourceId);
 
+// Интерфейс ICalendarEventPublisher задаёт контракт сервиса между слоями или модулями.
 public interface ICalendarEventPublisher
 {
     Task UpsertAsync(CalendarEventUpsert request, CancellationToken cancellationToken = default);

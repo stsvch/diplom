@@ -1,3 +1,5 @@
+// UpdateQuestionCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -8,6 +10,9 @@ using Tests.Domain.Entities;
 
 namespace Tests.Application.Tests.Commands.UpdateQuestion;
 
+/// <summary>
+/// Обработчик CQRS-команды UpdateQuestionCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionCommand, Result<QuestionDto>>
 {
     private readonly ITestsDbContext _context;
@@ -19,6 +24,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<QuestionDto>> Handle(UpdateQuestionCommand request, CancellationToken cancellationToken)
     {
         var question = await _context.Questions
@@ -40,7 +46,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         question.Explanation = request.Explanation;
         question.ExpectedAnswer = request.ExpectedAnswer;
 
-        // Merge AnswerOptions:
+        // Синхронизируем варианты ответа:
         //  - Id есть и совпадает → обновляем поля
         //  - Id null или не найден → добавляем новый
         //  - в БД есть, но в request нет → удаляем
@@ -65,7 +71,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
                 // Важно: НЕ через question.AnswerOptions.Add(...). BaseEntity.Id генерится в
                 // конструкторе как Guid.NewGuid(), и EF detect-changes на tracked-родителе
                 // принимает new entity с не-default Id за Modified → UPDATE WHERE Id=...,
-                // 0 affected → DbUpdateConcurrencyException.
+                // Ноль измененных строк приводит к DbUpdateConcurrencyException.
                 // _context.AnswerOptions.Add форсит state=Added.
                 var newOpt = new AnswerOption
                 {
@@ -86,7 +92,7 @@ public class UpdateQuestionCommandHandler : IRequestHandler<UpdateQuestionComman
         if (toRemove.Count > 0)
             _context.AnswerOptions.RemoveRange(toRemove);
 
-        // Recalculate MaxScore
+        // Пересчитываем максимальный балл теста после изменения вопросов.
         var test = question.Test;
         var allQuestions = await _context.Questions
             .Where(q => q.TestId == test.Id)

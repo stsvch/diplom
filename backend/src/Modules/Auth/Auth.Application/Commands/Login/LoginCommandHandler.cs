@@ -1,3 +1,4 @@
+// LoginCommandHandler.cs
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.Login;
 
+// Обработчик сценария: проверяет email/пароль, подтверждение почты и блокировку, затем выдаёт access token и сохраняет refresh token.
 public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginResultDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

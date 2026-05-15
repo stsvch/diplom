@@ -1,3 +1,5 @@
+// notifications-page.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .notifications-page {
   padding: 2rem;
   max-width: 800px;
@@ -55,6 +57,7 @@
     cursor: pointer;
     transition: color 0.2s, border-color 0.2s;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       color: var(--color-primary, #4f46e5);
     }

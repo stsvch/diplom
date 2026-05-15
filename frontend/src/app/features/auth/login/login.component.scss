@@ -1,6 +1,8 @@
+// login.component.scss
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as *;
 
+// Стили входа задают двухколоночный auth-layout, промо-панель, карточку формы, состояния полей и адаптивность.
 .auth-layout {
   display: flex;
   min-height: 100vh;
@@ -13,6 +15,7 @@
     justify-content: center;
     padding: $spacing-12 $spacing-8;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @include respond-to(lg) {
       display: none;
     }
@@ -34,7 +37,7 @@
   }
 }
 
-// Brand
+// Бренд.
 .auth-brand {
   display: flex;
   align-items: center;
@@ -59,7 +62,7 @@
   }
 }
 
-// Hero
+// Главный экран.
 .auth-hero {
   margin-bottom: $spacing-12;
 
@@ -78,7 +81,7 @@
   }
 }
 
-// Stats
+// Статистика.
 .auth-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -106,7 +109,7 @@
   }
 }
 
-// Form Card
+// Карточка формы.
 .auth-form-card {
   background: $bg-card;
   border-radius: $radius-xl;
@@ -140,7 +143,7 @@
   }
 }
 
-// Form elements
+// Элементы формы.
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -152,6 +155,7 @@
   flex-direction: column;
   gap: $spacing-2;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--error {
     .form-input {
       border-color: $danger;
@@ -244,7 +248,7 @@
   margin-top: 2px;
 }
 
-// Submit button
+// Кнопка отправки.
 .auth-submit-btn {
   width: 100%;
   height: 52px;

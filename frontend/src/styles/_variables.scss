@@ -1,8 +1,9 @@
+// _variables.scss
+// Дизайн-токены задают цвета, типографику, отступы, радиусы и тени приложения.
 // ======================
-// Design System — расширенная палитра под Figma Make редизайн
-// ======================
+// Дизайн-система — расширенная палитра под редизайн Figma Make.
 
-// ── Slate (нейтральные)
+// ── Нейтральная палитра Slate.
 $slate-50:  #f8fafc;
 $slate-100: #f1f5f9;
 $slate-200: #e2e8f0;
@@ -15,7 +16,7 @@ $slate-800: #1e293b;
 $slate-900: #0f172a;
 $slate-950: #020617;
 
-// ── Indigo (основной акцент / student)
+// ── Indigo — основной акцент студента.
 $indigo-50:  #eef2ff;
 $indigo-100: #e0e7ff;
 $indigo-200: #c7d2fe;
@@ -28,7 +29,7 @@ $indigo-800: #3730a3;
 $indigo-900: #312e81;
 $indigo-950: #1e1b4b;
 
-// ── Purple
+// Стили следующей секции интерфейса.
 $purple-50:  #faf5ff;
 $purple-100: #f3e8ff;
 $purple-300: #d8b4fe;
@@ -39,12 +40,12 @@ $purple-700: #7e22ce;
 $purple-900: #581c87;
 $purple-950: #3b0764;
 
-// ── Violet
+// Стили следующей секции интерфейса.
 $violet-500: #8b5cf6;
 $violet-600: #7c3aed;
 $violet-700: #6d28d9;
 
-// ── Teal / Cyan
+// Стили следующей секции интерфейса.
 $teal-50:  #f0fdfa;
 $teal-100: #ccfbf1;
 $teal-400: #2dd4bf;
@@ -52,7 +53,7 @@ $teal-500: #14b8a6;
 $teal-600: #0d9488;
 $cyan-500: #06b6d4;
 
-// ── Emerald (admin / success)
+// Успех.
 $emerald-50:  #ecfdf5;
 $emerald-100: #d1fae5;
 $emerald-400: #34d399;
@@ -67,7 +68,7 @@ $green-400: #4ade80;
 $green-500: #22c55e;
 $green-600: #16a34a;
 
-// ── Amber / Orange (teacher)
+// Стили следующей секции интерфейса.
 $amber-50:  #fffbeb;
 $amber-100: #fef3c7;
 $amber-200: #fde68a;
@@ -85,7 +86,7 @@ $orange-500: #f97316;
 $orange-600: #ea580c;
 $orange-700: #c2410c;
 
-// ── Rose / Pink (notifications / accents)
+// Стили следующей секции интерфейса.
 $rose-50:  #fff1f2;
 $rose-100: #ffe4e6;
 $rose-400: #fb7185;
@@ -95,7 +96,7 @@ $rose-700: #be123c;
 $pink-500: #ec4899;
 $pink-600: #db2777;
 
-// ── Red (destructive)
+// Стили следующей секции интерфейса.
 $red-50:  #fef2f2;
 $red-100: #fee2e2;
 $red-400: #f87171;
@@ -103,21 +104,21 @@ $red-500: #ef4444;
 $red-600: #dc2626;
 $red-700: #b91c1c;
 
-// ── Blue
+// Стили следующей секции интерфейса.
 $blue-50:  #eff6ff;
 $blue-100: #dbeafe;
 $blue-400: #60a5fa;
 $blue-500: #3b82f6;
 $blue-600: #2563eb;
 
-// ── Brand mapping (legacy aliases, чтобы старый код не сломался)
+// ── Маппинг бренда: legacy-алиасы, чтобы старый код не сломался.
 $primary: $indigo-600;
 $primary-foreground: #ffffff;
 $primary-light: $indigo-50;
 $primary-hover: $indigo-700;
 $primary-ring: $indigo-400;
 
-// Semantic
+// Семантические токены.
 $success: $emerald-500;
 $success-light: $green-100;
 $success-dark: #166534;
@@ -129,24 +130,24 @@ $danger-light: $red-100;
 $danger-dark: #991b1b;
 $info: $blue-500;
 
-// Backgrounds
+// Фоны.
 $bg-page: $slate-50;
 $bg-card: #ffffff;
 $bg-input: $slate-50;
 $bg-muted: $slate-100;
 
-// Foreground / Text
+// Передний план и текст.
 $text-foreground: $slate-900;
 $text-secondary: $slate-600;
 $text-muted: $slate-500;
 $text-placeholder: $slate-400;
 
-// Borders
+// Границы.
 $border-color: $slate-200;
 $border-input: $slate-200;
 $switch-bg: $slate-300;
 
-// Sidebar (новый светлый стиль из Figma Make)
+// Сайдбар в новом светлом стиле из Figma Make.
 $sidebar-bg: #ffffff;
 $sidebar-text: $slate-500;
 $sidebar-text-muted: $slate-400;
@@ -154,14 +155,14 @@ $sidebar-active: $indigo-500;
 $sidebar-accent: $slate-50;
 $sidebar-border: $slate-100;
 
-// Charts
+// Графики.
 $chart-1: $indigo-500;
 $chart-2: $emerald-500;
 $chart-3: $amber-500;
 $chart-4: $rose-500;
 $chart-5: $violet-500;
 
-// Typography
+// Типографика.
 $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;
@@ -179,7 +180,7 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 $font-weight-extrabold: 800;
 
-// Spacing
+// Отступы.
 $spacing-1: 0.25rem;
 $spacing-2: 0.5rem;
 $spacing-3: 0.75rem;
@@ -192,14 +193,14 @@ $spacing-12: 3rem;
 $spacing-16: 4rem;
 $spacing-20: 5rem;
 
-// Layout
+// Макет.
 $sidebar-width: 260px;
 $sidebar-collapsed-width: 64px;
 $header-height: 64px;
 $content-padding: 24px;
 $container-max: 1280px;
 
-// Border radius
+// Скругления.
 $radius-sm: 0.5rem;
 $radius-md: 0.625rem;
 $radius-lg: 0.75rem;
@@ -208,7 +209,7 @@ $radius-2xl: 1.25rem;
 $radius-3xl: 1.5rem;
 $radius-full: 9999px;
 
-// Shadows
+// Тени.
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
@@ -218,18 +219,18 @@ $shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 $shadow-card-hover: 0 20px 40px rgba(0, 0, 0, 0.08);
 $shadow-card-deep:  0 24px 48px rgba(0, 0, 0, 0.10);
 
-// Transitions
+// Переходы.
 $transition-fast: 150ms ease;
 $transition-normal: 200ms ease;
 $transition-slow: 300ms ease;
 
-// Breakpoints
+// Брейкпоинты.
 $breakpoint-sm: 640px;
 $breakpoint-md: 768px;
 $breakpoint-lg: 1024px;
 $breakpoint-xl: 1280px;
 
-// Z-index
+// Слои z-index.
 $z-dropdown: 50;
 $z-sticky: 30;
 $z-sidebar: 40;

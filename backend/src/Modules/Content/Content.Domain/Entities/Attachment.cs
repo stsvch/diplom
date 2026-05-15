@@ -1,8 +1,11 @@
+// Attachment.cs
+
 using Content.Domain.Enums;
 using EduPlatform.Shared.Domain;
 
 namespace Content.Domain.Entities;
 
+// Доменная сущность class: хранит состояние, инварианты и связи бизнес-модели модуля Content.
 public class Attachment : BaseEntity, IAuditableEntity
 {
     public string FileName { get; set; } = string.Empty;

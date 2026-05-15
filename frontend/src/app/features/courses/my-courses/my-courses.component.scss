@@ -1,5 +1,7 @@
+// my-courses.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .my-courses {
   padding: v.$spacing-6;
   max-width: 1400px;
@@ -12,6 +14,7 @@
     margin-bottom: v.$spacing-6;
     gap: v.$spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-sm) {
       flex-direction: column;
     }
@@ -51,6 +54,7 @@
     transition: all v.$transition-fast;
     font-family: v.$font-family;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       color: v.$primary;
     }

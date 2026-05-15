@@ -1,7 +1,9 @@
+// text-block-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RichTextEditorComponent } from '../../../../shared/components/rich-text-editor/rich-text-editor.component';
 import { TextBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-text-block-editor',
   standalone: true,

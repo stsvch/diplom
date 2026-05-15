@@ -1,3 +1,4 @@
+// lesson-editor.component.ts
 import {
   Component,
   inject,
@@ -42,6 +43,7 @@ interface BlockDraft {
   dirty: boolean;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-lesson-editor',
   standalone: true,
@@ -69,6 +71,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
   private readonly autoSaveBlock$ = new Subject<string>();
   private readonly autoSaveLesson$ = new Subject<void>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   lessonId = signal('');
   lesson = signal<LessonDto | null>(null);
   loading = signal(true);
@@ -82,6 +85,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
 
   blocksCount = computed(() => this.drafts().length);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
@@ -102,6 +106,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
       .subscribe(() => this.persistLesson());
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -112,6 +117,7 @@ export class LessonEditorComponent implements OnInit, OnDestroy {
     forkJoin({
       lesson: this.coursesService.getLessonById(this.lessonId()),
       blocks: this.contentService.getByLesson(this.lessonId()),
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: ({ lesson, blocks }) => {
         this.lesson.set(lesson);

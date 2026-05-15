@@ -1,3 +1,5 @@
+<!-- my-courses.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="my-courses">
   <div class="my-courses__header">
     <div>
@@ -13,6 +15,7 @@
 
   <!-- Filter tabs -->
   <div class="my-courses__tabs">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (f of filters; track f.value) {
       <button
         class="my-courses__tab"
@@ -24,6 +27,7 @@
     }
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="my-courses__grid">
       @for (item of skeletonItems; track $index) {

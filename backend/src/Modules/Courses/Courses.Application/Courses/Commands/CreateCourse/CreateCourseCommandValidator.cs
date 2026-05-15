@@ -1,9 +1,13 @@
+// CreateCourseCommandValidator.cs
+
 using FluentValidation;
 
 namespace Courses.Application.Courses.Commands.CreateCourse;
 
+// Тип class: ключевой элемент файла CreateCourseCommandValidator.cs.
 public class CreateCourseCommandValidator : AbstractValidator<CreateCourseCommand>
 {
+    // Правила ниже защищают handler от некорректной входной модели.
     public CreateCourseCommandValidator()
     {
         RuleFor(x => x.Title)

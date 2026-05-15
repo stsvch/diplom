@@ -1,5 +1,7 @@
+// search-input.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .search-input {
   position: relative;
   display: flex;
@@ -28,6 +30,7 @@
       background-color $transition-fast,
       box-shadow $transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &::placeholder {
       color: $text-placeholder;
     }

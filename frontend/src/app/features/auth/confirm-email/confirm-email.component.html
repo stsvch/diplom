@@ -1,3 +1,5 @@
+<!-- confirm-email.component.html -->
+<!-- Шаблон подтверждения email показывает загрузку, успех или ошибку обработки ссылки. -->
 <div class="confirm-page">
   <div class="confirm-card">
     <div class="confirm-card__brand">
@@ -6,6 +8,7 @@
       </div>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (status() === 'loading') {
       <div class="confirm-state">
         <div class="confirm-state__icon confirm-state__icon--loading">

@@ -1,3 +1,4 @@
+// courses.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -27,6 +28,7 @@ export interface PublishValidationResponse {
   hasWarnings: boolean;
 }
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -34,7 +36,7 @@ export class CoursesService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}`;
 
-  // ── Courses ──────────────────────────────────────────────────────────────
+  // Курсы.
 
   getCourses(filters: CourseFilters = {}): Observable<PagedResult<CourseListDto>> {
     let params = new HttpParams();
@@ -45,6 +47,7 @@ export class CoursesService {
     if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
     if (filters.page !== undefined) params = params.set('page', String(filters.page));
     if (filters.pageSize !== undefined) params = params.set('pageSize', String(filters.pageSize));
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<PagedResult<CourseListDto>>(`${this.base}/courses`, { params });
   }
 
@@ -89,7 +92,7 @@ export class CoursesService {
     return this.http.post<void>(`${this.base}/courses/${id}/unenroll`, {});
   }
 
-  // ── Modules ───────────────────────────────────────────────────────────────
+  // Следующий блок группирует связанную логику компонента или сервиса.
 
   getModules(courseId: string): Observable<CourseModuleDto[]> {
     return this.http.get<CourseModuleDto[]>(`${this.base}/modules/by-course/${courseId}`);
@@ -111,7 +114,7 @@ export class CoursesService {
     return this.http.post<void>(`${this.base}/modules/reorder`, { courseId, orderedIds: ids });
   }
 
-  // ── Lessons ───────────────────────────────────────────────────────────────
+  // Следующий блок группирует связанную логику компонента или сервиса.
 
   getLessons(moduleId: string): Observable<LessonDto[]> {
     return this.http.get<LessonDto[]>(`${this.base}/lessons/by-module/${moduleId}`);

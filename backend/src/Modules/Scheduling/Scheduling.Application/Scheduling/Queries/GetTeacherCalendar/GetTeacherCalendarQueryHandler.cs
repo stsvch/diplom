@@ -1,3 +1,5 @@
+// GetTeacherCalendarQueryHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +10,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Queries.GetTeacherCalendar;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetTeacherCalendarQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetTeacherCalendarQueryHandler : IRequestHandler<GetTeacherCalendarQuery, List<CalendarSlotDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -21,6 +26,7 @@ public class GetTeacherCalendarQueryHandler : IRequestHandler<GetTeacherCalendar
         _enrollment = enrollment;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<CalendarSlotDto>> Handle(GetTeacherCalendarQuery request, CancellationToken cancellationToken)
     {
         var fromUtc = DateTime.SpecifyKind(request.From.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);

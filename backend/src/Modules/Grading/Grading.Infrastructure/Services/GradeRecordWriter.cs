@@ -1,3 +1,5 @@
+// GradeRecordWriter.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using Grading.Application.Interfaces;
 using Grading.Domain.Entities;
@@ -6,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grading.Infrastructure.Services;
 
+/// <summary>
+/// Инфраструктурный сервис синхронизирует записи журнала оценок с результатами тестов и заданий.
+/// </summary>
 public class GradeRecordWriter : IGradeRecordWriter
 {
     private readonly IGradingDbContext _context;
@@ -15,6 +20,7 @@ public class GradeRecordWriter : IGradeRecordWriter
         _context = context;
     }
 
+    /// Создаёт или обновляет запись оценки по внешнему источнику результата.
     public async Task UpsertAsync(GradeRecordUpsert request, CancellationToken cancellationToken = default)
     {
         var existing = await FindExistingAsync(request, cancellationToken);
@@ -39,6 +45,9 @@ public class GradeRecordWriter : IGradeRecordWriter
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Удаляет оценки, связанные с удалённым или отменённым источником результата.
+    /// </summary>
     public async Task DeleteByTestAttemptAsync(Guid testAttemptId, CancellationToken cancellationToken = default)
     {
         var grades = await _context.Grades
@@ -52,6 +61,9 @@ public class GradeRecordWriter : IGradeRecordWriter
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Удаляет оценки, связанные с удалённым или отменённым источником результата.
+    /// </summary>
     public async Task DeleteByAssignmentSubmissionAsync(Guid assignmentSubmissionId, CancellationToken cancellationToken = default)
     {
         var grades = await _context.Grades

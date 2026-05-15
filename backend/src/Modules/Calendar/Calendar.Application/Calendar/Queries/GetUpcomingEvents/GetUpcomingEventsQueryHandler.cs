@@ -1,3 +1,4 @@
+// GetUpcomingEventsQueryHandler.cs
 using AutoMapper;
 using Calendar.Application.DTOs;
 using Calendar.Application.Interfaces;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendar.Application.Calendar.Queries.GetUpcomingEvents;
 
+// Handler собирает данные для чтения и маппит их в DTO.
 public class GetUpcomingEventsQueryHandler : IRequestHandler<GetUpcomingEventsQuery, Result<List<CalendarEventDto>>>
 {
     private readonly ICalendarDbContext _context;

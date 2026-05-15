@@ -1,3 +1,5 @@
+<!-- student-grades.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="student-grades">
   <!-- Header -->
   <div class="student-grades__header">
@@ -38,6 +40,7 @@
   </div>
 
   <!-- Grades by course -->
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="student-grades__loading">
       @for (i of [1,2]; track i) {

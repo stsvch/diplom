@@ -1,3 +1,4 @@
+// Файл: AdminAnalyticsReadService.cs
 using Auth.Infrastructure.Persistence;
 using Courses.Domain.Enums;
 using Courses.Infrastructure.Persistence;
@@ -8,6 +9,7 @@ using Payments.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис чтения AdminAnalyticsReadService собирает модель чтения для API без изменения состояния.
 public class AdminAnalyticsReadService
 {
     private readonly AuthDbContext _authDb;
@@ -85,35 +87,6 @@ public class AdminAnalyticsReadService
             })
             .ToListAsync(cancellationToken);
 
-        var allocationRuns = await _paymentsDb.SubscriptionAllocationRuns
-            .AsNoTracking()
-            .Select(r => new
-            {
-                r.PlatformCommissionAmount,
-                r.Currency,
-                r.CreatedAt
-            })
-            .ToListAsync(cancellationToken);
-
-        var refundRecords = await _paymentsDb.RefundRecords
-            .AsNoTracking()
-            .Select(r => new
-            {
-                r.Status,
-                r.RequestedAt,
-                r.ProcessedAt
-            })
-            .ToListAsync(cancellationToken);
-
-        var disputeRecords = await _paymentsDb.DisputeRecords
-            .AsNoTracking()
-            .Select(d => new
-            {
-                d.Status,
-                d.OpenedAt
-            })
-            .ToListAsync(cancellationToken);
-
         var subscriptionPlans = await _paymentsDb.SubscriptionPlans
             .AsNoTracking()
             .Select(p => new
@@ -153,9 +126,6 @@ public class AdminAnalyticsReadService
         var successfulPaymentStatuses = new[]
         {
             PaymentAttemptStatus.Succeeded,
-            PaymentAttemptStatus.PartiallyRefunded,
-            PaymentAttemptStatus.Refunded,
-            PaymentAttemptStatus.Disputed,
         };
 
         var revenuePaymentRows = paymentAttempts
@@ -180,9 +150,7 @@ public class AdminAnalyticsReadService
             teacherSettlements
                 .Where(x => x.CreatedAt >= from30Days)
                 .Select(x => new MoneyRow(x.Currency, x.PlatformCommissionAmount))
-                .Concat(allocationRuns
-                    .Where(x => x.CreatedAt >= from30Days)
-                    .Select(x => new MoneyRow(x.Currency, x.PlatformCommissionAmount))));
+                .Concat(paidInvoiceRows.Select(x => new MoneyRow(x.Currency, x.AmountPaid))));
 
         var activeEnrollments = enrollments.Count(e => e.Status == EnrollmentStatus.Active);
         var publishedCourses = courses.Count(c => c.IsPublished && !c.IsArchived);
@@ -193,13 +161,6 @@ public class AdminAnalyticsReadService
             && (p.Status == PaymentAttemptStatus.Failed
                 || p.Status == PaymentAttemptStatus.Canceled
                 || p.Status == PaymentAttemptStatus.Expired));
-
-        var refundedPayments30Days = refundRecords.Count(r =>
-            r.Status == RefundRecordStatus.Succeeded
-            && (r.ProcessedAt ?? r.RequestedAt) >= from30Days);
-
-        var disputedPayments30Days = disputeRecords.Count(d =>
-            d.OpenedAt >= from30Days);
 
         var activeSubscriptions = subscriptions.Count(s =>
             s.Status == UserSubscriptionStatus.Active
@@ -362,8 +323,6 @@ public class AdminAnalyticsReadService
             {
                 SuccessfulPayments30Days = successfulPayments30Days,
                 FailedPayments30Days = failedPayments30Days,
-                RefundedPayments30Days = refundedPayments30Days,
-                DisputedPayments30Days = disputedPayments30Days,
                 CoursePurchases30Days = revenuePaymentRows.Count,
                 SubscriptionInvoicesPaid30Days = paidInvoiceRows.Count
             },
@@ -458,7 +417,9 @@ public class AdminAnalyticsReadService
         return monthFactor > 0 ? price / monthFactor : price;
     }
 
+    // Сервис RevenuePoint инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record RevenuePoint(DateTime Date, string Currency, decimal Amount);
+    // Сервис MoneyRow инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record MoneyRow(string Currency, decimal Amount);
     private sealed record SubscriptionPlanSnapshot(
         string Currency,

@@ -1,3 +1,5 @@
+<!-- notifications-page.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="notifications-page">
   <!-- Header -->
   <div class="notifications-page__header">
@@ -7,6 +9,7 @@
         <span class="notifications-page__unread-badge">{{ unreadCount() }} непрочитанных уведомлений</span>
       }
     </div>
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (unreadCount() > 0) {
       <app-button variant="outline" size="sm" (click)="markAllRead()">
         Прочитать все
@@ -44,6 +47,7 @@
 
   <!-- Type Filter Pills -->
   <div class="notifications-page__type-filters">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (filter of typeFilters; track filter.label) {
       <button
         class="notifications-page__type-pill"

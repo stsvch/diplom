@@ -1,5 +1,7 @@
+// Файл: PagedResult.cs
 namespace EduPlatform.Shared.Application.Models;
 
+// DTO PagedResult переносит данные наружу без раскрытия доменной сущности.
 public class PagedResult<T>
 {
     public List<T> Items { get; set; } = new();

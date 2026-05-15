@@ -1,5 +1,10 @@
+// AssignmentCriteriaDto.cs
+
 namespace Assignments.Application.DTOs;
 
+/// <summary>
+/// Критерий оценивания в ответах API: id, текст критерия, максимальные баллы и порядок отображения.
+/// </summary>
 public class AssignmentCriteriaDto
 {
     public Guid Id { get; set; }
@@ -8,4 +13,5 @@ public class AssignmentCriteriaDto
     public int OrderIndex { get; set; }
 }
 
+/// Входная модель критерия из формы создания/редактирования: текст пункта и максимальный балл.
 public record AssignmentCriteriaInput(string Text, int MaxPoints);

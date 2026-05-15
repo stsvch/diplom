@@ -1,3 +1,4 @@
+// Файл: ProgressModuleRegistration.cs
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using Progress.Infrastructure.Services;
 
 namespace Progress.Infrastructure.Configuration;
 
+// DI-регистрация ProgressModuleRegistration подключает DbContext, сервисы и MediatR-обработчики модуля.
 public static class ProgressModuleRegistration
 {
     public static IServiceCollection AddProgressModule(this IServiceCollection services, IConfiguration configuration)

@@ -1,3 +1,5 @@
+// calendar-page.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .calendar-page {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -5,6 +7,7 @@
   padding: 2rem;
   align-items: start;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: 960px) {
     grid-template-columns: 1fr;
   }
@@ -42,6 +45,7 @@
     cursor: pointer;
     transition: background 0.2s;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       background: var(--color-bg-hover, #e5e7eb);
     }

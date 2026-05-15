@@ -1,5 +1,7 @@
+// block-inserter.component.scss
 @use '../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host {
   display: block;
   position: relative;
@@ -35,6 +37,7 @@
     opacity: 0;
   }
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover,
   &--open {
     .inserter__line {

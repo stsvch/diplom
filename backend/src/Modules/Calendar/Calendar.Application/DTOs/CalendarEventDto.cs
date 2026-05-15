@@ -1,7 +1,9 @@
+// CalendarEventDto.cs
 using EduPlatform.Shared.Domain.Enums;
 
 namespace Calendar.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public class CalendarEventDto
 {
     public Guid Id { get; set; }

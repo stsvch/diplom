@@ -1,5 +1,7 @@
+// Файл: ProgressDto.cs
 namespace Progress.Application.DTOs;
 
+// DTO LessonProgressDto переносит данные наружу без раскрытия доменной сущности.
 public class LessonProgressDto
 {
     public Guid Id { get; set; }
@@ -9,6 +11,7 @@ public class LessonProgressDto
     public DateTime? CompletedAt { get; set; }
 }
 
+// DTO CourseProgressDto переносит данные наружу без раскрытия доменной сущности.
 public class CourseProgressDto
 {
     public Guid CourseId { get; set; }
@@ -19,6 +22,7 @@ public class CourseProgressDto
     public decimal ProgressPercent { get; set; }
 }
 
+// DTO CourseItemProgressDto переносит данные наружу без раскрытия доменной сущности.
 public class CourseItemProgressDto
 {
     public Guid Id { get; set; }

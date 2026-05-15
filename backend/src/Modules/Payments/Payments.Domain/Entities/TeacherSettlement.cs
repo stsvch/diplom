@@ -1,8 +1,10 @@
+// TeacherSettlement.cs
 using EduPlatform.Shared.Domain;
 using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class TeacherSettlement : BaseEntity, IAuditableEntity
 {
     public string TeacherId { get; set; } = string.Empty;
@@ -16,10 +18,6 @@ public class TeacherSettlement : BaseEntity, IAuditableEntity
     public decimal ProviderFeeAmount { get; set; }
     public decimal PlatformCommissionAmount { get; set; }
     public decimal NetAmount { get; set; }
-    public decimal RefundedGrossAmount { get; set; }
-    public decimal RefundedNetAmount { get; set; }
-    public decimal DisputedGrossAmount { get; set; }
-    public decimal DisputedNetAmount { get; set; }
     public string Currency { get; set; } = "usd";
     public Guid? PayoutRecordId { get; set; }
     public TeacherSettlementStatus Status { get; set; } = TeacherSettlementStatus.PendingHold;

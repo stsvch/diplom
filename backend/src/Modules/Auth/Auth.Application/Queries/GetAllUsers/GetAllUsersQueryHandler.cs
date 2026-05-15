@@ -1,3 +1,4 @@
+// GetAllUsersQueryHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Shared.Domain;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Queries.GetAllUsers;
 
+// Обработчик сценария: читает список пользователей для админ-панели вместе с ролью, блокировкой, подтверждением email и датой создания.
 public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, Result<PagedResult<AdminUserDto>>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

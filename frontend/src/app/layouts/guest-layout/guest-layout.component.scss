@@ -1,5 +1,7 @@
+// guest-layout.component.scss
 @use '../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .guest-layout {
   min-height: 100vh;
   background-color: $bg-page;

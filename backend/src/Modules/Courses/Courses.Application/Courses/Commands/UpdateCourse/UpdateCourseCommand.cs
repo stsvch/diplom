@@ -1,3 +1,5 @@
+// UpdateCourseCommand.cs
+
 using Courses.Application.DTOs;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Courses.Commands.UpdateCourse;
 
+// Тип record: ключевой элемент файла UpdateCourseCommand.cs.
 public record UpdateCourseCommand(
     Guid Id,
     string TeacherId,
@@ -14,9 +17,7 @@ public record UpdateCourseCommand(
     decimal? Price,
     bool IsFree,
     CourseOrderType OrderType,
-    bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    bool HasCertificate,
     DateTime? Deadline
 ) : IRequest<Result<CourseDetailDto>>;

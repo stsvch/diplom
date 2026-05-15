@@ -1,3 +1,4 @@
+// Файл: MessagesController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Messaging.Application.Commands.DeleteMessage;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер MessagesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/messages")]
 [Authorize]
@@ -45,6 +47,7 @@ public class MessagesController : ControllerBase
         User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 }
 
+// Класс EditMessageRequest инкапсулирует ответственность соответствующего сценария.
 public class EditMessageRequest
 {
     public string Text { get; set; } = string.Empty;

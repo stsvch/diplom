@@ -1,3 +1,4 @@
+// single-choice-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,6 +8,7 @@ import {
   ChoiceOption,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-single-choice-viewer',
   standalone: true,
@@ -77,6 +79,7 @@ export class SingleChoiceViewerComponent implements OnInit {
 
   @Output() submitAnswer = new EventEmitter<SingleChoiceAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   selected = signal<string>('');
   submitted = signal(false);
 
@@ -91,6 +94,7 @@ export class SingleChoiceViewerComponent implements OnInit {
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && 'selectedOptionId' in this.attempt.answers) {
       this.selected.set(this.attempt.answers.selectedOptionId);

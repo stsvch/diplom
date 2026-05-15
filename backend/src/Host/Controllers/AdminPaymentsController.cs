@@ -1,12 +1,13 @@
+// Файл: AdminPaymentsController.cs
 using EduPlatform.Shared.Application.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.Application.DTOs;
 using Payments.Application.Interfaces;
-using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AdminPaymentsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/admin/payments")]
 [Authorize(Roles = "Admin")]
@@ -35,15 +36,6 @@ public class AdminPaymentsController : ControllerBase
     public async Task<IActionResult> GetSubscriptionPlans(CancellationToken cancellationToken)
     {
         return Ok(await _paymentsService.GetAdminSubscriptionPlansAsync(cancellationToken));
-    }
-
-    [HttpGet("subscription-allocation-runs")]
-    [ProducesResponseType(typeof(IReadOnlyList<AdminSubscriptionAllocationRunDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetSubscriptionAllocationRuns(
-        [FromQuery] int take = 20,
-        CancellationToken cancellationToken = default)
-    {
-        return Ok(await _paymentsService.GetAdminSubscriptionAllocationRunsAsync(take, cancellationToken));
     }
 
     [HttpPost("subscription-plans")]
@@ -110,36 +102,9 @@ public class AdminPaymentsController : ControllerBase
         }
     }
 
-    [HttpPost("refunds")]
-    [ProducesResponseType(typeof(RefundRecordDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiError), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateRefund(
-        [FromBody] AdminRefundRequest request,
-        CancellationToken cancellationToken)
-    {
-        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(adminId))
-            return Unauthorized();
-
-        try
-        {
-            var result = await _paymentsService.CreateAdminRefundAsync(
-                request.PaymentAttemptId,
-                request.Amount,
-                request.Reason,
-                adminId,
-                cancellationToken);
-
-            return Ok(result);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ApiError.FromMessage(ex.Message, "ADMIN_REFUND_FAILED"));
-        }
-    }
 }
 
-public record AdminRefundRequest(Guid PaymentAttemptId, decimal? Amount, string? Reason);
+// API-модель UpsertSubscriptionPlanRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpsertSubscriptionPlanRequest(
     string Name,
     string? Description,

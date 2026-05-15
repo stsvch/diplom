@@ -1,3 +1,4 @@
+// Файл: GlossaryService.cs
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Tools.Domain.Enums;
 
 namespace Tools.Infrastructure.Services;
 
+// Сервис GlossaryService инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class GlossaryService : IGlossaryService
 {
     private static readonly HashSet<string> AllowedImageContentTypes = new(StringComparer.OrdinalIgnoreCase)

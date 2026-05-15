@@ -1,3 +1,4 @@
+// tests.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -11,6 +12,7 @@ import {
   TestAttemptStartDto,
 } from '../models/test.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -18,9 +20,10 @@ export class TestsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}`;
 
-  // ── Tests (Teacher) ────────────────────────────────────────────────────────
+  // Тесты преподавателя.
 
   createTest(data: Partial<TestDto>): Observable<TestDetailDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<TestDetailDto>(`${this.base}/tests`, data);
   }
 
@@ -44,7 +47,7 @@ export class TestsService {
     return this.http.get<TestAttemptDto[]>(`${this.base}/tests/${testId}/submissions`);
   }
 
-  // ── Questions (Teacher) ────────────────────────────────────────────────────
+  // Вопросы преподавателя.
 
   createQuestion(testId: string, data: Partial<QuestionDto>): Observable<QuestionDto> {
     return this.http.post<QuestionDto>(`${this.base}/tests/${testId}/questions`, data);
@@ -62,7 +65,7 @@ export class TestsService {
     return this.http.post<void>(`${this.base}/tests/${testId}/questions/reorder`, { orderedIds });
   }
 
-  // ── Attempts (Student) ─────────────────────────────────────────────────────
+  // Попытки студента.
 
   startAttempt(testId: string): Observable<TestAttemptStartDto> {
     return this.http.post<TestAttemptStartDto>(`${this.base}/tests/${testId}/start`, {});
@@ -87,7 +90,7 @@ export class TestsService {
     return this.http.get<TestAttemptDto[]>(`${this.base}/tests/${testId}/my-attempts`);
   }
 
-  // ── Grading (Teacher) ──────────────────────────────────────────────────────
+  // Оценивание преподавателя.
 
   gradeResponse(
     responseId: string,

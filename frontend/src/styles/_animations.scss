@@ -1,6 +1,7 @@
+// _animations.scss
+// Анимации описывают переиспользуемые keyframes и motion-паттерны интерфейса.
 // ======================
 // Анимации/keyframes для редизайна (Figma Make → Angular)
-// ======================
 
 // ── Float (плавающие карточки в hero)
 @keyframes float-y-sm {
@@ -80,7 +81,6 @@
 
 // ──────────────────────────────────────────
 // Утилитарные классы
-// ──────────────────────────────────────────
 .anim-fade-up {
   animation: fade-up 0.6s ease-out both;
 }
@@ -104,7 +104,7 @@
 .anim-aurora-2 { animation: aurora-pulse-2 7s ease-in-out infinite; }
 .anim-aurora-3 { animation: aurora-pulse-3 8s ease-in-out infinite; }
 
-// IntersectionObserver-based reveal
+// Анимация появления через IntersectionObserver.
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -123,6 +123,7 @@
 }
 
 // Уважать prefers-reduced-motion
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (prefers-reduced-motion: reduce) {
   .anim-fade-up,
   .anim-fade-up-delay-1,

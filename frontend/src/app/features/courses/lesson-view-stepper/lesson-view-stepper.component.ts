@@ -1,5 +1,9 @@
+// lesson-view-stepper.component.ts
 import {
   Component,
+  ChangeDetectorRef,
+  EventEmitter,
+  Output,
   inject,
   signal,
   OnInit,
@@ -31,6 +35,7 @@ interface BlockWithAttempt {
   lastResult: SubmitAttemptResult | null;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-lesson-view-stepper',
   standalone: true,
@@ -45,13 +50,18 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
   private readonly progressService = inject(ProgressService);
   private readonly toast = inject(ToastService);
   private readonly previewMode = inject(PreviewModeService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly isPreview = this.previewMode.isPreview;
 
   private readonly destroy$ = new Subject<void>();
 
+  @Output() loaded = new EventEmitter<void>();
+
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   lessonId = signal('');
   loading = signal(true);
+  loadError = signal<string | null>(null);
   entries = signal<BlockWithAttempt[]>([]);
   currentIndex = signal(0);
   progress = signal<ContentLessonProgressDto | null>(null);
@@ -84,6 +94,7 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
     return Math.round(total * 10) / 10;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       const id = params.get('id');
@@ -100,37 +111,45 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
 
   private load() {
     this.loading.set(true);
-    this.contentService.getByLesson(this.lessonId()).subscribe({
+    this.loadError.set(null);
+    this.entries.set([]);
+    this.currentIndex.set(0);
+    this.progress.set(null);
+    this.manualProgress.set(null);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
+    this.contentService.getByLesson(this.lessonId()).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blocks) => {
         if (blocks.length === 0) {
           this.entries.set([]);
-          this.loading.set(false);
+          this.finishLoading();
           return;
         }
         if (this.isPreview()) {
           this.entries.set(blocks.map((b) => ({ block: b, attempt: null, lastResult: null })));
-          this.loading.set(false);
+          this.finishLoading();
           return;
         }
         const reqs = blocks.map((b) => this.attemptsService.getMyAttempt(b.id));
-        forkJoin(reqs).subscribe({
+        forkJoin(reqs).pipe(takeUntil(this.destroy$)).subscribe({
           next: (attempts) => {
             this.entries.set(
               blocks.map((b, i) => ({ block: b, attempt: attempts[i] ?? null, lastResult: null })),
             );
             this.loadProgress();
-            this.loading.set(false);
+            this.finishLoading();
           },
           error: () => {
             this.entries.set(blocks.map((b) => ({ block: b, attempt: null, lastResult: null })));
-            this.loading.set(false);
+            this.finishLoading();
           },
         });
       },
       error: (err) => {
         const e = err.error as ApiError | undefined;
-        this.toast.error(e?.message ?? 'Не удалось загрузить урок');
-        this.loading.set(false);
+        const message = e?.message ?? 'Не удалось загрузить урок';
+        this.loadError.set(message);
+        this.toast.error(message);
+        this.finishLoading();
       },
     });
   }
@@ -139,7 +158,7 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
     forkJoin({
       content: this.attemptsService.getMyLessonProgress(this.lessonId()),
       manual: this.progressService.getLessonProgress(this.lessonId()),
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: ({ content, manual }) => {
         this.progress.set(content);
         this.manualProgress.set(manual);
@@ -149,6 +168,20 @@ export class LessonViewStepperComponent implements OnInit, OnDestroy {
         this.manualProgress.set(null);
       },
     });
+  }
+
+  retryLoad(): void {
+    if (!this.lessonId()) {
+      return;
+    }
+
+    this.load();
+  }
+
+  private finishLoading(): void {
+    this.loading.set(false);
+    this.loaded.emit();
+    this.changeDetector.detectChanges();
   }
 
   next() {

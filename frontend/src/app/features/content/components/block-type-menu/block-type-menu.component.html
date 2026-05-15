@@ -1,3 +1,5 @@
+<!-- block-type-menu.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="menu" (click)="$event.stopPropagation()">
   <div class="menu__search">
     <lucide-icon name="search" size="16"></lucide-icon>
@@ -11,6 +13,7 @@
   </div>
 
   <div class="menu__groups">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (group of filteredGroups(); track group.title) {
       <div class="group">
         <div class="group__title">{{ group.title }}</div>

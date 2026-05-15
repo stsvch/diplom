@@ -1,3 +1,4 @@
+// Файл: FilesController.cs
 using Content.Application.Commands.DeleteFile;
 using Content.Application.Commands.UploadFile;
 using Content.Application.DTOs;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер FilesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/files")]
 public class FilesController : ControllerBase

@@ -1,5 +1,7 @@
+// TeacherSettlementDto.cs
 namespace Payments.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public record TeacherSettlementDto(
     Guid Id,
     Guid CourseId,
@@ -9,10 +11,6 @@ public record TeacherSettlementDto(
     decimal ProviderFeeAmount,
     decimal PlatformCommissionAmount,
     decimal NetAmount,
-    decimal RefundedGrossAmount,
-    decimal RefundedNetAmount,
-    decimal DisputedGrossAmount,
-    decimal DisputedNetAmount,
     string Currency,
     string Status,
     DateTime AvailableAt,

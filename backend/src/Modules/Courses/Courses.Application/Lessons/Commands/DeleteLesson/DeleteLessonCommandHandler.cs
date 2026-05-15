@@ -1,3 +1,5 @@
+// DeleteLessonCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Lessons.Commands.DeleteLesson;
 
+// Тип class: ключевой элемент файла DeleteLessonCommandHandler.cs.
 public class DeleteLessonCommandHandler : IRequestHandler<DeleteLessonCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -16,6 +19,7 @@ public class DeleteLessonCommandHandler : IRequestHandler<DeleteLessonCommand, R
         _contentCleaner = contentCleaner;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(DeleteLessonCommand request, CancellationToken cancellationToken)
     {
         var lesson = await _context.Lessons.FindAsync([request.Id], cancellationToken);

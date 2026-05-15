@@ -1,8 +1,10 @@
+// stats-card.component.ts
 import { Component, Input } from '@angular/core';
 import { LucideAngularModule, TrendingUp, TrendingDown, Minus } from 'lucide-angular';
 
 export type ChangeType = 'positive' | 'negative' | 'neutral';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-stats-card',
   standalone: true,

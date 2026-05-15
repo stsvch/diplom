@@ -1,3 +1,5 @@
+// payments.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface CourseCheckoutSessionDto {
   paymentAttemptId: string;
   checkoutUrl: string;
@@ -137,10 +139,7 @@ export interface TeacherSettlementSummaryDto {
   readyForPayoutNetAmount: number;
   inPayoutNetAmount: number;
   paidOutNetAmount: number;
-  refundedNetAmount: number;
-  disputedNetAmount: number;
   settlementsCount: number;
-  subscriptionAllocationCount: number;
   currency: string;
 }
 
@@ -153,10 +152,6 @@ export interface TeacherSettlementDto {
   providerFeeAmount: number;
   platformCommissionAmount: number;
   netAmount: number;
-  refundedGrossAmount: number;
-  refundedNetAmount: number;
-  disputedGrossAmount: number;
-  disputedNetAmount: number;
   currency: string;
   status: string;
   availableAt: string;
@@ -164,38 +159,11 @@ export interface TeacherSettlementDto {
   createdAt: string;
 }
 
-export interface TeacherSubscriptionAllocationDto {
-  id: string;
-  subscriptionAllocationRunId: string;
-  subscriptionInvoiceId: string;
-  subscriptionPlanId: string;
-  planName: string;
-  courseId: string;
-  courseTitle: string;
-  allocationWeight: number;
-  progressPercent: number;
-  completedLessons: number;
-  totalLessons: number;
-  grossAmount: number;
-  platformCommissionAmount: number;
-  providerFeeAmount: number;
-  netAmount: number;
-  currency: string;
-  status: string;
-  payoutStatus: string;
-  periodStart?: string | null;
-  periodEnd?: string | null;
-  availableAt: string;
-  paidOutAt?: string | null;
-  allocatedAt: string;
-}
-
 export interface PayoutRecordDto {
   id: string;
   amount: number;
   currency: string;
   settlementsCount: number;
-  allocationLinesCount: number;
   status: string;
   providerTransferId?: string | null;
   requestedAt: string;
@@ -203,34 +171,4 @@ export interface PayoutRecordDto {
   paidAt?: string | null;
   failedAt?: string | null;
   failureMessage?: string | null;
-}
-
-export interface RefundRecordDto {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  amount: number;
-  teacherNetRefundAmount: number;
-  currency: string;
-  status: string;
-  reason?: string | null;
-  failureMessage?: string | null;
-  requestedAt: string;
-  processedAt?: string | null;
-}
-
-export interface DisputeRecordDto {
-  id: string;
-  courseId: string;
-  courseTitle: string;
-  amount: number;
-  teacherNetDisputeAmount: number;
-  currency: string;
-  status: string;
-  reason?: string | null;
-  openedAt: string;
-  evidenceDueBy?: string | null;
-  fundsWithdrawnAt?: string | null;
-  fundsReinstatedAt?: string | null;
-  closedAt?: string | null;
 }

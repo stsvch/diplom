@@ -1,7 +1,11 @@
+<!-- course-editor.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="editor">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="state">Загрузка...</div>
   } @else if (course(); as c) {
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="editor__head">
       <a class="back" [routerLink]="['/teacher/courses']">
         <lucide-icon [img]="ChevronLeftIcon" size="20"></lucide-icon>
@@ -56,6 +60,7 @@
       </section>
     }
 
+    <!-- Основная область страницы показывает рабочий контент пользователя. -->
     <main class="editor__body">
       <div class="body__actions">
         <h2>Структура курса</h2>

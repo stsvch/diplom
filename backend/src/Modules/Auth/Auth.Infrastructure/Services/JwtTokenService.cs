@@ -1,3 +1,4 @@
+// JwtTokenService.cs
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Infrastructure.Services;
 
+// Сервис токенов создаёт JWT с claim-ами пользователя/ролей, генерирует refresh-token строку и валидирует истёкший access token при refresh.
 public class JwtTokenService : ITokenService
 {
     private readonly IConfiguration _configuration;

@@ -1,3 +1,4 @@
+// Файл: CreateNotificationCommandHandler.cs
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +8,7 @@ using Notifications.Domain.Entities;
 
 namespace Notifications.Application.Notifications.Commands.CreateNotification;
 
+// Обработчик команды CreateNotificationCommandHandler выполняет сценарий изменения состояния и возвращает Result.
 public class CreateNotificationCommandHandler : IRequestHandler<CreateNotificationCommand, Result<NotificationDto>>
 {
     private readonly INotificationsDbContext _context;

@@ -1,3 +1,4 @@
+// Файл: GlossaryController.cs
 using EduPlatform.Shared.Application.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Tools.Application.Interfaces;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер GlossaryController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/glossary")]
 public class GlossaryController : ControllerBase
@@ -292,6 +294,7 @@ public class GlossaryController : ControllerBase
     }
 }
 
+// API-модель UpsertDictionaryWordRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpsertDictionaryWordRequest(
     Guid CourseId,
     string Term,
@@ -301,6 +304,7 @@ public record UpsertDictionaryWordRequest(
     string? Note,
     List<string>? Tags);
 
+// API-модель UpdateDictionaryWordProgressRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateDictionaryWordProgressRequest(bool IsKnown);
 
 public record ReviewDictionaryWordRequest(string Outcome);

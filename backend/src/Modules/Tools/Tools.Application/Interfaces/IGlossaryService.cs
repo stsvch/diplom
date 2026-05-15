@@ -1,7 +1,9 @@
+// Файл: IGlossaryService.cs
 using Tools.Application.DTOs;
 
 namespace Tools.Application.Interfaces;
 
+// Интерфейс IGlossaryService задаёт контракт сервиса между слоями или модулями.
 public interface IGlossaryService
 {
     Task<IReadOnlyList<DictionaryWordDto>> GetTeacherWordsAsync(

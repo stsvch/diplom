@@ -1,3 +1,4 @@
+// teacher-schedule.component.ts
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -44,6 +45,7 @@ interface AvailabilityForm {
   meetingLink: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-teacher-schedule',
   standalone: true,
@@ -81,6 +83,7 @@ export class TeacherScheduleComponent implements OnInit {
     { value: 'Sunday', label: 'Вс' },
   ];
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly rules = signal<TeacherAvailabilityDto[]>([]);
   readonly loading = signal(false);
   readonly creating = signal(false);
@@ -108,6 +111,7 @@ export class TeacherScheduleComponent implements OnInit {
     };
   }
 
+  // Состояние формы и валидаторы описывают пользовательский ввод этого экрана.
   readonly form = signal<AvailabilityForm>(this.defaultForm());
 
   readonly recurringRules = computed(() =>
@@ -153,7 +157,7 @@ export class TeacherScheduleComponent implements OnInit {
     ) ?? null;
   });
 
-  // helpers ─────────────
+  // Вспомогательные методы.
   toPercent(min: number): number {
     const total = this.timelineEndMin - this.timelineStartMin;
     return Math.max(0, Math.min(100, ((min - this.timelineStartMin) / total) * 100));
@@ -190,7 +194,7 @@ export class TeacherScheduleComponent implements OnInit {
       }
       return false;
     }
-    // f — OneOff
+    // f — одноразовый слот.
     if (!f.specificDate) return false;
     if (r.kind === AvailabilityKind.OneOff) return r.specificDate === f.specificDate;
     // r — recurring: совпадает если день недели f.specificDate == r.dayOfWeek
@@ -202,12 +206,14 @@ export class TeacherScheduleComponent implements OnInit {
     return map[day];
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadRules();
   }
 
   private loadRules(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.schedulingService.getMyAvailability().subscribe({
       next: (rules) => {
         this.rules.set(rules);

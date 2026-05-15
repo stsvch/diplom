@@ -1,3 +1,4 @@
+// admin-dashboard.component.ts
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -19,6 +20,7 @@ import { DashboardStatsDto } from '../models/admin.model';
 import { parseApiError } from '../../../core/models/api-error.model';
 import { StatsCardComponent } from '../../../shared/components/stats-card/stats-card.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -41,6 +43,7 @@ export class AdminDashboardComponent implements OnInit {
   readonly ActivityIcon = Activity;
   readonly GlobeIcon = Globe;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly stats = signal<DashboardStatsDto | null>(null);
@@ -51,6 +54,7 @@ export class AdminDashboardComponent implements OnInit {
     return Math.round((s.courses.published / s.courses.total) * 100);
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -58,6 +62,7 @@ export class AdminDashboardComponent implements OnInit {
   loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.admin.getDashboard().subscribe({
       next: (s) => {
         this.stats.set(s);

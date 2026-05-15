@@ -1,5 +1,8 @@
+<!-- messages-page.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="messages-page">
   <!-- Left panel: chat list -->
+  <!-- Боковая панель хранит вспомогательную навигацию и контекст. -->
   <aside class="messages-page__sidebar" [class.messages-page__sidebar--hidden]="selectedChat()">
     <div class="messages-page__sidebar-header">
       <h2 class="messages-page__title">Сообщения</h2>
@@ -65,7 +68,9 @@
   </aside>
 
   <!-- Right panel: chat window -->
+  <!-- Основная область страницы показывает рабочий контент пользователя. -->
   <main class="messages-page__chat" [class.messages-page__chat--visible]="selectedChat()">
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (!selectedChat()) {
       <div class="messages-page__empty">
         <i-lucide [img]="MessageCircleIcon" [size]="64" class="empty-icon"></i-lucide>

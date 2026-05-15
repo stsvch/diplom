@@ -1,5 +1,7 @@
+// toast.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .toast-container {
   position: fixed;
   top: $spacing-4;
@@ -26,6 +28,7 @@
   animation: toast-in 0.2s ease;
   border-left: 4px solid transparent;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--success {
     border-left-color: $success;
 

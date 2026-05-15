@@ -1,3 +1,5 @@
+// EnrollCourseCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Commands.EnrollCourse;
 
+// Тип class: ключевой элемент файла EnrollCourseCommandHandler.cs.
 public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -20,6 +23,7 @@ public class EnrollCourseCommandHandler : IRequestHandler<EnrollCourseCommand, R
         _courseAccessProvisioningService = courseAccessProvisioningService;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(EnrollCourseCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses.FindAsync([request.CourseId], cancellationToken);

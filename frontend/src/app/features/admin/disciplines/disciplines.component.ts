@@ -1,3 +1,4 @@
+// disciplines.component.ts
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -19,6 +20,7 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 
 type ModalMode = 'create' | 'edit';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-disciplines',
   standalone: true,
@@ -32,6 +34,7 @@ type ModalMode = 'create' | 'edit';
   styleUrl: './disciplines.component.scss',
 })
 export class DisciplinesComponent implements OnInit {
+  // Состояние формы и валидаторы описывают пользовательский ввод этого экрана.
   private readonly fb = inject(FormBuilder);
   private readonly disciplinesService = inject(DisciplinesService);
   private readonly toastService = inject(ToastService);
@@ -44,6 +47,7 @@ export class DisciplinesComponent implements OnInit {
   readonly CheckIcon = Check;
   readonly AlertIcon = AlertTriangle;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly deleting = signal<string | null>(null);
@@ -60,12 +64,14 @@ export class DisciplinesComponent implements OnInit {
 
   readonly skeletonItems = Array(6).fill(0);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadDisciplines();
   }
 
   loadDisciplines(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.disciplinesService.getAll().subscribe({
       next: (data) => {
         this.disciplines.set(data);

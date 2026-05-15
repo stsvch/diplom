@@ -1,3 +1,5 @@
+// course.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface DisciplineDto {
   id: string;
   name: string;
@@ -32,8 +34,6 @@ export interface CourseDetailDto extends CourseListDto {
   isPublished: boolean;
   isArchived: boolean;
   orderType: string;
-  hasGrading: boolean;
-  hasCertificate: boolean;
   deadline?: string | null;
   disciplineId: string;
   createdAt: string;

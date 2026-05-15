@@ -1,3 +1,5 @@
+// glossary.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface DictionaryWordDto {
   id: string;
   courseId: string;

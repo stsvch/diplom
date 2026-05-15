@@ -1,3 +1,4 @@
+// Файл: ExceptionHandlingMiddleware.cs
 using System.Net;
 using System.Text.Json;
 using EduPlatform.Shared.Application.Models;
@@ -5,6 +6,7 @@ using FluentValidation;
 
 namespace EduPlatform.Host.Middleware;
 
+// Middleware ExceptionHandlingMiddleware выполняет поперечную обработку HTTP-запросов в конвейере Host.
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;

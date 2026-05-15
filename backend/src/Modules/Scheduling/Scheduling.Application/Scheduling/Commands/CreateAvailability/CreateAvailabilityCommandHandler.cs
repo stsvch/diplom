@@ -1,3 +1,5 @@
+// CreateAvailabilityCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -10,6 +12,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.CreateAvailability;
 
+/// <summary>
+/// Обработчик CQRS-команды CreateAvailabilityCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CreateAvailabilityCommandHandler : IRequestHandler<CreateAvailabilityCommand, Result<TeacherAvailabilityDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -21,6 +26,7 @@ public class CreateAvailabilityCommandHandler : IRequestHandler<CreateAvailabili
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TeacherAvailabilityDto>> Handle(CreateAvailabilityCommand request, CancellationToken cancellationToken)
     {
         if (request.SlotDurationMinutes <= 0)

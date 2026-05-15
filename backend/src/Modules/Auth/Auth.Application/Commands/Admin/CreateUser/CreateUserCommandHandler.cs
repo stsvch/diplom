@@ -1,3 +1,4 @@
+// CreateUserCommandHandler.cs
 using Auth.Application.Queries.SearchUsers;
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.Admin.CreateUser;
 
+// Обработчик сценария: создаёт пользователя из админ-панели: принимает email, имя, фамилию, роль и пароль, сразу подтверждает email и возвращает краткую карточку пользователя.
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Result<UserSummaryDto>>
 {
     private static readonly string[] AllowedRoles = { "Admin", "Teacher", "Student" };

@@ -1,8 +1,10 @@
+// RegisterCommandValidator.cs
 using Auth.Domain.Enums;
 using FluentValidation;
 
 namespace Auth.Application.Commands.Register;
 
+// Валидатор проверяет email, пароль, имя/фамилию и запрещает саморегистрацию в роли Admin.
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
     public RegisterCommandValidator()

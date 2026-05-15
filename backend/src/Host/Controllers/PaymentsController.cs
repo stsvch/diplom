@@ -1,3 +1,4 @@
+// Файл: PaymentsController.cs
 using EduPlatform.Shared.Application.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер PaymentsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/payments")]
 public class PaymentsController : ControllerBase
@@ -147,30 +149,6 @@ public class PaymentsController : ControllerBase
             return Unauthorized();
 
         return Ok(await _paymentsService.GetMyPurchasesAsync(studentId, cancellationToken));
-    }
-
-    [HttpGet("me/refunds")]
-    [Authorize(Roles = "Student")]
-    [ProducesResponseType(typeof(IReadOnlyList<RefundRecordDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMyRefunds(CancellationToken cancellationToken)
-    {
-        var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(studentId))
-            return Unauthorized();
-
-        return Ok(await _paymentsService.GetMyRefundsAsync(studentId, cancellationToken));
-    }
-
-    [HttpGet("me/disputes")]
-    [Authorize(Roles = "Student")]
-    [ProducesResponseType(typeof(IReadOnlyList<DisputeRecordDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMyDisputes(CancellationToken cancellationToken)
-    {
-        var studentId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(studentId))
-            return Unauthorized();
-
-        return Ok(await _paymentsService.GetMyDisputesAsync(studentId, cancellationToken));
     }
 
     [HttpGet("me/payment-methods")]
@@ -357,18 +335,6 @@ public class PaymentsController : ControllerBase
         return Ok(await _paymentsService.GetTeacherSettlementsAsync(teacherId, cancellationToken));
     }
 
-    [HttpGet("teacher/subscription-allocations")]
-    [Authorize(Roles = "Teacher")]
-    [ProducesResponseType(typeof(IReadOnlyList<TeacherSubscriptionAllocationDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTeacherSubscriptionAllocations(CancellationToken cancellationToken)
-    {
-        var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(teacherId))
-            return Unauthorized();
-
-        return Ok(await _paymentsService.GetTeacherSubscriptionAllocationsAsync(teacherId, cancellationToken));
-    }
-
     [HttpGet("teacher/payouts")]
     [Authorize(Roles = "Teacher")]
     [ProducesResponseType(typeof(IReadOnlyList<PayoutRecordDto>), StatusCodes.Status200OK)]
@@ -379,18 +345,6 @@ public class PaymentsController : ControllerBase
             return Unauthorized();
 
         return Ok(await _paymentsService.GetTeacherPayoutRecordsAsync(teacherId, cancellationToken));
-    }
-
-    [HttpGet("teacher/disputes")]
-    [Authorize(Roles = "Teacher")]
-    [ProducesResponseType(typeof(IReadOnlyList<DisputeRecordDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTeacherDisputes(CancellationToken cancellationToken)
-    {
-        var teacherId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(teacherId))
-            return Unauthorized();
-
-        return Ok(await _paymentsService.GetTeacherDisputesAsync(teacherId, cancellationToken));
     }
 
     [HttpPost("teacher/payouts/request")]
@@ -448,5 +402,7 @@ public class PaymentsController : ControllerBase
     }
 }
 
+// API-модель CreateCourseCheckoutRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateCourseCheckoutRequest(Guid CourseId, bool SavePaymentMethod = false);
+// API-модель CreateSubscriptionCheckoutRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateSubscriptionCheckoutRequest(Guid SubscriptionPlanId);

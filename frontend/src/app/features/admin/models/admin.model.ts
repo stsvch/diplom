@@ -1,3 +1,5 @@
+// admin.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface AdminUserDto {
   id: string;
   email: string;
@@ -73,8 +75,6 @@ export interface AdminAnalyticsSummaryDto {
 export interface AdminAnalyticsPaymentsDto {
   successfulPayments30Days: number;
   failedPayments30Days: number;
-  refundedPayments30Days: number;
-  disputedPayments30Days: number;
   coursePurchases30Days: number;
   subscriptionInvoicesPaid30Days: number;
 }
@@ -149,24 +149,13 @@ export interface AdminPaymentRecordDto {
   teacherId: string;
   teacherName: string;
   amount: number;
-  refundedAmount: number;
-  pendingRefundAmount: number;
-  disputedAmount: number;
-  remainingRefundableAmount: number;
   providerFeeAmount: number;
   currency: string;
   paymentStatus: string;
   providerChargeId?: string | null;
-  latestDisputeStatus?: string | null;
   purchaseStatus?: string | null;
   createdAt: string;
   completedAt?: string | null;
-}
-
-export interface AdminRefundRequest {
-  paymentAttemptId: string;
-  amount?: number | null;
-  reason?: string | null;
 }
 
 export interface AdminSubscriptionPlanDto {
@@ -184,44 +173,6 @@ export interface AdminSubscriptionPlanDto {
   providerPriceId?: string | null;
   createdAt: string;
   updatedAt?: string | null;
-}
-
-export interface AdminSubscriptionAllocationLineDto {
-  id: string;
-  teacherId: string;
-  teacherName: string;
-  courseId: string;
-  courseTitle: string;
-  allocationWeight: number;
-  progressPercent: number;
-  completedLessons: number;
-  totalLessons: number;
-  grossAmount: number;
-  platformCommissionAmount: number;
-  providerFeeAmount: number;
-  netAmount: number;
-  currency: string;
-}
-
-export interface AdminSubscriptionAllocationRunDto {
-  id: string;
-  subscriptionInvoiceId: string;
-  studentId: string;
-  subscriptionPlanId: string;
-  planName: string;
-  grossAmount: number;
-  platformCommissionAmount: number;
-  providerFeeAmount: number;
-  netAmount: number;
-  currency: string;
-  strategy: string;
-  status: string;
-  teacherCount: number;
-  courseCount: number;
-  periodStart?: string | null;
-  periodEnd?: string | null;
-  allocatedAt: string;
-  lines: AdminSubscriptionAllocationLineDto[];
 }
 
 export interface UpsertSubscriptionPlanRequest {

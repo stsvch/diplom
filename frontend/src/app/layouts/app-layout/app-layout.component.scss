@@ -1,5 +1,7 @@
+// app-layout.component.scss
 @use '../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -32,6 +34,7 @@
     z-index: 40;
     animation: layout-overlay-in 0.2s ease-out;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (min-width: 1024px) {
       display: none;
     }

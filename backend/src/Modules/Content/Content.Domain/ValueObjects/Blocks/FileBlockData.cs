@@ -1,7 +1,10 @@
+// FileBlockData.cs
+
 using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Blocks;
 
+// Value object class: описывает структуру JSON-данных блока урока.
 public class FileBlockData : LessonBlockData
 {
     public override LessonBlockType Type => LessonBlockType.File;

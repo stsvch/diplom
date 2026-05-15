@@ -1,3 +1,4 @@
+// user-picker.component.ts
 import {
   Component,
   EventEmitter,
@@ -14,6 +15,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { MessagingService } from '../../../features/messaging/services/messaging.service';
 import { UserSummaryDto } from '../../../features/messaging/models/messaging.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-user-picker',
   standalone: true,
@@ -143,12 +145,14 @@ export class UserPickerComponent implements OnInit {
   readonly XIcon = X;
   readonly UserIconRef = UserIcon;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly query = signal('');
   readonly users = signal<UserSummaryDto[]>([]);
   readonly loading = signal(false);
 
   private readonly search$ = new Subject<string>();
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.search$
       .pipe(debounceTime(300), distinctUntilChanged())
@@ -163,6 +167,7 @@ export class UserPickerComponent implements OnInit {
 
   private runSearch(q: string): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.messaging.searchUsers(q, this.role, 20, this.courseId, this.teacherId).subscribe({
       next: (list) => {
         this.users.set(list);

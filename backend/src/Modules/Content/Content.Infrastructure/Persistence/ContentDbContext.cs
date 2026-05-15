@@ -1,3 +1,5 @@
+// ContentDbContext.cs
+
 using System.Text.Json;
 using Content.Application.Interfaces;
 using Content.Domain.Entities;
@@ -10,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Infrastructure.Persistence;
 
+// Тип class: ключевой элемент файла ContentDbContext.cs.
 public class ContentDbContext : BaseDbContext, IContentDbContext
 {
     public ContentDbContext(DbContextOptions<ContentDbContext> options) : base(options)
@@ -21,6 +24,7 @@ public class ContentDbContext : BaseDbContext, IContentDbContext
     public DbSet<LessonBlockAttempt> LessonBlockAttempts => Set<LessonBlockAttempt>();
     public DbSet<CodeExerciseRun> CodeExerciseRuns => Set<CodeExerciseRun>();
 
+    // Конфигурация EF Core: схема, ограничения, связи, индексы и конвертации enum.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

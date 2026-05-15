@@ -1,3 +1,5 @@
+// GetCourseModulesQueryHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Application.Interfaces;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Modules.Queries.GetCourseModules;
 
+// Тип class: ключевой элемент файла GetCourseModulesQueryHandler.cs.
 public class GetCourseModulesQueryHandler : IRequestHandler<GetCourseModulesQuery, List<CourseModuleDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -17,6 +20,7 @@ public class GetCourseModulesQueryHandler : IRequestHandler<GetCourseModulesQuer
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<List<CourseModuleDto>> Handle(GetCourseModulesQuery request, CancellationToken cancellationToken)
     {
         var modules = await _context.CourseModules

@@ -1,3 +1,4 @@
+// hints-panel.component.ts
 import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -89,6 +90,7 @@ const HINTS: Record<CourseItemType, ContextHint> = {
   },
 };
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-hints-panel',
   standalone: true,
@@ -116,6 +118,7 @@ export class HintsPanelComponent {
     book: BookOpen,
   };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly tab = signal<'checklist' | 'hints'>('checklist');
 
   readonly checklistItems = computed(() => {

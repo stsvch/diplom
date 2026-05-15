@@ -1,5 +1,7 @@
+// assignment-editor.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .assignment-editor {
   padding: v.$spacing-6;
   max-width: 860px;
@@ -22,6 +24,7 @@
     font-size: v.$font-size-sm;
     white-space: nowrap;
     transition: color v.$transition-fast;
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { color: v.$primary; }
   }
 
@@ -63,6 +66,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: v.$spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-md) {
       grid-template-columns: 1fr 1fr;
     }

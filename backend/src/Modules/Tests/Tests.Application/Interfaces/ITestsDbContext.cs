@@ -1,8 +1,13 @@
+// ITestsDbContext.cs
+
 using Microsoft.EntityFrameworkCore;
 using Tests.Domain.Entities;
 
 namespace Tests.Application.Interfaces;
 
+/// <summary>
+/// Контракт DbContext фиксирует DbSet-ы и сохранение изменений, доступные application-слою.
+/// </summary>
 public interface ITestsDbContext
 {
     DbSet<Test> Tests { get; }

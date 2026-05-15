@@ -1,10 +1,13 @@
+// sidebar.service.ts
 import { Injectable, signal } from '@angular/core';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
 export class SidebarService {
   /** Свёрнут ли sidebar на десктопе (legacy — оставлено для обратной совместимости) */
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly collapsed = signal<boolean>(false);
 
   /** Открыт ли sidebar на мобиле (overlay) */

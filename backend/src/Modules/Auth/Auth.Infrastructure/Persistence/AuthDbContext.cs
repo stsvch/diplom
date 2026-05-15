@@ -1,3 +1,4 @@
+// AuthDbContext.cs
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Infrastructure.Persistence;
 
+// EF Core контекст Auth-модуля: хранит пользователей Identity, refresh-токены и singleton-настройки платформы.
 public class AuthDbContext : IdentityDbContext<ApplicationUser>, IAuthDbContext
 {
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)

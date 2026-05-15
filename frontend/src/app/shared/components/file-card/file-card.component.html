@@ -1,3 +1,5 @@
+<!-- file-card.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="file-card">
   <div class="file-card__icon-wrap" [class]="iconColorClass">
     <lucide-icon [img]="fileIcon" [size]="22" />
@@ -19,6 +21,7 @@
       <lucide-icon [img]="DownloadIcon" [size]="16" />
     </a>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (deletable) {
       <button
         type="button"

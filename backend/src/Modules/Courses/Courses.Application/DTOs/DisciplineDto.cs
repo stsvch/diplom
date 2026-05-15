@@ -1,5 +1,8 @@
+// DisciplineDto.cs
+
 namespace Courses.Application.DTOs;
 
+// DTO class: передаёт данные наружу из application layer без раскрытия доменных сущностей.
 public class DisciplineDto
 {
     public Guid Id { get; set; }

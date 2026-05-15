@@ -1,7 +1,10 @@
+// Lesson.cs
+
 using EduPlatform.Shared.Domain;
 
 namespace Courses.Domain.Entities;
 
+// Доменная сущность class: хранит состояние, инварианты и связи бизнес-модели модуля Courses.
 public class Lesson : BaseEntity
 {
     public Guid ModuleId { get; set; }

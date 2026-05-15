@@ -1,4 +1,7 @@
+<!-- student-schedule.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="ss-page">
+  <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
   <header class="ss-header">
     <div>
       <h1>Живые занятия</h1>
@@ -6,6 +9,7 @@
     </div>
   </header>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (entitlements(); as ent) {
     <div class="ss-quota">
       @if (ent.hasActiveSubscription) {
@@ -33,6 +37,7 @@
     </div>
   }
 
+  <!-- Навигация связывает основные разделы интерфейса. -->
   <nav class="ss-tabs">
     <button class="ss-tab" [class.ss-tab--active]="activeTab() === 'browse'" (click)="setTab('browse')">
       Найти преподавателя

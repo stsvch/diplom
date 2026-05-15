@@ -1,3 +1,5 @@
+// CreateGradeCommand.cs
+
 using EduPlatform.Shared.Domain;
 using Grading.Application.DTOs;
 using Grading.Domain.Enums;
@@ -5,6 +7,9 @@ using MediatR;
 
 namespace Grading.Application.Grades.Commands.CreateGrade;
 
+/// <summary>
+/// CQRS-команда CreateGradeCommand описывает входные данные операции, которая меняет состояние модуля.
+/// </summary>
 public record CreateGradeCommand(
     string StudentId,
     Guid CourseId,

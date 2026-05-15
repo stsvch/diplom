@@ -1,7 +1,9 @@
+// ResetPasswordCommandValidator.cs
 using FluentValidation;
 
 namespace Auth.Application.Commands.ResetPassword;
 
+// Валидатор требует email, token восстановления и новый пароль с минимальной сложностью.
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
     public ResetPasswordCommandValidator()

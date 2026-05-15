@@ -1,3 +1,4 @@
+// PaymentsService.cs
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Application.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,15 +13,14 @@ using System.Linq.Expressions;
 
 namespace Payments.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
 {
     private readonly IPaymentsDbContext _context;
     private readonly IPaymentProviderGateway _gateway;
     private readonly ICoursePaymentReadService _coursePaymentReadService;
     private readonly IEnrollmentReadService _enrollmentReadService;
-    private readonly ISubscriptionAllocationReadService _subscriptionAllocationReadService;
     private readonly ICourseAccessProvisioningService _courseAccessProvisioningService;
-    private readonly ICourseAccessRevocationService _courseAccessRevocationService;
     private readonly ISubscriptionEntitlementProvider _entitlementProvider;
     private readonly PaymentsOptions _paymentsOptions;
     private readonly IConfiguration _configuration;
@@ -30,9 +30,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         IPaymentProviderGateway gateway,
         ICoursePaymentReadService coursePaymentReadService,
         IEnrollmentReadService enrollmentReadService,
-        ISubscriptionAllocationReadService subscriptionAllocationReadService,
         ICourseAccessProvisioningService courseAccessProvisioningService,
-        ICourseAccessRevocationService courseAccessRevocationService,
         ISubscriptionEntitlementProvider entitlementProvider,
         IOptions<PaymentsOptions> paymentsOptions,
         IConfiguration configuration)
@@ -41,9 +39,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         _gateway = gateway;
         _coursePaymentReadService = coursePaymentReadService;
         _enrollmentReadService = enrollmentReadService;
-        _subscriptionAllocationReadService = subscriptionAllocationReadService;
         _courseAccessProvisioningService = courseAccessProvisioningService;
-        _courseAccessRevocationService = courseAccessRevocationService;
         _entitlementProvider = entitlementProvider;
         _paymentsOptions = paymentsOptions.Value;
         _configuration = configuration;
@@ -154,64 +150,26 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
     {
         await RefreshTeacherSettlementsAsync(teacherId, cancellationToken);
 
-        var now = DateTime.UtcNow;
         var settlements = await _context.TeacherSettlements
             .Where(x => x.TeacherId == teacherId)
             .ToListAsync(cancellationToken);
-        var allocationRows = await (from line in _context.SubscriptionAllocationLines
-                                    join run in _context.SubscriptionAllocationRuns
-                                      on line.SubscriptionAllocationRunId equals run.Id
-                                    join payout in _context.PayoutRecords
-                                      on line.PayoutRecordId equals payout.Id into payoutGroup
-                                    from payout in payoutGroup.DefaultIfEmpty()
-                                    where line.TeacherId == teacherId
-                                    select new
-                                    {
-                                        line,
-                                        RunStatus = run.Status,
-                                        PayoutStatus = payout != null ? (PayoutRecordStatus?)payout.Status : null,
-                                    })
-            .ToListAsync(cancellationToken);
-
-        var activeAllocationRows = allocationRows
-            .Where(x => x.RunStatus == SubscriptionAllocationRunStatus.Applied)
-            .ToList();
-
-        var pendingAllocationNetAmount = activeAllocationRows
-            .Where(x => x.line.PayoutRecordId == null && x.line.AvailableAt > now)
-            .Sum(x => x.line.NetAmount);
-        var readyAllocationNetAmount = activeAllocationRows
-            .Where(x => x.line.PayoutRecordId == null && x.line.AvailableAt <= now)
-            .Sum(x => x.line.NetAmount);
-        var inPayoutAllocationNetAmount = activeAllocationRows
-            .Where(x => x.line.PayoutRecordId != null
-                     && x.PayoutStatus is PayoutRecordStatus.Queued or PayoutRecordStatus.SubmittedToProvider)
-            .Sum(x => x.line.NetAmount);
-        var paidAllocationNetAmount = activeAllocationRows
-            .Where(x => x.line.PayoutRecordId != null && x.PayoutStatus == PayoutRecordStatus.Paid)
-            .Sum(x => x.line.NetAmount);
-        var totalAllocationGrossAmount = activeAllocationRows.Sum(x => x.line.GrossAmount);
-        var totalAllocationNetAmount = activeAllocationRows.Sum(x => x.line.NetAmount);
 
         return new TeacherSettlementSummaryDto(
-            settlements.Sum(x => x.GrossAmount) + totalAllocationGrossAmount,
-            settlements.Sum(GetRemainingNetAmount) + totalAllocationNetAmount,
+            settlements.Sum(x => x.GrossAmount),
+            settlements.Sum(GetRemainingNetAmount),
             settlements
                 .Where(x => x.Status == TeacherSettlementStatus.PendingHold)
-                .Sum(GetRemainingNetAmount) + pendingAllocationNetAmount,
+                .Sum(GetRemainingNetAmount),
             settlements
                 .Where(x => x.Status == TeacherSettlementStatus.ReadyForPayout)
-                .Sum(GetRemainingNetAmount) + readyAllocationNetAmount,
+                .Sum(GetRemainingNetAmount),
             settlements
                 .Where(x => x.Status == TeacherSettlementStatus.InPayout)
-                .Sum(GetRemainingNetAmount) + inPayoutAllocationNetAmount,
+                .Sum(GetRemainingNetAmount),
             settlements
                 .Where(x => x.Status == TeacherSettlementStatus.PaidOut)
-                .Sum(GetRemainingNetAmount) + paidAllocationNetAmount,
-            settlements.Sum(x => x.RefundedNetAmount),
-            settlements.Sum(x => x.DisputedNetAmount),
-            settlements.Count + activeAllocationRows.Count,
-            activeAllocationRows.Count,
+                .Sum(GetRemainingNetAmount),
+            settlements.Count,
             _paymentsOptions.Currency);
     }
 
@@ -233,147 +191,11 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 x.ProviderFeeAmount,
                 x.PlatformCommissionAmount,
                 x.NetAmount,
-                x.RefundedGrossAmount,
-                x.RefundedNetAmount,
-                x.DisputedGrossAmount,
-                x.DisputedNetAmount,
                 x.Currency,
                 x.Status.ToString(),
                 x.AvailableAt,
                 x.PaidOutAt,
                 x.CreatedAt))
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<TeacherSubscriptionAllocationDto>> GetTeacherSubscriptionAllocationsAsync(
-        string teacherId,
-        CancellationToken cancellationToken = default)
-    {
-        var now = DateTime.UtcNow;
-        var rows = await (from line in _context.SubscriptionAllocationLines
-                          join run in _context.SubscriptionAllocationRuns
-                            on line.SubscriptionAllocationRunId equals run.Id
-                          join payout in _context.PayoutRecords
-                            on line.PayoutRecordId equals payout.Id into payoutGroup
-                          from payout in payoutGroup.DefaultIfEmpty()
-                          where line.TeacherId == teacherId
-                          orderby line.AllocatedAt descending
-                          select new
-                          {
-                              line,
-                              run.PlanName,
-                              run.Status,
-                              run.PeriodStart,
-                              run.PeriodEnd,
-                              PayoutStatus = payout != null ? (PayoutRecordStatus?)payout.Status : null,
-                          })
-            .ToListAsync(cancellationToken);
-
-        return rows
-            .Select(row => new TeacherSubscriptionAllocationDto(
-                row.line.Id,
-                row.line.SubscriptionAllocationRunId,
-                row.line.SubscriptionInvoiceId,
-                row.line.SubscriptionPlanId,
-                row.PlanName,
-                row.line.CourseId,
-                row.line.CourseTitle,
-                row.line.AllocationWeight,
-                row.line.ProgressPercent,
-                row.line.CompletedLessons,
-                row.line.TotalLessons,
-                row.line.GrossAmount,
-                row.line.PlatformCommissionAmount,
-                row.line.ProviderFeeAmount,
-                row.line.NetAmount,
-                row.line.Currency,
-                row.Status.ToString(),
-                ResolveSubscriptionAllocationPayoutStatus(
-                    row.Status,
-                    row.line.AvailableAt,
-                    row.PayoutStatus,
-                    now),
-                row.PeriodStart,
-                row.PeriodEnd,
-                row.line.AvailableAt,
-                row.line.PaidOutAt,
-                row.line.AllocatedAt))
-            .ToList();
-    }
-
-    public async Task<IReadOnlyList<RefundRecordDto>> GetMyRefundsAsync(
-        string studentId,
-        CancellationToken cancellationToken = default)
-    {
-        return await (from refund in _context.RefundRecords
-                      join attempt in _context.PaymentAttempts
-                        on refund.PaymentAttemptId equals attempt.Id
-                      where refund.StudentId == studentId
-                      orderby refund.RequestedAt descending
-                      select new RefundRecordDto(
-                          refund.Id,
-                          attempt.CourseId,
-                          refund.CourseTitle,
-                          refund.Amount,
-                          refund.TeacherNetRefundAmount,
-                          refund.Currency,
-                          refund.Status.ToString(),
-                          refund.Reason,
-                          refund.FailureMessage,
-                          refund.RequestedAt,
-                          refund.ProcessedAt))
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<DisputeRecordDto>> GetMyDisputesAsync(
-        string studentId,
-        CancellationToken cancellationToken = default)
-    {
-        return await (from dispute in _context.DisputeRecords
-                      join attempt in _context.PaymentAttempts
-                        on dispute.PaymentAttemptId equals attempt.Id
-                      where dispute.StudentId == studentId
-                      orderby dispute.OpenedAt descending
-                      select new DisputeRecordDto(
-                          dispute.Id,
-                          attempt.CourseId,
-                          dispute.CourseTitle,
-                          dispute.Amount,
-                          dispute.TeacherNetDisputeAmount,
-                          dispute.Currency,
-                          dispute.Status.ToString(),
-                          dispute.Reason,
-                          dispute.OpenedAt,
-                          dispute.EvidenceDueBy,
-                          dispute.FundsWithdrawnAt,
-                          dispute.FundsReinstatedAt,
-                          dispute.ClosedAt))
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<IReadOnlyList<DisputeRecordDto>> GetTeacherDisputesAsync(
-        string teacherId,
-        CancellationToken cancellationToken = default)
-    {
-        return await (from dispute in _context.DisputeRecords
-                      join attempt in _context.PaymentAttempts
-                        on dispute.PaymentAttemptId equals attempt.Id
-                      where dispute.TeacherId == teacherId
-                      orderby dispute.OpenedAt descending
-                      select new DisputeRecordDto(
-                          dispute.Id,
-                          attempt.CourseId,
-                          dispute.CourseTitle,
-                          dispute.Amount,
-                          dispute.TeacherNetDisputeAmount,
-                          dispute.Currency,
-                          dispute.Status.ToString(),
-                          dispute.Reason,
-                          dispute.OpenedAt,
-                          dispute.EvidenceDueBy,
-                          dispute.FundsWithdrawnAt,
-                          dispute.FundsReinstatedAt,
-                          dispute.ClosedAt))
             .ToListAsync(cancellationToken);
     }
 
@@ -495,21 +317,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             from attempt in _context.PaymentAttempts
             join purchase in _context.CoursePurchases on attempt.Id equals purchase.PaymentAttemptId into purchaseGroup
             from purchase in purchaseGroup.DefaultIfEmpty()
-            let refundedAmount = _context.RefundRecords
-                .Where(r => r.PaymentAttemptId == attempt.Id && r.Status == RefundRecordStatus.Succeeded)
-                .Select(r => (decimal?)r.Amount)
-                .Sum() ?? 0m
-            let pendingRefundAmount = _context.RefundRecords
-                .Where(r => r.PaymentAttemptId == attempt.Id && r.Status == RefundRecordStatus.Pending)
-                .Select(r => (decimal?)r.Amount)
-                .Sum() ?? 0m
-            select new
-            {
-                attempt,
-                purchase,
-                RefundedAmount = refundedAmount,
-                PendingRefundAmount = pendingRefundAmount,
-            };
+            select new { attempt, purchase };
 
         if (!string.IsNullOrWhiteSpace(normalizedSearch))
         {
@@ -528,31 +336,12 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        var attemptIds = pageItems.Select(x => x.attempt.Id).ToArray();
-        var disputes = await _context.DisputeRecords
-            .Where(x => attemptIds.Contains(x.PaymentAttemptId))
-            .OrderByDescending(x => x.OpenedAt)
-            .ToListAsync(cancellationToken);
-
-        var disputesByAttempt = disputes
-            .GroupBy(x => x.PaymentAttemptId)
-            .ToDictionary(x => x.Key, x => x.ToList());
-
         var items = new List<AdminPaymentRecordDto>(pageItems.Count);
         foreach (var item in pageItems)
         {
             var courseInfo = await _coursePaymentReadService.GetCoursePaymentInfoAsync(
                 item.attempt.CourseId,
                 cancellationToken);
-            disputesByAttempt.TryGetValue(item.attempt.Id, out var attemptDisputes);
-
-            var remainingRefundableAmount = Math.Max(
-                0m,
-                item.attempt.Amount - item.RefundedAmount - item.PendingRefundAmount);
-            var disputedAmount = attemptDisputes?
-                .Where(x => x.LedgerAppliedAt != null && x.LedgerRestoredAt == null)
-                .Sum(x => x.AppliedGrossAmount) ?? 0m;
-            var latestDisputeStatus = attemptDisputes?.FirstOrDefault()?.Status.ToString();
             var settlement = await _context.TeacherSettlements
                 .FirstOrDefaultAsync(x => x.PaymentAttemptId == item.attempt.Id, cancellationToken);
 
@@ -565,159 +354,16 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 item.attempt.TeacherId,
                 courseInfo?.TeacherName ?? item.attempt.TeacherId,
                 item.attempt.Amount,
-                item.RefundedAmount,
-                item.PendingRefundAmount,
-                disputedAmount,
-                remainingRefundableAmount,
                 settlement?.ProviderFeeAmount ?? 0m,
                 item.attempt.Currency,
                 item.attempt.Status.ToString(),
                 item.attempt.ProviderChargeId,
-                latestDisputeStatus,
                 item.purchase?.Status.ToString(),
                 item.attempt.CreatedAt,
                 item.attempt.CompletedAt));
         }
 
         return new PagedResult<AdminPaymentRecordDto>(items, totalCount, page, pageSize);
-    }
-
-    public async Task<RefundRecordDto> CreateAdminRefundAsync(
-        Guid paymentAttemptId,
-        decimal? amount,
-        string? reason,
-        string adminId,
-        CancellationToken cancellationToken = default)
-    {
-        EnsureProviderConfigured();
-
-        var attempt = await _context.PaymentAttempts
-            .FirstOrDefaultAsync(x => x.Id == paymentAttemptId, cancellationToken);
-        if (attempt == null)
-            throw new InvalidOperationException("Платёж не найден.");
-
-        if (string.IsNullOrWhiteSpace(attempt.ProviderPaymentIntentId))
-            throw new InvalidOperationException("Для этого платежа нет provider payment intent.");
-
-        if (attempt.Status is not PaymentAttemptStatus.Succeeded and not PaymentAttemptStatus.PartiallyRefunded)
-            throw new InvalidOperationException("Возврат можно оформить только для успешного платежа.");
-
-        var committedRefundAmount = await _context.RefundRecords
-            .Where(x => x.PaymentAttemptId == paymentAttemptId
-                     && x.Status != RefundRecordStatus.Failed
-                     && x.Status != RefundRecordStatus.Canceled)
-            .SumAsync(x => x.Amount, cancellationToken);
-
-        var remainingRefundableAmount = Math.Max(0m, attempt.Amount - committedRefundAmount);
-        if (remainingRefundableAmount <= 0)
-            throw new InvalidOperationException("У этого платежа больше нет доступной суммы для refund.");
-
-        var refundAmount = amount ?? remainingRefundableAmount;
-        if (refundAmount <= 0)
-            throw new InvalidOperationException("Сумма refund должна быть больше нуля.");
-        if (refundAmount > remainingRefundableAmount)
-            throw new InvalidOperationException("Сумма refund превышает доступный остаток платежа.");
-
-        var providerRefund = await _gateway.CreateRefundAsync(
-            new ProviderRefundRequest(
-                attempt.ProviderPaymentIntentId,
-                refundAmount,
-                attempt.Currency,
-                reason,
-                attempt.Id,
-                attempt.CourseId,
-                attempt.TeacherId,
-                attempt.StudentId,
-                adminId),
-            cancellationToken);
-
-        var purchase = await _context.CoursePurchases
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-        var settlement = await _context.TeacherSettlements
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-
-        var refund = await UpsertRefundRecordAsync(
-            attempt,
-            purchase,
-            settlement,
-            providerRefund.ProviderRefundId,
-            providerRefund.PaymentIntentId,
-            providerRefund.Amount,
-            providerRefund.Currency,
-            ResolveRefundStatus(providerRefund.Status),
-            providerRefund.Reason ?? reason,
-            providerRefund.FailureMessage,
-            adminId,
-            cancellationToken);
-
-        await _context.SaveChangesAsync(cancellationToken);
-        return MapRefundRecord(refund, attempt.CourseId);
-    }
-
-    public async Task<IReadOnlyList<AdminSubscriptionAllocationRunDto>> GetAdminSubscriptionAllocationRunsAsync(
-        int take = 20,
-        CancellationToken cancellationToken = default)
-    {
-        take = Math.Clamp(take, 1, 100);
-
-        var runs = await _context.SubscriptionAllocationRuns
-            .OrderByDescending(x => x.AllocatedAt)
-            .Take(take)
-            .ToListAsync(cancellationToken);
-
-        if (runs.Count == 0)
-            return [];
-
-        var runIds = runs.Select(x => x.Id).ToArray();
-        var lines = await _context.SubscriptionAllocationLines
-            .Where(x => runIds.Contains(x.SubscriptionAllocationRunId))
-            .OrderByDescending(x => x.NetAmount)
-            .ThenBy(x => x.TeacherName)
-            .ToListAsync(cancellationToken);
-
-        var linesByRun = lines
-            .GroupBy(x => x.SubscriptionAllocationRunId)
-            .ToDictionary(
-                x => x.Key,
-                x => (IReadOnlyList<AdminSubscriptionAllocationLineDto>)x
-                    .Select(line => new AdminSubscriptionAllocationLineDto(
-                        line.Id,
-                        line.TeacherId,
-                        line.TeacherName,
-                        line.CourseId,
-                        line.CourseTitle,
-                        line.AllocationWeight,
-                        line.ProgressPercent,
-                        line.CompletedLessons,
-                        line.TotalLessons,
-                        line.GrossAmount,
-                        line.PlatformCommissionAmount,
-                        line.ProviderFeeAmount,
-                        line.NetAmount,
-                        line.Currency))
-                    .ToList());
-
-        return runs
-            .Select(run => new AdminSubscriptionAllocationRunDto(
-                run.Id,
-                run.SubscriptionInvoiceId,
-                run.UserId,
-                run.SubscriptionPlanId,
-                run.PlanName,
-                run.GrossAmount,
-                run.PlatformCommissionAmount,
-                run.ProviderFeeAmount,
-                run.NetAmount,
-                run.Currency,
-                run.Strategy,
-                run.Status.ToString(),
-                run.TeacherCount,
-                run.CourseCount,
-                run.PeriodStart,
-                run.PeriodEnd,
-                run.AllocatedAt,
-                linesByRun.TryGetValue(run.Id, out var runLines) ? runLines : []))
-            .ToList();
     }
 
     public async Task<IReadOnlyList<PayoutRecordDto>> GetTeacherPayoutRecordsAsync(
@@ -732,7 +378,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 x.Amount,
                 x.Currency,
                 x.SettlementsCount,
-                x.AllocationLinesCount,
                 x.Status.ToString(),
                 x.ProviderTransferId,
                 x.RequestedAt,
@@ -749,7 +394,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
     {
         EnsureProviderConfigured();
         await RefreshTeacherSettlementsAsync(teacherId, cancellationToken);
-        var now = DateTime.UtcNow;
 
         var payoutAccount = await _context.TeacherPayoutAccounts
             .FirstOrDefaultAsync(x => x.TeacherId == teacherId, cancellationToken);
@@ -771,33 +415,19 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             .Where(x => GetRemainingNetAmount(x) > 0)
             .ToList();
 
-        var payableAllocationLines = await (from line in _context.SubscriptionAllocationLines
-                                            join run in _context.SubscriptionAllocationRuns
-                                              on line.SubscriptionAllocationRunId equals run.Id
-                                            where line.TeacherId == teacherId
-                                               && run.Status == SubscriptionAllocationRunStatus.Applied
-                                               && line.PayoutRecordId == null
-                                               && line.AvailableAt <= now
-                                               && line.NetAmount > 0
-                                            orderby line.AvailableAt, line.AllocatedAt
-                                            select line)
-            .ToListAsync(cancellationToken);
-
-        if (payableSettlements.Count == 0 && payableAllocationLines.Count == 0)
+        if (payableSettlements.Count == 0)
             throw new InvalidOperationException("Нет начислений, готовых к выплате.");
 
-        var payoutCurrency = payableSettlements.FirstOrDefault()?.Currency
-            ?? payableAllocationLines.First().Currency;
+        var payoutCurrency = payableSettlements[0].Currency;
 
         var payoutRecord = new PayoutRecord
         {
             TeacherId = teacherId,
             Provider = _paymentsOptions.Provider,
             ProviderAccountId = payoutAccount.ProviderAccountId,
-            Amount = payableSettlements.Sum(GetRemainingNetAmount) + payableAllocationLines.Sum(x => x.NetAmount),
+            Amount = payableSettlements.Sum(GetRemainingNetAmount),
             Currency = payoutCurrency,
             SettlementsCount = payableSettlements.Count,
-            AllocationLinesCount = payableAllocationLines.Count,
             Status = PayoutRecordStatus.Queued,
             RequestedAt = DateTime.UtcNow,
         };
@@ -811,7 +441,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                     payoutAccount.ProviderAccountId,
                     payoutRecord.Amount,
                     payoutRecord.Currency,
-                    payoutRecord.SettlementsCount + payoutRecord.AllocationLinesCount),
+                    payoutRecord.SettlementsCount),
                 cancellationToken);
 
             payoutRecord.ProviderTransferId = providerTransfer.ProviderTransferId;
@@ -837,9 +467,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             settlement.Status = TeacherSettlementStatus.InPayout;
         }
 
-        foreach (var allocationLine in payableAllocationLines)
-            allocationLine.PayoutRecordId = payoutRecord.Id;
-
         if (IsLocalProvider())
         {
             payoutRecord.Status = PayoutRecordStatus.Paid;
@@ -852,8 +479,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 settlement.PaidOutAt ??= payoutRecord.PaidAt;
             }
 
-            foreach (var allocationLine in payableAllocationLines)
-                allocationLine.PaidOutAt ??= payoutRecord.PaidAt;
         }
 
         await _context.SaveChangesAsync(cancellationToken);
@@ -1312,11 +937,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             case "transfer.reversed":
                 await HandleTransferReversedAsync(webhook, cancellationToken);
                 break;
-            case "refund.created":
-            case "refund.updated":
-            case "refund.failed":
-                await HandleRefundEventAsync(webhook, cancellationToken);
-                break;
             case "customer.subscription.created":
             case "customer.subscription.updated":
             case "customer.subscription.deleted":
@@ -1324,9 +944,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 break;
             case var _ when webhook.EventType.StartsWith("invoice.", StringComparison.OrdinalIgnoreCase):
                 await HandleSubscriptionInvoiceWebhookAsync(webhook, cancellationToken);
-                break;
-            case var _ when webhook.EventType.StartsWith("charge.dispute.", StringComparison.OrdinalIgnoreCase):
-                await HandleDisputeEventAsync(webhook, cancellationToken);
                 break;
         }
 
@@ -1522,8 +1139,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             EventType: "checkout.session.completed",
             ProviderAccountId: null,
             ProviderTransferId: null,
-            ProviderRefundId: null,
-            ProviderDisputeId: null,
             ProviderInvoiceId: null,
             SessionId: providerSessionId,
             ProviderSubscriptionId: null,
@@ -1534,11 +1149,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             InvoiceBillingReason: null,
             PaymentStatus: "paid",
             FailureMessage: null,
-            RefundStatus: null,
-            RefundReason: null,
-            DisputeStatus: null,
-            DisputeReason: null,
-            DisputeEvidenceDueBy: null,
             CurrentPeriodStart: null,
             CurrentPeriodEnd: null,
             CancelAtPeriodEnd: null,
@@ -1706,6 +1316,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         subscription.CurrentPeriodEnd = webhook.CurrentPeriodEnd;
         subscription.CancelAtPeriodEnd = webhook.CancelAtPeriodEnd ?? false;
         subscription.CanceledAt = webhook.SubscriptionCanceledAt;
+        subscription.PastDueSinceUtc = subscription.Status is UserSubscriptionStatus.PastDue or UserSubscriptionStatus.Unpaid
+            ? subscription.PastDueSinceUtc ?? DateTime.UtcNow
+            : null;
         subscription.StartedAt = subscription.StartedAt == default
             ? (webhook.CurrentPeriodStart ?? DateTime.UtcNow)
             : subscription.StartedAt;
@@ -1851,6 +1464,7 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             if (subscription.Status != UserSubscriptionStatus.Canceled)
             {
                 subscription.Status = UserSubscriptionStatus.Active;
+                subscription.PastDueSinceUtc = null;
                 subscription.EndedAt = null;
             }
         }
@@ -1861,6 +1475,8 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 subscription.Status = subscription.Status is UserSubscriptionStatus.PendingActivation or UserSubscriptionStatus.Incomplete
                     ? UserSubscriptionStatus.Incomplete
                     : UserSubscriptionStatus.PastDue;
+                if (subscription.Status == UserSubscriptionStatus.PastDue)
+                    subscription.PastDueSinceUtc ??= DateTime.UtcNow;
             }
         }
 
@@ -1896,12 +1512,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             }
         }
 
-        if (invoiceStatus == SubscriptionInvoiceStatus.Paid)
-            await EnsureSubscriptionAllocationRunAsync(invoice, subscription, plan, cancellationToken);
-        else if (invoiceStatus is SubscriptionInvoiceStatus.Failed
-                 or SubscriptionInvoiceStatus.Void
-                 or SubscriptionInvoiceStatus.Uncollectible)
-            await ReverseSubscriptionAllocationRunAsync(invoice.Id, cancellationToken);
     }
 
     private async Task HandleCheckoutExpiredAsync(StripeWebhookEvent webhook, CancellationToken cancellationToken)
@@ -1938,84 +1548,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         attempt.FailureMessage = webhook.FailureMessage ?? "Платёж не был завершён.";
     }
 
-    private async Task HandleRefundEventAsync(StripeWebhookEvent webhook, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(webhook.ProviderRefundId)
-            || string.IsNullOrWhiteSpace(webhook.PaymentIntentId)
-            || !webhook.AmountMinor.HasValue)
-        {
-            return;
-        }
-
-        var attempt = await _context.PaymentAttempts
-            .FirstOrDefaultAsync(x => x.ProviderPaymentIntentId == webhook.PaymentIntentId, cancellationToken);
-        if (attempt == null)
-            return;
-
-        var purchase = await _context.CoursePurchases
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-        var settlement = await _context.TeacherSettlements
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-        var adminId = webhook.Metadata.TryGetValue("adminId", out var requestedByAdminId)
-            ? requestedByAdminId
-            : null;
-
-        await UpsertRefundRecordAsync(
-            attempt,
-            purchase,
-            settlement,
-            webhook.ProviderRefundId,
-            webhook.PaymentIntentId,
-            FromMinorUnits(webhook.AmountMinor.Value),
-            webhook.Currency ?? attempt.Currency,
-            ResolveRefundStatus(webhook),
-            webhook.RefundReason,
-            webhook.FailureMessage,
-            adminId,
-            cancellationToken);
-    }
-
-    private async Task HandleDisputeEventAsync(StripeWebhookEvent webhook, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(webhook.ProviderDisputeId)
-            || string.IsNullOrWhiteSpace(webhook.PaymentIntentId)
-            || !webhook.AmountMinor.HasValue)
-        {
-            return;
-        }
-
-        var attempt = await _context.PaymentAttempts
-            .FirstOrDefaultAsync(x => x.ProviderPaymentIntentId == webhook.PaymentIntentId, cancellationToken);
-        if (attempt == null)
-            return;
-
-        var purchase = await _context.CoursePurchases
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-        var settlement = await _context.TeacherSettlements
-            .FirstOrDefaultAsync(x => x.PaymentAttemptId == attempt.Id, cancellationToken);
-
-        var dispute = await UpsertDisputeRecordAsync(
-            attempt,
-            purchase,
-            settlement,
-            webhook.ProviderDisputeId,
-            webhook.PaymentIntentId,
-            FromMinorUnits(webhook.AmountMinor.Value),
-            webhook.Currency ?? attempt.Currency,
-            ResolveDisputeStatus(webhook),
-            webhook.DisputeReason,
-            webhook.DisputeEvidenceDueBy,
-            cancellationToken);
-
-        if (ShouldApplyDisputeLedger(webhook, dispute))
-            await ApplyDisputeToLedgerAsync(dispute, attempt, purchase, settlement, cancellationToken);
-
-        if (ShouldRestoreDisputeLedger(webhook, dispute))
-            await RestoreDisputeLedgerAsync(dispute, attempt, purchase, settlement, cancellationToken);
-
-        await ReconcileAttemptAndPurchaseStatusAsync(attempt, purchase, cancellationToken);
-    }
-
     private async Task HandleTransferCreatedAsync(StripeWebhookEvent webhook, CancellationToken cancellationToken)
     {
         var payoutRecord = await FindPayoutRecordForTransferAsync(webhook, cancellationToken);
@@ -2031,15 +1563,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         var settlements = await _context.TeacherSettlements
             .Where(x => x.PayoutRecordId == payoutRecord.Id)
             .ToListAsync(cancellationToken);
-        var allocationLines = await _context.SubscriptionAllocationLines
-            .Where(x => x.PayoutRecordId == payoutRecord.Id)
-            .ToListAsync(cancellationToken);
 
         foreach (var settlement in settlements)
             await RecalculateSettlementStatusAsync(settlement, cancellationToken);
-
-        foreach (var allocationLine in allocationLines)
-            allocationLine.PaidOutAt ??= payoutRecord.PaidAt;
     }
 
     private async Task HandleTransferReversedAsync(StripeWebhookEvent webhook, CancellationToken cancellationToken)
@@ -2054,226 +1580,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         var settlements = await _context.TeacherSettlements
             .Where(x => x.PayoutRecordId == payoutRecord.Id)
             .ToListAsync(cancellationToken);
-        var allocationLines = await _context.SubscriptionAllocationLines
-            .Where(x => x.PayoutRecordId == payoutRecord.Id)
-            .ToListAsync(cancellationToken);
 
         foreach (var settlement in settlements)
             await RecalculateSettlementStatusAsync(settlement, cancellationToken);
-
-        foreach (var allocationLine in allocationLines)
-        {
-            allocationLine.PayoutRecordId = null;
-            allocationLine.PaidOutAt = null;
-        }
-    }
-
-    private async Task ApplyRefundToLedgerAsync(
-        RefundRecord refund,
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        TeacherSettlement? settlement,
-        CancellationToken cancellationToken)
-    {
-        if (settlement != null)
-        {
-            var remainingGross = GetRemainingGrossAmount(settlement);
-            var refundableGross = Math.Min(refund.Amount, remainingGross);
-
-            if (refundableGross > 0)
-            {
-                var remainingNet = GetRemainingNetAmount(settlement);
-                var teacherNetRefund = CalculateProportionalNetAmount(remainingGross, remainingNet, refundableGross);
-
-                settlement.RefundedGrossAmount += refundableGross;
-                settlement.RefundedNetAmount += teacherNetRefund;
-                refund.TeacherNetRefundAmount = teacherNetRefund;
-
-                await AdjustPendingPayoutAsync(settlement, teacherNetRefund, cancellationToken);
-                await RecalculateSettlementStatusAsync(settlement, cancellationToken);
-            }
-        }
-
-        await ReconcileAttemptAndPurchaseStatusAsync(attempt, purchase, cancellationToken);
-        refund.LedgerAppliedAt = DateTime.UtcNow;
-    }
-
-    private async Task ApplyDisputeToLedgerAsync(
-        DisputeRecord dispute,
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        TeacherSettlement? settlement,
-        CancellationToken cancellationToken)
-    {
-        if (dispute.LedgerAppliedAt != null)
-            return;
-
-        if (settlement != null)
-        {
-            var remainingGross = GetRemainingGrossAmount(settlement);
-            var disputableGross = Math.Min(dispute.Amount, remainingGross);
-            if (disputableGross > 0)
-            {
-                var remainingNet = GetRemainingNetAmount(settlement);
-                var teacherNetDispute = CalculateProportionalNetAmount(remainingGross, remainingNet, disputableGross);
-
-                settlement.DisputedGrossAmount += disputableGross;
-                settlement.DisputedNetAmount += teacherNetDispute;
-                dispute.AppliedGrossAmount = disputableGross;
-                dispute.TeacherNetDisputeAmount = teacherNetDispute;
-                dispute.FundsWithdrawnAt ??= DateTime.UtcNow;
-
-                await AdjustPendingPayoutAsync(settlement, teacherNetDispute, cancellationToken);
-                await RecalculateSettlementStatusAsync(settlement, cancellationToken);
-
-                if (dispute.Status == DisputeRecordStatus.Lost && GetRemainingNetAmount(settlement) <= 0 && purchase != null)
-                {
-                    var revokeResult = await _courseAccessRevocationService.RevokeAccessAsync(
-                        purchase.CourseId,
-                        purchase.StudentId,
-                        cancellationToken);
-
-                    if (revokeResult.IsFailure)
-                        throw new InvalidOperationException(revokeResult.Error);
-                }
-            }
-        }
-
-        dispute.LedgerAppliedAt = DateTime.UtcNow;
-    }
-
-    private async Task RestoreDisputeLedgerAsync(
-        DisputeRecord dispute,
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        TeacherSettlement? settlement,
-        CancellationToken cancellationToken)
-    {
-        if (dispute.LedgerAppliedAt == null || dispute.LedgerRestoredAt != null)
-            return;
-
-        if (settlement != null)
-        {
-            settlement.DisputedGrossAmount = Math.Max(0m, settlement.DisputedGrossAmount - dispute.AppliedGrossAmount);
-            settlement.DisputedNetAmount = Math.Max(0m, settlement.DisputedNetAmount - dispute.TeacherNetDisputeAmount);
-            dispute.FundsReinstatedAt ??= DateTime.UtcNow;
-
-            await AdjustPendingPayoutAsync(settlement, -dispute.TeacherNetDisputeAmount, cancellationToken);
-            await RecalculateSettlementStatusAsync(settlement, cancellationToken);
-        }
-
-        dispute.LedgerRestoredAt = DateTime.UtcNow;
-        await ReconcileAttemptAndPurchaseStatusAsync(attempt, purchase, cancellationToken);
-    }
-
-    private async Task<RefundRecord> UpsertRefundRecordAsync(
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        TeacherSettlement? settlement,
-        string providerRefundId,
-        string providerPaymentIntentId,
-        decimal amount,
-        string currency,
-        RefundRecordStatus status,
-        string? reason,
-        string? failureMessage,
-        string? requestedByAdminId,
-        CancellationToken cancellationToken)
-    {
-        var refund = await _context.RefundRecords
-            .FirstOrDefaultAsync(x => x.ProviderRefundId == providerRefundId, cancellationToken);
-
-        if (refund == null)
-        {
-            refund = new RefundRecord
-            {
-                PaymentAttemptId = attempt.Id,
-                StudentId = attempt.StudentId,
-                TeacherId = attempt.TeacherId,
-                CourseTitle = attempt.CourseTitle,
-                Provider = _paymentsOptions.Provider,
-                ProviderRefundId = providerRefundId,
-                RequestedAt = DateTime.UtcNow,
-            };
-            _context.RefundRecords.Add(refund);
-        }
-
-        refund.CoursePurchaseId = purchase?.Id;
-        refund.TeacherSettlementId = settlement?.Id;
-        refund.PayoutRecordId = settlement?.PayoutRecordId;
-        refund.RequestedByAdminId ??= requestedByAdminId;
-        refund.ProviderPaymentIntentId = providerPaymentIntentId;
-        refund.Amount = amount;
-        refund.Currency = currency;
-        refund.Reason = reason;
-        refund.FailureMessage = failureMessage;
-        refund.Status = status;
-        refund.ProcessedAt = status == RefundRecordStatus.Pending ? null : DateTime.UtcNow;
-
-        if (refund.Status == RefundRecordStatus.Succeeded && refund.LedgerAppliedAt == null)
-        {
-            await ApplyRefundToLedgerAsync(refund, attempt, purchase, settlement, cancellationToken);
-        }
-
-        return refund;
-    }
-
-    private async Task<DisputeRecord> UpsertDisputeRecordAsync(
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        TeacherSettlement? settlement,
-        string providerDisputeId,
-        string providerPaymentIntentId,
-        decimal amount,
-        string currency,
-        DisputeRecordStatus status,
-        string? reason,
-        DateTime? evidenceDueBy,
-        CancellationToken cancellationToken)
-    {
-        var dispute = await _context.DisputeRecords
-            .FirstOrDefaultAsync(x => x.ProviderDisputeId == providerDisputeId, cancellationToken);
-
-        if (dispute == null)
-        {
-            dispute = new DisputeRecord
-            {
-                PaymentAttemptId = attempt.Id,
-                StudentId = attempt.StudentId,
-                TeacherId = attempt.TeacherId,
-                CourseTitle = attempt.CourseTitle,
-                Provider = _paymentsOptions.Provider,
-                ProviderDisputeId = providerDisputeId,
-                OpenedAt = DateTime.UtcNow,
-            };
-            _context.DisputeRecords.Add(dispute);
-        }
-
-        dispute.CoursePurchaseId = purchase?.Id;
-        dispute.TeacherSettlementId = settlement?.Id;
-        dispute.PayoutRecordId = settlement?.PayoutRecordId;
-        dispute.ProviderPaymentIntentId = providerPaymentIntentId;
-        dispute.Amount = amount;
-        dispute.Currency = currency;
-        dispute.Status = status;
-        dispute.Reason = reason;
-        dispute.EvidenceDueBy = evidenceDueBy;
-
-        if (status is DisputeRecordStatus.Won or DisputeRecordStatus.Lost or DisputeRecordStatus.WarningClosed or DisputeRecordStatus.Prevented)
-            dispute.ClosedAt ??= DateTime.UtcNow;
-
-        return dispute;
-    }
-
-    private async Task AdjustPendingPayoutAsync(
-        TeacherSettlement settlement,
-        decimal netAmountDelta,
-        CancellationToken cancellationToken)
-    {
-        if (settlement.PayoutRecordId == null || netAmountDelta == 0)
-            return;
-
-        await RefreshPendingPayoutRecordAsync(settlement.PayoutRecordId.Value, cancellationToken);
     }
 
     private async Task<PayoutRecord?> FindPayoutRecordForTransferAsync(
@@ -2302,56 +1611,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         }
 
         return payoutRecord;
-    }
-
-    private async Task ReconcileAttemptAndPurchaseStatusAsync(
-        PaymentAttempt attempt,
-        CoursePurchase? purchase,
-        CancellationToken cancellationToken)
-    {
-        var totalRefunded = await _context.RefundRecords
-            .Where(x => x.PaymentAttemptId == attempt.Id && x.Status == RefundRecordStatus.Succeeded)
-            .SumAsync(x => x.Amount, cancellationToken);
-        var disputeStatuses = await _context.DisputeRecords
-            .Where(x => x.PaymentAttemptId == attempt.Id)
-            .Select(x => x.Status)
-            .ToListAsync(cancellationToken);
-
-        var isFullyRefunded = totalRefunded >= attempt.Amount;
-        var hasOpenDispute = disputeStatuses.Any(IsOpenDisputeStatus);
-
-        if (hasOpenDispute)
-        {
-            attempt.Status = PaymentAttemptStatus.Disputed;
-            attempt.FailureMessage = "По платежу открыт спор / chargeback.";
-        }
-        else if (isFullyRefunded)
-        {
-            attempt.Status = PaymentAttemptStatus.Refunded;
-            attempt.FailureMessage = "Оплата полностью возвращена.";
-        }
-        else if (totalRefunded > 0)
-        {
-            attempt.Status = PaymentAttemptStatus.PartiallyRefunded;
-            attempt.FailureMessage = "Оплата частично возвращена.";
-        }
-        else if (attempt.CompletedAt.HasValue)
-        {
-            attempt.Status = PaymentAttemptStatus.Succeeded;
-            attempt.FailureMessage = null;
-        }
-
-        if (purchase != null)
-        {
-            purchase.Status = hasOpenDispute
-                ? CoursePurchaseStatus.Disputed
-                : isFullyRefunded
-                    ? CoursePurchaseStatus.Refunded
-                    : totalRefunded > 0
-                        ? CoursePurchaseStatus.PartiallyRefunded
-                        : CoursePurchaseStatus.Active;
-            await SyncCourseAccessForPurchaseAsync(attempt, purchase, cancellationToken);
-        }
     }
 
     private async Task RecalculateSettlementStatusAsync(
@@ -2405,37 +1664,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         settlement.Status = settlement.AvailableAt <= DateTime.UtcNow
             ? TeacherSettlementStatus.ReadyForPayout
             : TeacherSettlementStatus.PendingHold;
-    }
-
-    private async Task SyncCourseAccessForPurchaseAsync(
-        PaymentAttempt attempt,
-        CoursePurchase purchase,
-        CancellationToken cancellationToken)
-    {
-        if (purchase.Status is CoursePurchaseStatus.Active or CoursePurchaseStatus.PartiallyRefunded)
-        {
-            var grantResult = await _courseAccessProvisioningService.GrantAccessAsync(
-                purchase.CourseId,
-                purchase.StudentId,
-                attempt.StudentName,
-                cancellationToken);
-
-            if (grantResult.IsFailure)
-                throw new InvalidOperationException(grantResult.Error);
-
-            return;
-        }
-
-        if (purchase.Status is CoursePurchaseStatus.Refunded or CoursePurchaseStatus.Revoked)
-        {
-            var revokeResult = await _courseAccessRevocationService.RevokeAccessAsync(
-                purchase.CourseId,
-                purchase.StudentId,
-                cancellationToken);
-
-            if (revokeResult.IsFailure)
-                throw new InvalidOperationException(revokeResult.Error);
-        }
     }
 
     private async Task UpsertPaymentMethodAsync(
@@ -2542,200 +1770,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             activeMethod.IsDefault = activeMethod.Id == defaultMethodId;
     }
 
-    private async Task EnsureSubscriptionAllocationRunAsync(
-        SubscriptionInvoice invoice,
-        UserSubscription subscription,
-        SubscriptionPlan plan,
-        CancellationToken cancellationToken)
-    {
-        if (invoice.AmountPaid <= 0)
-            return;
-
-        var existingRun = await _context.SubscriptionAllocationRuns
-            .AnyAsync(x => x.SubscriptionInvoiceId == invoice.Id, cancellationToken);
-        if (existingRun)
-            return;
-
-        var candidates = await _subscriptionAllocationReadService.GetAllocationCandidatesAsync(
-            invoice.UserId,
-            invoice.PeriodStart,
-            invoice.PeriodEnd,
-            cancellationToken);
-
-        var grossAmount = invoice.AmountPaid;
-        var providerFeeAmount = 0m;
-        var platformCommissionAmount = CalculatePlatformCommissionAmount(grossAmount);
-        var netAmount = Math.Max(0m, grossAmount - providerFeeAmount - platformCommissionAmount);
-
-        var run = new SubscriptionAllocationRun
-        {
-            SubscriptionInvoiceId = invoice.Id,
-            UserSubscriptionId = invoice.UserSubscriptionId ?? subscription.Id,
-            SubscriptionPlanId = plan.Id,
-            UserId = invoice.UserId,
-            PlanName = plan.Name,
-            GrossAmount = grossAmount,
-            PlatformCommissionAmount = platformCommissionAmount,
-            ProviderFeeAmount = providerFeeAmount,
-            NetAmount = netAmount,
-            Currency = invoice.Currency,
-            Strategy = "ProgressWeightedActiveEnrollmentsV1",
-            Status = candidates.Count == 0
-                ? SubscriptionAllocationRunStatus.Skipped
-                : SubscriptionAllocationRunStatus.Applied,
-            TeacherCount = candidates.Select(x => x.TeacherId).Distinct(StringComparer.Ordinal).Count(),
-            CourseCount = candidates.Count,
-            PeriodStart = invoice.PeriodStart,
-            PeriodEnd = invoice.PeriodEnd,
-            AllocatedAt = invoice.PaidAt ?? DateTime.UtcNow,
-        };
-
-        _context.SubscriptionAllocationRuns.Add(run);
-
-        if (candidates.Count == 0 || netAmount <= 0)
-            return;
-
-        var weights = BuildSubscriptionAllocationWeights(candidates);
-        var distributedGross = DistributeAmountByWeights(grossAmount, weights);
-        var distributedPlatformCommission = DistributeAmountByWeights(platformCommissionAmount, weights);
-        var distributedProviderFee = DistributeAmountByWeights(providerFeeAmount, weights);
-
-        for (var i = 0; i < candidates.Count; i++)
-        {
-            var candidate = candidates[i];
-            var lineGrossAmount = distributedGross[i];
-            var linePlatformCommissionAmount = distributedPlatformCommission[i];
-            var lineProviderFeeAmount = distributedProviderFee[i];
-            var lineNetAmount = Math.Max(
-                0m,
-                lineGrossAmount - linePlatformCommissionAmount - lineProviderFeeAmount);
-
-            _context.SubscriptionAllocationLines.Add(new SubscriptionAllocationLine
-            {
-                SubscriptionAllocationRunId = run.Id,
-                SubscriptionInvoiceId = invoice.Id,
-                SubscriptionPlanId = plan.Id,
-                UserId = invoice.UserId,
-                TeacherId = candidate.TeacherId,
-                TeacherName = candidate.TeacherName,
-                CourseId = candidate.CourseId,
-                CourseTitle = candidate.CourseTitle,
-                AllocationWeight = weights[i],
-                ProgressPercent = candidate.ProgressPercent,
-                TotalLessons = candidate.TotalLessons,
-                CompletedLessons = candidate.CompletedLessons,
-                GrossAmount = lineGrossAmount,
-                PlatformCommissionAmount = linePlatformCommissionAmount,
-                ProviderFeeAmount = lineProviderFeeAmount,
-                NetAmount = lineNetAmount,
-                Currency = invoice.Currency,
-                AvailableAt = run.AllocatedAt.AddDays(GetSettlementHoldDays()),
-                AllocatedAt = run.AllocatedAt,
-            });
-        }
-    }
-
-    private async Task ReverseSubscriptionAllocationRunAsync(
-        Guid subscriptionInvoiceId,
-        CancellationToken cancellationToken)
-    {
-        var run = await _context.SubscriptionAllocationRuns
-            .FirstOrDefaultAsync(x => x.SubscriptionInvoiceId == subscriptionInvoiceId, cancellationToken);
-        if (run == null || run.Status != SubscriptionAllocationRunStatus.Applied)
-            return;
-
-        run.Status = SubscriptionAllocationRunStatus.Reversed;
-
-        var lines = await _context.SubscriptionAllocationLines
-            .Where(x => x.SubscriptionAllocationRunId == run.Id)
-            .ToListAsync(cancellationToken);
-        if (lines.Count == 0)
-            return;
-
-        var payoutIds = lines
-            .Where(x => x.PayoutRecordId.HasValue)
-            .Select(x => x.PayoutRecordId!.Value)
-            .Distinct()
-            .ToList();
-        var payoutIdsToRefresh = new HashSet<Guid>();
-
-        var payouts = payoutIds.Count == 0
-            ? new Dictionary<Guid, PayoutRecord>()
-            : await _context.PayoutRecords
-                .Where(x => payoutIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id, cancellationToken);
-
-        foreach (var line in lines)
-        {
-            if (!line.PayoutRecordId.HasValue)
-                continue;
-
-            if (!payouts.TryGetValue(line.PayoutRecordId.Value, out var payoutRecord))
-            {
-                line.PayoutRecordId = null;
-                line.PaidOutAt = null;
-                continue;
-            }
-
-            if (payoutRecord.Status is PayoutRecordStatus.Queued
-                or PayoutRecordStatus.SubmittedToProvider
-                or PayoutRecordStatus.Canceled
-                or PayoutRecordStatus.Failed
-                or PayoutRecordStatus.Reversed)
-            {
-                if (payoutRecord.Status is PayoutRecordStatus.Queued or PayoutRecordStatus.SubmittedToProvider)
-                    payoutIdsToRefresh.Add(payoutRecord.Id);
-
-                line.PayoutRecordId = null;
-                line.PaidOutAt = null;
-            }
-        }
-
-        foreach (var payoutId in payoutIdsToRefresh)
-            await RefreshPendingPayoutRecordAsync(payoutId, cancellationToken);
-    }
-
-    private static decimal[] BuildSubscriptionAllocationWeights(
-        IReadOnlyList<SubscriptionAllocationCandidate> candidates)
-    {
-        if (candidates.Count == 0)
-            return [];
-
-        var progressWeightSum = candidates.Sum(x => x.ProgressPercent > 0 ? x.ProgressPercent : 0m);
-        if (progressWeightSum > 0)
-        {
-            return candidates
-                .Select(x => Math.Round(x.ProgressPercent / progressWeightSum, 6, MidpointRounding.AwayFromZero))
-                .ToArray();
-        }
-
-        var equalWeight = Math.Round(1m / candidates.Count, 6, MidpointRounding.AwayFromZero);
-        var weights = Enumerable.Repeat(equalWeight, candidates.Count).ToArray();
-        weights[^1] = Math.Max(
-            0m,
-            Math.Round(1m - weights.Take(candidates.Count - 1).Sum(), 6, MidpointRounding.AwayFromZero));
-        return weights;
-    }
-
-    private static decimal[] DistributeAmountByWeights(decimal totalAmount, IReadOnlyList<decimal> weights)
-    {
-        if (weights.Count == 0)
-            return [];
-
-        var distributed = new decimal[weights.Count];
-        var allocated = 0m;
-
-        for (var i = 0; i < weights.Count; i++)
-        {
-            distributed[i] = i == weights.Count - 1
-                ? Math.Max(0m, Math.Round(totalAmount - allocated, 2, MidpointRounding.AwayFromZero))
-                : Math.Round(totalAmount * weights[i], 2, MidpointRounding.AwayFromZero);
-            allocated += distributed[i];
-        }
-
-        return distributed;
-    }
-
     private async Task EnsureTeacherSettlementExistsAsync(
         PaymentAttempt attempt,
         CoursePurchase purchase,
@@ -2803,103 +1837,9 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
         return Math.Round(rawAmount, 2, MidpointRounding.AwayFromZero);
     }
 
-    private static RefundRecordStatus ResolveRefundStatus(StripeWebhookEvent webhook)
-    {
-        if (string.Equals(webhook.EventType, "refund.failed", StringComparison.OrdinalIgnoreCase))
-            return RefundRecordStatus.Failed;
-
-        return webhook.RefundStatus?.ToLowerInvariant() switch
-        {
-            "succeeded" => RefundRecordStatus.Succeeded,
-            "failed" => RefundRecordStatus.Failed,
-            "canceled" => RefundRecordStatus.Canceled,
-            _ => RefundRecordStatus.Pending,
-        };
-    }
-
-    private static RefundRecordStatus ResolveRefundStatus(string? providerStatus)
-    {
-        return providerStatus?.ToLowerInvariant() switch
-        {
-            "succeeded" => RefundRecordStatus.Succeeded,
-            "failed" => RefundRecordStatus.Failed,
-            "canceled" => RefundRecordStatus.Canceled,
-            _ => RefundRecordStatus.Pending,
-        };
-    }
-
-    private static DisputeRecordStatus ResolveDisputeStatus(StripeWebhookEvent webhook)
-    {
-        return ResolveDisputeStatus(webhook.DisputeStatus ?? webhook.EventType);
-    }
-
-    private static DisputeRecordStatus ResolveDisputeStatus(string? providerStatus)
-    {
-        return providerStatus?.ToLowerInvariant() switch
-        {
-            "needs_response" or "charge.dispute.created" => DisputeRecordStatus.NeedsResponse,
-            "under_review" or "charge.dispute.updated" => DisputeRecordStatus.UnderReview,
-            "won" or "charge.dispute.funds_reinstated" => DisputeRecordStatus.Won,
-            "lost" or "charge.dispute.funds_withdrawn" => DisputeRecordStatus.Lost,
-            "warning_needs_response" or "charge.dispute.warning_needs_response" => DisputeRecordStatus.WarningNeedsResponse,
-            "warning_under_review" or "charge.dispute.warning_under_review" => DisputeRecordStatus.WarningUnderReview,
-            "warning_closed" or "charge.dispute.warning_closed" => DisputeRecordStatus.WarningClosed,
-            "prevented" or "charge.dispute.closed" => DisputeRecordStatus.Prevented,
-            _ => DisputeRecordStatus.UnderReview,
-        };
-    }
-
-    private static bool ShouldApplyDisputeLedger(StripeWebhookEvent webhook, DisputeRecord dispute)
-    {
-        return dispute.LedgerAppliedAt == null
-            && (string.Equals(webhook.EventType, "charge.dispute.funds_withdrawn", StringComparison.OrdinalIgnoreCase)
-                || dispute.Status == DisputeRecordStatus.Lost);
-    }
-
-    private static bool ShouldRestoreDisputeLedger(StripeWebhookEvent webhook, DisputeRecord dispute)
-    {
-        return dispute.LedgerAppliedAt != null
-            && dispute.LedgerRestoredAt == null
-            && (string.Equals(webhook.EventType, "charge.dispute.funds_reinstated", StringComparison.OrdinalIgnoreCase)
-                || dispute.Status is DisputeRecordStatus.Won or DisputeRecordStatus.WarningClosed or DisputeRecordStatus.Prevented);
-    }
-
-    private static bool IsOpenDisputeStatus(DisputeRecordStatus status)
-    {
-        return status is DisputeRecordStatus.NeedsResponse
-            or DisputeRecordStatus.UnderReview
-            or DisputeRecordStatus.Lost
-            or DisputeRecordStatus.WarningNeedsResponse
-            or DisputeRecordStatus.WarningUnderReview;
-    }
-
-    private static decimal GetRemainingGrossAmount(TeacherSettlement settlement)
-    {
-        return Math.Max(0m, settlement.GrossAmount - settlement.RefundedGrossAmount - settlement.DisputedGrossAmount);
-    }
-
     private static decimal GetRemainingNetAmount(TeacherSettlement settlement)
     {
-        return Math.Max(0m, settlement.NetAmount - settlement.RefundedNetAmount - settlement.DisputedNetAmount);
-    }
-
-    private static decimal CalculateProportionalNetAmount(
-        decimal remainingGross,
-        decimal remainingNet,
-        decimal appliedGross)
-    {
-        if (remainingGross <= 0 || remainingNet <= 0 || appliedGross <= 0)
-            return 0m;
-
-        if (appliedGross >= remainingGross)
-            return remainingNet;
-
-        var proportionalNet = Math.Round(
-            remainingNet * (appliedGross / remainingGross),
-            2,
-            MidpointRounding.AwayFromZero);
-
-        return Math.Min(remainingNet, proportionalNet);
+        return Math.Max(0m, settlement.NetAmount);
     }
 
     private static decimal FromMinorUnits(long amountMinor)
@@ -2944,59 +1884,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
                 _ => SubscriptionInvoiceStatus.Open,
             },
         };
-    }
-
-    private async Task RefreshPendingPayoutRecordAsync(
-        Guid payoutRecordId,
-        CancellationToken cancellationToken)
-    {
-        var payoutRecord = await _context.PayoutRecords
-            .FirstOrDefaultAsync(x => x.Id == payoutRecordId, cancellationToken);
-        if (payoutRecord == null
-            || payoutRecord.Status is not (PayoutRecordStatus.Queued or PayoutRecordStatus.SubmittedToProvider))
-        {
-            return;
-        }
-
-        var remainingSettlements = await _context.TeacherSettlements
-            .Where(x => x.PayoutRecordId == payoutRecord.Id)
-            .ToListAsync(cancellationToken);
-        var remainingAllocationLines = await (from line in _context.SubscriptionAllocationLines
-                                              join run in _context.SubscriptionAllocationRuns
-                                                on line.SubscriptionAllocationRunId equals run.Id
-                                              where line.PayoutRecordId == payoutRecord.Id
-                                                 && run.Status == SubscriptionAllocationRunStatus.Applied
-                                              select line)
-            .ToListAsync(cancellationToken);
-
-        payoutRecord.Amount = remainingSettlements.Sum(GetRemainingNetAmount)
-            + remainingAllocationLines.Sum(x => x.NetAmount);
-        payoutRecord.SettlementsCount = remainingSettlements.Count(x => GetRemainingNetAmount(x) > 0);
-        payoutRecord.AllocationLinesCount = remainingAllocationLines.Count(x => x.NetAmount > 0);
-
-        if (payoutRecord.Amount <= 0)
-            payoutRecord.Status = PayoutRecordStatus.Canceled;
-    }
-
-    private static string ResolveSubscriptionAllocationPayoutStatus(
-        SubscriptionAllocationRunStatus runStatus,
-        DateTime availableAt,
-        PayoutRecordStatus? payoutStatus,
-        DateTime now)
-    {
-        if (payoutStatus == PayoutRecordStatus.Paid)
-            return "PaidOut";
-
-        if (payoutStatus is PayoutRecordStatus.Queued or PayoutRecordStatus.SubmittedToProvider)
-            return "InPayout";
-
-        if (runStatus == SubscriptionAllocationRunStatus.Skipped)
-            return "Skipped";
-
-        if (runStatus is SubscriptionAllocationRunStatus.Reversed or SubscriptionAllocationRunStatus.Canceled)
-            return runStatus.ToString();
-
-        return availableAt <= now ? "ReadyForPayout" : "PendingHold";
     }
 
     private static Expression<Func<SubscriptionPlan, SubscriptionPlanDto>> MapSubscriptionPlanProjection()
@@ -3125,7 +2012,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             record.Amount,
             record.Currency,
             record.SettlementsCount,
-            record.AllocationLinesCount,
             record.Status.ToString(),
             record.ProviderTransferId,
             record.RequestedAt,
@@ -3133,40 +2019,6 @@ public class PaymentsService : IPaymentsService, ITeacherPayoutReadService
             record.PaidAt,
             record.FailedAt,
             record.FailureMessage);
-    }
-
-    private static RefundRecordDto MapRefundRecord(RefundRecord record, Guid courseId)
-    {
-        return new RefundRecordDto(
-            record.Id,
-            courseId,
-            record.CourseTitle,
-            record.Amount,
-            record.TeacherNetRefundAmount,
-            record.Currency,
-            record.Status.ToString(),
-            record.Reason,
-            record.FailureMessage,
-            record.RequestedAt,
-            record.ProcessedAt);
-    }
-
-    private static DisputeRecordDto MapDisputeRecord(DisputeRecord record, Guid courseId)
-    {
-        return new DisputeRecordDto(
-            record.Id,
-            courseId,
-            record.CourseTitle,
-            record.Amount,
-            record.TeacherNetDisputeAmount,
-            record.Currency,
-            record.Status.ToString(),
-            record.Reason,
-            record.OpenedAt,
-            record.EvidenceDueBy,
-            record.FundsWithdrawnAt,
-            record.FundsReinstatedAt,
-            record.ClosedAt);
     }
 
     private static TeacherPayoutAccountDto MapTeacherPayoutAccount(

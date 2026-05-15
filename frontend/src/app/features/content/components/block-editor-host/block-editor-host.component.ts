@@ -1,3 +1,4 @@
+// block-editor-host.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ import { CodeExerciseEditorComponent } from '../../blocks/code-exercise/code-exe
 import { QuizEditorComponent } from '../../blocks/quiz/quiz-editor.component';
 import { AssignmentEditorComponent } from '../../blocks/assignment/assignment-editor.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-block-editor-host',
   standalone: true,

@@ -1,3 +1,5 @@
+// student-schedule.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .ss-page { padding: 24px; max-width: 1200px; margin: 0 auto; }
 
 .ss-header {
@@ -43,6 +45,7 @@
   border-bottom: 2px solid transparent;
   display: inline-flex; align-items: center; gap: 8px;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--active { color: #111827; border-bottom-color: #6366f1; }
   &__count {
     background: #e5e7eb; color: #374151;

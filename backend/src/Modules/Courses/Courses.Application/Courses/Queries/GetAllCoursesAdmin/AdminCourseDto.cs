@@ -1,5 +1,8 @@
+// AdminCourseDto.cs
+
 namespace Courses.Application.Courses.Queries.GetAllCoursesAdmin;
 
+// Тип class: ключевой элемент файла AdminCourseDto.cs.
 public class AdminCourseDto
 {
     public Guid Id { get; set; }

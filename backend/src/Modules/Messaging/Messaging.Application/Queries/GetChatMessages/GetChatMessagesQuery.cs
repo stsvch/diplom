@@ -1,3 +1,4 @@
+// GetChatMessagesQuery.cs
 using MediatR;
 using Messaging.Application.DTOs;
 using Messaging.Application.Interfaces;
@@ -5,8 +6,10 @@ using Messaging.Application.Mappings;
 
 namespace Messaging.Application.Queries.GetChatMessages;
 
+// Query описывает параметры чтения без изменения состояния.
 public record GetChatMessagesQuery(string ChatId, int Page, int PageSize) : IRequest<List<MessageDto>>;
 
+// Handler собирает данные для чтения и маппит их в DTO.
 public class GetChatMessagesQueryHandler : IRequestHandler<GetChatMessagesQuery, List<MessageDto>>
 {
     private readonly IMessagingRepository _repository;

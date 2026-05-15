@@ -1,3 +1,5 @@
+// AvailabilityOverlapChecker.cs
+
 using Scheduling.Domain.Entities;
 using Scheduling.Domain.Enums;
 
@@ -9,9 +11,7 @@ namespace Scheduling.Application.Scheduling.Helpers;
 /// </summary>
 public static class AvailabilityOverlapChecker
 {
-    /// <summary>
     /// Возвращает первое пересекающееся правило (если есть). null = конфликта нет.
-    /// </summary>
     public static TeacherAvailability? FindOverlap(
         IEnumerable<TeacherAvailability> existing,
         AvailabilityKind kind,

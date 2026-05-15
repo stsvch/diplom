@@ -1,3 +1,5 @@
+// GetCourseStatsQueryHandler.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Domain;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Queries.GetCourseStats;
 
+// Тип class: ключевой элемент файла GetCourseStatsQueryHandler.cs.
 public class GetCourseStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, Result<CourseStatsDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -15,6 +18,7 @@ public class GetCourseStatsQueryHandler : IRequestHandler<GetCourseStatsQuery, R
         _context = context;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<CourseStatsDto>> Handle(GetCourseStatsQuery request, CancellationToken cancellationToken)
     {
         var courses = _context.Courses.AsNoTracking();

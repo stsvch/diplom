@@ -1,3 +1,5 @@
+// CreateAvailabilityCommand.cs
+
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Scheduling.Application.DTOs;
@@ -5,6 +7,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.CreateAvailability;
 
+/// <summary>
+/// CQRS-команда CreateAvailabilityCommand описывает входные данные операции, которая меняет состояние модуля.
+/// </summary>
 public record CreateAvailabilityCommand(
     string TeacherId,
     string TeacherName,

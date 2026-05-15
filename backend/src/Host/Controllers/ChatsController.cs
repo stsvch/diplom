@@ -1,3 +1,4 @@
+// Файл: ChatsController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Messaging.Application.Commands.AddParticipant;
@@ -18,6 +19,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер ChatsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/chats")]
 [Authorize]
@@ -150,12 +152,14 @@ public class ChatsController : ControllerBase
     }
 }
 
+// Класс CreateDirectChatRequest инкапсулирует ответственность соответствующего сценария.
 public class CreateDirectChatRequest
 {
     public string RecipientId { get; set; } = string.Empty;
     public string RecipientName { get; set; } = string.Empty;
 }
 
+// Класс CreateCourseChatRequest инкапсулирует ответственность соответствующего сценария.
 public class CreateCourseChatRequest
 {
     public string CourseId { get; set; } = string.Empty;

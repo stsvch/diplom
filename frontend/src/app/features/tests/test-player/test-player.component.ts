@@ -1,3 +1,4 @@
+// test-player.component.ts
 import {
   Component,
   inject,
@@ -29,6 +30,7 @@ interface LocalAnswer {
   textAnswer: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-test-player',
   standalone: true,
@@ -54,6 +56,7 @@ export class TestPlayerComponent implements OnInit, OnDestroy {
   readonly CheckIcon = CheckCircle2;
   readonly Loader2Icon = Loader2;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly submitting = signal(false);
   readonly showConfirmDialog = signal(false);
@@ -106,6 +109,7 @@ export class TestPlayerComponent implements OnInit, OnDestroy {
     return this.remainingSeconds() <= 60;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.testId = this.route.snapshot.paramMap.get('testId') ?? '';
     if (!this.testId) return;
@@ -118,6 +122,7 @@ export class TestPlayerComponent implements OnInit, OnDestroy {
 
   startTest(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.startAttempt(this.testId).subscribe({
       next: (data) => {
         this.attemptId = data.attemptId;
@@ -192,7 +197,7 @@ export class TestPlayerComponent implements OnInit, OnDestroy {
   }
 
   setMatchingAnswer(questionId: string, questionOptionId: string, selectedPairValue: string): void {
-    // For matching: we store the selectedOptionIds as ["leftId:rightValue"] pairs
+    // Для matching храним selectedOptionIds как пары "leftId:rightValue".
     const current = this.getAnswer(questionId).selectedOptionIds;
     const filtered = current.filter((v) => !v.startsWith(questionOptionId + ':'));
     const updated = selectedPairValue ? [...filtered, `${questionOptionId}:${selectedPairValue}`] : filtered;
@@ -222,7 +227,7 @@ export class TestPlayerComponent implements OnInit, OnDestroy {
     if (q.type === 'TextInput' || q.type === 'OpenAnswer') {
       textAnswer = ans.textAnswer;
     } else if (q.type === 'Matching') {
-      // Send full "optionId:pairValue" pairs for backend grading
+      // Отправляем полные пары "optionId:pairValue" для проверки на backend.
       selectedOptionIds = ans.selectedOptionIds;
     } else {
       selectedOptionIds = ans.selectedOptionIds;

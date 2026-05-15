@@ -1,3 +1,4 @@
+// MessagingModuleRegistration.cs
 using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Messaging.Application.Commands.SendMessage;

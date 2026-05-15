@@ -1,5 +1,7 @@
+// Файл: TeacherDashboardDto.cs
 namespace EduPlatform.Host.Models.Reports;
 
+// DTO TeacherDashboardDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherDashboardDto
 {
     public TeacherDashboardSummaryDto Summary { get; set; } = new();
@@ -9,6 +11,7 @@ public class TeacherDashboardDto
     public List<TeacherDashboardSessionDto> UpcomingSessions { get; set; } = new();
 }
 
+// DTO TeacherDashboardSummaryDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherDashboardSummaryDto
 {
     public int TotalCourses { get; set; }
@@ -20,6 +23,7 @@ public class TeacherDashboardSummaryDto
     public int UpcomingSessionsCount { get; set; }
 }
 
+// DTO TeacherDashboardEarningsDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherDashboardEarningsDto
 {
     public decimal ReadyForPayoutAmount { get; set; }

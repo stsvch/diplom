@@ -1,3 +1,4 @@
+// Файл: MinioGlossaryImageStorage.cs
 using Microsoft.Extensions.Configuration;
 using Minio;
 using Minio.DataModel.Args;
@@ -5,6 +6,7 @@ using Tools.Application.Interfaces;
 
 namespace Tools.Infrastructure.Services;
 
+// Сервис MinioGlossaryImageStorage инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class MinioGlossaryImageStorage : IGlossaryImageStorage
 {
     private readonly IMinioClient _minioClient;

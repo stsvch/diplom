@@ -1,3 +1,4 @@
+// tag-input.component.ts
 import {
   Component,
   ElementRef,
@@ -17,6 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TagsService } from '../../../features/courses/services/tags.service';
 import { TagDto } from '../../../features/courses/models/tag.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-tag-input',
   standalone: true,
@@ -34,6 +36,7 @@ export class TagInputComponent {
 
   private readonly tagsApi = inject(TagsService);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly inputValue = signal('');
   readonly suggestions = signal<TagDto[]>([]);
   readonly suggestionsOpen = signal(false);
@@ -50,6 +53,7 @@ export class TagInputComponent {
         switchMap((q) => this.tagsApi.search(q, 8)),
         takeUntilDestroyed(),
       )
+      // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
       .subscribe({
         next: (list) => {
           // Скрываем уже добавленные теги из подсказок (по slug-сравнению)

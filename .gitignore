@@ -76,6 +76,10 @@ tmp/
 imgtemp/
 *.docx
 lesson.txt
+.playwright-mcp/
+payments-snapshot.md
+lesson-rich-content.png
+**/bin\\Debug/
 
 # OS
 Thumbs.db

@@ -1,9 +1,12 @@
+// ContentReadService.cs
+
 using Content.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Content.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class ContentReadService : IContentReadService
 {
     private readonly IContentDbContext _context;

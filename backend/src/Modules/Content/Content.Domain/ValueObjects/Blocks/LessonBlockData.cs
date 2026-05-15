@@ -1,3 +1,5 @@
+// LessonBlockData.cs
+
 using System.Text.Json.Serialization;
 using Content.Domain.Enums;
 

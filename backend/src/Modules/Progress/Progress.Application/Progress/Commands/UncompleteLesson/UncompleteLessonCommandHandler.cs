@@ -1,3 +1,4 @@
+// Файл: UncompleteLessonCommandHandler.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Progress.Application.Interfaces;
 
 namespace Progress.Application.Progress.Commands.UncompleteLesson;
 
+// Обработчик команды UncompleteLessonCommandHandler выполняет сценарий изменения состояния и возвращает Result.
 public class UncompleteLessonCommandHandler : IRequestHandler<UncompleteLessonCommand, Result>
 {
     private readonly IProgressDbContext _context;

@@ -1,3 +1,4 @@
+// Файл: TeacherCourseReportReadService.cs
 using Assignments.Domain.Enums;
 using Assignments.Infrastructure.Persistence;
 using Auth.Domain.Entities;
@@ -13,6 +14,7 @@ using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис чтения TeacherCourseReportReadService собирает модель чтения для API без изменения состояния.
 public class TeacherCourseReportReadService
 {
     private readonly CoursesDbContext _coursesDb;
@@ -433,6 +435,7 @@ public class TeacherCourseReportReadService
         return latestAttempt.Status == AttemptStatus.InProgress;
     }
 
+    // Сервис AssignmentSubmissionSnapshot инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record AssignmentSubmissionSnapshot(
         Guid AssignmentId,
         string StudentId,
@@ -440,6 +443,7 @@ public class TeacherCourseReportReadService
         SubmissionStatus Status,
         DateTime SubmittedAt);
 
+    // Сервис TestAttemptSnapshot инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record TestAttemptSnapshot(
         Guid TestId,
         string StudentId,

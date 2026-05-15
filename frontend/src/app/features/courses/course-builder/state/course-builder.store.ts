@@ -1,3 +1,4 @@
+// course-builder.store.ts
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject, debounceTime, switchMap } from 'rxjs';
@@ -14,6 +15,7 @@ import {
 } from '../models/course-builder.model';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 
+// Файл содержит типы и вспомогательные данные для соответствующего feature-блока.
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface CourseInfoPatch {
@@ -24,8 +26,6 @@ interface CourseInfoPatch {
   isFree?: boolean;
   price?: number | null;
   deadline?: string | null;
-  hasGrading?: boolean;
-  hasCertificate?: boolean;
 }
 
 @Injectable()
@@ -36,7 +36,8 @@ export class CourseBuilderStore {
   private readonly toast = inject(ToastService);
   private readonly base = environment.apiUrl;
 
-  // ── State ────────────────────────────────────────────
+  // Состояние.
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly courseId = signal<string>('');
   readonly builder = signal<CourseBuilderDto | null>(null);
   readonly selection = signal<Selection>({ kind: 'none' });
@@ -46,7 +47,7 @@ export class CourseBuilderStore {
   readonly lastSaved = signal<Date | null>(null);
   readonly showOnboarding = signal<boolean>(false);
 
-  // ── Computed ────────────────────────────────────────
+  // Вычисляемые значения.
   readonly course = computed(() => this.builder()?.course ?? null);
   readonly sections = computed<CourseBuilderSectionDto[]>(() => this.builder()?.sections ?? []);
   readonly unsectioned = computed<CourseBuilderItemDto[]>(
@@ -97,15 +98,14 @@ export class CourseBuilderStore {
             price: patch.price ?? c.price,
             isFree: patch.isFree ?? c.isFree,
             orderType: c.orderType as any,
-            hasGrading: patch.hasGrading ?? c.hasGrading,
             level: c.level as any,
             imageUrl: patch.imageUrl ?? c.imageUrl,
-            hasCertificate: patch.hasCertificate ?? c.hasCertificate,
             deadline: patch.deadline ?? c.deadline,
           } as any);
         }),
         takeUntilDestroyed(),
       )
+      // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
       .subscribe({
         next: () => {
           this.saveStatus.set('saved');
@@ -119,7 +119,7 @@ export class CourseBuilderStore {
       });
   }
 
-  // ── Actions ────────────────────────────────────────
+  // Действия.
 
   load(courseId: string): void {
     this.courseId.set(courseId);
@@ -149,7 +149,7 @@ export class CourseBuilderStore {
     this.selection.set(sel);
   }
 
-  // ── Course info ──
+  // Информация о курсе.
 
   patchCourseInfo(patch: CourseInfoPatch): void {
     const b = this.builder();
@@ -185,7 +185,7 @@ export class CourseBuilderStore {
     this.courseInfoSave$.next(patch);
   }
 
-  // ── Sections ──
+  // Секции.
 
   addSection(): void {
     const id = this.courseId();
@@ -226,7 +226,7 @@ export class CourseBuilderStore {
     });
   }
 
-  // ── Items ──
+  // Элементы.
 
   addItem(sectionId: string | null, type: CourseItemType): void {
     const courseId = this.courseId();
@@ -347,6 +347,7 @@ export class CourseBuilderStore {
     else if (item.type === 'Assignment') url = `${this.base}/assignments/${item.sourceId}`;
     if (!url) return;
 
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     this.http.delete(url).subscribe({
       next: () => {
         this.selection.set({ kind: 'none' });
@@ -436,7 +437,7 @@ export class CourseBuilderStore {
       });
   }
 
-  // ── Publish ──
+  // Публикация.
 
   publish(force = false): void {
     const courseId = this.courseId();

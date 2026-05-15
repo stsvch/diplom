@@ -1,3 +1,4 @@
+// assignment-editor.component.ts
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ import { parseApiError } from '../../../core/models/api-error.model';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { RichTextEditorComponent } from '../../../shared/components/rich-text-editor/rich-text-editor.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-assignment-editor',
   standalone: true,
@@ -43,13 +45,14 @@ export class AssignmentEditorComponent implements OnInit {
   readonly FileEditIcon = FileEdit;
   readonly PlusIcon = Plus;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly saving = signal(false);
 
   assignmentId = '';
   isNew = true;
 
-  // Form fields
+  // Поля формы.
   readonly title = signal('');
   readonly description = signal('');
   readonly criteria = signal('');
@@ -59,14 +62,16 @@ export class AssignmentEditorComponent implements OnInit {
   readonly courseId = signal<string>('');
   readonly courses = signal<CourseListDto[]>([]);
 
-  // Context: what lesson block created this
+  // Контекст показывает, какой блок урока создал этот объект.
   blockId = '';
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.assignmentId = this.route.snapshot.paramMap.get('id') ?? '';
     this.blockId = this.route.snapshot.queryParamMap.get('blockId') ?? '';
     this.isNew = !this.assignmentId || this.assignmentId === 'new';
 
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getMyCourses().subscribe({
       next: (list) => this.courses.set(list),
     });
@@ -127,7 +132,7 @@ export class AssignmentEditorComponent implements OnInit {
         next: (assignment) => {
           this.saving.set(false);
           this.toastService.success('Задание создано');
-          // If we came from a lesson block, navigate back with the new assignment id
+          // Если пришли из блока урока, возвращаемся назад с id созданного задания.
           if (this.blockId) {
             this.router.navigate(['/teacher/assignment', assignment.id, 'edit'], {
               queryParams: { blockId: this.blockId, created: '1' },

@@ -1,3 +1,4 @@
+// student-schedule.component.ts
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +29,7 @@ import { parseApiError } from '../../../core/models/api-error.model';
 import { PaymentsService } from '../../payments/services/payments.service';
 import { UserEntitlementsDto } from '../../payments/models/payments.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-student-schedule',
   standalone: true,
@@ -55,6 +57,7 @@ export class StudentScheduleComponent implements OnInit {
 
   readonly SessionT = SessionType;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly entitlements = signal<UserEntitlementsDto | null>(null);
   readonly teachers = signal<TeacherWithScheduleDto[]>([]);
   readonly bookings = signal<ScheduleSlotDto[]>([]);
@@ -89,6 +92,7 @@ export class StudentScheduleComponent implements OnInit {
       .map(([date, slots]) => ({ date, slots }));
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadEntitlements();
     this.loadTeachers();
@@ -96,6 +100,7 @@ export class StudentScheduleComponent implements OnInit {
   }
 
   private loadEntitlements(): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.paymentsService.getMyEntitlements().subscribe({
       next: (e) => this.entitlements.set(e),
       error: () => { /* фича не критична */ },

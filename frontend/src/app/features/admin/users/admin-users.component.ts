@@ -1,3 +1,4 @@
+// admin-users.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +11,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
 import { AuthService } from '../../../core/services/auth.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -33,6 +35,7 @@ export class AdminUsersComponent implements OnInit {
 
   readonly roles = ['Admin', 'Teacher', 'Student'];
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly searchText = signal('');
   readonly roleFilter = signal<string>('');
   readonly onlyBlocked = signal(false);
@@ -57,6 +60,7 @@ export class AdminUsersComponent implements OnInit {
 
   private readonly search$ = new Subject<string>();
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.search$
       .pipe(
@@ -95,6 +99,7 @@ export class AdminUsersComponent implements OnInit {
       onlyBlocked: this.onlyBlocked() || undefined,
       page: this.page(),
       pageSize: this.pageSize(),
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: (r) => { this.data.set(r); this.loading.set(false); },
       error: (err) => { this.toast.error(parseApiError(err).message); this.loading.set(false); },

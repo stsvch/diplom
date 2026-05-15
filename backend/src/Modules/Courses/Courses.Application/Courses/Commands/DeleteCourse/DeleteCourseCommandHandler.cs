@@ -1,3 +1,5 @@
+// DeleteCourseCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Courses.Commands.DeleteCourse;
 
+// Тип class: ключевой элемент файла DeleteCourseCommandHandler.cs.
 public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -21,6 +24,7 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, R
         _chatAdmin = chatAdmin;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses.FindAsync([request.Id], cancellationToken);

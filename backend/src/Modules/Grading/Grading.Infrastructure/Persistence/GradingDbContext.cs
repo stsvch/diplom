@@ -1,3 +1,5 @@
+// GradingDbContext.cs
+
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Grading.Application.Interfaces;
 using Grading.Domain.Entities;
@@ -6,12 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grading.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core DbContext модуля задаёт DbSet-ы, схему БД и конфигурацию сущностей.
+/// </summary>
 public class GradingDbContext : BaseDbContext, IGradingDbContext
 {
     public GradingDbContext(DbContextOptions<GradingDbContext> options) : base(options) { }
 
+    // DbSet-ы открывают агрегаты модуля для command/query handlers и read services.
     public DbSet<Grade> Grades => Set<Grade>();
 
+    // EF-конфигурация схемы, ограничений, индексов и связей модуля.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

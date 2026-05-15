@@ -1,3 +1,4 @@
+// Файл: MaintenanceModeMiddleware.cs
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Application.Models;
@@ -7,6 +8,7 @@ using System.Text.Json;
 
 namespace EduPlatform.Host.Middleware;
 
+// Middleware MaintenanceModeMiddleware выполняет поперечную обработку HTTP-запросов в конвейере Host.
 public class MaintenanceModeMiddleware
 {
     private static readonly string[] AllowlistPrefixes =
@@ -30,14 +32,14 @@ public class MaintenanceModeMiddleware
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
-        // Non-API paths pass through (static, swagger, etc.)
+        // Не-API маршруты пропускаются дальше: статика, Swagger и другие страницы.
         if (!path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase))
         {
             await _next(context);
             return;
         }
 
-        // Admin bypass via role claim
+        // Администратор проходит проверку режима обслуживания по role claim.
         var isAdmin = context.User?.FindAll(ClaimTypes.Role).Any(c => c.Value == "Admin") == true;
         if (isAdmin)
         {
@@ -45,7 +47,7 @@ public class MaintenanceModeMiddleware
             return;
         }
 
-        // Allowlist prefixes
+        // Префиксы из allowlist пропускаются без блокировки.
         foreach (var prefix in AllowlistPrefixes)
         {
             if (path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))

@@ -1,3 +1,5 @@
+// UpdateCourseTagsCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using Courses.Application.Tags;
 using EduPlatform.Shared.Domain;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Commands.UpdateCourseTags;
 
+// Тип class: ключевой элемент файла UpdateCourseTagsCommandHandler.cs.
 public class UpdateCourseTagsCommandHandler : IRequestHandler<UpdateCourseTagsCommand, Result>
 {
     private readonly ICoursesDbContext _context;
@@ -17,6 +20,7 @@ public class UpdateCourseTagsCommandHandler : IRequestHandler<UpdateCourseTagsCo
         _tagSync = tagSync;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result> Handle(UpdateCourseTagsCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses

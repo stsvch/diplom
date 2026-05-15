@@ -1,5 +1,7 @@
+// input.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .input-field {
   display: flex;
   flex-direction: column;
@@ -42,6 +44,7 @@
       background-color $transition-fast,
       box-shadow $transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &::placeholder {
       color: $text-placeholder;
     }

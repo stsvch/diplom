@@ -1,3 +1,5 @@
+<!-- assignment-editor.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="assignment-editor">
   <!-- Header -->
   <div class="assignment-editor__header">
@@ -22,6 +24,7 @@
     </app-button>
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="assignment-editor__loading">
       <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />

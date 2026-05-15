@@ -1,3 +1,5 @@
+// ForceArchiveCourseCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Commands.ForceArchiveCourse;
 
+// Тип class: ключевой элемент файла ForceArchiveCourseCommandHandler.cs.
 public class ForceArchiveCourseCommandHandler : IRequestHandler<ForceArchiveCourseCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -27,6 +30,7 @@ public class ForceArchiveCourseCommandHandler : IRequestHandler<ForceArchiveCour
         _chatAdmin = chatAdmin;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(ForceArchiveCourseCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Reason))

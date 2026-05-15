@@ -1,3 +1,4 @@
+// banner-block-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BannerBlockData } from '../../models';
@@ -11,6 +12,7 @@ const PALETTE = [
   { label: 'Lime', bg: '#B0E86A', fg: '#1a1a1a' },
 ];
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-banner-block-editor',
   standalone: true,

@@ -1,5 +1,10 @@
+// QuestionType.cs
+
 namespace Tests.Domain.Enums;
 
+/// <summary>
+/// Тип QuestionType относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public enum QuestionType
 {
     SingleChoice,
@@ -7,8 +12,6 @@ public enum QuestionType
     TextInput,
     Matching,
     OpenAnswer,
-    /// <summary>
     /// Студент пишет код. Проверяется вручную или по ожидаемому выводу.
-    /// </summary>
     Code
 }

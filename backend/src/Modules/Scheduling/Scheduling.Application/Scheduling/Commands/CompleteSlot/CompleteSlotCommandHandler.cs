@@ -1,3 +1,5 @@
+// CompleteSlotCommandHandler.cs
+
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.CompleteSlot;
 
+/// <summary>
+/// Обработчик CQRS-команды CompleteSlotCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CompleteSlotCommandHandler : IRequestHandler<CompleteSlotCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
@@ -15,6 +20,7 @@ public class CompleteSlotCommandHandler : IRequestHandler<CompleteSlotCommand, R
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(CompleteSlotCommand request, CancellationToken cancellationToken)
     {
         var slot = await _context.ScheduleSlots

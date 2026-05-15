@@ -1,8 +1,11 @@
+// ContentJsonOptions.cs
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Content.Infrastructure.Persistence.JsonConverters;
 
+// Инфраструктурный JSON-компонент class: настраивает сериализацию value objects для jsonb и API.
 public static class ContentJsonOptions
 {
     public static readonly JsonSerializerOptions Default = new()

@@ -1,3 +1,4 @@
+// true-false-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import {
   TrueFalseBlockData,
@@ -6,6 +7,7 @@ import {
   LessonBlockAttemptDto,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-true-false-viewer',
   standalone: true,
@@ -75,11 +77,13 @@ export class TrueFalseViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<TrueFalseAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   responses = signal<Map<string, boolean>>(new Map());
   submitted = signal(false);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && 'responses' in this.attempt.answers) {
       const map = new Map<string, boolean>();

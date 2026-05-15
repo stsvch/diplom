@@ -1,7 +1,10 @@
+// CodeExerciseAnswer.cs
+
 using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Answers;
 
+// Value object class: описывает структуру ответа студента для проверки блока.
 public class CodeExerciseAnswer : LessonBlockAnswer
 {
     public override LessonBlockType Type => LessonBlockType.CodeExercise;

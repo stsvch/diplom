@@ -1,5 +1,7 @@
+// onboarding-modal.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host { display: block; }
 
 .om {
@@ -54,6 +56,7 @@
   transition: width 0.3s, background 0.3s;
   padding: 0;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--done { background: $indigo-300; }
   &--active { background: $indigo-600; width: 24px; }
 }

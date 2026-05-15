@@ -1,3 +1,4 @@
+// Файл: NotificationsController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер NotificationsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/notifications")]
 [Authorize]
@@ -82,4 +84,5 @@ public class NotificationsController : ControllerBase
     }
 }
 
+// API-модель CreateNotificationRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateNotificationRequest(string UserId, NotificationType Type, string Title, string Message, string? LinkUrl);

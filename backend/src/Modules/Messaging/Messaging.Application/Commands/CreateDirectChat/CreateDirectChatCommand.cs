@@ -1,3 +1,4 @@
+// CreateDirectChatCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -7,6 +8,7 @@ using Messaging.Application.Mappings;
 
 namespace Messaging.Application.Commands.CreateDirectChat;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record CreateDirectChatCommand(
     string InitiatorId,
     string InitiatorName,
@@ -14,6 +16,7 @@ public record CreateDirectChatCommand(
     string RecipientName
 ) : IRequest<Result<ChatDto>>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class CreateDirectChatValidator : AbstractValidator<CreateDirectChatCommand>
 {
     public CreateDirectChatValidator()
@@ -25,6 +28,7 @@ public class CreateDirectChatValidator : AbstractValidator<CreateDirectChatComma
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class CreateDirectChatCommandHandler : IRequestHandler<CreateDirectChatCommand, Result<ChatDto>>
 {
     private readonly IMessagingRepository _repository;

@@ -1,3 +1,4 @@
+// admin.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,12 +13,9 @@ import {
   ChangeRoleRequest,
   ForceArchiveRequest,
   AdminPaymentRecordDto,
-  AdminRefundRequest,
-  AdminSubscriptionAllocationRunDto,
   AdminSubscriptionPlanDto,
   UpsertSubscriptionPlanRequest,
 } from '../models/admin.model';
-import { RefundRecordDto } from '../../payments/models/payments.model';
 
 export interface PagedResult<T> {
   items: T[];
@@ -27,12 +25,13 @@ export interface PagedResult<T> {
   totalPages: number;
 }
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/admin`;
 
-  // Users
+  // Пользователи.
   getUsers(params: { search?: string; role?: string; onlyBlocked?: boolean; page?: number; pageSize?: number }): Observable<PagedResult<AdminUserDto>> {
     let httpParams = new HttpParams();
     if (params.search) httpParams = httpParams.set('search', params.search);
@@ -40,6 +39,7 @@ export class AdminService {
     if (params.onlyBlocked !== undefined) httpParams = httpParams.set('onlyBlocked', String(params.onlyBlocked));
     if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
     if (params.pageSize !== undefined) httpParams = httpParams.set('pageSize', String(params.pageSize));
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<PagedResult<AdminUserDto>>(`${this.base}/users`, { params: httpParams });
   }
 
@@ -63,7 +63,7 @@ export class AdminService {
     return this.http.delete<{ message: string }>(`${this.base}/users/${userId}`);
   }
 
-  // Courses
+  // Курсы.
   getCourses(params: { search?: string; status?: string; disciplineId?: string; page?: number; pageSize?: number }): Observable<PagedResult<AdminCourseDto>> {
     let httpParams = new HttpParams();
     if (params.search) httpParams = httpParams.set('search', params.search);
@@ -78,7 +78,7 @@ export class AdminService {
     return this.http.post<{ message: string }>(`${this.base}/courses/${id}/force-archive`, request);
   }
 
-  // Payments
+  // Платежи.
   getPayments(params: { search?: string; page?: number; pageSize?: number }): Observable<PagedResult<AdminPaymentRecordDto>> {
     let httpParams = new HttpParams();
     if (params.search) httpParams = httpParams.set('search', params.search);
@@ -87,17 +87,8 @@ export class AdminService {
     return this.http.get<PagedResult<AdminPaymentRecordDto>>(`${this.base}/payments`, { params: httpParams });
   }
 
-  createRefund(request: AdminRefundRequest): Observable<RefundRecordDto> {
-    return this.http.post<RefundRecordDto>(`${this.base}/payments/refunds`, request);
-  }
-
   getSubscriptionPlans(): Observable<AdminSubscriptionPlanDto[]> {
     return this.http.get<AdminSubscriptionPlanDto[]>(`${this.base}/payments/subscription-plans`);
-  }
-
-  getSubscriptionAllocationRuns(take = 20): Observable<AdminSubscriptionAllocationRunDto[]> {
-    const params = new HttpParams().set('take', String(take));
-    return this.http.get<AdminSubscriptionAllocationRunDto[]>(`${this.base}/payments/subscription-allocation-runs`, { params });
   }
 
   createSubscriptionPlan(request: UpsertSubscriptionPlanRequest): Observable<AdminSubscriptionPlanDto> {
@@ -108,7 +99,7 @@ export class AdminService {
     return this.http.put<AdminSubscriptionPlanDto>(`${this.base}/payments/subscription-plans/${id}`, request);
   }
 
-  // Settings
+  // Настройки.
   getSettings(): Observable<PlatformSettingsDto> {
     return this.http.get<PlatformSettingsDto>(`${environment.apiUrl}/platform-settings`);
   }
@@ -117,7 +108,7 @@ export class AdminService {
     return this.http.put<PlatformSettingsDto>(`${environment.apiUrl}/platform-settings`, settings);
   }
 
-  // Stats
+  // Статистика.
   getDashboard(): Observable<DashboardStatsDto> {
     return this.http.get<DashboardStatsDto>(`${this.base}/stats/dashboard`);
   }

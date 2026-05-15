@@ -1,3 +1,4 @@
+// RemoveParticipantCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -5,8 +6,10 @@ using Messaging.Application.Interfaces;
 
 namespace Messaging.Application.Commands.RemoveParticipant;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record RemoveParticipantCommand(string ChatId, string ParticipantId) : IRequest<Result>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class RemoveParticipantValidator : AbstractValidator<RemoveParticipantCommand>
 {
     public RemoveParticipantValidator()
@@ -16,6 +19,7 @@ public class RemoveParticipantValidator : AbstractValidator<RemoveParticipantCom
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class RemoveParticipantCommandHandler : IRequestHandler<RemoveParticipantCommand, Result>
 {
     private readonly IMessagingRepository _repository;

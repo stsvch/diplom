@@ -1,3 +1,4 @@
+// SmtpEmailService.cs
 using Auth.Application.Interfaces;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -7,6 +8,7 @@ using MimeKit;
 
 namespace Auth.Infrastructure.Services;
 
+// SMTP-сервис формирует ссылки подтверждения email и восстановления пароля и отправляет их через настроенный почтовый сервер.
 public class SmtpEmailService : IEmailService
 {
     private readonly IConfiguration _configuration;

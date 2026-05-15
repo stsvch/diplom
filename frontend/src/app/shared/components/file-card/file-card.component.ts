@@ -1,3 +1,4 @@
+// file-card.component.ts
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -15,6 +16,7 @@ import {
 import { AttachmentDto } from '../../../core/models/attachment.model';
 import { FileService } from '../../../core/services/file.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-file-card',
   standalone: true,

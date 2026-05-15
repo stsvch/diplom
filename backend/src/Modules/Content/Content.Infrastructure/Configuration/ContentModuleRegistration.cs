@@ -1,3 +1,5 @@
+// ContentModuleRegistration.cs
+
 using Content.Application.CodeExecution;
 using Content.Application.Grading;
 using Content.Application.Grading.Graders;
@@ -16,19 +18,20 @@ using Minio;
 
 namespace Content.Infrastructure.Configuration;
 
+// DI-регистрация class: подключает инфраструктуру, сервисы и application-компоненты модуля.
 public static class ContentModuleRegistration
 {
     public static IServiceCollection AddContentModule(this IServiceCollection services, IConfiguration configuration)
     {
         var applicationAssembly = typeof(ContentMappingProfile).Assembly;
 
-        // DbContext
+        // Регистрация DbContext.
         services.AddDbContext<ContentDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")));
 
         services.AddScoped<IContentDbContext>(provider => provider.GetRequiredService<ContentDbContext>());
 
-        // MinIO client
+        // Настройка клиента MinIO.
         var endpoint = configuration["MinIO:Endpoint"] ?? "localhost:9000";
         var accessKey = configuration["MinIO:AccessKey"] ?? "minioadmin";
         var secretKey = configuration["MinIO:SecretKey"] ?? "minioadmin";
@@ -41,14 +44,14 @@ public static class ContentModuleRegistration
                 .WithSSL(useSSL)
                 .Build());
 
-        // Services
+        // Регистрация сервисов.
         services.AddScoped<IFileStorageService, MinioFileStorageService>();
         services.AddScoped<ILessonContentCleaner, LessonContentCleaner>();
         services.AddScoped<IContentReadService, ContentReadService>();
         services.AddScoped<IAttachmentCleaner, AttachmentCleaner>();
         services.AddSingleton<ICodeExecutor, ProcessCodeExecutor>();
 
-        // Block graders
+        // Регистрация проверяющих блоков.
         services.AddScoped<IBlockGrader, SingleChoiceGrader>();
         services.AddScoped<IBlockGrader, MultipleChoiceGrader>();
         services.AddScoped<IBlockGrader, TrueFalseGrader>();
@@ -61,7 +64,7 @@ public static class ContentModuleRegistration
         services.AddScoped<IBlockGrader, CodeExerciseGrader>();
         services.AddScoped<IBlockGraderRegistry, BlockGraderRegistry>();
 
-        // Block data validators
+        // Регистрация валидаторов данных блоков.
         services.AddScoped<IBlockDataValidator, TextBlockDataValidator>();
         services.AddScoped<IBlockDataValidator, VideoBlockDataValidator>();
         services.AddScoped<IBlockDataValidator, AudioBlockDataValidator>();
@@ -82,14 +85,14 @@ public static class ContentModuleRegistration
         services.AddScoped<IBlockDataValidator, AssignmentBlockDataValidator>();
         services.AddScoped<IBlockDataValidatorRegistry, BlockDataValidatorRegistry>();
 
-        // MediatR
+        // Регистрация MediatR.
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(applicationAssembly));
 
-        // FluentValidation
+        // Регистрация FluentValidation.
         services.AddValidatorsFromAssembly(applicationAssembly);
 
-        // AutoMapper
+        // Регистрация AutoMapper.
         services.AddAutoMapper(cfg => { }, applicationAssembly);
 
         return services;

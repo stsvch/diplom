@@ -1,3 +1,5 @@
+// DeleteAvailabilityCommandHandler.cs
+
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.DeleteAvailability;
 
+/// <summary>
+/// Обработчик CQRS-команды DeleteAvailabilityCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class DeleteAvailabilityCommandHandler : IRequestHandler<DeleteAvailabilityCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
@@ -15,6 +20,7 @@ public class DeleteAvailabilityCommandHandler : IRequestHandler<DeleteAvailabili
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(DeleteAvailabilityCommand request, CancellationToken cancellationToken)
     {
         var availability = await _context.TeacherAvailabilities

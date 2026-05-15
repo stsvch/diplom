@@ -1,3 +1,4 @@
+// Файл: AttemptsController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using Tests.Application.Tests.Commands.GradeResponse;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AttemptsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 public class AttemptsController : ControllerBase
 {
@@ -132,6 +134,8 @@ public class AttemptsController : ControllerBase
     }
 }
 
+// API-модель SaveAnswerRequest фиксирует тело запроса или результат для действия контроллера.
 public record SaveAnswerRequest(Guid QuestionId, List<string>? SelectedOptionIds, string? TextAnswer);
 
+// API-модель GradeResponseRequest фиксирует тело запроса или результат для действия контроллера.
 public record GradeResponseRequest(int Points, string? Comment);

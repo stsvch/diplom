@@ -1,3 +1,5 @@
+// TestReadService.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,9 @@ using Tests.Domain.Enums;
 
 namespace Tests.Infrastructure.Services;
 
+/// <summary>
+/// Инфраструктурный сервис отдаёт сведения о дедлайнах тестов и статусах попыток через shared-контракты.
+/// </summary>
 public class TestReadService : ITestReadService
 {
     private readonly ITestsDbContext _context;
@@ -15,6 +20,7 @@ public class TestReadService : ITestReadService
         _context = context;
     }
 
+    /// Возвращает элементы курса с дедлайнами для календаря и прогресса.
     public async Task<IReadOnlyList<TestDeadlineInfo>> GetByCourseAsync(Guid courseId, CancellationToken cancellationToken = default)
     {
         return await _context.Tests
@@ -23,6 +29,9 @@ public class TestReadService : ITestReadService
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Возвращает агрегированные статусы выполнения для набора учебных элементов.
+    /// </summary>
     public async Task<IReadOnlyDictionary<Guid, DeadlineStatus>> GetStatusesAsync(
         IReadOnlyCollection<Guid> testIds,
         string studentId,

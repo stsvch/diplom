@@ -1,3 +1,5 @@
+// TestsMappingProfile.cs
+
 using System.Text.Json;
 using AutoMapper;
 using Tests.Application.DTOs;
@@ -5,10 +7,14 @@ using Tests.Domain.Entities;
 
 namespace Tests.Application.Mappings;
 
+/// <summary>
+/// Профиль AutoMapper собирает правила преобразования доменных сущностей в DTO модуля.
+/// </summary>
 public class TestsMappingProfile : Profile
 {
     public TestsMappingProfile()
     {
+        // Правила маппинга отделяют DTO application-слоя от EF/domain-моделей.
         CreateMap<Test, TestDto>()
             .ForMember(d => d.QuestionsCount, opt => opt.MapFrom(s => s.Questions.Count));
 

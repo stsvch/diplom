@@ -1,5 +1,7 @@
+// editor-panel.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host {
   display: block;
   height: 100%;
@@ -60,6 +62,7 @@
     margin-bottom: $spacing-4;
     border: 2px dashed $indigo-200;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--gray {
       background: $slate-100;
       color: $slate-300;

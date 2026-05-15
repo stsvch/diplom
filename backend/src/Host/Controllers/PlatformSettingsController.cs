@@ -1,3 +1,4 @@
+// Файл: PlatformSettingsController.cs
 using Auth.Application.Commands.UpdatePlatformSettings;
 using Auth.Application.DTOs;
 using Auth.Application.Queries.GetPlatformSettings;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер PlatformSettingsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/platform-settings")]
 public class PlatformSettingsController : ControllerBase
@@ -19,7 +21,7 @@ public class PlatformSettingsController : ControllerBase
         _mediator = mediator;
     }
 
-    // Public: returns only non-sensitive flags (for landing / auth pages)
+    // Публичный эндпоинт возвращает только нечувствительные флаги для landing/auth страниц.
     [HttpGet("public")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PlatformSettingsDto), StatusCodes.Status200OK)]
@@ -31,7 +33,7 @@ public class PlatformSettingsController : ControllerBase
             : Ok(result.Value);
     }
 
-    // Admin full view
+    // Административный эндпоинт возвращает полный набор настроек.
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(PlatformSettingsDto), StatusCodes.Status200OK)]
@@ -60,6 +62,7 @@ public class PlatformSettingsController : ControllerBase
     }
 }
 
+// API-модель UpdatePlatformSettingsRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdatePlatformSettingsRequest(
     bool RegistrationOpen,
     bool MaintenanceMode,

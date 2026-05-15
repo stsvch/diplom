@@ -1,3 +1,5 @@
+<!-- editor-panel.component.html -->
+<!-- Условный блок переключает состояние отображения по данным компонента. -->
 @if (store.selection().kind === 'course_info') {
   <app-cb-course-info-editor [store]="store" />
 } @else if (store.selection().kind === 'item' && store.selectedItem(); as item) {
@@ -11,6 +13,7 @@
 } @else {
   <!-- Empty states -->
   @if (store.sections().length === 0) {
+    <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
     <div class="ep-empty">
       <div class="ep-empty__icon-big">
         <lucide-icon [img]="icons.layers" [size]="48" />

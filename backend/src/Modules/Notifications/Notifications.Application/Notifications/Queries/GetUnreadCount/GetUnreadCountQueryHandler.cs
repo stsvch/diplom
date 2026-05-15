@@ -1,3 +1,4 @@
+// Файл: GetUnreadCountQueryHandler.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Notifications.Application.Interfaces;
 
 namespace Notifications.Application.Notifications.Queries.GetUnreadCount;
 
+// Обработчик запроса GetUnreadCountQueryHandler собирает данные чтения без изменения состояния.
 public class GetUnreadCountQueryHandler : IRequestHandler<GetUnreadCountQuery, Result<int>>
 {
     private readonly INotificationsDbContext _context;

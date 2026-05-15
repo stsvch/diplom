@@ -1,9 +1,12 @@
+// UploadFileCommand.cs
+
 using Content.Application.DTOs;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
 namespace Content.Application.Commands.UploadFile;
 
+// Тип class: ключевой элемент файла UploadFileCommand.cs.
 public class UploadFileCommand : IRequest<Result<AttachmentDto>>
 {
     public Stream Stream { get; set; } = Stream.Null;

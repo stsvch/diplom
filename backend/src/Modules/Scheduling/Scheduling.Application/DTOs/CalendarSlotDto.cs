@@ -1,3 +1,5 @@
+// CalendarSlotDto.cs
+
 using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.DTOs;

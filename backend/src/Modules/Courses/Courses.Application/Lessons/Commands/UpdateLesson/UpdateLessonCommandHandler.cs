@@ -1,3 +1,5 @@
+// UpdateLessonCommandHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Application.Interfaces;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Lessons.Commands.UpdateLesson;
 
+// Тип class: ключевой элемент файла UpdateLessonCommandHandler.cs.
 public class UpdateLessonCommandHandler : IRequestHandler<UpdateLessonCommand, Result<LessonDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -18,6 +21,7 @@ public class UpdateLessonCommandHandler : IRequestHandler<UpdateLessonCommand, R
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<LessonDto>> Handle(UpdateLessonCommand request, CancellationToken cancellationToken)
     {
         var lesson = await _context.Lessons

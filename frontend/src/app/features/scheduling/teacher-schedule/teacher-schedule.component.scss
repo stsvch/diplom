@@ -1,3 +1,5 @@
+// teacher-schedule.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .ts-page {
   padding: 24px;
   max-width: 1200px;
@@ -46,6 +48,7 @@
   border-radius: 12px;
   padding: 16px;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--inactive { opacity: 0.6; }
 }
 

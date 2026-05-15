@@ -1,7 +1,10 @@
+// AttachmentDto.cs
+
 using Content.Domain.Enums;
 
 namespace Content.Application.DTOs;
 
+// DTO class: передаёт данные наружу из application layer без раскрытия доменных сущностей.
 public class AttachmentDto
 {
     public Guid Id { get; set; }

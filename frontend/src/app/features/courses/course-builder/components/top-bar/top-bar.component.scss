@@ -1,5 +1,7 @@
+// top-bar.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host {
   display: block;
   flex-shrink: 0;
@@ -32,12 +34,14 @@
   flex-shrink: 0;
   transition: background $transition-fast, color $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover { background: $slate-100; color: $slate-800; }
 }
 
 .tb__mobile-only {
   display: none;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: 1023px) {
     display: inline-flex;
   }
@@ -228,7 +232,7 @@
   }
 }
 
-// ── Modals ─────────────────────────────────────
+// Модальные окна.
 .tb-modal {
   position: fixed;
   inset: 0;

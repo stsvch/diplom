@@ -1,6 +1,8 @@
+// placeholder.component.ts
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-placeholder',
   standalone: true,
@@ -19,6 +21,7 @@ import { Router } from '@angular/router';
 export class PlaceholderComponent {
   private router = inject(Router);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly routeName = computed(() => {
     const segments = this.router.url.split('/').filter(Boolean);
     const last = segments[segments.length - 1];

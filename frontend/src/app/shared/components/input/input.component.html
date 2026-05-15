@@ -1,4 +1,7 @@
+<!-- input.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="input-field" [class.input-field--error]="error" [class.input-field--disabled]="disabled()">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (label) {
     <label class="input-field__label">{{ label }}</label>
   }

@@ -1,3 +1,4 @@
+// rich-text-editor.component.ts
 import {
   Component,
   ElementRef,
@@ -30,6 +31,7 @@ interface FormatAction {
   insert?: boolean;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-rich-text-editor',
   standalone: true,

@@ -1,4 +1,7 @@
+<!-- video-player.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="video-player">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (!_url()) {
     <div class="video-player__placeholder">
       <lucide-icon [img]="PlayIcon" [size]="48" class="video-player__play-icon" />

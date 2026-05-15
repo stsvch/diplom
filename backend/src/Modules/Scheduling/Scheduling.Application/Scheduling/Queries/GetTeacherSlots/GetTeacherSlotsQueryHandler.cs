@@ -1,3 +1,5 @@
+// GetTeacherSlotsQueryHandler.cs
+
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Queries.GetTeacherSlots;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetTeacherSlotsQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetTeacherSlotsQueryHandler : IRequestHandler<GetTeacherSlotsQuery, List<ScheduleSlotDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -18,6 +23,7 @@ public class GetTeacherSlotsQueryHandler : IRequestHandler<GetTeacherSlotsQuery,
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<ScheduleSlotDto>> Handle(GetTeacherSlotsQuery request, CancellationToken cancellationToken)
     {
         var query = _context.ScheduleSlots

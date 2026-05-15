@@ -1,3 +1,4 @@
+// Файл: MarkAllAsReadCommandHandler.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Notifications.Application.Interfaces;
 
 namespace Notifications.Application.Notifications.Commands.MarkAllAsRead;
 
+// Обработчик команды MarkAllAsReadCommandHandler выполняет сценарий изменения состояния и возвращает Result.
 public class MarkAllAsReadCommandHandler : IRequestHandler<MarkAllAsReadCommand, Result>
 {
     private readonly INotificationsDbContext _context;

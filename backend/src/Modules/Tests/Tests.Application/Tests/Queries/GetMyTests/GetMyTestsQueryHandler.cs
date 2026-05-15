@@ -1,3 +1,5 @@
+// GetMyTestsQueryHandler.cs
+
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Queries.GetMyTests;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetMyTestsQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetMyTestsQueryHandler : IRequestHandler<GetMyTestsQuery, List<TestDto>>
 {
     private readonly ITestsDbContext _context;
@@ -17,6 +22,7 @@ public class GetMyTestsQueryHandler : IRequestHandler<GetMyTestsQuery, List<Test
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<TestDto>> Handle(GetMyTestsQuery request, CancellationToken cancellationToken)
     {
         var tests = await _context.Tests

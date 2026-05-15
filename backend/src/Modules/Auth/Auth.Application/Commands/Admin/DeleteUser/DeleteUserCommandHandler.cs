@@ -1,3 +1,4 @@
+// DeleteUserCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.Admin.DeleteUser;
 
+// Обработчик сценария: удаляет пользователя только после проверок безопасности: нельзя удалить себя, последнего администратора и пользователя с блокирующими связями.
 public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

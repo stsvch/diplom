@@ -1,3 +1,4 @@
+// Файл: CoursesController.cs
 using Courses.Application.Courses.Commands.ArchiveCourse;
 using Courses.Application.Courses.Commands.CreateCourse;
 using Courses.Application.Courses.Commands.DeleteCourse;
@@ -24,6 +25,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер CoursesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/courses")]
 public class CoursesController : ControllerBase
@@ -109,9 +111,8 @@ public class CoursesController : ControllerBase
             userName = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email) ?? "Преподаватель";
         var command = new CreateCourseCommand(
             userId, userName, request.DisciplineId, request.Title, request.Description,
-            request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl,
-            request.HasCertificate, request.Deadline);
+            request.Price, request.IsFree, request.OrderType,
+            request.Level, request.ImageUrl, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -133,9 +134,8 @@ public class CoursesController : ControllerBase
 
         var command = new UpdateCourseCommand(
             id, userId, request.DisciplineId, request.Title, request.Description,
-            request.Price, request.IsFree, request.OrderType, request.HasGrading,
-            request.Level, request.ImageUrl,
-            request.HasCertificate, request.Deadline);
+            request.Price, request.IsFree, request.OrderType,
+            request.Level, request.ImageUrl, request.Deadline);
 
         var result = await _mediator.Send(command, cancellationToken);
         if (result.IsFailure)
@@ -358,6 +358,7 @@ public class CoursesController : ControllerBase
     }
 }
 
+// API-модель CreateCourseRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateCourseRequest(
     Guid DisciplineId,
     string Title,
@@ -365,12 +366,11 @@ public record CreateCourseRequest(
     decimal? Price,
     bool IsFree,
     CourseOrderType OrderType,
-    bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    bool HasCertificate = false,
     DateTime? Deadline = null);
 
+// API-модель UpdateCourseTagsRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateCourseTagsRequest(List<string>? Tags);
 
 public record UpdateCourseRequest(
@@ -380,8 +380,6 @@ public record UpdateCourseRequest(
     decimal? Price,
     bool IsFree,
     CourseOrderType OrderType,
-    bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    bool HasCertificate = false,
     DateTime? Deadline = null);

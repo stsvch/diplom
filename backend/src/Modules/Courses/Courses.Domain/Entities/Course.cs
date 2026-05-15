@@ -1,8 +1,11 @@
+// Course.cs
+
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Domain;
 
 namespace Courses.Domain.Entities;
 
+// Доменная сущность class: хранит состояние, инварианты и связи бизнес-модели модуля Courses.
 public class Course : BaseEntity, IAuditableEntity
 {
     public Guid DisciplineId { get; set; }
@@ -17,8 +20,6 @@ public class Course : BaseEntity, IAuditableEntity
     public string? ArchiveReason { get; set; }
     public string? ArchivedBy { get; set; }
     public CourseOrderType OrderType { get; set; }
-    public bool HasGrading { get; set; }
-    public bool HasCertificate { get; set; }
     public DateTime? Deadline { get; set; }
     public string? ImageUrl { get; set; }
     public CourseLevel Level { get; set; }

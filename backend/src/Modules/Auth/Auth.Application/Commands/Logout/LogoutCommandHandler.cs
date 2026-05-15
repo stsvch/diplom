@@ -1,3 +1,4 @@
+// LogoutCommandHandler.cs
 using Auth.Application.Interfaces;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.Logout;
 
+// Обработчик сценария: завершает сессию пользователя через отзыв всех активных refresh-токенов.
 public class LogoutCommandHandler : IRequestHandler<LogoutCommand, Result<string>>
 {
     private readonly IAuthDbContext _dbContext;

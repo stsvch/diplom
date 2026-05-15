@@ -1,7 +1,9 @@
+// toast.component.ts
 import { Component, inject } from '@angular/core';
 import { LucideAngularModule, CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-angular';
 import { ToastService } from './toast.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-toast',
   standalone: true,

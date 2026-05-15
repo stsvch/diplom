@@ -1,3 +1,4 @@
+// glossary.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,6 +10,7 @@ import {
   UpsertDictionaryWordRequest,
 } from '../models/glossary.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -31,6 +33,7 @@ export class GlossaryService {
       params = params.set('knownOnly', String(filters.knownOnly));
     }
 
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<DictionaryWordDto[]>(`${this.base}/words`, { params });
   }
 
@@ -63,6 +66,7 @@ export class GlossaryService {
   }
 
   uploadImage(id: string, file: File): Observable<DictionaryWordDto> {
+    // Состояние формы и валидаторы описывают пользовательский ввод этого экрана.
     const form = new FormData();
     form.append('file', file, file.name);
     return this.http.post<DictionaryWordDto>(`${this.base}/words/${id}/image`, form);

@@ -1,5 +1,8 @@
+<!-- rich-text-editor.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="rte">
   <div class="rte__toolbar">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (action of actions; track action.key) {
       <button
         type="button"

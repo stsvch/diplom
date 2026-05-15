@@ -1,3 +1,4 @@
+// Файл: TagsController.cs
 using Courses.Application.Tags;
 using Courses.Application.Tags.Queries.SearchTags;
 using MediatR;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер TagsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/tags")]
 [Authorize]

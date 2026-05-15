@@ -1,5 +1,7 @@
+// TeacherSettlementSummaryDto.cs
 namespace Payments.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public record TeacherSettlementSummaryDto(
     decimal TotalGrossAmount,
     decimal TotalNetAmount,
@@ -7,8 +9,5 @@ public record TeacherSettlementSummaryDto(
     decimal ReadyForPayoutNetAmount,
     decimal InPayoutNetAmount,
     decimal PaidOutNetAmount,
-    decimal RefundedNetAmount,
-    decimal DisputedNetAmount,
     int SettlementsCount,
-    int SubscriptionAllocationCount,
     string Currency);

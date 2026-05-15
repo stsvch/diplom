@@ -1,3 +1,4 @@
+// module-tree.component.ts
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ export type ModuleTreeEvent =
   | { kind: 'reorder-lessons'; moduleId: string; orderedIds: string[] }
   | { kind: 'move-lesson'; lessonId: string; fromModuleId: string; toModuleId: string; newOrder: number };
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-module-tree',
   standalone: true,
@@ -38,6 +40,7 @@ export class ModuleTreeComponent {
   @Input() modules: CourseModuleDetailDto[] = [];
   @Output() event = new EventEmitter<ModuleTreeEvent>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   expandedModules = signal<Set<string>>(new Set());
   editingModuleId = signal<string | null>(null);
   editingLessonId = signal<string | null>(null);

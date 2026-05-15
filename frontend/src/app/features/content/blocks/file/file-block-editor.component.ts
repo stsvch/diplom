@@ -1,9 +1,11 @@
+// file-block-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FileBlockData } from '../../models';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
 import { AttachmentDto } from '../../../../core/models/attachment.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-file-block-editor',
   standalone: true,

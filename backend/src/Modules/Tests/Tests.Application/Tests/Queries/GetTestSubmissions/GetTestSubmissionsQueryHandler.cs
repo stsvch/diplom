@@ -1,3 +1,5 @@
+// GetTestSubmissionsQueryHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +9,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Queries.GetTestSubmissions;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetTestSubmissionsQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetTestSubmissionsQueryHandler : IRequestHandler<GetTestSubmissionsQuery, Result<List<TestAttemptDto>>>
 {
     private readonly ITestsDbContext _context;
@@ -18,6 +23,7 @@ public class GetTestSubmissionsQueryHandler : IRequestHandler<GetTestSubmissions
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<List<TestAttemptDto>>> Handle(GetTestSubmissionsQuery request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

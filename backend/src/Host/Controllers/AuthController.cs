@@ -1,3 +1,4 @@
+// Файл: AuthController.cs
 using Auth.Application.Commands.ConfirmEmail;
 using Auth.Application.Commands.ForgotPassword;
 using Auth.Application.Commands.Login;
@@ -15,6 +16,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AuthController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -159,6 +161,7 @@ public class AuthController : ControllerBase
     }
 }
 
+// API-модель RegisterRequest фиксирует тело запроса или результат для действия контроллера.
 public record RegisterRequest(
     string Email,
     string Password,
@@ -166,4 +169,5 @@ public record RegisterRequest(
     string LastName,
     UserRole Role);
 
+// API-модель RefreshAccessTokenRequest фиксирует тело запроса или результат для действия контроллера.
 public record RefreshAccessTokenRequest(string AccessToken);

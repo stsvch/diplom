@@ -1,3 +1,4 @@
+// CalendarModuleRegistration.cs
 using Calendar.Application.Interfaces;
 using Calendar.Infrastructure.Persistence;
 using Calendar.Infrastructure.Services;

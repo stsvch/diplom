@@ -1,0 +1,973 @@
+@startuml EduPlatform_Logical_Database_Model
+!theme plain
+left to right direction
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam classAttributeFontSize 10
+skinparam nodesep 55
+skinparam ranksep 50
+title Логическая модель реляционной базы данных EduPlatform
+
+package "Блок 1" {
+  entity "AspNetUsers" as tbl_AspNetUsers {
+    * PK Id
+    + Email
+    + NormalizedEmail
+    + UserName
+    + NormalizedUserName
+    + PasswordHash
+    + FirstName
+    + LastName
+    + AvatarUrl
+    + EmailConfirmed
+    + PhoneNumber
+    + PhoneNumberConfirmed
+    + LockoutEnabled
+    + LockoutEnd
+    + AccessFailedCount
+    + SecurityStamp
+    + ConcurrencyStamp
+    + TwoFactorEnabled
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "AspNetRoles" as tbl_AspNetRoles {
+    * PK Id
+    + Name
+    + NormalizedName
+    + ConcurrencyStamp
+  }
+
+  entity "AspNetUserRoles" as tbl_AspNetUserRoles {
+    * PK FK UserId
+    * PK FK RoleId
+  }
+
+  entity "AspNetUserClaims" as tbl_AspNetUserClaims {
+    * PK Id
+    + FK UserId
+    + ClaimType
+    + ClaimValue
+  }
+
+  entity "AspNetRoleClaims" as tbl_AspNetRoleClaims {
+    * PK Id
+    + FK RoleId
+    + ClaimType
+    + ClaimValue
+  }
+
+  entity "AspNetUserLogins" as tbl_AspNetUserLogins {
+    * PK LoginProvider
+    * PK ProviderKey
+    + ProviderDisplayName
+    + FK UserId
+  }
+
+  entity "AspNetUserTokens" as tbl_AspNetUserTokens {
+    * PK FK UserId
+    * PK LoginProvider
+    * PK Name
+    + Value
+  }
+
+  entity "RefreshTokens" as tbl_RefreshTokens {
+    * PK Id
+    + Token
+    + FK UserId
+    + ExpiresAt
+    + CreatedAt
+    + IsRevoked
+  }
+
+  entity "PlatformSettings" as tbl_PlatformSettings {
+    * PK Id
+    + RegistrationOpen
+    + MaintenanceMode
+    + PlatformName
+    + SupportEmail
+    + UpdatedAt
+  }
+
+}
+
+package "Блок 2" {
+  entity "Disciplines" as tbl_Disciplines {
+    * PK Id
+    + Name
+    + Description
+    + ImageUrl
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "Courses" as tbl_Courses {
+    * PK Id
+    + FK DisciplineId
+    + FK TeacherId
+    + TeacherName
+    + Title
+    + Description
+    + Price
+    + IsFree
+    + IsPublished
+    + IsArchived
+    + ArchiveReason
+    + ArchivedBy
+    + OrderType
+    + Deadline
+    + ImageUrl
+    + Level
+    + RatingAverage
+    + RatingCount
+    + ReviewsCount
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "CourseTags" as tbl_CourseTags {
+    * PK FK CourseId
+    * PK FK TagId
+  }
+
+  entity "Tags" as tbl_Tags {
+    * PK Id
+    + Slug
+    + Name
+    + UsageCount
+  }
+
+  entity "CourseModules" as tbl_CourseModules {
+    * PK Id
+    + FK CourseId
+    + Title
+    + Description
+    + OrderIndex
+    + IsPublished
+  }
+
+  entity "Lessons" as tbl_Lessons {
+    * PK Id
+    + FK ModuleId
+    + Title
+    + Description
+    + OrderIndex
+    + IsPublished
+    + Duration
+    + Layout
+  }
+
+  entity "CourseItems" as tbl_CourseItems {
+    * PK Id
+    + FK CourseId
+    + FK ModuleId
+    + Type
+    + FK SourceId
+    + Title
+    + Description
+    + Url
+    + FK AttachmentId
+    + ResourceKind
+    + OrderIndex
+    + Status
+    + IsRequired
+    + Points
+    + AvailableFrom
+    + Deadline
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "CourseEnrollments" as tbl_CourseEnrollments {
+    * PK Id
+    + FK CourseId
+    + FK StudentId
+    + EnrolledAt
+    + Status
+  }
+
+  entity "CourseReviews" as tbl_CourseReviews {
+    * PK Id
+    + FK CourseId
+    + FK StudentId
+    + StudentName
+    + Rating
+    + Comment
+    + CreatedAt
+    + UpdatedAt
+  }
+
+}
+
+package "Блок 3" {
+  entity "LessonBlocks" as tbl_LessonBlocks {
+    * PK Id
+    + FK LessonId
+    + OrderIndex
+    + Type
+    + Data
+    + Settings
+    + Status
+    + ValidationErrorsJson
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "LessonBlockAttempts" as tbl_LessonBlockAttempts {
+    * PK Id
+    + FK BlockId
+    + FK UserId
+    + Answers
+    + Score
+    + MaxScore
+    + IsCorrect
+    + NeedsReview
+    + AttemptsUsed
+    + Status
+    + SubmittedAt
+    + ReviewedAt
+    + FK ReviewerId
+    + ReviewerComment
+  }
+
+  entity "CodeExerciseRuns" as tbl_CodeExerciseRuns {
+    * PK Id
+    + FK BlockId
+    + FK UserId
+    + FK AttemptId
+    + Kind
+    + Language
+    + Code
+    + Ok
+    + GlobalError
+    + Results
+    + CreatedAt
+  }
+
+  entity "Attachments" as tbl_Attachments {
+    * PK Id
+    + FileName
+    + StoragePath
+    + FileUrl
+    + ContentType
+    + FileSize
+    + EntityType
+    + FK EntityId
+    + FK UploadedById
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "Tests" as tbl_Tests {
+    * PK Id
+    + FK CourseId
+    + Title
+    + Description
+    + FK CreatedById
+    + TimeLimitMinutes
+    + MaxAttempts
+    + Deadline
+    + ShuffleQuestions
+    + ShuffleAnswers
+    + ShowCorrectAnswers
+    + MaxScore
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "Questions" as tbl_Questions {
+    * PK Id
+    + FK TestId
+    + Type
+    + Text
+    + Points
+    + OrderIndex
+    + GradeType
+    + Explanation
+    + ExpectedAnswer
+  }
+
+  entity "AnswerOptions" as tbl_AnswerOptions {
+    * PK Id
+    + FK QuestionId
+    + Text
+    + IsCorrect
+    + OrderIndex
+    + MatchingPairValue
+  }
+
+  entity "TestAttempts" as tbl_TestAttempts {
+    * PK Id
+    + FK TestId
+    + FK StudentId
+    + AttemptNumber
+    + StartedAt
+    + CompletedAt
+    + Score
+    + Status
+  }
+
+  entity "TestResponses" as tbl_TestResponses {
+    * PK Id
+    + FK AttemptId
+    + FK QuestionId
+    + SelectedOptionIds
+    + TextAnswer
+    + IsCorrect
+    + Points
+    + TeacherComment
+  }
+
+}
+
+package "Блок 4" {
+  entity "Assignments" as tbl_Assignments {
+    * PK Id
+    + FK CourseId
+    + Title
+    + Description
+    + Criteria
+    + Deadline
+    + MaxAttempts
+    + MaxScore
+    + SubmissionFormat
+    + FK CreatedById
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "AssignmentCriteria" as tbl_AssignmentCriteria {
+    * PK Id
+    + FK AssignmentId
+    + Text
+    + MaxPoints
+    + OrderIndex
+  }
+
+  entity "AssignmentSubmissions" as tbl_AssignmentSubmissions {
+    * PK Id
+    + FK AssignmentId
+    + FK StudentId
+    + AttemptNumber
+    + Content
+    + SubmittedAt
+    + Status
+    + Score
+    + TeacherComment
+    + GradedAt
+    + FK GradedById
+  }
+
+  entity "Grades" as tbl_Grades {
+    * PK Id
+    + FK StudentId
+    + FK CourseId
+    + SourceType
+    + FK TestAttemptId
+    + FK AssignmentSubmissionId
+    + Title
+    + Score
+    + MaxScore
+    + Comment
+    + GradedAt
+    + FK GradedById
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "LessonProgresses" as tbl_LessonProgresses {
+    * PK Id
+    + FK LessonId
+    + FK StudentId
+    + IsCompleted
+    + CompletedAt
+  }
+
+  entity "CourseItemProgresses" as tbl_CourseItemProgresses {
+    * PK Id
+    + FK CourseId
+    + FK CourseItemId
+    + FK SourceId
+    + ItemType
+    + FK StudentId
+    + IsCompleted
+    + CompletedAt
+  }
+
+  entity "DictionaryWords" as tbl_DictionaryWords {
+    * PK Id
+    + FK CourseId
+    + Term
+    + Translation
+    + Definition
+    + Example
+    + Note
+    + ImageStorageKey
+    + Tags
+    + FK CreatedById
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "UserDictionaryProgress" as tbl_UserDictionaryProgress {
+    * PK Id
+    + FK WordId
+    + FK UserId
+    + IsKnown
+    + ReviewCount
+    + HardCount
+    + RepeatLaterCount
+    + LastReviewedAt
+    + LastOutcome
+    + NextReviewAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "Notifications" as tbl_Notifications {
+    * PK Id
+    + FK UserId
+    + Type
+    + Title
+    + Message
+    + IsRead
+    + LinkUrl
+    + CreatedAt
+  }
+
+  entity "CalendarEvents" as tbl_CalendarEvents {
+    * PK Id
+    + FK UserId
+    + FK CourseId
+    + Title
+    + Description
+    + EventDate
+    + EventTime
+    + Type
+    + SourceType
+    + FK SourceId
+    + CreatedAt
+  }
+
+}
+
+package "Блок 5" {
+  entity "TeacherAvailabilities" as tbl_TeacherAvailabilities {
+    * PK Id
+    + FK TeacherId
+    + TeacherName
+    + Kind
+    + DayOfWeek
+    + SpecificDate
+    + StartTime
+    + EndTime
+    + ValidFrom
+    + ValidUntil
+    + SessionType
+    + MaxStudents
+    + Title
+    + Description
+    + MeetingLink
+    + FK RequiredCourseId
+    + IsActive
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "ScheduleSlots" as tbl_ScheduleSlots {
+    * PK Id
+    + FK TeacherId
+    + TeacherName
+    + FK AvailabilityId
+    + Title
+    + Description
+    + StartTime
+    + EndTime
+    + SessionType
+    + MaxStudents
+    + FK RequiredCourseId
+    + Status
+    + MeetingLink
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "SessionBookings" as tbl_SessionBookings {
+    * PK Id
+    + FK SlotId
+    + FK StudentId
+    + StudentName
+    + StartTime
+    + EndTime
+    + BookedAt
+    + Status
+    + FK SubscriptionUsageId
+  }
+
+  entity "SubscriptionPlans" as tbl_SubscriptionPlans {
+    * PK Id
+    + Name
+    + Description
+    + Price
+    + Currency
+    + BillingInterval
+    + BillingIntervalCount
+    + IsActive
+    + IsFeatured
+    + SortOrder
+    + ProviderProductId
+    + ProviderPriceId
+    + IndividualSlotsPerMonth
+    + GroupSlotsPerMonth
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "UserSubscriptions" as tbl_UserSubscriptions {
+    * PK Id
+    + FK SubscriptionPlanId
+    + FK UserId
+    + Provider
+    + ProviderCustomerId
+    + ProviderSubscriptionId
+    + PlanName
+    + Price
+    + Currency
+    + Status
+    + CurrentPeriodStart
+    + CurrentPeriodEnd
+    + CancelAtPeriodEnd
+    + CanceledAt
+    + StartedAt
+    + EndedAt
+    + PastDueSinceUtc
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "SubscriptionPaymentAttempts" as tbl_SubscriptionPaymentAttempts {
+    * PK Id
+    + FK SubscriptionPlanId
+    + FK UserId
+    + PlanName
+    + Amount
+    + Currency
+    + BillingInterval
+    + BillingIntervalCount
+    + Provider
+    + Status
+    + ProviderCustomerId
+    + ProviderSessionId
+    + ProviderSubscriptionId
+    + FailureMessage
+    + CompletedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "SubscriptionInvoices" as tbl_SubscriptionInvoices {
+    * PK Id
+    + FK SubscriptionPlanId
+    + FK UserSubscriptionId
+    + FK UserId
+    + Provider
+    + ProviderInvoiceId
+    + ProviderSubscriptionId
+    + PlanName
+    + AmountDue
+    + AmountPaid
+    + Currency
+    + Status
+    + BillingReason
+    + PeriodStart
+    + PeriodEnd
+    + DueDate
+    + PaidAt
+    + FailureMessage
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "SubscriptionUsages" as tbl_SubscriptionUsages {
+    * PK Id
+    + FK UserSubscriptionId
+    + FK UserId
+    + Type
+    + PeriodStart
+    + FK SourceBookingId
+    + UsedAt
+    + IsRefunded
+    + RefundedAt
+  }
+
+  entity "SubscriptionAllocationRuns" as tbl_SubscriptionAllocationRuns {
+    * PK Id
+    + FK SubscriptionInvoiceId
+    + FK UserSubscriptionId
+    + FK SubscriptionPlanId
+    + FK UserId
+    + PlanName
+    + GrossAmount
+    + PlatformCommissionAmount
+    + ProviderFeeAmount
+    + NetAmount
+    + Currency
+    + Strategy
+    + Status
+    + TeacherCount
+    + CourseCount
+    + PeriodStart
+    + PeriodEnd
+    + AllocatedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "SubscriptionAllocationLines" as tbl_SubscriptionAllocationLines {
+    * PK Id
+    + FK SubscriptionAllocationRunId
+    + FK SubscriptionInvoiceId
+    + FK SubscriptionPlanId
+    + FK UserId
+    + FK TeacherId
+    + TeacherName
+    + Source
+    + FK CourseId
+    + CourseTitle
+    + FK BookingId
+    + CompletedSessionsCount
+    + AllocationWeight
+    + ProgressPercent
+    + TotalLessons
+    + CompletedLessons
+    + GrossAmount
+    + PlatformCommissionAmount
+    + ProviderFeeAmount
+    + NetAmount
+    + Currency
+    + FK PayoutRecordId
+    + AvailableAt
+    + PaidOutAt
+    + AllocatedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+}
+
+package "Блок 6" {
+  entity "PaymentAttempts" as tbl_PaymentAttempts {
+    * PK Id
+    + FK CourseId
+    + CourseTitle
+    + FK TeacherId
+    + FK StudentId
+    + StudentName
+    + Amount
+    + Currency
+    + Provider
+    + Status
+    + SavePaymentMethodRequested
+    + ProviderCustomerId
+    + ProviderSessionId
+    + ProviderPaymentIntentId
+    + ProviderChargeId
+    + ProviderPaymentMethodId
+    + FailureCode
+    + FailureMessage
+    + CompletedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "CoursePurchases" as tbl_CoursePurchases {
+    * PK Id
+    + FK CourseId
+    + CourseTitle
+    + FK TeacherId
+    + FK StudentId
+    + FK PaymentAttemptId
+    + Amount
+    + Currency
+    + Status
+    + PurchasedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "TeacherPayoutAccounts" as tbl_TeacherPayoutAccounts {
+    * PK Id
+    + FK TeacherId
+    + Provider
+    + ProviderAccountId
+    + Status
+    + ChargesEnabled
+    + PayoutsEnabled
+    + DetailsSubmitted
+    + RequirementsSummary
+    + OnboardingStartedAt
+    + ReadyAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "TeacherSettlements" as tbl_TeacherSettlements {
+    * PK Id
+    + FK TeacherId
+    + FK CourseId
+    + CourseTitle
+    + FK StudentId
+    + StudentName
+    + FK PaymentAttemptId
+    + FK CoursePurchaseId
+    + GrossAmount
+    + ProviderFeeAmount
+    + PlatformCommissionAmount
+    + NetAmount
+    + RefundedGrossAmount
+    + RefundedNetAmount
+    + DisputedGrossAmount
+    + DisputedNetAmount
+    + Currency
+    + FK PayoutRecordId
+    + Status
+    + AvailableAt
+    + PaidOutAt
+    + Notes
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "PayoutRecords" as tbl_PayoutRecords {
+    * PK Id
+    + FK TeacherId
+    + Provider
+    + ProviderAccountId
+    + ProviderTransferId
+    + Amount
+    + Currency
+    + SettlementsCount
+    + AllocationLinesCount
+    + Status
+    + RequestedAt
+    + SubmittedAt
+    + PaidAt
+    + FailedAt
+    + FailureMessage
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "RefundRecords" as tbl_RefundRecords {
+    * PK Id
+    + FK PaymentAttemptId
+    + FK CoursePurchaseId
+    + FK TeacherSettlementId
+    + FK PayoutRecordId
+    + FK StudentId
+    + FK TeacherId
+    + FK RequestedByAdminId
+    + CourseTitle
+    + Provider
+    + ProviderRefundId
+    + ProviderPaymentIntentId
+    + Amount
+    + TeacherNetRefundAmount
+    + Currency
+    + Status
+    + Reason
+    + FailureMessage
+    + RequestedAt
+    + ProcessedAt
+    + LedgerAppliedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "DisputeRecords" as tbl_DisputeRecords {
+    * PK Id
+    + FK PaymentAttemptId
+    + FK CoursePurchaseId
+    + FK TeacherSettlementId
+    + FK PayoutRecordId
+    + FK StudentId
+    + FK TeacherId
+    + CourseTitle
+    + Provider
+    + ProviderDisputeId
+    + ProviderPaymentIntentId
+    + Amount
+    + AppliedGrossAmount
+    + TeacherNetDisputeAmount
+    + Currency
+    + Status
+    + Reason
+    + OpenedAt
+    + EvidenceDueBy
+    + FundsWithdrawnAt
+    + FundsReinstatedAt
+    + ClosedAt
+    + LedgerAppliedAt
+    + LedgerRestoredAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "UserPaymentProfiles" as tbl_UserPaymentProfiles {
+    * PK Id
+    + FK UserId
+    + Provider
+    + ProviderCustomerId
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "PaymentMethods" as tbl_PaymentMethods {
+    * PK Id
+    + FK UserId
+    + Provider
+    + ProviderCustomerId
+    + ProviderPaymentMethodId
+    + Brand
+    + Last4
+    + ExpMonth
+    + ExpYear
+    + IsDefault
+    + RemovedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+  entity "ProcessedWebhookEvents" as tbl_ProcessedWebhookEvents {
+    * PK Id
+    + Provider
+    + ProviderEventId
+    + EventType
+    + ProcessedAt
+    + CreatedAt
+    + UpdatedAt
+  }
+
+}
+
+tbl_AspNetUsers "1" -- "0..*" tbl_AspNetUserRoles : UserId
+tbl_AspNetRoles "1" -- "0..*" tbl_AspNetUserRoles : RoleId
+tbl_AspNetUsers "1" -- "0..*" tbl_AspNetUserClaims : UserId
+tbl_AspNetRoles "1" -- "0..*" tbl_AspNetRoleClaims : RoleId
+tbl_AspNetUsers "1" -- "0..*" tbl_AspNetUserLogins : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_AspNetUserTokens : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_RefreshTokens : UserId
+tbl_Disciplines "1" -- "0..*" tbl_Courses : DisciplineId
+tbl_AspNetUsers "1" -- "0..*" tbl_Courses : TeacherId
+tbl_Courses "1" -- "0..*" tbl_CourseModules : CourseId
+tbl_CourseModules "1" -- "0..*" tbl_Lessons : ModuleId
+tbl_Courses "1" -- "0..*" tbl_CourseItems : CourseId
+tbl_CourseModules "1" -- "0..*" tbl_CourseItems : ModuleId
+tbl_Attachments "1" -- "0..*" tbl_CourseItems : AttachmentId
+tbl_Courses "1" -- "0..*" tbl_CourseEnrollments : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_CourseEnrollments : StudentId
+tbl_Courses "1" -- "0..*" tbl_CourseReviews : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_CourseReviews : StudentId
+tbl_Courses "1" -- "0..*" tbl_CourseTags : CourseId
+tbl_Tags "1" -- "0..*" tbl_CourseTags : TagId
+tbl_Lessons "1" -- "0..*" tbl_LessonBlocks : LessonId
+tbl_LessonBlocks "1" -- "0..*" tbl_LessonBlockAttempts : BlockId
+tbl_AspNetUsers "1" -- "0..*" tbl_LessonBlockAttempts : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_LessonBlockAttempts : ReviewerId
+tbl_LessonBlocks "1" -- "0..*" tbl_CodeExerciseRuns : BlockId
+tbl_AspNetUsers "1" -- "0..*" tbl_CodeExerciseRuns : UserId
+tbl_LessonBlockAttempts "1" -- "0..*" tbl_CodeExerciseRuns : AttemptId
+tbl_AspNetUsers "1" -- "0..*" tbl_Attachments : UploadedById
+tbl_Courses "1" -- "0..*" tbl_Tests : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_Tests : CreatedById
+tbl_Tests "1" -- "0..*" tbl_Questions : TestId
+tbl_Questions "1" -- "0..*" tbl_AnswerOptions : QuestionId
+tbl_Tests "1" -- "0..*" tbl_TestAttempts : TestId
+tbl_AspNetUsers "1" -- "0..*" tbl_TestAttempts : StudentId
+tbl_TestAttempts "1" -- "0..*" tbl_TestResponses : AttemptId
+tbl_Questions "1" -- "0..*" tbl_TestResponses : QuestionId
+tbl_Courses "1" -- "0..*" tbl_Assignments : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_Assignments : CreatedById
+tbl_Assignments "1" -- "0..*" tbl_AssignmentCriteria : AssignmentId
+tbl_Assignments "1" -- "0..*" tbl_AssignmentSubmissions : AssignmentId
+tbl_AspNetUsers "1" -- "0..*" tbl_AssignmentSubmissions : StudentId
+tbl_AspNetUsers "1" -- "0..*" tbl_AssignmentSubmissions : GradedById
+tbl_AspNetUsers "1" -- "0..*" tbl_Grades : StudentId
+tbl_Courses "1" -- "0..*" tbl_Grades : CourseId
+tbl_AssignmentSubmissions "1" -- "0..*" tbl_Grades : AssignmentSubmissionId
+tbl_AspNetUsers "1" -- "0..*" tbl_Grades : GradedById
+tbl_Lessons "1" -- "0..*" tbl_LessonProgresses : LessonId
+tbl_AspNetUsers "1" -- "0..*" tbl_LessonProgresses : StudentId
+tbl_Courses "1" -- "0..*" tbl_CourseItemProgresses : CourseId
+tbl_CourseItems "1" -- "0..*" tbl_CourseItemProgresses : CourseItemId
+tbl_AspNetUsers "1" -- "0..*" tbl_CourseItemProgresses : StudentId
+tbl_AspNetUsers "1" -- "0..*" tbl_TeacherAvailabilities : TeacherId
+tbl_Courses "1" -- "0..*" tbl_TeacherAvailabilities : RequiredCourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_ScheduleSlots : TeacherId
+tbl_TeacherAvailabilities "1" -- "0..*" tbl_ScheduleSlots : AvailabilityId
+tbl_Courses "1" -- "0..*" tbl_ScheduleSlots : RequiredCourseId
+tbl_ScheduleSlots "1" -- "0..*" tbl_SessionBookings : SlotId
+tbl_AspNetUsers "1" -- "0..*" tbl_SessionBookings : StudentId
+tbl_SubscriptionUsages "1" -- "0..*" tbl_SessionBookings : SubscriptionUsageId
+tbl_SubscriptionPlans "1" -- "0..*" tbl_UserSubscriptions : SubscriptionPlanId
+tbl_AspNetUsers "1" -- "0..*" tbl_UserSubscriptions : UserId
+tbl_SubscriptionPlans "1" -- "0..*" tbl_SubscriptionPaymentAttempts : SubscriptionPlanId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionPaymentAttempts : UserId
+tbl_SubscriptionPlans "1" -- "0..*" tbl_SubscriptionInvoices : SubscriptionPlanId
+tbl_UserSubscriptions "1" -- "0..*" tbl_SubscriptionInvoices : UserSubscriptionId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionInvoices : UserId
+tbl_UserSubscriptions "1" -- "0..*" tbl_SubscriptionUsages : UserSubscriptionId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionUsages : UserId
+tbl_SessionBookings "1" -- "0..*" tbl_SubscriptionUsages : SourceBookingId
+tbl_SubscriptionInvoices "1" -- "0..*" tbl_SubscriptionAllocationRuns : SubscriptionInvoiceId
+tbl_UserSubscriptions "1" -- "0..*" tbl_SubscriptionAllocationRuns : UserSubscriptionId
+tbl_SubscriptionPlans "1" -- "0..*" tbl_SubscriptionAllocationRuns : SubscriptionPlanId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionAllocationRuns : UserId
+tbl_SubscriptionAllocationRuns "1" -- "0..*" tbl_SubscriptionAllocationLines : SubscriptionAllocationRunId
+tbl_SubscriptionInvoices "1" -- "0..*" tbl_SubscriptionAllocationLines : SubscriptionInvoiceId
+tbl_SubscriptionPlans "1" -- "0..*" tbl_SubscriptionAllocationLines : SubscriptionPlanId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionAllocationLines : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_SubscriptionAllocationLines : TeacherId
+tbl_Courses "1" -- "0..*" tbl_SubscriptionAllocationLines : CourseId
+tbl_SessionBookings "1" -- "0..*" tbl_SubscriptionAllocationLines : BookingId
+tbl_PayoutRecords "1" -- "0..*" tbl_SubscriptionAllocationLines : PayoutRecordId
+tbl_Courses "1" -- "0..*" tbl_PaymentAttempts : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_PaymentAttempts : TeacherId
+tbl_AspNetUsers "1" -- "0..*" tbl_PaymentAttempts : StudentId
+tbl_Courses "1" -- "0..*" tbl_CoursePurchases : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_CoursePurchases : TeacherId
+tbl_AspNetUsers "1" -- "0..*" tbl_CoursePurchases : StudentId
+tbl_PaymentAttempts "1" -- "0..*" tbl_CoursePurchases : PaymentAttemptId
+tbl_AspNetUsers "1" -- "0..*" tbl_TeacherPayoutAccounts : TeacherId
+tbl_AspNetUsers "1" -- "0..*" tbl_TeacherSettlements : TeacherId
+tbl_Courses "1" -- "0..*" tbl_TeacherSettlements : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_TeacherSettlements : StudentId
+tbl_PaymentAttempts "1" -- "0..*" tbl_TeacherSettlements : PaymentAttemptId
+tbl_CoursePurchases "1" -- "0..*" tbl_TeacherSettlements : CoursePurchaseId
+tbl_PayoutRecords "1" -- "0..*" tbl_TeacherSettlements : PayoutRecordId
+tbl_AspNetUsers "1" -- "0..*" tbl_PayoutRecords : TeacherId
+tbl_PaymentAttempts "1" -- "0..*" tbl_RefundRecords : PaymentAttemptId
+tbl_CoursePurchases "1" -- "0..*" tbl_RefundRecords : CoursePurchaseId
+tbl_TeacherSettlements "1" -- "0..*" tbl_RefundRecords : TeacherSettlementId
+tbl_PayoutRecords "1" -- "0..*" tbl_RefundRecords : PayoutRecordId
+tbl_AspNetUsers "1" -- "0..*" tbl_RefundRecords : StudentId
+tbl_AspNetUsers "1" -- "0..*" tbl_RefundRecords : TeacherId
+tbl_AspNetUsers "1" -- "0..*" tbl_RefundRecords : RequestedByAdminId
+tbl_PaymentAttempts "1" -- "0..*" tbl_DisputeRecords : PaymentAttemptId
+tbl_CoursePurchases "1" -- "0..*" tbl_DisputeRecords : CoursePurchaseId
+tbl_TeacherSettlements "1" -- "0..*" tbl_DisputeRecords : TeacherSettlementId
+tbl_PayoutRecords "1" -- "0..*" tbl_DisputeRecords : PayoutRecordId
+tbl_AspNetUsers "1" -- "0..*" tbl_DisputeRecords : StudentId
+tbl_AspNetUsers "1" -- "0..*" tbl_DisputeRecords : TeacherId
+tbl_AspNetUsers "1" -- "0..*" tbl_UserPaymentProfiles : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_PaymentMethods : UserId
+tbl_Courses "1" -- "0..*" tbl_DictionaryWords : CourseId
+tbl_AspNetUsers "1" -- "0..*" tbl_DictionaryWords : CreatedById
+tbl_DictionaryWords "1" -- "0..*" tbl_UserDictionaryProgress : WordId
+tbl_AspNetUsers "1" -- "0..*" tbl_UserDictionaryProgress : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_Notifications : UserId
+tbl_AspNetUsers "1" -- "0..*" tbl_CalendarEvents : UserId
+tbl_Courses "1" -- "0..*" tbl_CalendarEvents : CourseId
+@enduml

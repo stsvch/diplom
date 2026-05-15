@@ -1,3 +1,4 @@
+// Файл: LessonAccessService.cs
 using Content.Application.Interfaces;
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис LessonAccessService инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class LessonAccessService
 {
     private readonly IContentDbContext _contentDb;

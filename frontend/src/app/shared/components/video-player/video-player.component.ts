@@ -1,3 +1,4 @@
+// video-player.component.ts
 import { Component, Input, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -6,6 +7,7 @@ import { LucideAngularModule, Play } from 'lucide-angular';
 
 type VideoType = 'youtube' | 'vimeo' | 'direct';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-video-player',
   standalone: true,
@@ -22,6 +24,7 @@ export class VideoPlayerComponent {
 
   readonly PlayIcon = Play;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly _url = signal('');
 
   readonly videoType = computed<VideoType>(() => {

@@ -1,8 +1,13 @@
+// Question.cs
+
 using EduPlatform.Shared.Domain;
 using Tests.Domain.Enums;
 
 namespace Tests.Domain.Entities;
 
+/// <summary>
+/// Тип Question относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class Question : BaseEntity
 {
     public Guid TestId { get; set; }
@@ -11,9 +16,7 @@ public class Question : BaseEntity
     public int Points { get; set; }
     public int OrderIndex { get; set; }
 
-    /// <summary>
     /// Авто (выбор варианта) или ручная (открытый ответ, код).
-    /// </summary>
     public QuestionGradeType GradeType { get; set; } = QuestionGradeType.Auto;
 
     /// <summary>
@@ -21,9 +24,7 @@ public class Question : BaseEntity
     /// </summary>
     public string? Explanation { get; set; }
 
-    /// <summary>
     /// Эталонный ответ для подсказки преподавателю при ручной проверке (для текста и кода).
-    /// </summary>
     public string? ExpectedAnswer { get; set; }
 
     public Test Test { get; set; } = null!;

@@ -1,3 +1,4 @@
+// course-builder.component.ts
 import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -8,6 +9,7 @@ import { EditorPanelComponent } from './components/editor-panel/editor-panel.com
 import { HintsPanelComponent } from './components/hints-panel/hints-panel.component';
 import { OnboardingModalComponent } from './components/onboarding-modal/onboarding-modal.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-builder',
   standalone: true,
@@ -29,9 +31,11 @@ export class CourseBuilderComponent implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly mobileLeftOpen = signal(false);
   readonly mobileRightOpen = signal(false);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((p) => {
       const id = p.get('id');
@@ -49,6 +53,7 @@ export class CourseBuilderComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

@@ -1,3 +1,5 @@
+// GetDownloadUrlQueryHandler.cs
+
 using Content.Application.Interfaces;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.Queries.GetDownloadUrl;
 
+// Тип class: ключевой элемент файла GetDownloadUrlQueryHandler.cs.
 public class GetDownloadUrlQueryHandler : IRequestHandler<GetDownloadUrlQuery, Result<string>>
 {
     private readonly IContentDbContext _context;
@@ -16,6 +19,7 @@ public class GetDownloadUrlQueryHandler : IRequestHandler<GetDownloadUrlQuery, R
         _fileStorageService = fileStorageService;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(GetDownloadUrlQuery request, CancellationToken cancellationToken)
     {
         var attachment = await _context.Attachments

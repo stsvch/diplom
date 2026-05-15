@@ -1,7 +1,10 @@
+// CourseListDto.cs
+
 using Courses.Domain.Enums;
 
 namespace Courses.Application.DTOs;
 
+// DTO class: передаёт данные наружу из application layer без раскрытия доменных сущностей.
 public class CourseListDto
 {
     public Guid Id { get; set; }

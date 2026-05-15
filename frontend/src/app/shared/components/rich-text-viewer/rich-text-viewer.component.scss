@@ -1,5 +1,7 @@
+// rich-text-viewer.component.scss
 @use '../../../../styles/variables' as v;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .rtv {
   font-size: v.$font-size-base;
   line-height: 1.75;
@@ -87,6 +89,7 @@
     text-decoration: underline;
     transition: color v.$transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       color: v.$primary-hover;
     }

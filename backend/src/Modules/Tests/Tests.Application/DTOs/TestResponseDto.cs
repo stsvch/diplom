@@ -1,5 +1,10 @@
+// TestResponseDto.cs
+
 namespace Tests.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные TestResponseDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class TestResponseDto
 {
     public Guid Id { get; set; }

@@ -1,3 +1,5 @@
+// MinioFileStorageService.cs
+
 using Content.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Minio;
@@ -5,6 +7,7 @@ using Minio.DataModel.Args;
 
 namespace Content.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class MinioFileStorageService : IFileStorageService
 {
     private readonly IMinioClient _minioClient;

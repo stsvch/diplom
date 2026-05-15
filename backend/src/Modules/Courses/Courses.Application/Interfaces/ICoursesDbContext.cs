@@ -1,8 +1,11 @@
+// ICoursesDbContext.cs
+
 using Courses.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Interfaces;
 
+// Контракт interface: задаёт границу между слоями без привязки application layer к инфраструктуре.
 public interface ICoursesDbContext
 {
     DbSet<Discipline> Disciplines { get; }

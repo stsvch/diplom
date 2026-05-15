@@ -1,7 +1,9 @@
+// Файл: ApiError.cs
 using System.Text.Json.Serialization;
 
 namespace EduPlatform.Shared.Application.Models;
 
+// DTO ApiError переносит данные наружу без раскрытия доменной сущности.
 public class ApiError
 {
     [JsonPropertyName("message")]

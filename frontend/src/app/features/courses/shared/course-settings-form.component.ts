@@ -1,13 +1,13 @@
+// course-settings-form.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 export interface CourseSettingsValue {
   deadline: string;
-  hasCertificate: boolean;
   orderType: string;
-  hasGrading: boolean;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-settings-form',
   standalone: true,
@@ -29,22 +29,6 @@ export interface CourseSettingsValue {
         <span class="hint">«Последовательный» — следующий урок открывается после завершения предыдущего</span>
       </div>
 
-      <div class="toggles">
-        <label class="toggle">
-          <input type="checkbox" formControlName="hasCertificate" />
-          <span>
-            <strong>Сертификат по завершении</strong>
-            <em>Студенты получат сертификат после прохождения курса</em>
-          </span>
-        </label>
-        <label class="toggle">
-          <input type="checkbox" formControlName="hasGrading" />
-          <span>
-            <strong>Оценивание</strong>
-            <em>Включить систему оценок для курса</em>
-          </span>
-        </label>
-      </div>
     </form>
   `,
   styles: [
@@ -76,14 +60,13 @@ export class CourseSettingsFormComponent {
 
   @Output() valueChange = new EventEmitter<CourseSettingsValue>();
 
+  // Состояние формы и валидаторы описывают пользовательский ввод этого экрана.
   form: FormGroup;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       deadline: [''],
-      hasCertificate: [false],
       orderType: ['Sequential'],
-      hasGrading: [false],
     });
     this.form.valueChanges.subscribe((v) => this.valueChange.emit(v as CourseSettingsValue));
   }

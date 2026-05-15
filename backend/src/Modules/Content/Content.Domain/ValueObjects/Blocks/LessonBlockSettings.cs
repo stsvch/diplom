@@ -1,5 +1,8 @@
+// LessonBlockSettings.cs
+
 namespace Content.Domain.ValueObjects.Blocks;
 
+// Value object class: описывает структуру JSON-данных блока урока.
 public class LessonBlockSettings
 {
     public decimal Points { get; set; } = 1.0m;

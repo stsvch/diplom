@@ -1,3 +1,4 @@
+// multiple-choice-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -6,6 +7,7 @@ import {
   LessonBlockAttemptDto,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-multiple-choice-viewer',
   standalone: true,
@@ -72,11 +74,13 @@ export class MultipleChoiceViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<MultipleChoiceAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   selected = signal<string[]>([]);
   submitted = signal(false);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && 'selectedOptionIds' in this.attempt.answers) {
       this.selected.set([...this.attempt.answers.selectedOptionIds]);

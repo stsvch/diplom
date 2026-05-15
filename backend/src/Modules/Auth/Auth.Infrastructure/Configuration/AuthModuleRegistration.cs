@@ -1,3 +1,4 @@
+// AuthModuleRegistration.cs
 using System.Security.Claims;
 using System.Text;
 using Auth.Application.Interfaces;
@@ -15,19 +16,20 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Infrastructure.Configuration;
 
+// DI-регистрация Auth-модуля: подключает AuthDbContext, Identity, JWT, сервисы токенов/почты, MediatR, валидаторы и маппинг.
 public static class AuthModuleRegistration
 {
     public static IServiceCollection AddAuthModule(this IServiceCollection services, IConfiguration configuration)
     {
         var applicationAssembly = typeof(Auth.Application.Mappings.AuthMappingProfile).Assembly;
 
-        // DbContext
+        // Регистрация DbContext.
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")));
 
         services.AddScoped<IAuthDbContext>(provider => provider.GetRequiredService<AuthDbContext>());
 
-        // Identity
+        // Регистрация Identity.
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
@@ -41,7 +43,7 @@ public static class AuthModuleRegistration
         .AddEntityFrameworkStores<AuthDbContext>()
         .AddDefaultTokenProviders();
 
-        // JWT Authentication
+        // Настройка JWT-аутентификации.
         var jwtSecret = configuration["Jwt:Secret"]
             ?? throw new InvalidOperationException("JWT Secret is not configured.");
         var jwtIssuer = configuration["Jwt:Issuer"]
@@ -104,18 +106,18 @@ public static class AuthModuleRegistration
 
         services.AddAuthorization();
 
-        // Services
+        // Регистрация сервисов.
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
 
-        // MediatR
+        // Регистрация MediatR.
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(applicationAssembly));
 
-        // FluentValidation
+        // Регистрация FluentValidation.
         services.AddValidatorsFromAssembly(applicationAssembly);
 
-        // AutoMapper
+        // Регистрация AutoMapper.
         services.AddAutoMapper(cfg => { }, applicationAssembly);
 
         return services;

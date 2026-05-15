@@ -1,3 +1,4 @@
+// Файл: ProgressDbContext.cs
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Progress.Application.Interfaces;
@@ -5,6 +6,7 @@ using Progress.Domain.Entities;
 
 namespace Progress.Infrastructure.Persistence;
 
+// DbContext ProgressDbContext описывает EF Core-модель и границы хранения данных модуля.
 public class ProgressDbContext : BaseDbContext, IProgressDbContext
 {
     public ProgressDbContext(DbContextOptions<ProgressDbContext> options) : base(options) { }

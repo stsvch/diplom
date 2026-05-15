@@ -1,3 +1,4 @@
+// SearchUsersQueryHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Queries.SearchUsers;
 
+// Обработчик сценария: ищет пользователей по строке и роли, возвращая компактные карточки для выбора пользователя.
 public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, Result<List<UserSummaryDto>>>
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -27,7 +29,7 @@ public class SearchUsersQueryHandler : IRequestHandler<SearchUsersQuery, Result<
         IEnumerable<ApplicationUser> source;
         if (!string.IsNullOrWhiteSpace(request.Role))
         {
-            // Role filter applied at DB layer — returns users only in that role
+            // Фильтр по роли применяется на уровне БД и возвращает только пользователей этой роли.
             source = await _userManager.GetUsersInRoleAsync(request.Role);
         }
         else

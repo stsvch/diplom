@@ -1,5 +1,7 @@
+// video-player.component.scss
 @use '../../../../styles/variables' as v;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .video-player {
   width: 100%;
   border-radius: 1rem; // rounded-2xl

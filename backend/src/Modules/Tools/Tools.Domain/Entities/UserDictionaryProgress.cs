@@ -1,8 +1,10 @@
+// Файл: UserDictionaryProgress.cs
 using EduPlatform.Shared.Domain;
 using Tools.Domain.Enums;
 
 namespace Tools.Domain.Entities;
 
+// Класс UserDictionaryProgress инкапсулирует ответственность соответствующего сценария.
 public class UserDictionaryProgress : BaseEntity, IAuditableEntity
 {
     public Guid WordId { get; set; }

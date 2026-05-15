@@ -1,3 +1,5 @@
+// AssignmentsDbContext.cs
+
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
 using Assignments.Domain.Enums;
@@ -6,14 +8,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core контекст Assignments-модуля: хранит задания, сдачи и критерии, настраивает связи, индексы и каскадное удаление.
+/// </summary>
 public class AssignmentsDbContext : BaseDbContext, IAssignmentsDbContext
 {
     public AssignmentsDbContext(DbContextOptions<AssignmentsDbContext> options) : base(options) { }
 
+    // DbSet-ы открывают агрегаты модуля для command/query handlers и read services.
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<AssignmentSubmission> AssignmentSubmissions => Set<AssignmentSubmission>();
     public DbSet<AssignmentCriteria> AssignmentCriteria => Set<AssignmentCriteria>();
 
+    // EF-конфигурация схемы, ограничений, индексов и связей модуля.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

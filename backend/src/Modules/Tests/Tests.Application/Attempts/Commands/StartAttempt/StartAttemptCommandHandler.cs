@@ -1,3 +1,5 @@
+// StartAttemptCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -9,6 +11,9 @@ using Tests.Domain.Enums;
 
 namespace Tests.Application.Attempts.Commands.StartAttempt;
 
+/// <summary>
+/// Обработчик CQRS-команды StartAttemptCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, Result<TestAttemptStartDto>>
 {
     private readonly ITestsDbContext _context;
@@ -20,6 +25,7 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestAttemptStartDto>> Handle(StartAttemptCommand request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests
@@ -30,11 +36,11 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         if (test is null)
             return Result.Failure<TestAttemptStartDto>("Тест не найден.");
 
-        // Check deadline
+        // Проверяем дедлайн теста.
         if (test.Deadline.HasValue && DateTime.UtcNow > test.Deadline.Value)
             return Result.Failure<TestAttemptStartDto>("Срок сдачи теста истёк.");
 
-        // Check for existing InProgress attempt
+        // Ищем уже начатую попытку, чтобы не создавать дубль.
         var existingInProgress = await _context.TestAttempts
             .AnyAsync(a => a.TestId == request.TestId
                         && a.StudentId == request.StudentId
@@ -43,7 +49,7 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         if (existingInProgress)
             return Result.Failure<TestAttemptStartDto>("У вас уже есть незавершённая попытка.");
 
-        // Check max attempts
+        // Проверяем ограничение по количеству попыток.
         var completedAttempts = await _context.TestAttempts
             .CountAsync(a => a.TestId == request.TestId
                          && a.StudentId == request.StudentId, cancellationToken);
@@ -51,7 +57,7 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         if (test.MaxAttempts.HasValue && completedAttempts >= test.MaxAttempts.Value)
             return Result.Failure<TestAttemptStartDto>("Превышено максимальное количество попыток.");
 
-        // Create attempt
+        // Создаём новую попытку прохождения теста.
         var attempt = new TestAttempt
         {
             TestId = test.Id,
@@ -64,10 +70,10 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         _context.TestAttempts.Add(attempt);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // Prepare questions (without correct answers)
+        // Готовим вопросы для студента без раскрытия правильных ответов.
         var questions = test.Questions.ToList();
 
-        // Shuffle questions if needed
+        // Перемешиваем вопросы, если это включено в настройках теста.
         if (test.ShuffleQuestions)
         {
             var rng = new Random();
@@ -79,7 +85,7 @@ public class StartAttemptCommandHandler : IRequestHandler<StartAttemptCommand, R
         {
             var options = q.AnswerOptions.ToList();
 
-            // Shuffle answers if needed
+            // Перемешиваем варианты ответов, если это включено в настройках теста.
             if (test.ShuffleAnswers)
             {
                 var rng = new Random();

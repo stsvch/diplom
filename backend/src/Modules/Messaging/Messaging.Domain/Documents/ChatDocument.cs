@@ -1,9 +1,11 @@
+// ChatDocument.cs
 using Messaging.Domain.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Messaging.Domain.Documents;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 [BsonIgnoreExtraElements]
 public class ChatDocument
 {

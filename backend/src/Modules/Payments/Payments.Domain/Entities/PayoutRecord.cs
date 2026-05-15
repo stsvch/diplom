@@ -1,8 +1,10 @@
+// PayoutRecord.cs
 using EduPlatform.Shared.Domain;
 using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class PayoutRecord : BaseEntity, IAuditableEntity
 {
     public string TeacherId { get; set; } = string.Empty;
@@ -12,7 +14,6 @@ public class PayoutRecord : BaseEntity, IAuditableEntity
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "usd";
     public int SettlementsCount { get; set; }
-    public int AllocationLinesCount { get; set; }
     public PayoutRecordStatus Status { get; set; } = PayoutRecordStatus.Queued;
     public DateTime RequestedAt { get; set; }
     public DateTime? SubmittedAt { get; set; }

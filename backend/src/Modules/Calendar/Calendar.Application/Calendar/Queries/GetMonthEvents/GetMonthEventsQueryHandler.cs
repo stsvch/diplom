@@ -1,3 +1,4 @@
+// GetMonthEventsQueryHandler.cs
 using AutoMapper;
 using Calendar.Application.DTOs;
 using Calendar.Application.Interfaces;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendar.Application.Calendar.Queries.GetMonthEvents;
 
+// Handler собирает данные для чтения и маппит их в DTO.
 public class GetMonthEventsQueryHandler : IRequestHandler<GetMonthEventsQuery, Result<List<CalendarEventDto>>>
 {
     private readonly ICalendarDbContext _context;

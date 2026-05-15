@@ -1,5 +1,7 @@
+// file-card.component.scss
 @use '../../../../styles/variables' as v;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .file-card {
   display: flex;
   align-items: center;
@@ -10,6 +12,7 @@
   border-radius: v.$radius-xl;
   transition: box-shadow v.$transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     box-shadow: v.$shadow-sm;
   }

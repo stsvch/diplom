@@ -1,3 +1,5 @@
+// ReviewAttemptCommandHandler.cs
+
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
@@ -7,6 +9,7 @@ using MediatR;
 
 namespace Content.Application.Attempts.Commands.ReviewAttempt;
 
+// Тип class: ключевой элемент файла ReviewAttemptCommandHandler.cs.
 public class ReviewAttemptCommandHandler : IRequestHandler<ReviewAttemptCommand, Result<LessonBlockAttemptDto>>
 {
     private readonly IContentDbContext _context;
@@ -18,6 +21,7 @@ public class ReviewAttemptCommandHandler : IRequestHandler<ReviewAttemptCommand,
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<LessonBlockAttemptDto>> Handle(ReviewAttemptCommand request, CancellationToken cancellationToken)
     {
         var attempt = await _context.LessonBlockAttempts.FindAsync([request.AttemptId], cancellationToken);

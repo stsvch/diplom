@@ -1,5 +1,8 @@
+<!-- admin-dashboard.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="ad">
   <!-- Hero -->
+  <!-- Содержательная секция группирует связанный блок данных. -->
   <section class="ad-hero">
     <div class="ad-hero__col ad-hero__col--copy">
       <span class="ad-hero__pill">REPORTS / ADMIN</span>
@@ -10,6 +13,7 @@
       </p>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (stats(); as s) {
       <div class="ad-hero__col ad-hero__col--meter">
         <div class="ad-meter">

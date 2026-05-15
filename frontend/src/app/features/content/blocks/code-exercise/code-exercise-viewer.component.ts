@@ -1,3 +1,4 @@
+// code-exercise-viewer.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ import {
 import { AuthService } from '../../../../core/services/auth.service';
 import { UserRole } from '../../../../core/models/user.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-code-exercise-viewer',
   standalone: true,
@@ -273,6 +275,7 @@ export class CodeExerciseViewerComponent implements OnInit, OnChanges {
   private readonly attemptsService = inject(BlockAttemptsService);
   private readonly authService = inject(AuthService);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   code = signal('');
   running = signal(false);
   submitted = signal(false);
@@ -304,6 +307,7 @@ export class CodeExerciseViewerComponent implements OnInit, OnChanges {
     return m[lang] ?? 'plaintext';
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     this.syncFromAttempt();
     this.loadHistory();
@@ -323,6 +327,7 @@ export class CodeExerciseViewerComponent implements OnInit, OnChanges {
     if (!this.blockId || !this.code().trim()) return;
     this.running.set(true);
     this.globalError.set(null);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.contentService.executeCode(this.blockId, this.code()).subscribe({
       next: (resp: CodeExecutionResponse) => {
         this.running.set(false);

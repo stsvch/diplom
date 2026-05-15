@@ -1,5 +1,7 @@
+// TeacherPayoutAccountStatus.cs
 namespace Payments.Domain.Enums;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public enum TeacherPayoutAccountStatus
 {
     NotStarted = 0,

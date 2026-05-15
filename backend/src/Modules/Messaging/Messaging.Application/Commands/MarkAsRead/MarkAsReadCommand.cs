@@ -1,3 +1,4 @@
+// MarkAsReadCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -5,8 +6,10 @@ using Messaging.Application.Interfaces;
 
 namespace Messaging.Application.Commands.MarkAsRead;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record MarkAsReadCommand(string ChatId, string UserId) : IRequest<Result>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class MarkAsReadValidator : AbstractValidator<MarkAsReadCommand>
 {
     public MarkAsReadValidator()
@@ -16,6 +19,7 @@ public class MarkAsReadValidator : AbstractValidator<MarkAsReadCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class MarkAsReadCommandHandler : IRequestHandler<MarkAsReadCommand, Result>
 {
     private readonly IMessagingRepository _repository;

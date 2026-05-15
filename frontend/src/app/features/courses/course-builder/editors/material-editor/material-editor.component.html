@@ -1,5 +1,9 @@
+<!-- material-editor.component.html -->
+<!-- Условный блок переключает состояние отображения по данным компонента. -->
 @if (item(); as it) {
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="me">
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="me__header">
       <span class="me__badge" [class.me__badge--material]="isMaterial()" [class.me__badge--link]="!isMaterial()">
         <lucide-icon [img]="isMaterial() ? icons.paperclip : icons.link" [size]="12" />

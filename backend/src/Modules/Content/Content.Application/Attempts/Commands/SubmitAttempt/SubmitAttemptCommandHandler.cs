@@ -1,3 +1,5 @@
+// SubmitAttemptCommandHandler.cs
+
 using Content.Application.DTOs;
 using Content.Application.Grading;
 using Content.Application.Interfaces;
@@ -13,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.Attempts.Commands.SubmitAttempt;
 
+// Тип class: ключевой элемент файла SubmitAttemptCommandHandler.cs.
 public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand, Result<SubmitAttemptResultDto>>
 {
     private readonly IContentDbContext _context;
@@ -32,6 +35,7 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         _codeExecutor = codeExecutor;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<SubmitAttemptResultDto>> Handle(SubmitAttemptCommand request, CancellationToken cancellationToken)
     {
         var block = await _context.LessonBlocks.FindAsync([request.BlockId], cancellationToken);

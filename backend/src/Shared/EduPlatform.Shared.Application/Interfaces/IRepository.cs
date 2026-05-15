@@ -1,8 +1,10 @@
+// Файл: IRepository.cs
 using System.Linq.Expressions;
 using EduPlatform.Shared.Domain;
 
 namespace EduPlatform.Shared.Application.Interfaces;
 
+// Интерфейс IRepository задаёт контракт сервиса между слоями или модулями.
 public interface IRepository<T> where T : BaseEntity
 {
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

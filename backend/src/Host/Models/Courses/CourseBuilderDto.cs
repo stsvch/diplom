@@ -1,7 +1,9 @@
+// Файл: CourseBuilderDto.cs
 using Courses.Domain.Enums;
 
 namespace EduPlatform.Host.Models.Courses;
 
+// Перечисление CourseBuilderReadStatus ограничивает допустимые значения доменного состояния.
 public enum CourseBuilderReadStatus
 {
     Success,
@@ -9,10 +11,12 @@ public enum CourseBuilderReadStatus
     Forbidden
 }
 
+// DTO CourseBuilderReadResult переносит данные наружу без раскрытия доменной сущности.
 public sealed record CourseBuilderReadResult(
     CourseBuilderReadStatus Status,
     CourseBuilderDto? Builder = null);
 
+// DTO CourseBuilderDto переносит данные наружу без раскрытия доменной сущности.
 public sealed class CourseBuilderDto
 {
     public CourseBuilderCourseDto Course { get; set; } = null!;
@@ -38,8 +42,6 @@ public sealed class CourseBuilderCourseDto
     public bool IsArchived { get; set; }
     public string? ArchiveReason { get; set; }
     public string OrderType { get; set; } = string.Empty;
-    public bool HasGrading { get; set; }
-    public bool HasCertificate { get; set; }
     public DateTime? Deadline { get; set; }
     public List<string> Tags { get; set; } = new();
     public DateTime CreatedAt { get; set; }

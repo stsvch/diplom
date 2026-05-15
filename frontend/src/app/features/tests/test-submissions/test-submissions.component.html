@@ -1,3 +1,5 @@
+<!-- test-submissions.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="test-submissions">
   <!-- Header -->
   <div class="test-submissions__header">
@@ -13,6 +15,7 @@
     </div>
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="test-submissions__loading">
       <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />

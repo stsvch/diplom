@@ -1,3 +1,4 @@
+// assignment-submit.component.ts
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ import { RichTextViewerComponent } from '../../../shared/components/rich-text-vi
 import { FileUploaderComponent } from '../../../shared/components/file-uploader/file-uploader.component';
 import { FileCardComponent } from '../../../shared/components/file-card/file-card.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-assignment-submit',
   standalone: true,
@@ -61,16 +63,17 @@ export class AssignmentSubmitComponent implements OnInit {
   readonly ClipboardListIcon = ClipboardList;
   readonly MessageIcon = MessageSquare;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly submitting = signal(false);
   readonly assignment = signal<AssignmentDetailDto | null>(null);
   readonly mySubmissions = signal<SubmissionDto[]>([]);
 
-  // Current submission that we are building (temp entity to attach files)
+  // Текущая черновая сдача используется как временная сущность для вложений.
   readonly pendingSubmissionId = signal<string | null>(null);
   readonly uploadedFiles = signal<AttachmentDto[]>([]);
 
-  // Form
+  // Форма.
   content = '';
 
   assignmentId = '';
@@ -98,6 +101,7 @@ export class AssignmentSubmitComponent implements OnInit {
     return true;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.assignmentId = this.route.snapshot.paramMap.get('id') ?? '';
     if (this.assignmentId) {
@@ -108,6 +112,7 @@ export class AssignmentSubmitComponent implements OnInit {
 
   loadAssignment(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.assignmentsService.getAssignment(this.assignmentId).subscribe({
       next: (data) => {
         this.assignment.set(data);

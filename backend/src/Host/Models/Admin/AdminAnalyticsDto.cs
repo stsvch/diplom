@@ -1,5 +1,7 @@
+// Файл: AdminAnalyticsDto.cs
 namespace EduPlatform.Host.Models.Admin;
 
+// DTO AdminAnalyticsDto переносит данные наружу без раскрытия доменной сущности.
 public class AdminAnalyticsDto
 {
     public AdminAnalyticsSummaryDto Summary { get; set; } = new();
@@ -10,6 +12,7 @@ public class AdminAnalyticsDto
     public List<AdminAnalyticsTopTeacherDto> TopTeachers { get; set; } = [];
 }
 
+// DTO AdminAnalyticsSummaryDto переносит данные наружу без раскрытия доменной сущности.
 public class AdminAnalyticsSummaryDto
 {
     public int TotalUsers { get; set; }
@@ -22,12 +25,11 @@ public class AdminAnalyticsSummaryDto
     public int PaidInvoices30Days { get; set; }
 }
 
+// DTO AdminAnalyticsPaymentsDto переносит данные наружу без раскрытия доменной сущности.
 public class AdminAnalyticsPaymentsDto
 {
     public int SuccessfulPayments30Days { get; set; }
     public int FailedPayments30Days { get; set; }
-    public int RefundedPayments30Days { get; set; }
-    public int DisputedPayments30Days { get; set; }
     public int CoursePurchases30Days { get; set; }
     public int SubscriptionInvoicesPaid30Days { get; set; }
 }

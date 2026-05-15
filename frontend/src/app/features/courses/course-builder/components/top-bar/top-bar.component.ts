@@ -1,3 +1,4 @@
+// top-bar.component.ts
 import { Component, Input, Output, EventEmitter, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -18,6 +19,7 @@ import {
 } from 'lucide-angular';
 import { CourseBuilderStore } from '../../state/course-builder.store';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-top-bar',
   standalone: true,
@@ -45,6 +47,7 @@ export class TopBarComponent {
     chevronRight: ChevronRight,
   };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly showPublishModal = signal(false);
   readonly showBackModal = signal(false);
 

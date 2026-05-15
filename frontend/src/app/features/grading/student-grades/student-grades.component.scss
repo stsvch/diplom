@@ -1,5 +1,7 @@
+// student-grades.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .student-grades {
   padding: v.$spacing-6;
 
@@ -26,6 +28,7 @@
     gap: v.$spacing-4;
     margin-bottom: v.$spacing-6;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-lg) {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -147,6 +150,7 @@
   border-bottom: 1px solid v.$border-color;
   transition: background v.$transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:last-child {
     border-bottom: none;
   }

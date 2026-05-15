@@ -1,3 +1,4 @@
+// PaymentsDbContext.cs
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Payments.Application.Interfaces;
@@ -5,6 +6,7 @@ using Payments.Domain.Entities;
 
 namespace Payments.Infrastructure.Persistence;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
 {
     public PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : base(options) { }
@@ -12,8 +14,6 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
     public DbSet<TeacherPayoutAccount> TeacherPayoutAccounts => Set<TeacherPayoutAccount>();
     public DbSet<TeacherSettlement> TeacherSettlements => Set<TeacherSettlement>();
     public DbSet<PayoutRecord> PayoutRecords => Set<PayoutRecord>();
-    public DbSet<RefundRecord> RefundRecords => Set<RefundRecord>();
-    public DbSet<DisputeRecord> DisputeRecords => Set<DisputeRecord>();
     public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
     public DbSet<PaymentAttempt> PaymentAttempts => Set<PaymentAttempt>();
     public DbSet<CoursePurchase> CoursePurchases => Set<CoursePurchase>();
@@ -21,8 +21,6 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
     public DbSet<SubscriptionPaymentAttempt> SubscriptionPaymentAttempts => Set<SubscriptionPaymentAttempt>();
     public DbSet<SubscriptionInvoice> SubscriptionInvoices => Set<SubscriptionInvoice>();
-    public DbSet<SubscriptionAllocationRun> SubscriptionAllocationRuns => Set<SubscriptionAllocationRun>();
-    public DbSet<SubscriptionAllocationLine> SubscriptionAllocationLines => Set<SubscriptionAllocationLine>();
     public DbSet<SubscriptionUsage> SubscriptionUsages => Set<SubscriptionUsage>();
     public DbSet<PaymentMethodRef> PaymentMethods => Set<PaymentMethodRef>();
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
@@ -55,10 +53,6 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.Property(x => x.ProviderFeeAmount).HasColumnType("decimal(18,2)");
             e.Property(x => x.PlatformCommissionAmount).HasColumnType("decimal(18,2)");
             e.Property(x => x.NetAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.RefundedGrossAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.RefundedNetAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.DisputedGrossAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.DisputedNetAmount).HasColumnType("decimal(18,2)");
             e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
             e.Property(x => x.PayoutRecordId);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
@@ -78,52 +72,10 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.Property(x => x.ProviderTransferId).HasMaxLength(200);
             e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
             e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
-            e.Property(x => x.AllocationLinesCount);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
             e.Property(x => x.FailureMessage).HasMaxLength(2000);
             e.HasIndex(x => new { x.TeacherId, x.RequestedAt });
             e.HasIndex(x => x.ProviderTransferId);
-        });
-
-        modelBuilder.Entity<RefundRecord>(e =>
-        {
-            e.HasKey(x => x.Id);
-            e.Property(x => x.StudentId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.TeacherId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.RequestedByAdminId).HasMaxLength(450);
-            e.Property(x => x.CourseTitle).IsRequired().HasMaxLength(500);
-            e.Property(x => x.Provider).IsRequired().HasMaxLength(50);
-            e.Property(x => x.ProviderRefundId).IsRequired().HasMaxLength(200);
-            e.Property(x => x.ProviderPaymentIntentId).HasMaxLength(200);
-            e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.TeacherNetRefundAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
-            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
-            e.Property(x => x.Reason).HasMaxLength(200);
-            e.Property(x => x.FailureMessage).HasMaxLength(2000);
-            e.HasIndex(x => x.ProviderRefundId).IsUnique();
-            e.HasIndex(x => new { x.StudentId, x.RequestedAt });
-            e.HasIndex(x => x.PaymentAttemptId);
-        });
-
-        modelBuilder.Entity<DisputeRecord>(e =>
-        {
-            e.HasKey(x => x.Id);
-            e.Property(x => x.StudentId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.TeacherId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.CourseTitle).IsRequired().HasMaxLength(500);
-            e.Property(x => x.Provider).IsRequired().HasMaxLength(50);
-            e.Property(x => x.ProviderDisputeId).IsRequired().HasMaxLength(200);
-            e.Property(x => x.ProviderPaymentIntentId).HasMaxLength(200);
-            e.Property(x => x.Amount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.AppliedGrossAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.TeacherNetDisputeAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
-            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
-            e.Property(x => x.Reason).HasMaxLength(200);
-            e.HasIndex(x => x.ProviderDisputeId).IsUnique();
-            e.HasIndex(x => new { x.StudentId, x.OpenedAt });
-            e.HasIndex(x => x.PaymentAttemptId);
         });
 
         modelBuilder.Entity<UserPaymentProfile>(e =>
@@ -239,47 +191,6 @@ public class PaymentsDbContext : BaseDbContext, IPaymentsDbContext
             e.HasIndex(x => x.ProviderInvoiceId).IsUnique();
             e.HasIndex(x => new { x.UserId, x.CreatedAt });
             e.HasIndex(x => x.ProviderSubscriptionId);
-        });
-
-        modelBuilder.Entity<SubscriptionAllocationRun>(e =>
-        {
-            e.HasKey(x => x.Id);
-            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.PlanName).IsRequired().HasMaxLength(200);
-            e.Property(x => x.GrossAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.PlatformCommissionAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.ProviderFeeAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.NetAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
-            e.Property(x => x.Strategy).IsRequired().HasMaxLength(100);
-            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
-            e.HasIndex(x => new { x.SubscriptionInvoiceId, x.Strategy }).IsUnique();
-            e.HasIndex(x => new { x.UserId, x.CreatedAt });
-        });
-
-        modelBuilder.Entity<SubscriptionAllocationLine>(e =>
-        {
-            e.HasKey(x => x.Id);
-            e.Property(x => x.UserId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.TeacherId).IsRequired().HasMaxLength(450);
-            e.Property(x => x.TeacherName).IsRequired().HasMaxLength(300);
-            e.Property(x => x.CourseTitle).IsRequired().HasMaxLength(500);
-            e.Property(x => x.Source).HasConversion<string>().HasMaxLength(50);
-            e.Property(x => x.AllocationWeight).HasColumnType("decimal(18,6)");
-            e.Property(x => x.ProgressPercent).HasColumnType("decimal(18,6)");
-            e.Property(x => x.GrossAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.PlatformCommissionAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.ProviderFeeAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.NetAmount).HasColumnType("decimal(18,2)");
-            e.Property(x => x.Currency).IsRequired().HasMaxLength(16);
-            e.Property(x => x.PayoutRecordId);
-            e.HasIndex(x => x.SubscriptionAllocationRunId);
-            e.HasIndex(x => new { x.TeacherId, x.CreatedAt });
-            e.HasIndex(x => x.PayoutRecordId);
-            // Уникальный ключ: для course-стратегии — (Run, CourseId, TeacherId);
-            // для live-session — (Run, BookingId, TeacherId). BookingId nullable, поэтому
-            // строки разных стратегий не конфликтуют.
-            e.HasIndex(x => new { x.SubscriptionAllocationRunId, x.CourseId, x.TeacherId, x.BookingId }).IsUnique();
         });
 
         modelBuilder.Entity<SubscriptionUsage>(e =>

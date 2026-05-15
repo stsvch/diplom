@@ -1,7 +1,12 @@
+// AnswerOption.cs
+
 using EduPlatform.Shared.Domain;
 
 namespace Tests.Domain.Entities;
 
+/// <summary>
+/// Тип AnswerOption относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class AnswerOption : BaseEntity
 {
     public Guid QuestionId { get; set; }

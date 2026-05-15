@@ -1,15 +1,14 @@
+// student-dashboard.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   ArrowRight,
   BookOpen,
-  CalendarClock,
   CheckCircle2,
   ClipboardList,
   GraduationCap,
   LucideAngularModule,
-  Sparkles,
   Target,
 } from 'lucide-angular';
 import { parseApiError } from '../../../core/models/api-error.model';
@@ -22,6 +21,7 @@ import {
 } from '../models/reports.model';
 import { ReportsService } from '../services/reports.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
@@ -41,11 +41,10 @@ export class StudentDashboardComponent implements OnInit {
   readonly TargetIcon = Target;
   readonly CheckCircleIcon = CheckCircle2;
   readonly GradeIcon = GraduationCap;
-  readonly CalendarIcon = CalendarClock;
-  readonly ActivityIcon = Sparkles;
   readonly ArrowRightIcon = ArrowRight;
   readonly AssignmentsIcon = ClipboardList;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly dashboard = signal<StudentDashboardDto | null>(null);
@@ -67,6 +66,7 @@ export class StudentDashboardComponent implements OnInit {
     minute: '2-digit',
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -75,6 +75,7 @@ export class StudentDashboardComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.reports.getStudentDashboard().subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);

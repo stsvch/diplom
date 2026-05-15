@@ -1,3 +1,4 @@
+// profile.component.ts
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -7,6 +8,7 @@ import { FileService } from '../../core/services/file.service';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { User } from '../../core/models/user.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -15,6 +17,7 @@ import { User } from '../../core/models/user.model';
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
+  // Состояние формы и валидаторы описывают пользовательский ввод этого экрана.
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly users = inject(UsersService);
@@ -22,6 +25,7 @@ export class ProfileComponent implements OnInit {
   private readonly toast = inject(ToastService);
 
   user = this.auth.currentUser;
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   avatarUploading = signal(false);
   savingProfile = signal(false);
   savingPassword = signal(false);
@@ -49,11 +53,13 @@ export class ProfileComponent implements OnInit {
     repeatPassword: ['', Validators.required],
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     const u = this.user();
     if (u) {
       this.profileForm.patchValue({ firstName: u.firstName, lastName: u.lastName });
     } else {
+      // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
       this.auth.fetchProfile().subscribe({
         next: (fetched) =>
           this.profileForm.patchValue({ firstName: fetched.firstName, lastName: fetched.lastName }),

@@ -1,6 +1,16 @@
+<!-- lesson-view-stepper.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="stepper">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
-    <div class="lvs-skel">
+    <div class="lesson-loading" role="status" aria-live="polite">
+      <div class="lesson-loading__spinner" aria-hidden="true"></div>
+      <div>
+        <p class="lesson-loading__title">Загружаем урок</p>
+        <p class="lesson-loading__hint">Готовим пошаговый режим и блоки</p>
+      </div>
+    </div>
+    <div class="lvs-skel" aria-hidden="true">
       <div class="lvs-skel__title"></div>
       <div class="lvs-skel__card">
         <div class="lvs-skel__chip"></div>
@@ -13,8 +23,17 @@
         <div class="lvs-skel__btn lvs-skel__btn--primary"></div>
       </div>
     </div>
+  } @else if (loadError()) {
+    <div class="lesson-state lesson-state--error">
+      <p class="lesson-state__title">Урок не загрузился</p>
+      <p class="lesson-state__text">{{ loadError() }}</p>
+      <button type="button" class="lesson-state__action" (click)="retryLoad()">Повторить</button>
+    </div>
   } @else if (entries().length === 0) {
-    <div class="state">В этом уроке пока нет блоков.</div>
+    <div class="lesson-state">
+      <p class="lesson-state__title">В этом уроке пока нет блоков</p>
+      <p class="lesson-state__text">Когда преподаватель добавит материалы, пошаговый режим станет доступен.</p>
+    </div>
   } @else if (isFinalScreen()) {
     <div class="final">
       <h2>Урок пройден</h2>
@@ -29,6 +48,7 @@
       }
     </div>
   } @else if (currentEntry(); as e) {
+    <!-- Основная область страницы показывает рабочий контент пользователя. -->
     <main class="stepper__main">
       <app-block-host [type]="e.block.type" [readonly]="true">
         <app-block-viewer-host
@@ -56,6 +76,8 @@
     </main>
   }
 
+  <!-- Нижняя часть секции завершает основной сценарий экрана. -->
+  @if (!loading() && !loadError() && entries().length > 0 && !isFinalScreen()) {
   <footer class="stepper__footer">
     <button class="nav" type="button" (click)="prev()" [disabled]="currentIndex() === 0">
       <lucide-icon name="chevron-left" size="20"></lucide-icon>
@@ -89,4 +111,5 @@
       <lucide-icon name="chevron-right" size="20"></lucide-icon>
     </button>
   </footer>
+  }
 </div>

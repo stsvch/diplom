@@ -1,9 +1,11 @@
+// file.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AttachmentDto } from '../models/attachment.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -16,6 +18,7 @@ export class FileService {
     formData.append('file', file);
     formData.append('entityType', entityType);
     if (entityId) formData.append('entityId', entityId);
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<AttachmentDto>(`${this.base}/files/upload`, formData);
   }
 

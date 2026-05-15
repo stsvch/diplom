@@ -1,3 +1,4 @@
+// Файл: LessonsController.cs
 using Courses.Application.DTOs;
 using Courses.Application.Lessons.Commands.CreateLesson;
 using Courses.Application.Lessons.Commands.DeleteLesson;
@@ -16,6 +17,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер LessonsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/lessons")]
 public class LessonsController : ControllerBase
@@ -193,4 +195,5 @@ public class LessonsController : ControllerBase
     private bool IsAdmin() => User.IsInRole("Admin");
 }
 
+// API-модель UpdateLessonRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateLessonRequest(string Title, string? Description, int? Duration, bool? IsPublished, LessonLayout? Layout = null, Guid? ModuleId = null);

@@ -1,3 +1,5 @@
+// AddQuestionCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -8,6 +10,9 @@ using Tests.Domain.Entities;
 
 namespace Tests.Application.Tests.Commands.AddQuestion;
 
+/// <summary>
+/// Обработчик CQRS-команды AddQuestionCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, Result<QuestionDto>>
 {
     private readonly ITestsDbContext _context;
@@ -19,6 +24,7 @@ public class AddQuestionCommandHandler : IRequestHandler<AddQuestionCommand, Res
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<QuestionDto>> Handle(AddQuestionCommand request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

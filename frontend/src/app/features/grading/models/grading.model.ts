@@ -1,3 +1,5 @@
+// grading.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export type GradeSourceType = 'Test' | 'Assignment';
 
 export interface GradeDto {

@@ -1,7 +1,9 @@
+// Файл: DictionaryWord.cs
 using EduPlatform.Shared.Domain;
 
 namespace Tools.Domain.Entities;
 
+// Класс DictionaryWord инкапсулирует ответственность соответствующего сценария.
 public class DictionaryWord : BaseEntity, IAuditableEntity
 {
     public Guid CourseId { get; set; }

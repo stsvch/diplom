@@ -1,3 +1,4 @@
+// catalog.component.ts
 import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,6 +24,7 @@ import { CourseCardComponent } from '../../../shared/components/course-card/cour
 import { AuthService } from '../../../core/services/auth.service';
 import { RevealDirective } from '../../../shared/directives/reveal.directive';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-catalog',
   standalone: true,
@@ -53,6 +55,7 @@ export class CatalogComponent implements OnInit {
   readonly FilterIcon = Filter;
   readonly ZapIcon = Zap;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly disciplinesLoading = signal(false);
   readonly courses = signal<CourseListDto[]>([]);
@@ -135,6 +138,7 @@ export class CatalogComponent implements OnInit {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadDisciplines();
     this.loadCourses();
@@ -142,6 +146,7 @@ export class CatalogComponent implements OnInit {
 
   loadDisciplines(): void {
     this.disciplinesLoading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.disciplinesService.getAll().subscribe({
       next: (data) => {
         this.disciplines.set(data);

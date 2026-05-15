@@ -1,3 +1,4 @@
+// video-block-editor.component.ts
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { VideoBlockData } from '../../models';
@@ -6,6 +7,7 @@ import { AttachmentDto } from '../../../../core/models/attachment.model';
 
 type Mode = 'url' | 'upload';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-video-block-editor',
   standalone: true,
@@ -68,6 +70,7 @@ export class VideoBlockEditorComponent {
   @Input() blockId = '';
   @Output() dataChange = new EventEmitter<VideoBlockData>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   mode = signal<Mode>('url');
 
   update(patch: Partial<VideoBlockData>) {

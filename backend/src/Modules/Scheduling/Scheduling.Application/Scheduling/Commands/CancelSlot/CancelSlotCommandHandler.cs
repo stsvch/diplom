@@ -1,3 +1,5 @@
+// CancelSlotCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -8,6 +10,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.CancelSlot;
 
+/// <summary>
+/// Обработчик CQRS-команды CancelSlotCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CancelSlotCommandHandler : IRequestHandler<CancelSlotCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
@@ -24,6 +29,7 @@ public class CancelSlotCommandHandler : IRequestHandler<CancelSlotCommand, Resul
         _notifications = notifications;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(CancelSlotCommand request, CancellationToken cancellationToken)
     {
         var slot = await _context.ScheduleSlots

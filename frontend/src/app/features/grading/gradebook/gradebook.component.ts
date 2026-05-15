@@ -1,3 +1,4 @@
+// gradebook.component.ts
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -23,6 +24,7 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { SearchInputComponent } from '../../../shared/components/search-input/search-input.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-gradebook',
   standalone: true,
@@ -52,6 +54,7 @@ export class GradebookComponent implements OnInit {
   readonly ClipboardIcon = ClipboardList;
   readonly ChevronDownIcon = ChevronDown;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly statsLoading = signal(false);
   readonly courses = signal<CourseListDto[]>([]);
@@ -95,16 +98,18 @@ export class GradebookComponent implements OnInit {
     });
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadCourses();
   }
 
   loadCourses(): void {
-    this.coursesService.getCourses({ pageSize: 100 }).subscribe({
-      next: (data) => {
-        this.courses.set(data.items);
-        if (data.items.length > 0) {
-          this.selectCourse(data.items[0].id);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
+    this.coursesService.getMyCourses().subscribe({
+      next: (items) => {
+        this.courses.set(items);
+        if (items.length > 0) {
+          this.selectCourse(items[0].id);
         }
       },
       error: (err) => {

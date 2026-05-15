@@ -1,7 +1,9 @@
+// ApplicationUser.cs
 using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Domain.Entities;
 
+// Доменная модель пользователя поверх ASP.NET Identity: кроме стандартных email/password/lockout хранит имя, фамилию, avatarUrl и даты аудита профиля.
 public class ApplicationUser : IdentityUser
 {
     public string FirstName { get; set; } = string.Empty;

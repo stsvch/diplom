@@ -1,3 +1,5 @@
+// GetCourseGradebookQueryHandler.cs
+
 using Grading.Application.DTOs;
 using Grading.Application.Interfaces;
 using MediatR;
@@ -5,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grading.Application.Grades.Queries.GetCourseGradebook;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetCourseGradebookQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetCourseGradebookQueryHandler : IRequestHandler<GetCourseGradebookQuery, GradebookDto>
 {
     private readonly IGradingDbContext _context;
@@ -14,6 +19,7 @@ public class GetCourseGradebookQueryHandler : IRequestHandler<GetCourseGradebook
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<GradebookDto> Handle(GetCourseGradebookQuery request, CancellationToken cancellationToken)
     {
         var grades = await _context.Grades
@@ -46,7 +52,7 @@ public class GetCourseGradebookQueryHandler : IRequestHandler<GetCourseGradebook
                 return new StudentGradesDto
                 {
                     StudentId = group.Key,
-                    StudentName = group.Key, // will be enriched by controller if needed
+                    StudentName = group.Key, // При необходимости контроллер дополнит имя студента.
                     Grades = gradeDtos,
                     AverageScore = Math.Round((decimal)avg, 2)
                 };

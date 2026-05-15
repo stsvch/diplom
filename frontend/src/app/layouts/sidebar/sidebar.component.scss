@@ -1,8 +1,9 @@
+// sidebar.component.scss
 @use '../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 // ─────────────────────────────────────────────
 // Корень — light sidebar (Figma Make)
-// ─────────────────────────────────────────────
 .sb {
   // ── Палитра по ролям (через data-role)
   --sb-accent:        #{$indigo-500};
@@ -33,7 +34,7 @@
   font-family: $font-family;
 }
 
-// ── Logo
+// Стили следующей секции интерфейса.
 .sb__logo {
   display: flex;
   align-items: center;
@@ -76,13 +77,14 @@
   border-radius: $radius-lg;
   transition: color $transition-fast, background $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     background: $slate-100;
     color: $slate-600;
   }
 }
 
-// ── Role badge
+// Стили следующей секции интерфейса.
 .sb__role-row {
   padding: $spacing-3 $spacing-6;
 }
@@ -107,7 +109,7 @@
   background: var(--sb-accent);
 }
 
-// ── Nav
+// Стили следующей секции интерфейса.
 .sb__nav {
   flex: 1;
   padding: $spacing-2 $spacing-4;
@@ -222,7 +224,7 @@
   }
 }
 
-// ── Bottom block
+// Стили следующей секции интерфейса.
 .sb__bottom {
   padding: $spacing-4;
   border-top: 1px solid $slate-100;
@@ -232,8 +234,8 @@
 }
 
 // ─────────────────────────────────────────────
-// Mobile (<1024px)
-// ─────────────────────────────────────────────
+// Мобильная версия (<1024px).
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (max-width: 1023px) {
   .sb {
     position: fixed;

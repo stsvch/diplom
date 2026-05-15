@@ -1,3 +1,4 @@
+// Файл: Program.cs
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Backend запускается как проектный ресурс Aspire.

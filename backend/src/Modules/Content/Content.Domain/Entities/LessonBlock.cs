@@ -1,9 +1,12 @@
+// LessonBlock.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 using EduPlatform.Shared.Domain;
 
 namespace Content.Domain.Entities;
 
+// Доменная сущность class: хранит состояние, инварианты и связи бизнес-модели модуля Content.
 public class LessonBlock : BaseEntity, IAuditableEntity
 {
     public Guid LessonId { get; set; }
@@ -17,9 +20,7 @@ public class LessonBlock : BaseEntity, IAuditableEntity
     /// </summary>
     public LessonBlockStatus Status { get; set; } = LessonBlockStatus.Ready;
 
-    /// <summary>
     /// JSON-список ошибок валидации (если блок в Draft или Invalid). Пусто, если блок Ready.
-    /// </summary>
     public string? ValidationErrorsJson { get; set; }
 
     public DateTime CreatedAt { get; set; }

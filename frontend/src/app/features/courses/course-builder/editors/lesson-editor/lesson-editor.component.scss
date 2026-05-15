@@ -1,5 +1,7 @@
+// lesson-editor.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .le {
@@ -31,6 +33,7 @@
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--lesson { background: $indigo-50; color: $indigo-600; }
 }
 
@@ -84,7 +87,7 @@
   font-size: $font-size-sm;
 }
 
-// ── Empty state ──
+// Пустое состояние.
 .le__empty {
   display: flex;
   flex-direction: column;
@@ -128,6 +131,7 @@
   gap: $spacing-2;
   margin-bottom: $spacing-4;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: $breakpoint-sm) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -441,7 +445,7 @@
     }
   }
 
-  // Video
+  // Видео.
   &__video-frame {
     aspect-ratio: 16/9;
     border-radius: $radius-xl;
@@ -488,7 +492,7 @@
     lucide-icon { color: $teal-400; }
   }
 
-  // Image preview
+  // Превью изображения.
   &__image-preview {
     border-radius: $radius-xl;
     overflow: hidden;
@@ -503,7 +507,7 @@
     }
   }
 
-  // Audio
+  // Аудио.
   &__audio {
     display: flex;
     align-items: center;
@@ -537,7 +541,7 @@
     font-size: $font-size-sm;
   }
 
-  // File
+  // Файл.
   &__file {
     display: flex;
     align-items: center;
@@ -573,7 +577,7 @@
     margin: 0;
   }
 
-  // Code exercise
+  // Упражнение с кодом.
   &__code-shell {
     border-radius: $radius-xl;
     overflow: hidden;
@@ -621,7 +625,7 @@
     &::placeholder { color: $slate-600; }
   }
 
-  // Embed (Quiz / Assignment)
+  // Встраивание теста или задания.
   &__embed {
     display: flex;
     align-items: center;
@@ -679,7 +683,7 @@
     }
   }
 
-  // Open advanced editor
+  // Открытие расширенного редактора.
   &__open-advanced {
     display: inline-flex;
     align-items: center;
@@ -767,7 +771,7 @@
   }
 }
 
-// ── Drag & drop (CDK) ────────────────────────────────
+// Перетаскивание.
 .le-row {
   display: block;
   position: relative;

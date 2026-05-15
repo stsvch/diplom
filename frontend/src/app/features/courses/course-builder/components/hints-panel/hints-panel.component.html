@@ -1,4 +1,7 @@
+<!-- hints-panel.component.html -->
+<!-- Боковая панель хранит вспомогательную навигацию и контекст. -->
 <aside class="hp">
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="hp__tabs">
     <button
       class="hp__tab"
@@ -27,6 +30,7 @@
   </div>
 
   <div class="hp__body">
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (tab() === 'checklist') {
       @if (store.readiness(); as r) {
         <div class="hp__progress">
@@ -163,6 +167,7 @@
     }
   </div>
 
+  <!-- Нижняя часть секции завершает основной сценарий экрана. -->
   <footer class="hp__footer">
     <div class="hp__metrics">
       <div class="hp__metric">

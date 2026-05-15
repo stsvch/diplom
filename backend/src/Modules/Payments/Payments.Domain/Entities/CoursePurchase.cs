@@ -1,8 +1,10 @@
+// CoursePurchase.cs
 using EduPlatform.Shared.Domain;
 using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class CoursePurchase : BaseEntity, IAuditableEntity
 {
     public Guid CourseId { get; set; }

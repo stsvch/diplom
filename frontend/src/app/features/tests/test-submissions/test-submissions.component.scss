@@ -1,5 +1,7 @@
+// test-submissions.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .test-submissions {
   padding: v.$spacing-6;
   max-width: 960px;
@@ -23,6 +25,7 @@
     transition: color v.$transition-fast;
     white-space: nowrap;
     margin-top: 4px;
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { color: v.$primary; }
   }
 
@@ -49,7 +52,7 @@
   }
 }
 
-// Stats
+// Статистика.
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

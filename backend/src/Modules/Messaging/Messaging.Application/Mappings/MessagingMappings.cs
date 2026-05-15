@@ -1,8 +1,10 @@
+// MessagingMappings.cs
 using Messaging.Application.DTOs;
 using Messaging.Domain.Documents;
 
 namespace Messaging.Application.Mappings;
 
+// Маппинг централизует преобразование доменных или Mongo-моделей в DTO.
 public static class MessagingMappings
 {
     public static ChatDto ToChatDto(this ChatDocument chat, int unreadCount = 0) => new()

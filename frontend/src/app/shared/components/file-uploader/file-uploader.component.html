@@ -1,3 +1,5 @@
+<!-- file-uploader.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="file-uploader">
   <input
     #fileInput
@@ -8,6 +10,7 @@
     (change)="onFileSelect($event)"
   />
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (!uploadedFile()) {
     <div
       class="file-uploader__zone"

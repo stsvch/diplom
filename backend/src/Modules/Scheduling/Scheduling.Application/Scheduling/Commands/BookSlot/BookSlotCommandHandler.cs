@@ -1,3 +1,5 @@
+// BookSlotCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -9,6 +11,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.BookSlot;
 
+/// <summary>
+/// Обработчик CQRS-команды BookSlotCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class BookSlotCommandHandler : IRequestHandler<BookSlotCommand, Result<string>>
 {
     private readonly ISchedulingDbContext _context;
@@ -31,6 +36,7 @@ public class BookSlotCommandHandler : IRequestHandler<BookSlotCommand, Result<st
         _calendar = calendar;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(BookSlotCommand request, CancellationToken cancellationToken)
     {
         var availability = await _context.TeacherAvailabilities

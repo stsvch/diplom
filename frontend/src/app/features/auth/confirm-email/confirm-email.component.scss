@@ -1,6 +1,8 @@
+// confirm-email.component.scss
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as *;
 
+// Стили подтверждения email оформляют компактную карточку статуса: загрузка, успех или ошибка.
 .confirm-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #1E1B4B 0%, #4F46E5 100%);
@@ -54,6 +56,7 @@
     @include flex-center;
     margin-bottom: $spacing-2;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--loading {
       background: $bg-muted;
       color: $text-muted;

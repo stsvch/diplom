@@ -1,3 +1,5 @@
+// CourseTag.cs
+
 namespace Courses.Domain.Entities;
 
 /// <summary>

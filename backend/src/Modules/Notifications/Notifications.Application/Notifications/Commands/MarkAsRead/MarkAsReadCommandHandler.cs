@@ -1,3 +1,4 @@
+// Файл: MarkAsReadCommandHandler.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using Notifications.Application.Interfaces;
 
 namespace Notifications.Application.Notifications.Commands.MarkAsRead;
 
+// Обработчик команды MarkAsReadCommandHandler выполняет сценарий изменения состояния и возвращает Result.
 public class MarkAsReadCommandHandler : IRequestHandler<MarkAsReadCommand, Result>
 {
     private readonly INotificationsDbContext _context;

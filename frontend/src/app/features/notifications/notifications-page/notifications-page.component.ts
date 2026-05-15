@@ -1,3 +1,4 @@
+// notifications-page.component.ts
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -11,6 +12,7 @@ import { SignalRService } from '../../../core/services/signalr.service';
 
 type FilterTab = 'all' | 'unread' | 'read';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
@@ -25,6 +27,7 @@ export class NotificationsPageComponent implements OnInit {
 
   readonly icons = { Star, Clock, MessageCircle, BookOpen, Trophy, Bell };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly notifications = signal<NotificationDto[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -69,12 +72,14 @@ export class NotificationsPageComponent implements OnInit {
     });
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadNotifications();
   }
 
   private loadNotifications(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.notificationsService.getNotifications({ page: 1, pageSize: 100 }).subscribe({
       next: (result) => {
         this.notifications.set(result.items);

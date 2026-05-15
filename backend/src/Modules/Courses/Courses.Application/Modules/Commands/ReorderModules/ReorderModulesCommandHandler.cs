@@ -1,3 +1,5 @@
+// ReorderModulesCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Modules.Commands.ReorderModules;
 
+// Тип class: ключевой элемент файла ReorderModulesCommandHandler.cs.
 public class ReorderModulesCommandHandler : IRequestHandler<ReorderModulesCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -14,6 +17,7 @@ public class ReorderModulesCommandHandler : IRequestHandler<ReorderModulesComman
         _context = context;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(ReorderModulesCommand request, CancellationToken cancellationToken)
     {
         var modules = await _context.CourseModules

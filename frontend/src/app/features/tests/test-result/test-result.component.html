@@ -1,4 +1,7 @@
+<!-- test-result.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="test-result">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="test-result__loading">
       <lucide-icon [img]="Loader2Icon" [size]="40" class="spin" />

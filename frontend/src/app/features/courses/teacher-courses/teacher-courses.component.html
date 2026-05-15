@@ -1,3 +1,5 @@
+<!-- teacher-courses.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="teacher-courses">
   <div class="teacher-courses__header">
     <div>
@@ -12,6 +14,7 @@
     </a>
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="teacher-courses__table-wrap">
       <table class="teacher-courses__table">

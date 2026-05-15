@@ -1,8 +1,11 @@
+// TeacherCoursesSpec.cs
+
 using Ardalis.Specification;
 using Courses.Domain.Entities;
 
 namespace Courses.Application.Specifications;
 
+// Specification class: инкапсулирует фильтры, сортировку и include-ы для запросов курсов.
 public class TeacherCoursesSpec : Specification<Course>
 {
     public TeacherCoursesSpec(string teacherId)

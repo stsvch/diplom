@@ -1,5 +1,8 @@
+<!-- tag-input.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="ti">
   <div class="ti__chips">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (tag of tags; track tag; let i = $index) {
       <span class="ti__chip">
         {{ tag }}
@@ -25,6 +28,7 @@
     />
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (suggestionsOpen() && suggestions().length > 0) {
     <ul class="ti__suggestions" role="listbox">
       @for (s of suggestions(); track s.id; let i = $index) {

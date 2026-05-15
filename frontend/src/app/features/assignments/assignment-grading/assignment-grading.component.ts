@@ -1,3 +1,4 @@
+// assignment-grading.component.ts
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -26,6 +27,7 @@ interface EnrichedSubmission extends SubmissionDto {
   assignmentTitle?: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-assignment-grading',
   standalone: true,
@@ -53,13 +55,14 @@ export class AssignmentGradingComponent implements OnInit {
   readonly StarIcon = Star;
   readonly MessageIcon = MessageSquare;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly grading = signal(false);
   readonly submissions = signal<EnrichedSubmission[]>([]);
   readonly selectedSubmission = signal<EnrichedSubmission | null>(null);
   readonly activeTab = signal<FilterTab>('all');
 
-  // Grading form
+  // Форма оценивания.
   score = 0;
   comment = '';
 
@@ -73,12 +76,14 @@ export class AssignmentGradingComponent implements OnInit {
     return subs;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadPending();
   }
 
   loadPending(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.assignmentsService.getPendingSubmissions().subscribe({
       next: (data) => {
         this.submissions.set(data);

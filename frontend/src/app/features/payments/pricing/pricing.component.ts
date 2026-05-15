@@ -1,3 +1,4 @@
+// pricing.component.ts
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -14,6 +15,7 @@ interface TierFeature {
   included: boolean;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-pricing',
   standalone: true,
@@ -35,6 +37,7 @@ export class PricingComponent implements OnInit {
     sparkles: Sparkles,
   };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly plans = signal<SubscriptionPlanDto[]>([]);
   readonly mySubscriptions = signal<UserSubscriptionDto[]>([]);
   readonly loading = signal(false);
@@ -44,6 +47,7 @@ export class PricingComponent implements OnInit {
     this.mySubscriptions().find((s) => s.status === 'Active'),
   );
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadPlans();
     if (this.authService.isAuthenticated()) {
@@ -53,6 +57,7 @@ export class PricingComponent implements OnInit {
 
   private loadPlans(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.paymentsService.getSubscriptionPlans().subscribe({
       next: (plans) => {
         this.plans.set(plans.filter((p) => p.isActive).sort((a, b) => a.sortOrder - b.sortOrder));

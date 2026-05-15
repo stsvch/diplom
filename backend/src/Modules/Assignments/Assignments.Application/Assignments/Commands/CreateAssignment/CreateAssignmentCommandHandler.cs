@@ -1,3 +1,5 @@
+// CreateAssignmentCommandHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
@@ -10,6 +12,9 @@ using MediatR;
 
 namespace Assignments.Application.Assignments.Commands.CreateAssignment;
 
+/// <summary>
+/// Обработчик сценария: создаёт задание курса с дедлайном, лимитом попыток и критериями, затем уведомляет студентов и добавляет дедлайн в календарь.
+/// </summary>
 public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCommand, Result<AssignmentDto>>
 {
     private readonly IAssignmentsDbContext _context;
@@ -32,6 +37,7 @@ public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCo
         _enrollment = enrollment;
     }
 
+    // Последовательно выполняет сценарий: создаёт задание курса с дедлайном, лимитом попыток и критериями, затем уведомляет студентов и добавляет дедлайн в календарь.
     public async Task<Result<AssignmentDto>> Handle(CreateAssignmentCommand request, CancellationToken cancellationToken)
     {
         var assignment = new Assignment

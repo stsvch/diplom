@@ -1,3 +1,4 @@
+// StripePaymentGateway.cs
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,6 +9,7 @@ using Payments.Infrastructure.Configuration;
 
 namespace Payments.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class StripePaymentGateway : IPaymentProviderGateway
 {
     private const string StripeApiBaseUrl = "https://api.stripe.com";
@@ -197,47 +199,6 @@ public class StripePaymentGateway : IPaymentProviderGateway
                 ?? throw new InvalidOperationException("Stripe не вернул checkout url."));
     }
 
-    public async Task<ProviderRefundResult> CreateRefundAsync(
-        ProviderRefundRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        EnsureConfigured();
-
-        var fields = new Dictionary<string, string?>
-        {
-            ["payment_intent"] = request.PaymentIntentId,
-            ["amount"] = ToMinorUnits(request.Amount).ToString(CultureInfo.InvariantCulture),
-            ["metadata[paymentAttemptId]"] = request.PaymentAttemptId.ToString(),
-            ["metadata[courseId]"] = request.CourseId.ToString(),
-            ["metadata[teacherId]"] = request.TeacherId,
-            ["metadata[studentId]"] = request.StudentId,
-            ["metadata[adminId]"] = request.RequestedByAdminId,
-            ["metadata[internalReason]"] = request.Reason,
-        };
-
-        if (request.Reason is "duplicate" or "fraudulent" or "requested_by_customer")
-            fields["reason"] = request.Reason;
-
-        var json = await SendFormAsync("/v1/refunds", fields, cancellationToken);
-        var root = json.RootElement;
-
-        return new ProviderRefundResult(
-            root.GetProperty("id").GetString()
-                ?? throw new InvalidOperationException("Stripe не вернул refund id."),
-            root.TryGetProperty("payment_intent", out var paymentIntentElement)
-                ? paymentIntentElement.GetString() ?? request.PaymentIntentId
-                : request.PaymentIntentId,
-            root.TryGetProperty("amount", out var amountElement)
-                ? FromMinorUnits(amountElement.GetInt64())
-                : request.Amount,
-            root.TryGetProperty("currency", out var currencyElement)
-                ? currencyElement.GetString() ?? request.Currency
-                : request.Currency,
-            root.TryGetProperty("status", out var statusElement) ? statusElement.GetString() : null,
-            root.TryGetProperty("reason", out var reasonElement) ? reasonElement.GetString() : request.Reason,
-            root.TryGetProperty("failure_reason", out var failureReasonElement) ? failureReasonElement.GetString() : null);
-    }
-
     public async Task<ProviderTransferResult> CreateTransferAsync(
         ProviderTransferRequest request,
         CancellationToken cancellationToken = default)
@@ -320,15 +281,10 @@ public class StripePaymentGateway : IPaymentProviderGateway
 
         var objectId = dataObject.TryGetProperty("id", out var idElement) ? idElement.GetString() : null;
         var status = dataObject.TryGetProperty("status", out var statusElement) ? statusElement.GetString() : null;
-        var reason = dataObject.TryGetProperty("reason", out var reasonElement) ? reasonElement.GetString() : null;
         var providerSubscriptionId = eventType.StartsWith("customer.subscription", StringComparison.OrdinalIgnoreCase)
             ? objectId
             : dataObject.TryGetProperty("subscription", out var subscriptionElement)
                 ? ReadStringOrNestedId(subscriptionElement)
-                : null;
-        var disputeEvidenceDueBy = dataObject.TryGetProperty("evidence_details", out var evidenceDetailsElement)
-            && evidenceDetailsElement.TryGetProperty("due_by", out var dueByElement)
-                ? ReadUnixTimestamp(dueByElement)
                 : null;
         var currentPeriodStart = dataObject.TryGetProperty("current_period_start", out var currentPeriodStartElement)
             ? ReadUnixTimestamp(currentPeriodStartElement)
@@ -378,8 +334,6 @@ public class StripePaymentGateway : IPaymentProviderGateway
                             : null
                     : objectId
                 : null,
-            eventType.StartsWith("refund.") ? objectId : null,
-            eventType.StartsWith("charge.dispute.") ? objectId : null,
             eventType.StartsWith("invoice.", StringComparison.OrdinalIgnoreCase)
                 ? objectId
                 : dataObject.TryGetProperty("invoice", out var invoiceElement)
@@ -398,11 +352,6 @@ public class StripePaymentGateway : IPaymentProviderGateway
             invoiceBillingReason,
             dataObject.TryGetProperty("payment_status", out var paymentStatusElement) ? paymentStatusElement.GetString() : null,
             failureMessage,
-            eventType.StartsWith("refund.") ? status : null,
-            eventType.StartsWith("refund.") ? reason : null,
-            eventType.StartsWith("charge.dispute.") ? status : null,
-            eventType.StartsWith("charge.dispute.") ? reason : null,
-            disputeEvidenceDueBy,
             currentPeriodStart,
             currentPeriodEnd,
             cancelAtPeriodEnd,

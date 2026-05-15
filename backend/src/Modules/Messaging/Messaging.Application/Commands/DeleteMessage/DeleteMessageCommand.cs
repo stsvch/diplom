@@ -1,3 +1,4 @@
+// DeleteMessageCommand.cs
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using FluentValidation;
@@ -6,8 +7,10 @@ using Messaging.Application.Interfaces;
 
 namespace Messaging.Application.Commands.DeleteMessage;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record DeleteMessageCommand(string MessageId, string UserId) : IRequest<Result>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class DeleteMessageValidator : AbstractValidator<DeleteMessageCommand>
 {
     public DeleteMessageValidator()
@@ -17,6 +20,7 @@ public class DeleteMessageValidator : AbstractValidator<DeleteMessageCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class DeleteMessageCommandHandler : IRequestHandler<DeleteMessageCommand, Result>
 {
     private readonly IMessagingRepository _repository;

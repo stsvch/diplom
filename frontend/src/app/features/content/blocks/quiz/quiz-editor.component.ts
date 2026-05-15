@@ -1,3 +1,4 @@
+// quiz-editor.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { TestsService } from '../../../tests/services/tests.service';
 import { TestDto } from '../../../tests/models/test.model';
 import { QuizBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-quiz-editor',
   standalone: true,
@@ -59,10 +61,13 @@ export class QuizEditorComponent implements OnInit {
 
   private readonly testsService = inject(TestsService);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   tests = signal<TestDto[]>([]);
   loading = signal(true);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.getMyTests().subscribe({
       next: (list) => {
         this.tests.set(list);

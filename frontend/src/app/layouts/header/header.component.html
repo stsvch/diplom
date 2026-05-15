@@ -1,3 +1,5 @@
+<!-- header.component.html -->
+<!-- Шапка секции содержит заголовок и основные действия пользователя. -->
 <header class="hd" [attr.data-role]="userRoleKey()">
   <!-- Mobile menu trigger -->
   <button class="hd__menu" type="button" (click)="openMobileSidebar()" aria-label="Открыть меню">
@@ -5,6 +7,7 @@
   </button>
 
   <!-- Spacer -->
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="hd__spacer"></div>
 
   <!-- Notifications -->
@@ -16,6 +19,7 @@
       }
     </button>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (notificationsOpen()) {
       <div class="hd__dropdown hd__dropdown--notifications">
         <div class="hd__dropdown-head">

@@ -1,3 +1,5 @@
+// GetLessonBlocksQueryHandler.cs
+
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.LessonBlocks.Queries.GetLessonBlocks;
 
+// Тип class: ключевой элемент файла GetLessonBlocksQueryHandler.cs.
 public class GetLessonBlocksQueryHandler : IRequestHandler<GetLessonBlocksQuery, List<LessonBlockDto>>
 {
     private readonly IContentDbContext _context;
@@ -17,6 +20,7 @@ public class GetLessonBlocksQueryHandler : IRequestHandler<GetLessonBlocksQuery,
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<List<LessonBlockDto>> Handle(GetLessonBlocksQuery request, CancellationToken cancellationToken)
     {
         var blocks = await _context.LessonBlocks

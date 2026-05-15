@@ -1,3 +1,4 @@
+// Файл: ScheduleController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +21,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер ScheduleController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/schedule")]
 [Authorize]
@@ -221,6 +223,7 @@ public class ScheduleController : ControllerBase
     }
 }
 
+// API-модель CreateAvailabilityRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateAvailabilityRequest(
     AvailabilityKind Kind,
     DayOfWeek? DayOfWeek,
@@ -238,6 +241,7 @@ public record CreateAvailabilityRequest(
     string? MeetingLink,
     Guid? RequiredCourseId);
 
+// API-модель BookSlotRequest фиксирует тело запроса или результат для действия контроллера.
 public record BookSlotRequest(Guid AvailabilityId, DateTime StartTime);
 
 public record UpdateSlotRequest(

@@ -1,3 +1,4 @@
+// Файл: LessonBlocksController.cs
 using Content.Application.Attempts.Commands.SubmitAttempt;
 using Content.Application.Attempts.Queries.GetMyAttempt;
 using Content.Application.CodeExecution;
@@ -20,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер LessonBlocksController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/lesson-blocks")]
 public class LessonBlocksController : ControllerBase
@@ -397,10 +399,12 @@ public class LessonBlocksController : ControllerBase
     private bool IsAdmin() => User.IsInRole("Admin");
 }
 
+// API-модель UpdateLessonBlockRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateLessonBlockRequest(
     Content.Domain.ValueObjects.Blocks.LessonBlockData Data,
     Content.Domain.ValueObjects.Blocks.LessonBlockSettings? Settings);
 
+// API-модель SubmitAttemptRequest фиксирует тело запроса или результат для действия контроллера.
 public record SubmitAttemptRequest(LessonBlockAnswer Answers);
 
 public record ExecuteCodeRequest(string Code);

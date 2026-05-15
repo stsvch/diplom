@@ -1,7 +1,10 @@
+// preview-mode.service.ts
 import { Injectable, computed, signal } from '@angular/core';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class PreviewModeService {
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   private readonly activeCount = signal(0);
   private readonly _courseId = signal<string | null>(null);
 

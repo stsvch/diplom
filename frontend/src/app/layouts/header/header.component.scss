@@ -1,8 +1,9 @@
+// header.component.scss
 @use '../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 // ─────────────────────────────────────────────
-// Header (topbar) — Figma Make
-// ─────────────────────────────────────────────
+// Верхняя панель в стиле Figma Make.
 .hd {
   --hd-accent: #{$indigo-500};
   --hd-accent-text: #{$indigo-600};
@@ -30,6 +31,7 @@
   top: 0;
   z-index: $z-header;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (min-width: $breakpoint-lg) {
     padding: 14px $spacing-6;
   }
@@ -47,6 +49,7 @@
     cursor: pointer;
     transition: background $transition-fast, color $transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       background: $slate-100;
       color: $slate-700;
@@ -64,7 +67,7 @@
   }
 }
 
-// Bell
+// Иконка уведомлений.
 .hd__bell {
   position: relative;
   width: 40px;
@@ -95,7 +98,7 @@
   }
 }
 
-// Profile
+// Профиль.
 .hd__profile {
   display: inline-flex;
   align-items: center;
@@ -162,7 +165,7 @@
   display: inline-flex;
 }
 
-// ── Dropdown
+// Стили следующей секции интерфейса.
 .hd__dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -249,7 +252,7 @@
   &:hover { background: var(--hd-accent-light); }
 }
 
-// Notification item
+// Элемент уведомления.
 .hd__notif {
   display: flex;
   gap: $spacing-3;
@@ -324,7 +327,7 @@
   }
 }
 
-// Profile menu items
+// Пункты меню профиля.
 .hd__menu-item {
   display: flex;
   align-items: center;

@@ -1,3 +1,4 @@
+// input.component.ts
 import {
   Component,
   Input,
@@ -8,6 +9,7 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { LucideAngularModule, Eye, EyeOff } from 'lucide-angular';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-input',
   standalone: true,
@@ -32,6 +34,7 @@ export class InputComponent implements ControlValueAccessor {
   readonly EyeIcon = Eye;
   readonly EyeOffIcon = EyeOff;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly value = signal('');
   readonly disabled = signal(false);
   readonly touched = signal(false);

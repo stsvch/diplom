@@ -1,93 +1,214 @@
 .teacher-payouts {
   display: grid;
   gap: 1.25rem;
+  color: #111827;
+}
+
+.teacher-payouts__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.teacher-payouts__eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.4rem;
+  color: #f59e0b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.teacher-payouts__header h1,
+.teacher-payouts__section-head h2,
+.teacher-payouts__setup h2 {
+  margin: 0;
+  color: #111827;
 }
 
 .teacher-payouts__header h1 {
-  margin: 0 0 0.25rem;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
 }
 
-.teacher-payouts__header p {
-  margin: 0;
-  color: #6b7280;
+.teacher-payouts__header p,
+.teacher-payouts__section-head p,
+.teacher-payouts__setup p {
+  margin: 0.35rem 0 0;
+  color: #667085;
 }
 
-.teacher-payouts__card {
+.teacher-payouts__overview {
   display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.7fr);
   gap: 1rem;
-  padding: 1.25rem;
+  align-items: stretch;
+}
+
+.teacher-payouts__available,
+.teacher-payouts__panel,
+.teacher-payouts__setup {
   border: 1px solid #e5e7eb;
-  border-radius: 1.25rem;
+  border-radius: 8px;
   background: #fff;
 }
 
-.teacher-payouts__row {
+.teacher-payouts__available {
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  border-color: #fed7aa;
+  background: #fffaf3;
+}
+
+.teacher-payouts__available span,
+.teacher-payouts__metrics span,
+.teacher-payouts__course-row span,
+.teacher-payouts__purchase-money span,
+.teacher-payouts__purchase-main span,
+.teacher-payouts__purchase-status small {
+  color: #667085;
+}
+
+.teacher-payouts__available strong {
+  color: #111827;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.teacher-payouts__available p {
+  margin: 0;
+  color: #667085;
+}
+
+.teacher-payouts__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.teacher-payouts__metrics div {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  min-width: 0;
+  padding: 1.15rem;
+  border-right: 1px solid #eef2f7;
+}
+
+.teacher-payouts__metrics div:last-child {
+  border-right: 0;
+}
+
+.teacher-payouts__metrics strong {
+  color: #111827;
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.teacher-payouts__metrics small {
+  color: #8a94a6;
+}
+
+.teacher-payouts__setup {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  align-items: flex-start;
+  align-items: center;
+  padding: 1rem 1.25rem;
 }
 
 .teacher-payouts__actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.teacher-payouts__row h2 {
-  margin: 0;
-}
-
-.teacher-payouts__row p {
-  margin: 0.25rem 0 0;
-  color: #6b7280;
-}
-
-.teacher-payouts__stats {
+.teacher-payouts__panel {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1rem;
+  padding: 1.25rem;
 }
 
-.teacher-payouts__stat-card {
-  display: grid;
-  gap: 0.35rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 1.25rem;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-}
-
-.teacher-payouts__stat-card span,
-.teacher-payouts__stat-card small {
-  color: #6b7280;
-}
-
-.teacher-payouts__stat-card strong {
-  font-size: 1.25rem;
-}
-
-.teacher-payouts__facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.teacher-payouts__section-head {
+  display: flex;
+  justify-content: space-between;
   gap: 1rem;
+  align-items: flex-start;
 }
 
-.teacher-payouts__facts div {
+.teacher-payouts__course-list,
+.teacher-payouts__purchase-list {
+  display: grid;
+}
+
+.teacher-payouts__course-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(130px, auto) minmax(130px, auto);
+  gap: 1rem;
+  align-items: center;
+  padding: 0.95rem 0;
+  border-top: 1px solid #eef2f7;
+}
+
+.teacher-payouts__course-row:first-child,
+.teacher-payouts__purchase-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.teacher-payouts__course-row:last-child,
+.teacher-payouts__purchase-row:last-child {
+  padding-bottom: 0;
+}
+
+.teacher-payouts__course-row div,
+.teacher-payouts__purchase-main,
+.teacher-payouts__purchase-money,
+.teacher-payouts__purchase-status {
   display: grid;
   gap: 0.25rem;
-  padding: 0.875rem 1rem;
-  border-radius: 1rem;
-  background: #f9fafb;
+  min-width: 0;
+}
+
+.teacher-payouts__course-row strong,
+.teacher-payouts__purchase-main strong,
+.teacher-payouts__purchase-money strong {
+  color: #111827;
+}
+
+.teacher-payouts__purchase-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 0.9fr) minmax(160px, auto);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 0;
+  border-top: 1px solid #eef2f7;
+}
+
+.teacher-payouts__purchase-money {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.teacher-payouts__purchase-status {
+  justify-items: end;
+  text-align: right;
 }
 
 .teacher-payouts__warning,
 .teacher-payouts__error {
-  padding: 0.875rem 1rem;
-  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
 }
 
 .teacher-payouts__warning {
+  display: flex;
+  gap: 0.5rem;
   background: #fff7ed;
   color: #9a3412;
 }
@@ -99,67 +220,18 @@
 
 .teacher-payouts__empty {
   margin: 0;
-  color: #6b7280;
-}
-
-.teacher-payouts__settlements {
-  display: grid;
-  gap: 1rem;
-}
-
-.teacher-payouts__settlement {
-  display: grid;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 1rem;
-  background: #f8fafc;
-}
-
-.teacher-payouts__settlement-main {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.teacher-payouts__settlement-main p,
-.teacher-payouts__timeline {
-  margin: 0.25rem 0 0;
-  color: #6b7280;
-}
-
-.teacher-payouts__settlement-facts {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.75rem;
-}
-
-.teacher-payouts__settlement-facts div {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.9rem;
-  background: #fff;
-}
-
-.teacher-payouts__settlement-facts span,
-.teacher-payouts__timeline {
-  font-size: 0.92rem;
-}
-
-.teacher-payouts__timeline {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  color: #667085;
 }
 
 .status {
   display: inline-flex;
   align-items: center;
+  width: fit-content;
   padding: 0.25rem 0.625rem;
   border-radius: 999px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .status--success {
@@ -187,20 +259,39 @@
   color: #b91c1c;
 }
 
-@media (max-width: 900px) {
-  .teacher-payouts__stats,
-  .teacher-payouts__row,
-  .teacher-payouts__facts,
-  .teacher-payouts__settlement-facts {
+@media (max-width: 1100px) {
+  .teacher-payouts__overview,
+  .teacher-payouts__metrics,
+  .teacher-payouts__purchase-row {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-payouts__metrics div {
+    border-right: 0;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .teacher-payouts__metrics div:last-child {
+    border-bottom: 0;
+  }
+
+  .teacher-payouts__purchase-status {
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 760px) {
+  .teacher-payouts__header,
+  .teacher-payouts__setup,
+  .teacher-payouts__section-head,
+  .teacher-payouts__course-row,
+  .teacher-payouts__purchase-money {
     display: grid;
     grid-template-columns: 1fr;
   }
 
-  .teacher-payouts__settlement-main {
-    display: grid;
-  }
-
   .teacher-payouts__actions {
-    display: grid;
+    justify-content: stretch;
   }
 }

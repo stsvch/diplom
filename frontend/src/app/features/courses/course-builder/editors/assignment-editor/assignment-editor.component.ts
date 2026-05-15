@@ -1,3 +1,4 @@
+// assignment-editor.component.ts
 import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +12,7 @@ import {
 } from 'lucide-angular';
 import { CourseBuilderStore } from '../../state/course-builder.store';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-assignment-editor',
   standalone: true,
@@ -24,6 +26,7 @@ export class AssignmentEditorComponent {
 
   readonly icons = { assignment: FileEdit, edit: Edit3, link: ExternalLink, alert: AlertCircle };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly item = computed(() => this.store.selectedItem());
   readonly section = computed(() => this.store.selectedSection());
 

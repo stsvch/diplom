@@ -1,3 +1,5 @@
+// SubmitAttemptCommandHandler.cs
+
 using System.Text.Json;
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
@@ -11,6 +13,9 @@ using Tests.Domain.Enums;
 
 namespace Tests.Application.Attempts.Commands.SubmitAttempt;
 
+/// <summary>
+/// Обработчик CQRS-команды SubmitAttemptCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand, Result<TestAttemptDetailDto>>
 {
     private readonly ITestsDbContext _context;
@@ -30,6 +35,7 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
         _notifications = notifications;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestAttemptDetailDto>> Handle(SubmitAttemptCommand request, CancellationToken cancellationToken)
     {
         var attempt = await _context.TestAttempts
@@ -206,8 +212,8 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
 
     private static void GradeMatching(Domain.Entities.TestResponse response, Domain.Entities.Question question)
     {
-        // For matching: SelectedOptionIds is a JSON array of strings like "leftId:rightValue"
-        // We compare each option's Id with its MatchingPairValue
+        // Для matching-вопросов SelectedOptionIds хранит JSON-массив строк вида "leftId:rightValue".
+        // Сравниваем Id каждого варианта с его MatchingPairValue.
         var selectedIds = DeserializeOptionIds(response.SelectedOptionIds);
         if (selectedIds == null || selectedIds.Count == 0)
         {
@@ -216,12 +222,12 @@ public class SubmitAttemptCommandHandler : IRequestHandler<SubmitAttemptCommand,
             return;
         }
 
-        // Build expected mapping: optionId -> matchingPairValue
+        // Собираем эталонное соответствие optionId -> matchingPairValue.
         var expected = question.AnswerOptions
             .Where(o => o.MatchingPairValue != null)
             .ToDictionary(o => o.Id.ToString(), o => o.MatchingPairValue!.Trim().ToLowerInvariant());
 
-        // Parse student answers
+        // Разбираем ответы студента из сохранённого JSON.
         var studentMapping = new Dictionary<string, string>();
         foreach (var pair in selectedIds)
         {

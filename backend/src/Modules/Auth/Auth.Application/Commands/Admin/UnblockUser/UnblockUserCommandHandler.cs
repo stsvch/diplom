@@ -1,3 +1,4 @@
+// UnblockUserCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.Admin.UnblockUser;
 
+// Обработчик сценария: снимает бессрочную блокировку пользователя через Identity LockoutEnd.
 public class UnblockUserCommandHandler : IRequestHandler<UnblockUserCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

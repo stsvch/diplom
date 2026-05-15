@@ -1,3 +1,5 @@
+// UpdateLessonBlockCommand.cs
+
 using Content.Application.DTOs;
 using Content.Domain.ValueObjects.Blocks;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Content.Application.LessonBlocks.Commands.UpdateLessonBlock;
 
+// Тип record: ключевой элемент файла UpdateLessonBlockCommand.cs.
 public record UpdateLessonBlockCommand(
     Guid Id,
     LessonBlockData Data,

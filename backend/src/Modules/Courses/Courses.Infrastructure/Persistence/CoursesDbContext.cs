@@ -1,3 +1,5 @@
+// CoursesDbContext.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Infrastructure.Persistence;
 
+// Тип class: ключевой элемент файла CoursesDbContext.cs.
 public class CoursesDbContext : BaseDbContext, ICoursesDbContext
 {
     public CoursesDbContext(DbContextOptions<CoursesDbContext> options) : base(options)
@@ -22,6 +25,7 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<CourseTag> CourseTags => Set<CourseTag>();
 
+    // Конфигурация EF Core: схема, ограничения, связи, индексы и конвертации enum.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -51,7 +55,6 @@ public class CoursesDbContext : BaseDbContext, ICoursesDbContext
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
             entity.Property(e => e.Level).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.OrderType).HasConversion<string>().HasMaxLength(50);
-            entity.Property(e => e.HasCertificate).HasDefaultValue(false);
             entity.Property(e => e.RatingAverage);
             entity.Property(e => e.RatingCount).HasDefaultValue(0);
             entity.Property(e => e.ReviewsCount).HasDefaultValue(0);

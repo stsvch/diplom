@@ -1,3 +1,4 @@
+// notifications.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -5,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { NotificationDto, NotificationType, PagedResult } from '../models/notification.model';
 import { SignalRService } from '../../../core/services/signalr.service';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -25,6 +27,7 @@ export class NotificationsService {
     if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
     if (params.pageSize !== undefined) httpParams = httpParams.set('pageSize', String(params.pageSize));
 
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<PagedResult<NotificationDto>>(this.base, { params: httpParams });
   }
 

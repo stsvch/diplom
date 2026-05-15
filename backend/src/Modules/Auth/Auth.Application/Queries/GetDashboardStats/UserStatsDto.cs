@@ -1,5 +1,7 @@
+// UserStatsDto.cs
 namespace Auth.Application.Queries.GetDashboardStats;
 
+// Сводка для админского дашборда: общее число пользователей, разбивка по ролям, блокировки, неподтверждённые email и новые за 7 дней.
 public class UserStatsDto
 {
     public int Total { get; set; }

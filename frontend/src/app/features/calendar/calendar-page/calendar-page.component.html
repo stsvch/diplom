@@ -1,3 +1,5 @@
+<!-- calendar-page.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="calendar-page">
   <div class="calendar-page__main">
     <div class="calendar-page__nav">
@@ -10,6 +12,7 @@
       </button>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (error()) {
       <div class="calendar-page__error">{{ error() }}</div>
     }
@@ -47,6 +50,7 @@
       </div>
     }
 
+    <!-- Содержательная секция группирует связанный блок данных. -->
     <section class="calendar-page__details">
       <div class="calendar-page__section-header">
         <div>

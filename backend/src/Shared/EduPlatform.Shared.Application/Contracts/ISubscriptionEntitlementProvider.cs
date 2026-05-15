@@ -1,11 +1,14 @@
+// Файл: ISubscriptionEntitlementProvider.cs
 namespace EduPlatform.Shared.Application.Contracts;
 
+// Перечисление LiveSlotKind ограничивает допустимые значения доменного состояния.
 public enum LiveSlotKind
 {
     Individual = 0,
     Group = 1
 }
 
+// Межмодульный контракт UserEntitlements передаёт минимальные данные между контекстами модулей.
 public record UserEntitlements(
     bool HasActiveSubscription,
     string? PlanName,
@@ -27,6 +30,7 @@ public record UserEntitlements(
     };
 }
 
+// Межмодульный контракт SlotUsageЗапись передаёт минимальные данные между контекстами модулей.
 public record SlotUsageRecord(
     string UserId,
     LiveSlotKind Kind,

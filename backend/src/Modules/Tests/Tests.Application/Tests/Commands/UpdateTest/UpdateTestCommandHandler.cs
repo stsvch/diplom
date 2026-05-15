@@ -1,3 +1,5 @@
+// UpdateTestCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -9,6 +11,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Commands.UpdateTest;
 
+/// <summary>
+/// Обработчик CQRS-команды UpdateTestCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Result<TestDetailDto>>
 {
     private readonly ITestsDbContext _context;
@@ -31,6 +36,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Resul
         _enrollment = enrollment;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestDetailDto>> Handle(UpdateTestCommand request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

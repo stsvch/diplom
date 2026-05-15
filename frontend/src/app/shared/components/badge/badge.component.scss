@@ -1,5 +1,7 @@
+// badge.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .badge {
   display: inline-flex;
   align-items: center;
@@ -8,7 +10,8 @@
   line-height: 1;
   white-space: nowrap;
 
-  // Sizes
+  // Размеры.
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--sm {
     font-size: 11px;
     padding: 2px 8px;
@@ -19,7 +22,7 @@
     padding: 3px 10px;
   }
 
-  // Variants
+  // Варианты.
   &--primary {
     background-color: $primary-light;
     color: $primary-hover;

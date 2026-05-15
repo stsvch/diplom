@@ -1,8 +1,11 @@
+// CourseByIdSpec.cs
+
 using Ardalis.Specification;
 using Courses.Domain.Entities;
 
 namespace Courses.Application.Specifications;
 
+// Specification class: инкапсулирует фильтры, сортировку и include-ы для запросов курсов.
 public class CourseByIdSpec : Specification<Course>
 {
     public CourseByIdSpec(Guid id)

@@ -1,3 +1,4 @@
+// app.ts
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/components/toast/toast.component';
@@ -12,4 +13,5 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   `,
   styles: [],
 })
+// Файл содержит типы и вспомогательные данные для соответствующего feature-блока.
 export class App {}

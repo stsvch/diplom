@@ -1,3 +1,4 @@
+// ConfirmEmailCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.ConfirmEmail;
 
+// Обработчик сценария: подтверждает email по userId и одноразовому токену из письма.
 public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

@@ -1,3 +1,5 @@
+// GetSubmissionsQueryHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using AutoMapper;
@@ -6,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Queries.GetSubmissions;
 
+/// <summary>
+/// Обработчик сценария: возвращает все сдачи по заданию только его автору-преподавателю.
+/// </summary>
 public class GetSubmissionsQueryHandler : IRequestHandler<GetSubmissionsQuery, List<SubmissionDto>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -13,6 +18,7 @@ public class GetSubmissionsQueryHandler : IRequestHandler<GetSubmissionsQuery, L
 
     public GetSubmissionsQueryHandler(IAssignmentsDbContext db, IMapper mapper) { _db = db; _mapper = mapper; }
 
+    // Последовательно выполняет сценарий: возвращает все сдачи по заданию только его автору-преподавателю.
     public async Task<List<SubmissionDto>> Handle(GetSubmissionsQuery request, CancellationToken cancellationToken)
     {
         var assignment = await _db.Assignments.FirstOrDefaultAsync(a => a.Id == request.AssignmentId, cancellationToken);

@@ -1,3 +1,5 @@
+<!-- progress-bar.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="progress-bar">
   <div class="progress-bar__track">
     <div
@@ -6,6 +8,7 @@
       [style.width.%]="clampedValue()"
     ></div>
   </div>
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (showLabel) {
     <span class="progress-bar__label">{{ clampedValue() }}%</span>
   }

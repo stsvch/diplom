@@ -1,3 +1,4 @@
+// ChangePasswordCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.ChangePassword;
 
+// Обработчик сценария: меняет пароль текущего пользователя: проверяет старый пароль и сохраняет новый через ASP.NET Identity.
 public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

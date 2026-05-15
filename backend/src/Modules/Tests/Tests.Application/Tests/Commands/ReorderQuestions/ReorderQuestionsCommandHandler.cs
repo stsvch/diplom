@@ -1,3 +1,5 @@
+// ReorderQuestionsCommandHandler.cs
+
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +7,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Commands.ReorderQuestions;
 
+/// <summary>
+/// Обработчик CQRS-команды ReorderQuestionsCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class ReorderQuestionsCommandHandler : IRequestHandler<ReorderQuestionsCommand, Result<string>>
 {
     private readonly ITestsDbContext _context;
@@ -14,6 +19,7 @@ public class ReorderQuestionsCommandHandler : IRequestHandler<ReorderQuestionsCo
         _context = context;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(ReorderQuestionsCommand request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

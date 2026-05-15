@@ -1,3 +1,4 @@
+// messaging.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -14,6 +15,7 @@ import {
 } from '../models/messaging.model';
 import { ChatSignalRService } from '../../../core/services/chat-signalr.service';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -23,6 +25,7 @@ export class MessagingService {
   private readonly base = `${environment.apiUrl}/chats`;
 
   getChats(): Observable<ChatDto[]> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<ChatDto[]>(this.base);
   }
 

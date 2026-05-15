@@ -1,3 +1,5 @@
+// GetDisciplineByIdQueryHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Domain.Entities;
@@ -7,6 +9,7 @@ using MediatR;
 
 namespace Courses.Application.Disciplines.Queries.GetDisciplineById;
 
+// Тип class: ключевой элемент файла GetDisciplineByIdQueryHandler.cs.
 public class GetDisciplineByIdQueryHandler : IRequestHandler<GetDisciplineByIdQuery, Result<DisciplineDto>>
 {
     private readonly IRepository<Discipline> _repository;
@@ -18,6 +21,7 @@ public class GetDisciplineByIdQueryHandler : IRequestHandler<GetDisciplineByIdQu
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<DisciplineDto>> Handle(GetDisciplineByIdQuery request, CancellationToken cancellationToken)
     {
         var discipline = await _repository.GetByIdAsync(request.Id, cancellationToken);

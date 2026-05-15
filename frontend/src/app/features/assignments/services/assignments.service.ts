@@ -1,3 +1,4 @@
+// assignments.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +11,7 @@ import {
   GradeSubmissionDto,
 } from '../models/assignment.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -17,9 +19,10 @@ export class AssignmentsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}`;
 
-  // ── Assignments (Teacher) ─────────────────────────────────────────────────
+  // Задания преподавателя.
 
   createAssignment(data: CreateAssignmentDto): Observable<AssignmentDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<AssignmentDto>(`${this.base}/assignments`, data);
   }
 
@@ -51,13 +54,13 @@ export class AssignmentsService {
     return this.http.get<SubmissionDto[]>(`${this.base}/assignments/pending`);
   }
 
-  // ── Submission (Student) ─────────────────────────────────────────────────
+  // Сдачи студента.
 
   submitAssignment(assignmentId: string, content?: string): Observable<SubmissionDto> {
     return this.http.post<SubmissionDto>(`${this.base}/assignments/${assignmentId}/submit`, { content });
   }
 
-  // ── Grading (Teacher) ────────────────────────────────────────────────────
+  // Оценивание преподавателя.
 
   gradeSubmission(submissionId: string, data: GradeSubmissionDto): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.base}/submissions/${submissionId}/grade`, data);

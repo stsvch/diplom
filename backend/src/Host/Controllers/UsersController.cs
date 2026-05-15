@@ -1,3 +1,4 @@
+// Файл: UsersController.cs
 using Auth.Application.Commands.ChangePassword;
 using Auth.Application.Commands.UpdateProfile;
 using Auth.Application.DTOs;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер UsersController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/users")]
 [Authorize]
@@ -100,9 +102,11 @@ public class UsersController : ControllerBase
     }
 }
 
+// API-модель UpdateProfileRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateProfileRequest(
     string FirstName,
     string LastName,
     string? AvatarUrl);
 
+// API-модель ChangePasswordRequest фиксирует тело запроса или результат для действия контроллера.
 public record ChangePasswordRequest(string CurrentPassword, string NewPassword);

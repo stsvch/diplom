@@ -1,8 +1,10 @@
+// Файл: BaseDbContext.cs
 using EduPlatform.Shared.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Shared.Infrastructure.Persistence;
 
+// DbContext BaseDbContext описывает EF Core-модель и границы хранения данных модуля.
 public abstract class BaseDbContext : DbContext
 {
     protected BaseDbContext(DbContextOptions options) : base(options)

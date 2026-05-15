@@ -1,3 +1,4 @@
+// reveal.directive.ts
 import {
   AfterViewInit,
   Directive,
@@ -7,6 +8,7 @@ import {
   inject,
 } from '@angular/core';
 
+// Директива добавляет DOM-поведение без отдельного визуального компонента.
 @Directive({
   selector: '[appReveal]',
   standalone: true,
@@ -26,6 +28,7 @@ export class RevealDirective implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngAfterViewInit(): void {
     if (typeof IntersectionObserver === 'undefined') {
       this.el.nativeElement.classList.add('is-visible');
@@ -47,6 +50,7 @@ export class RevealDirective implements AfterViewInit, OnDestroy {
     this.observer.observe(this.el.nativeElement);
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {
     this.observer?.disconnect();
   }

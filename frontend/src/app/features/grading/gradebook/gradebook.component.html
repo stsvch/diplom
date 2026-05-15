@@ -1,3 +1,5 @@
+<!-- gradebook.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="gradebook">
   <!-- Header -->
   <div class="gradebook__header">
@@ -61,6 +63,7 @@
   </div>
 
   <!-- Course Filter Pills -->
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (courses().length > 0) {
     <div class="gradebook__filters">
       <div class="course-pills">

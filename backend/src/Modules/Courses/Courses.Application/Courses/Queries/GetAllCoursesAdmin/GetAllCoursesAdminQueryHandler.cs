@@ -1,3 +1,5 @@
+// GetAllCoursesAdminQueryHandler.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Models;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Queries.GetAllCoursesAdmin;
 
+// Тип class: ключевой элемент файла GetAllCoursesAdminQueryHandler.cs.
 public class GetAllCoursesAdminQueryHandler : IRequestHandler<GetAllCoursesAdminQuery, Result<PagedResult<AdminCourseDto>>>
 {
     private readonly ICoursesDbContext _context;
@@ -16,6 +19,7 @@ public class GetAllCoursesAdminQueryHandler : IRequestHandler<GetAllCoursesAdmin
         _context = context;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<PagedResult<AdminCourseDto>>> Handle(GetAllCoursesAdminQuery request, CancellationToken cancellationToken)
     {
         var query = _context.Courses

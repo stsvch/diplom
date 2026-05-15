@@ -1,5 +1,7 @@
+// test-editor.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .test-editor {
   padding: v.$spacing-6;
   max-width: 860px;
@@ -22,6 +24,7 @@
     font-size: v.$font-size-sm;
     transition: color v.$transition-fast;
     white-space: nowrap;
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { color: v.$primary; }
   }
 
@@ -52,7 +55,7 @@
   }
 }
 
-// Settings card
+// Карточка настроек.
 .settings-card {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -89,12 +92,13 @@
   }
 }
 
-// Form
+// Форма.
 .settings-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: v.$spacing-4;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: v.$breakpoint-sm) {
     grid-template-columns: 1fr;
   }
@@ -149,7 +153,7 @@
   line-height: 1.5;
 }
 
-// Toggles
+// Переключатели.
 .toggles-row {
   display: flex;
   flex-wrap: wrap;
@@ -206,7 +210,7 @@
   }
 }
 
-// Questions section
+// Секция вопросов.
 .questions-section {
   display: flex;
   flex-direction: column;
@@ -232,7 +236,7 @@
   text-align: center;
 }
 
-// Question card
+// Карточка вопроса.
 .question-card {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -294,7 +298,7 @@
   align-items: flex-start;
 }
 
-// Control buttons
+// Кнопки управления.
 .ctrl-btn {
   display: inline-flex;
   align-items: center;
@@ -325,7 +329,7 @@
   }
 }
 
-// Options
+// Варианты.
 .options-list {
   display: flex;
   flex-direction: column;
@@ -406,7 +410,7 @@
   font-style: italic;
 }
 
-// Add question
+// Добавление вопроса.
 .add-question-wrap {
   display: flex;
   justify-content: center;

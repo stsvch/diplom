@@ -1,3 +1,5 @@
+// CreateCourseCommand.cs
+
 using Courses.Application.DTOs;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Courses.Commands.CreateCourse;
 
+// Тип record: ключевой элемент файла CreateCourseCommand.cs.
 public record CreateCourseCommand(
     string TeacherId,
     string TeacherName,
@@ -14,9 +17,7 @@ public record CreateCourseCommand(
     decimal? Price,
     bool IsFree,
     CourseOrderType OrderType,
-    bool HasGrading,
     CourseLevel Level,
     string? ImageUrl,
-    bool HasCertificate,
     DateTime? Deadline
 ) : IRequest<Result<CourseDetailDto>>;

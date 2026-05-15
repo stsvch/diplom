@@ -1,3 +1,5 @@
+// notification.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export enum NotificationType {
   Grade = 'Grade',
   Deadline = 'Deadline',

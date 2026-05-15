@@ -1,3 +1,4 @@
+// Файл: CompleteLessonCommandHandler.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Progress.Domain.Entities;
 
 namespace Progress.Application.Progress.Commands.CompleteLesson;
 
+// Обработчик команды CompleteLessonCommandHandler выполняет сценарий изменения состояния и возвращает Result.
 public class CompleteLessonCommandHandler : IRequestHandler<CompleteLessonCommand, Result<LessonProgressDto>>
 {
     private readonly IProgressDbContext _context;

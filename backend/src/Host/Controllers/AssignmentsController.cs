@@ -1,3 +1,4 @@
+// Файл: AssignmentsController.cs
 using Assignments.Application.Assignments.Commands.CreateAssignment;
 using Assignments.Application.Assignments.Commands.DeleteAssignment;
 using Assignments.Application.Assignments.Commands.GradeSubmission;
@@ -20,6 +21,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AssignmentsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api")]
 public class AssignmentsController : ControllerBase
@@ -170,6 +172,7 @@ public class AssignmentsController : ControllerBase
     }
 }
 
+// API-модель CreateAssignmentRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateAssignmentRequest(
     Guid CourseId,
     string Title,
@@ -182,6 +185,7 @@ public record CreateAssignmentRequest(
     IReadOnlyList<AssignmentCriteriaInput>? CriteriaItems = null,
     Guid? SectionId = null);
 
+// API-модель UpdateAssignmentRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateAssignmentRequest(
     Guid CourseId,
     string Title,

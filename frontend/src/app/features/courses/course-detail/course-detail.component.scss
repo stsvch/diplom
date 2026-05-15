@@ -1,5 +1,7 @@
+// course-detail.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .course-detail {
   min-height: 100%;
 
@@ -23,6 +25,7 @@
     text-decoration: none;
     font-weight: 600;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { text-decoration: underline; }
   }
 
@@ -37,7 +40,7 @@
     font-size: v.$font-size-sm;
   }
 
-  // Hero
+  // Главный экран.
   &__hero {
     background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4F46E5 100%);
     background-size: cover;
@@ -53,6 +56,7 @@
     gap: v.$spacing-8;
     align-items: start;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-lg) {
       grid-template-columns: 1fr;
     }
@@ -141,7 +145,7 @@
     margin: 0;
   }
 
-  // Sidebar / Enroll card
+  // Сайдбар и карточка записи.
   &__sidebar {
     @media (max-width: v.$breakpoint-lg) {
       order: -1;
@@ -241,7 +245,7 @@
     }
   }
 
-  // Body
+  // Основная область.
   &__body {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -296,7 +300,7 @@
     margin: 0 0 v.$spacing-4;
   }
 
-  // Instructor card
+  // Карточка преподавателя.
   &__instructor-card {
     background: v.$bg-card;
     border-radius: v.$radius-lg;
@@ -331,13 +335,13 @@
     margin: 0;
   }
 
-  // Loading
+  // Загрузка.
   &__loading {
     padding: v.$spacing-8;
   }
 }
 
-// Module items
+// Элементы модуля.
 .module-item {
   border: 1px solid v.$border-color;
   border-radius: v.$radius-lg;
@@ -401,7 +405,7 @@
   }
 }
 
-// Lesson rows
+// Стили следующей секции интерфейса.
 .lesson-row {
   display: flex;
   align-items: center;
@@ -486,7 +490,7 @@
   }
 }
 
-// Skeleton
+// Скелетон загрузки.
 .detail-skeleton {
   &__hero {
     height: 400px;

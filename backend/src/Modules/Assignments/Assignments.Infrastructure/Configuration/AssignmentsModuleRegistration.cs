@@ -1,3 +1,5 @@
+// AssignmentsModuleRegistration.cs
+
 using Assignments.Application.Interfaces;
 using Assignments.Infrastructure.Persistence;
 using Assignments.Infrastructure.Services;
@@ -9,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Assignments.Infrastructure.Configuration;
 
+/// <summary>
+/// DI-регистрация Assignments-модуля: подключает DbContext, MediatR, FluentValidation, AutoMapper и read-service дедлайнов/статусов.
+/// </summary>
 public static class AssignmentsModuleRegistration
 {
     public static IServiceCollection AddAssignmentsModule(this IServiceCollection services, IConfiguration configuration)

@@ -1,3 +1,4 @@
+// content.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
@@ -21,12 +22,14 @@ export interface UpdateLessonBlockPayload {
   settings?: LessonBlockSettings;
 }
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class ContentService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/lesson-blocks`;
 
   getByLesson(lessonId: string): Observable<LessonBlockDto[]> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<LessonBlockDto[]>(`${this.base}/by-lesson/${lessonId}`).pipe(
       map((blocks) => blocks.map((block) => this.normalizeBlock(block))),
     );
@@ -72,8 +75,8 @@ export class ContentService {
     if (!discriminator) {
       throw new Error('LessonBlockData is missing a type discriminator');
     }
-    // Important: System.Text.Json requires $type to appear first in the object
-    // (polymorphic discriminator must precede other properties).
+    // Важно: System.Text.Json требует, чтобы $type был первым свойством объекта.
+    // Полиморфный дискриминатор должен идти перед остальными свойствами.
     return {
       $type: discriminator,
       ...rest,

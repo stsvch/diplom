@@ -1,7 +1,9 @@
+// Файл: CourseItemProgress.cs
 using EduPlatform.Shared.Domain;
 
 namespace Progress.Domain.Entities;
 
+// Класс CourseItemProgress инкапсулирует ответственность соответствующего сценария.
 public class CourseItemProgress : BaseEntity
 {
     public Guid CourseId { get; set; }

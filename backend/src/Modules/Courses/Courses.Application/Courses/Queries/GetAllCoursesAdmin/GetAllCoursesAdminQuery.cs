@@ -1,9 +1,12 @@
+// GetAllCoursesAdminQuery.cs
+
 using EduPlatform.Shared.Application.Models;
 using EduPlatform.Shared.Domain;
 using MediatR;
 
 namespace Courses.Application.Courses.Queries.GetAllCoursesAdmin;
 
+// Тип record: ключевой элемент файла GetAllCoursesAdminQuery.cs.
 public record GetAllCoursesAdminQuery(
     string? Search,
     string? Status, // "published" | "draft" | "archived"

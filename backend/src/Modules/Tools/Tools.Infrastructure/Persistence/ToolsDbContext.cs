@@ -1,3 +1,4 @@
+// Файл: ToolsDbContext.cs
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Tools.Application.Interfaces;
@@ -6,6 +7,7 @@ using Tools.Domain.Enums;
 
 namespace Tools.Infrastructure.Persistence;
 
+// DbContext ToolsDbContext описывает EF Core-модель и границы хранения данных модуля.
 public class ToolsDbContext : BaseDbContext, IToolsDbContext
 {
     public ToolsDbContext(DbContextOptions<ToolsDbContext> options) : base(options)

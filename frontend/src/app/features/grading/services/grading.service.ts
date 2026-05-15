@@ -1,3 +1,4 @@
+// grading.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +11,7 @@ import {
   UpdateGradeDto,
 } from '../models/grading.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +20,7 @@ export class GradingService {
   private readonly base = `${environment.apiUrl}/grades`;
 
   createGrade(data: CreateGradeDto): Observable<GradeDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<GradeDto>(this.base, data);
   }
 
@@ -54,6 +57,7 @@ export class GradingService {
   }
 
   private downloadFile(url: string, filename: string): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.http.get(url, { responseType: 'blob' }).subscribe({
       next: (blob) => {
         const a = document.createElement('a');

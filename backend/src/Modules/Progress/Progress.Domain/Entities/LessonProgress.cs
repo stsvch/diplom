@@ -1,7 +1,9 @@
+// Файл: LessonProgress.cs
 using EduPlatform.Shared.Domain;
 
 namespace Progress.Domain.Entities;
 
+// Класс LessonProgress инкапсулирует ответственность соответствующего сценария.
 public class LessonProgress : BaseEntity
 {
     public Guid LessonId { get; set; }

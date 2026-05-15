@@ -1,5 +1,7 @@
+// PaymentsOptions.cs
 namespace Payments.Infrastructure.Configuration;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class PaymentsOptions
 {
     public string Provider { get; set; } = "Stripe";

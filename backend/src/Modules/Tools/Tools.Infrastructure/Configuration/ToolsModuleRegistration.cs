@@ -1,3 +1,4 @@
+// Файл: ToolsModuleRegistration.cs
 using Courses.Application.Interfaces;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Tools.Infrastructure.Services;
 
 namespace Tools.Infrastructure.Configuration;
 
+// DI-регистрация ToolsModuleRegistration подключает DbContext, сервисы и MediatR-обработчики модуля.
 public static class ToolsModuleRegistration
 {
     public static IServiceCollection AddToolsModule(this IServiceCollection services, IConfiguration configuration)

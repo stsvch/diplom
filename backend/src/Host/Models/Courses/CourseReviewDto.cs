@@ -1,5 +1,7 @@
+// Файл: CourseReviewDto.cs
 namespace EduPlatform.Host.Models.Courses;
 
+// DTO CourseReviewDto переносит данные наружу без раскрытия доменной сущности.
 public sealed class CourseReviewDto
 {
     public Guid Id { get; set; }
@@ -12,4 +14,5 @@ public sealed class CourseReviewDto
     public DateTime? UpdatedAt { get; set; }
 }
 
+// DTO UpsertCourseReviewRequest переносит данные наружу без раскрытия доменной сущности.
 public sealed record UpsertCourseReviewRequest(int Rating, string? Comment);

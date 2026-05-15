@@ -1,7 +1,12 @@
+// BookingDto.cs
+
 using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные BookingDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class BookingDto
 {
     public Guid Id { get; set; }

@@ -1,3 +1,4 @@
+// Файл: CourseItemManagementService.cs
 using Assignments.Infrastructure.Persistence;
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
@@ -8,6 +9,7 @@ using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис CourseItemManagementService инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class CourseItemManagementService
 {
     private readonly CoursesDbContext _coursesDb;

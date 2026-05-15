@@ -1,3 +1,4 @@
+// my-courses.component.ts
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { LucideAngularModule, BookOpen, GraduationCap } from 'lucide-angular';
 import { CoursesService } from '../services/courses.service';
@@ -10,6 +11,7 @@ import { RouterLink } from '@angular/router';
 
 type CourseFilter = 'all' | 'active' | 'completed';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-my-courses',
   standalone: true,
@@ -24,6 +26,7 @@ export class MyCoursesComponent implements OnInit {
   readonly BookOpenIcon = BookOpen;
   readonly GraduationCapIcon = GraduationCap;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly courses = signal<CourseListDto[]>([]);
   readonly activeFilter = signal<CourseFilter>('all');
@@ -45,12 +48,14 @@ export class MyCoursesComponent implements OnInit {
 
   readonly skeletonItems = Array(6).fill(0);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadCourses();
   }
 
   loadCourses(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getMyCourses().subscribe({
       next: (data) => {
         this.courses.set(data);

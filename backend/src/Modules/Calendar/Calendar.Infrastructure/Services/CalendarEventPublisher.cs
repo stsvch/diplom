@@ -1,3 +1,4 @@
+// CalendarEventPublisher.cs
 using Calendar.Application.Interfaces;
 using Calendar.Domain.Entities;
 using EduPlatform.Shared.Application.Contracts;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendar.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class CalendarEventPublisher : ICalendarEventPublisher
 {
     private readonly ICalendarDbContext _context;
@@ -32,7 +34,7 @@ public class CalendarEventPublisher : ICalendarEventPublisher
         var sourceTypes = requests.Select(r => r.SourceType).Distinct().ToList();
         var sourceIds = requests.Select(r => r.SourceId).Distinct().ToList();
 
-        // EF can't Contains over composite tuples — pull by IN clauses then filter client-side
+        // EF не умеет Contains по составным tuple, поэтому сначала фильтруем через IN, затем уточняем на клиенте.
         var candidates = await _context.CalendarEvents
             .Where(e => sourceTypes.Contains(e.SourceType!) && sourceIds.Contains(e.SourceId!.Value))
             .ToListAsync(cancellationToken);

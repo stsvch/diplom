@@ -1,5 +1,7 @@
+// course-builder.model.ts
 // ── Course Builder DTOs (повторяют backend/Host/Models/Courses/CourseBuilderDto.cs) ──
 
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export type CourseItemType =
   | 'Lesson'
   | 'Test'
@@ -70,8 +72,6 @@ export interface CourseBuilderCourseDto {
   isArchived: boolean;
   archiveReason?: string | null;
   orderType: string;
-  hasGrading: boolean;
-  hasCertificate: boolean;
   deadline?: string | null;
   tags: string[];
   createdAt: string;
@@ -107,7 +107,7 @@ export interface CourseBuilderDto {
   readiness: CourseBuilderReadinessDto;
 }
 
-// ── Standalone item requests (Resource/ExternalLink) ──
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export interface CreateStandaloneCourseItemRequest {
   type: 'Resource' | 'ExternalLink';
@@ -175,7 +175,7 @@ export interface CourseItemBackfillDto {
   assignmentsCount: number;
 }
 
-// ── UI selection ──
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export type Selection =
   | { kind: 'none' }

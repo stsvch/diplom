@@ -1,3 +1,4 @@
+// editor-panel.component.ts
 import { Component, Input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -18,6 +19,7 @@ import { AssignmentEditorComponent } from '../../editors/assignment-editor/assig
 import { MaterialEditorComponent } from '../../editors/material-editor/material-editor.component';
 import { CourseItemType } from '../../models/course-builder.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-editor-panel',
   standalone: true,
@@ -53,6 +55,7 @@ export class EditorPanelComponent {
     { type: 'Resource',    label: 'Материал', desc: 'Файл или ссылка',          icon: Paperclip,       color: 'slate' },
   ];
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly hasAnyItem = computed(() => this.store.totalItems() > 0);
 
   addToFirstSection(type: CourseItemType): void {

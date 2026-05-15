@@ -1,3 +1,4 @@
+// block-viewer-host.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -24,6 +25,7 @@ import { CodeExerciseViewerComponent } from '../../blocks/code-exercise/code-exe
 import { QuizViewerComponent } from '../../blocks/quiz/quiz-viewer.component';
 import { AssignmentViewerComponent } from '../../blocks/assignment/assignment-viewer.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-block-viewer-host',
   standalone: true,

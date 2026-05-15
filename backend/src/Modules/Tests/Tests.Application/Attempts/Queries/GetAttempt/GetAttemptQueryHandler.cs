@@ -1,3 +1,5 @@
+// GetAttemptQueryHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -8,6 +10,9 @@ using Tests.Domain.Enums;
 
 namespace Tests.Application.Attempts.Queries.GetAttempt;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetAttemptQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetAttemptQueryHandler : IRequestHandler<GetAttemptQuery, Result<TestAttemptDetailDto>>
 {
     private readonly ITestsDbContext _context;
@@ -19,6 +24,7 @@ public class GetAttemptQueryHandler : IRequestHandler<GetAttemptQuery, Result<Te
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestAttemptDetailDto>> Handle(GetAttemptQuery request, CancellationToken cancellationToken)
     {
         var attempt = await _context.TestAttempts
@@ -35,7 +41,7 @@ public class GetAttemptQueryHandler : IRequestHandler<GetAttemptQuery, Result<Te
         var dto = _mapper.Map<TestAttemptDetailDto>(attempt);
         dto.Responses = _mapper.Map<List<TestResponseDto>>(attempt.Responses);
 
-        // Show correct answers only if attempt is completed and ShowCorrectAnswers is enabled
+        // Показываем правильные ответы только после завершения попытки и при включённой настройке ShowCorrectAnswers.
         if (attempt.Status != AttemptStatus.InProgress && attempt.Test.ShowCorrectAnswers)
         {
             dto.Questions = _mapper.Map<List<QuestionDto>>(attempt.Test.Questions);

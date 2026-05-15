@@ -1,3 +1,4 @@
+// Файл: ChatAttachmentCleanupService.cs
 using Content.Application.Interfaces;
 using Content.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -7,6 +8,7 @@ using MongoDB.Driver;
 
 namespace EduPlatform.Host.Services;
 
+// Фоновый сервис ChatAttachmentCleanupService выполняет периодическую задачу вне HTTP-запроса.
 public class ChatAttachmentCleanupService : BackgroundService
 {
     private static readonly TimeSpan RunInterval = TimeSpan.FromHours(1);

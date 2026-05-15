@@ -1,8 +1,11 @@
+// CoursePaymentReadService.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class CoursePaymentReadService : ICoursePaymentReadService
 {
     private readonly Persistence.CoursesDbContext _context;

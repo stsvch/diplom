@@ -1,3 +1,4 @@
+// UpdateProfileCommandHandler.cs
 using Auth.Application.DTOs;
 using Auth.Domain.Entities;
 using AutoMapper;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Commands.UpdateProfile;
 
+// Обработчик сценария: обновляет имя, фамилию и avatarUrl профиля текущего пользователя, затем возвращает актуальный профиль.
 public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Result<UserProfileDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

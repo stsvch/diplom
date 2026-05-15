@@ -1,3 +1,5 @@
+// CreateDisciplineCommandHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Domain.Entities;
@@ -7,6 +9,7 @@ using MediatR;
 
 namespace Courses.Application.Disciplines.Commands.CreateDiscipline;
 
+// Тип class: ключевой элемент файла CreateDisciplineCommandHandler.cs.
 public class CreateDisciplineCommandHandler : IRequestHandler<CreateDisciplineCommand, Result<DisciplineDto>>
 {
     private readonly IRepository<Discipline> _repository;
@@ -18,6 +21,7 @@ public class CreateDisciplineCommandHandler : IRequestHandler<CreateDisciplineCo
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<DisciplineDto>> Handle(CreateDisciplineCommand request, CancellationToken cancellationToken)
     {
         var discipline = new Discipline

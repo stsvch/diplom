@@ -1,3 +1,5 @@
+// DeleteAssignmentCommandHandler.cs
+
 using Assignments.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -6,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Commands.DeleteAssignment;
 
+/// <summary>
+/// Обработчик сценария: удаляет задание автора, чистит связанные оценки и календарные события по этому заданию.
+/// </summary>
 public class DeleteAssignmentCommandHandler : IRequestHandler<DeleteAssignmentCommand, Result<string>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -22,6 +27,7 @@ public class DeleteAssignmentCommandHandler : IRequestHandler<DeleteAssignmentCo
         _grades = grades;
     }
 
+    // Последовательно выполняет сценарий: удаляет задание автора, чистит связанные оценки и календарные события по этому заданию.
     public async Task<Result<string>> Handle(DeleteAssignmentCommand request, CancellationToken cancellationToken)
     {
         var assignment = await _db.Assignments.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);

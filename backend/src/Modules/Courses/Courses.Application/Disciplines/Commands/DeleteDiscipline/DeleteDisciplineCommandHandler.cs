@@ -1,3 +1,5 @@
+// DeleteDisciplineCommandHandler.cs
+
 using Courses.Domain.Entities;
 using EduPlatform.Shared.Application.Interfaces;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Disciplines.Commands.DeleteDiscipline;
 
+// Тип class: ключевой элемент файла DeleteDisciplineCommandHandler.cs.
 public class DeleteDisciplineCommandHandler : IRequestHandler<DeleteDisciplineCommand, Result<string>>
 {
     private readonly IRepository<Discipline> _repository;
@@ -14,6 +17,7 @@ public class DeleteDisciplineCommandHandler : IRequestHandler<DeleteDisciplineCo
         _repository = repository;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(DeleteDisciplineCommand request, CancellationToken cancellationToken)
     {
         var discipline = await _repository.GetByIdAsync(request.Id, cancellationToken);

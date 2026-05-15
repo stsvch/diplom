@@ -1,4 +1,7 @@
+<!-- avatar.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="avatar" [class]="'avatar avatar--' + size">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (src && !imageError()) {
     <img
       class="avatar__img"

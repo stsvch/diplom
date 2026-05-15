@@ -1,3 +1,4 @@
+// lesson-templates.ts
 import {
   LessonBlockType,
   LessonBlockData,

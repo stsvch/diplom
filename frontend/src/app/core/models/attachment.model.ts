@@ -1,3 +1,5 @@
+// attachment.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface AttachmentDto {
   id: string;
   fileName: string;

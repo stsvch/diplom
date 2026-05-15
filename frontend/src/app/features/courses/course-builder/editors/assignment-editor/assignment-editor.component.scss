@@ -1,5 +1,7 @@
+// assignment-editor.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .ae {
@@ -42,6 +44,7 @@
   font-family: inherit;
   outline: none;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &::placeholder { color: $slate-300; }
   &:focus { border-bottom-color: $rose-400; }
 }

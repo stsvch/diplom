@@ -1,3 +1,5 @@
+<!-- block-inserter.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="inserter" [class.inserter--open]="menuOpen()">
   <div class="inserter__line"></div>
   <button class="inserter__button" type="button" (click)="toggle()" aria-label="Добавить блок">
@@ -6,6 +8,7 @@
   </button>
   <div class="inserter__line"></div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (menuOpen()) {
     <div class="inserter__menu">
       <app-block-type-menu (selected)="onSelect($event)" (closed)="close()"></app-block-type-menu>

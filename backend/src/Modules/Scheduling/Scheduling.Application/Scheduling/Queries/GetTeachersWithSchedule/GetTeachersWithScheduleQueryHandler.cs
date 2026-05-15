@@ -1,3 +1,5 @@
+// GetTeachersWithScheduleQueryHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Queries.GetTeachersWithSchedule;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetTeachersWithScheduleQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetTeachersWithScheduleQueryHandler : IRequestHandler<GetTeachersWithScheduleQuery, List<TeacherWithScheduleDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -20,6 +25,7 @@ public class GetTeachersWithScheduleQueryHandler : IRequestHandler<GetTeachersWi
         _enrollment = enrollment;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<TeacherWithScheduleDto>> Handle(GetTeachersWithScheduleQuery request, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

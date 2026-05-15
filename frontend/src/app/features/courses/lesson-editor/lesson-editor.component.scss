@@ -1,5 +1,7 @@
+// lesson-editor.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .editor-page {
   display: flex;
   flex-direction: column;
@@ -54,6 +56,7 @@
   padding: $spacing-2 $spacing-3;
   outline: none;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover { border-bottom-color: $border-color; }
   &:focus {
     border-bottom-color: $primary;

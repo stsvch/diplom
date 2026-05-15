@@ -1,7 +1,9 @@
+// LocalPaymentProviderGateway.cs
 using Payments.Application.Interfaces;
 
 namespace Payments.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class LocalPaymentProviderGateway : IPaymentProviderGateway
 {
     public bool IsConfigured => true;
@@ -70,20 +72,6 @@ public class LocalPaymentProviderGateway : IPaymentProviderGateway
         return Task.FromResult(new ProviderCheckoutSessionResult(
             $"cs_sub_local_{request.SubscriptionPaymentAttemptId:N}",
             checkoutUrl));
-    }
-
-    public Task<ProviderRefundResult> CreateRefundAsync(
-        ProviderRefundRequest request,
-        CancellationToken cancellationToken = default)
-    {
-        return Task.FromResult(new ProviderRefundResult(
-            $"re_local_{request.PaymentAttemptId:N}",
-            request.PaymentIntentId,
-            request.Amount,
-            request.Currency,
-            "succeeded",
-            request.Reason,
-            null));
     }
 
     public Task<ProviderTransferResult> CreateTransferAsync(

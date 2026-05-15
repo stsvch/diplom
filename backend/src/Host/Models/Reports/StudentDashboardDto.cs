@@ -1,5 +1,7 @@
+// Файл: StudentDashboardDto.cs
 namespace EduPlatform.Host.Models.Reports;
 
+// DTO StudentDashboardDto переносит данные наружу без раскрытия доменной сущности.
 public class StudentDashboardDto
 {
     public StudentDashboardSummaryDto Summary { get; set; } = new();
@@ -8,6 +10,7 @@ public class StudentDashboardDto
     public List<StudentDashboardUpcomingItemDto> Upcoming { get; set; } = new();
 }
 
+// DTO StudentDashboardSummaryDto переносит данные наружу без раскрытия доменной сущности.
 public class StudentDashboardSummaryDto
 {
     public int EnrolledCourses { get; set; }
@@ -17,9 +20,9 @@ public class StudentDashboardSummaryDto
     public int TotalLessons { get; set; }
     public decimal OverallProgressPercent { get; set; }
     public decimal AverageGradePercent { get; set; }
-    public int UpcomingEventsCount { get; set; }
 }
 
+// DTO StudentDashboardCourseDto переносит данные наружу без раскрытия доменной сущности.
 public class StudentDashboardCourseDto
 {
     public Guid CourseId { get; set; }

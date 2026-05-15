@@ -1,3 +1,5 @@
+// GradingModuleRegistration.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using Grading.Application.Interfaces;
 using Grading.Infrastructure.Persistence;
@@ -9,6 +11,9 @@ using QuestPDF.Infrastructure;
 
 namespace Grading.Infrastructure.Configuration;
 
+/// <summary>
+/// Расширение DI регистрирует DbContext, MediatR, валидаторы, маппинг и сервисы модуля.
+/// </summary>
 public static class GradingModuleRegistration
 {
     public static IServiceCollection AddGradingModule(this IServiceCollection services, IConfiguration configuration)

@@ -1,8 +1,9 @@
+// course-card.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 // ─────────────────────────────────────────────
-// Card root
-// ─────────────────────────────────────────────
+// Корень карточки.
 .cc {
   display: flex;
   flex-direction: column;
@@ -16,6 +17,7 @@
   color: inherit;
   transition: transform $transition-slow, box-shadow $transition-slow;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     transform: translateY(-4px);
     box-shadow: $shadow-card-deep;
@@ -27,8 +29,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Cover
-// ─────────────────────────────────────────────
+// Обложка.
 .cc__cover {
   position: relative;
   height: 176px;
@@ -101,7 +102,7 @@
   }
 }
 
-// Rating
+// Рейтинг.
 .cc__rating {
   position: absolute;
   bottom: 12px;
@@ -125,8 +126,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Body
-// ─────────────────────────────────────────────
+// Основная область.
 .cc__body {
   flex: 1;
   display: flex;
@@ -168,7 +168,7 @@
   flex: 1;
 }
 
-// Tags
+// Теги.
 .cc__tags {
   display: flex;
   flex-wrap: wrap;
@@ -184,7 +184,7 @@
   border-radius: $radius-full;
 }
 
-// Teacher
+// Преподаватель.
 .cc__teacher {
   display: flex;
   align-items: center;
@@ -217,7 +217,7 @@
   font-size: $font-size-sm;
 }
 
-// Meta
+// Метаданные.
 .cc__meta {
   display: flex;
   align-items: center;

@@ -1,3 +1,4 @@
+// UpdatePlatformSettingsCommandHandler.cs
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.UpdatePlatformSettings;
 
+// Обработчик сценария: обновляет singleton-настройки платформы: доступность регистрации, maintenance mode, название и email поддержки.
 public class UpdatePlatformSettingsCommandHandler : IRequestHandler<UpdatePlatformSettingsCommand, Result<PlatformSettingsDto>>
 {
     private readonly IAuthDbContext _context;

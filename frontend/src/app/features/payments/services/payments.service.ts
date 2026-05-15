@@ -1,3 +1,4 @@
+// payments.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -5,11 +6,9 @@ import { environment } from '../../../../environments/environment';
 import {
   CourseCheckoutSessionDto,
   CoursePurchaseDto,
-  DisputeRecordDto,
   PaymentAttemptDto,
   PaymentMethodRefDto,
   PayoutRecordDto,
-  RefundRecordDto,
   SubscriptionCheckoutSessionDto,
   SubscriptionInvoiceDto,
   SubscriptionPaymentAttemptDto,
@@ -17,11 +16,11 @@ import {
   TeacherPayoutAccountDto,
   TeacherSettlementDto,
   TeacherSettlementSummaryDto,
-  TeacherSubscriptionAllocationDto,
   UserEntitlementsDto,
   UserSubscriptionDto,
 } from '../models/payments.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -30,6 +29,7 @@ export class PaymentsService {
   private readonly base = `${environment.apiUrl}/payments`;
 
   createCourseCheckout(courseId: string, savePaymentMethod = false): Observable<CourseCheckoutSessionDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.post<CourseCheckoutSessionDto>(`${this.base}/course-checkout`, {
       courseId,
       savePaymentMethod,
@@ -64,14 +64,6 @@ export class PaymentsService {
 
   getMyPurchases(): Observable<CoursePurchaseDto[]> {
     return this.http.get<CoursePurchaseDto[]>(`${this.base}/me/purchases`);
-  }
-
-  getMyRefunds(): Observable<RefundRecordDto[]> {
-    return this.http.get<RefundRecordDto[]>(`${this.base}/me/refunds`);
-  }
-
-  getMyDisputes(): Observable<DisputeRecordDto[]> {
-    return this.http.get<DisputeRecordDto[]>(`${this.base}/me/disputes`);
   }
 
   getMyPaymentMethods(): Observable<PaymentMethodRefDto[]> {
@@ -118,16 +110,8 @@ export class PaymentsService {
     return this.http.get<TeacherSettlementDto[]>(`${this.base}/teacher/settlements`);
   }
 
-  getTeacherSubscriptionAllocations(): Observable<TeacherSubscriptionAllocationDto[]> {
-    return this.http.get<TeacherSubscriptionAllocationDto[]>(`${this.base}/teacher/subscription-allocations`);
-  }
-
   getTeacherPayoutRecords(): Observable<PayoutRecordDto[]> {
     return this.http.get<PayoutRecordDto[]>(`${this.base}/teacher/payouts`);
-  }
-
-  getTeacherDisputes(): Observable<DisputeRecordDto[]> {
-    return this.http.get<DisputeRecordDto[]>(`${this.base}/teacher/disputes`);
   }
 
   requestTeacherPayout(): Observable<PayoutRecordDto> {

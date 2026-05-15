@@ -1,3 +1,4 @@
+// GetChatByIdQuery.cs
 using EduPlatform.Shared.Domain;
 using MediatR;
 using Messaging.Application.DTOs;
@@ -6,8 +7,10 @@ using Messaging.Application.Mappings;
 
 namespace Messaging.Application.Queries.GetChatById;
 
+// Query описывает параметры чтения без изменения состояния.
 public record GetChatByIdQuery(string ChatId, string UserId) : IRequest<Result<ChatDto>>;
 
+// Handler собирает данные для чтения и маппит их в DTO.
 public class GetChatByIdQueryHandler : IRequestHandler<GetChatByIdQuery, Result<ChatDto>>
 {
     private readonly IMessagingRepository _repository;

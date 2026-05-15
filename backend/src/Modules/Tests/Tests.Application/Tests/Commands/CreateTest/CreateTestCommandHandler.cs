@@ -1,3 +1,5 @@
+// CreateTestCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -9,6 +11,9 @@ using Tests.Domain.Entities;
 
 namespace Tests.Application.Tests.Commands.CreateTest;
 
+/// <summary>
+/// Обработчик CQRS-команды CreateTestCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Result<TestDetailDto>>
 {
     private readonly ITestsDbContext _context;
@@ -31,6 +36,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Resul
         _enrollment = enrollment;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<TestDetailDto>> Handle(CreateTestCommand request, CancellationToken cancellationToken)
     {
         var test = new Test

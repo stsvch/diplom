@@ -1,8 +1,10 @@
+// SubscriptionUsage.cs
 using EduPlatform.Shared.Domain;
 using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class SubscriptionUsage : BaseEntity
 {
     public Guid UserSubscriptionId { get; set; }

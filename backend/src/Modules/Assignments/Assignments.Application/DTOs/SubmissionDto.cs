@@ -1,7 +1,12 @@
+// SubmissionDto.cs
+
 using Assignments.Domain.Enums;
 
 namespace Assignments.Application.DTOs;
 
+/// <summary>
+/// Карточка сдачи студента: id задания, студент, номер попытки, текст ответа, дата отправки, статус, балл, максимум, комментарий и дата проверки.
+/// </summary>
 public class SubmissionDto
 {
     public Guid Id { get; set; }

@@ -1,3 +1,5 @@
+// admin-payments.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .admin-payments { padding: 24px; }
@@ -157,6 +159,7 @@
   padding: 12px 20px; border-top: 1px solid #E2E8F0; background: #F8FAFC;
 }
 
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (max-width: 900px) {
   .admin-payments__plans-head {
     display: grid;

@@ -1,5 +1,7 @@
+// ChatDto.cs
 namespace Messaging.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public class ChatDto
 {
     public string Id { get; set; } = string.Empty;

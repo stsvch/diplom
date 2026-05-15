@@ -1,3 +1,4 @@
+// Файл: CourseBuilderReadService.cs
 using Assignments.Infrastructure.Persistence;
 using Content.Infrastructure.Persistence;
 using Courses.Domain.Enums;
@@ -8,6 +9,7 @@ using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис чтения CourseBuilderReadService собирает модель чтения для API без изменения состояния.
 public class CourseBuilderReadService
 {
     private const string TypeLesson = "Lesson";
@@ -56,8 +58,6 @@ public class CourseBuilderReadService
                 c.IsArchived,
                 c.ArchiveReason,
                 c.OrderType.ToString(),
-                c.HasGrading,
-                c.HasCertificate,
                 c.Deadline,
                 c.CreatedAt,
                 c.Enrollments.Count(e => e.Status == EnrollmentStatus.Active),
@@ -138,8 +138,6 @@ public class CourseBuilderReadService
                 IsArchived = course.IsArchived,
                 ArchiveReason = course.ArchiveReason,
                 OrderType = course.OrderType,
-                HasGrading = course.HasGrading,
-                HasCertificate = course.HasCertificate,
                 Deadline = course.Deadline,
                 Tags = course.Tags,
                 CreatedAt = course.CreatedAt,
@@ -506,6 +504,7 @@ public class CourseBuilderReadService
         };
     }
 
+    // Сервис CourseRow инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record CourseRow(
         Guid Id,
         Guid DisciplineId,
@@ -522,13 +521,12 @@ public class CourseBuilderReadService
         bool IsArchived,
         string? ArchiveReason,
         string OrderType,
-        bool HasGrading,
-        bool HasCertificate,
         DateTime? Deadline,
         DateTime CreatedAt,
         int StudentsCount,
         List<string> Tags);
 
+    // Сервис SectionRow инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
     private sealed record SectionRow(
         Guid Id,
         string Title,

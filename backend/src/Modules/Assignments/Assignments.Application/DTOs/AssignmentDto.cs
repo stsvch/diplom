@@ -1,7 +1,12 @@
+// AssignmentDto.cs
+
 using Assignments.Domain.Enums;
 
 namespace Assignments.Application.DTOs;
 
+/// <summary>
+/// Краткая карточка задания для списков: курс, название, описание, дедлайн, лимит попыток, формат сдачи, баллы, автора, критерии и число сдач.
+/// </summary>
 public class AssignmentDto
 {
     public Guid Id { get; set; }

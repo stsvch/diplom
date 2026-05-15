@@ -1,9 +1,13 @@
+// CreateModuleCommandValidator.cs
+
 using FluentValidation;
 
 namespace Courses.Application.Modules.Commands.CreateModule;
 
+// Тип class: ключевой элемент файла CreateModuleCommandValidator.cs.
 public class CreateModuleCommandValidator : AbstractValidator<CreateModuleCommand>
 {
+    // Правила ниже защищают handler от некорректной входной модели.
     public CreateModuleCommandValidator()
     {
         RuleFor(x => x.Title)

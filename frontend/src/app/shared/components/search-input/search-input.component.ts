@@ -1,6 +1,8 @@
+// search-input.component.ts
 import { Component, Input, model } from '@angular/core';
 import { LucideAngularModule, Search } from 'lucide-angular';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-search-input',
   standalone: true,
@@ -11,6 +13,7 @@ import { LucideAngularModule, Search } from 'lucide-angular';
 export class SearchInputComponent {
   @Input() placeholder = 'Поиск...';
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly value = model('');
 
   readonly SearchIcon = Search;

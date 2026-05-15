@@ -1,3 +1,5 @@
+// EnrollmentReadService.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class EnrollmentReadService : IEnrollmentReadService
 {
     private readonly ICoursesDbContext _context;

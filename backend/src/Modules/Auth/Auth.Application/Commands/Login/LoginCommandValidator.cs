@@ -1,7 +1,9 @@
+// LoginCommandValidator.cs
 using FluentValidation;
 
 namespace Auth.Application.Commands.Login;
 
+// Валидатор отсекает пустой/некорректный email и пустой пароль до обращения к Identity.
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
     public LoginCommandValidator()

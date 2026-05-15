@@ -1,10 +1,12 @@
-import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+// lesson-preview-host.component.ts
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { LessonViewHostComponent } from '../lesson-view-host/lesson-view-host.component';
 import { PreviewModeService } from '../services/preview-mode.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-lesson-preview-host',
   standalone: true,
@@ -105,13 +107,17 @@ import { PreviewModeService } from '../services/preview-mode.service';
 export class LessonPreviewHostComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly previewMode = inject(PreviewModeService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   courseId = signal<string | null>(null);
   ready = signal<boolean>(false);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     const cid = this.route.snapshot.queryParamMap.get('courseId');
     this.courseId.set(cid);
+    this.ready.set(false);
     this.previewMode.enable(cid);
   }
 
@@ -121,5 +127,6 @@ export class LessonPreviewHostComponent implements OnInit, OnDestroy {
 
   onReady(): void {
     this.ready.set(true);
+    this.changeDetector.detectChanges();
   }
 }

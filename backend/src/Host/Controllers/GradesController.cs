@@ -1,3 +1,4 @@
+// Файл: GradesController.cs
 using Auth.Domain.Entities;
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Models;
@@ -19,6 +20,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер GradesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/grades")]
 public class GradesController : ControllerBase
@@ -89,6 +91,9 @@ public class GradesController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetCourseGradebook(Guid courseId, CancellationToken ct)
     {
+        var access = await CheckCourseAccessAsync(courseId, ct);
+        if (access is { } forbidden) return forbidden;
+
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
         await EnrichGradebookAsync(gradebook, ct);
         return Ok(gradebook);
@@ -98,6 +103,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = "Teacher")]
     public async Task<IActionResult> GetGradebookStats(Guid courseId, CancellationToken ct)
     {
+        var access = await CheckCourseAccessAsync(courseId, ct);
+        if (access is { } forbidden) return forbidden;
+
         var stats = await _mediator.Send(new GetGradebookStatsQuery(courseId), ct);
         return Ok(stats);
     }
@@ -125,6 +133,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = "Teacher")]
     public async Task<IActionResult> ExportExcel(Guid courseId, CancellationToken ct)
     {
+        var access = await CheckCourseAccessAsync(courseId, ct);
+        if (access is { } forbidden) return forbidden;
+
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
         await EnrichGradebookAsync(gradebook, ct);
         if (!HasGrades(gradebook))
@@ -139,6 +150,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = "Teacher")]
     public async Task<IActionResult> ExportPdf(Guid courseId, CancellationToken ct)
     {
+        var access = await CheckCourseAccessAsync(courseId, ct);
+        if (access is { } forbidden) return forbidden;
+
         var gradebook = await _mediator.Send(new GetCourseGradebookQuery(courseId), ct);
         await EnrichGradebookAsync(gradebook, ct);
         if (!HasGrades(gradebook))
@@ -146,6 +160,30 @@ public class GradesController : ControllerBase
 
         var bytes = await _pdfExportService.ExportToPdfAsync(gradebook, ct);
         return File(bytes, "application/pdf", $"gradebook_{courseId:N}.pdf");
+    }
+
+    private async Task<IActionResult?> CheckCourseAccessAsync(Guid courseId, CancellationToken ct)
+    {
+        var role = User.FindFirstValue(ClaimTypes.Role);
+        if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+            return Forbid();
+
+        var teacherId = await _coursesDb.Courses
+            .Where(c => c.Id == courseId)
+            .Select(c => c.TeacherId)
+            .FirstOrDefaultAsync(ct);
+
+        if (string.IsNullOrWhiteSpace(teacherId))
+            return NotFound(ApiError.FromMessage("Курс не найден.", "COURSE_NOT_FOUND"));
+
+        if (string.Equals(role, "Teacher", StringComparison.OrdinalIgnoreCase) && teacherId == userId)
+            return null;
+
+        return Forbid();
     }
 
     private async Task EnrichGradebookAsync(GradebookDto gradebook, CancellationToken ct)
@@ -223,6 +261,7 @@ public class GradesController : ControllerBase
         gradebook.Students.Any(student => student.Grades.Count > 0);
 }
 
+// API-модель CreateGradeRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateGradeRequest(
     string StudentId,
     Guid CourseId,
@@ -234,4 +273,5 @@ public record CreateGradeRequest(
     decimal MaxScore,
     string? Comment);
 
+// API-модель UpdateGradeRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateGradeRequest(decimal Score, decimal MaxScore, string? Comment);

@@ -1,5 +1,9 @@
+<!-- course-info-editor.component.html -->
+<!-- Условный блок переключает состояние отображения по данным компонента. -->
 @if (store.course(); as c) {
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="cie">
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="cie__header">
       <div class="cie__eyebrow">
         <lucide-icon [img]="icons.info" [size]="14" />
@@ -134,17 +138,6 @@
         (tagsChange)="setTags($event)"
       />
       <p class="cie__hint">Существующие теги подскажутся при вводе. Если такого тега ещё нет — он создастся.</p>
-    </div>
-
-    <div class="cie__settings">
-      <label class="cie__check">
-        <input
-          type="checkbox"
-          [checked]="c.hasGrading"
-          (change)="setHasGrading($any($event.target).checked)"
-        />
-        <span>Курс с оценками</span>
-      </label>
     </div>
 
     <div class="cie__stats">

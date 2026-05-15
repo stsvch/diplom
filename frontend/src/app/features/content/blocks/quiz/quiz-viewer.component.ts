@@ -1,8 +1,10 @@
+// quiz-viewer.component.ts
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { QuizBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-quiz-viewer',
   standalone: true,

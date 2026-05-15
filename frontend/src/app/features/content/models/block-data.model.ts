@@ -1,5 +1,7 @@
+// block-data.model.ts
 import { LessonBlockType } from './block-type.model';
 
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface LessonBlockSettings {
   points: number;
   requiredForCompletion: boolean;
@@ -9,7 +11,7 @@ export interface LessonBlockSettings {
   maxAttempts?: number;
 }
 
-// ─── Informational ─────────────────────────────────────────
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export interface TextBlockData {
   type: 'Text';
@@ -53,7 +55,7 @@ export interface FileBlockData {
   description?: string;
 }
 
-// ─── Auto-graded ───────────────────────────────────────────
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export interface ChoiceOption {
   id: string;
@@ -173,7 +175,7 @@ export interface MatchingBlockData {
   correctPairs: MatchingPair[];
 }
 
-// ─── Manual-graded ─────────────────────────────────────────
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export type OpenTextLengthUnit = 'Chars' | 'Words';
 
@@ -204,7 +206,7 @@ export interface CodeExerciseBlockData {
   hiddenTests: boolean;
 }
 
-// ─── Composite ─────────────────────────────────────────────
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export interface QuizBlockData {
   type: 'Quiz';
@@ -216,7 +218,7 @@ export interface AssignmentBlockData {
   assignmentId: string;
 }
 
-// ─── Discriminated union ───────────────────────────────────
+// Следующий блок группирует связанную логику компонента или сервиса.
 
 export type LessonBlockData =
   | TextBlockData

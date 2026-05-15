@@ -1,5 +1,7 @@
+// _typography.scss
 @use 'variables' as *;
 
+// Типографика задает базовые размеры, веса и ритм текстовых элементов.
 body {
   font-family: $font-family;
   font-size: $font-size-base;
@@ -30,6 +32,7 @@ a {
   text-decoration: none;
   transition: color $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     color: $primary-hover;
   }

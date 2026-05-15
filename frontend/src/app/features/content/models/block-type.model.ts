@@ -1,3 +1,5 @@
+// block-type.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export type LessonBlockType =
   | 'Text'
   | 'Video'

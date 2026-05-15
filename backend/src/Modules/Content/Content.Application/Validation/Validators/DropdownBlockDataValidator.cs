@@ -1,12 +1,16 @@
+// DropdownBlockDataValidator.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 
 namespace Content.Application.Validation.Validators;
 
+// Валидатор данных блока class: проверяет структуру value object перед сохранением или публикацией.
 public class DropdownBlockDataValidator : IBlockDataValidator
 {
     public LessonBlockType SupportedType => LessonBlockType.Dropdown;
 
+    // Проверяет обязательные поля конкретного типа блока перед сохранением или публикацией.
     public BlockDataValidationResult Validate(LessonBlockData data)
     {
         var d = (DropdownBlockData)data;

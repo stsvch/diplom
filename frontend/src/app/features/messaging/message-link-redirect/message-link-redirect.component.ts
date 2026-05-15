@@ -1,8 +1,10 @@
+// message-link-redirect.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-message-link-redirect',
   standalone: true,
@@ -13,6 +15,7 @@ export class MessageLinkRedirectComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     const chatId = this.route.snapshot.paramMap.get('chatId');
     const role = this.authService.userRole();

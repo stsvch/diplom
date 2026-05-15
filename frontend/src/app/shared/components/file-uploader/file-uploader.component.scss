@@ -1,5 +1,7 @@
+// file-uploader.component.scss
 @use '../../../../styles/variables' as v;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .file-uploader {
   width: 100%;
 
@@ -22,6 +24,7 @@
     min-height: 140px;
     text-align: center;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover,
     &:focus {
       border-color: v.$primary;

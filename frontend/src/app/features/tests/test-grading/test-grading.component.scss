@@ -1,5 +1,7 @@
+// test-grading.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .test-grading {
   padding: v.$spacing-6;
   max-width: 760px;
@@ -22,6 +24,7 @@
     font-size: v.$font-size-sm;
     transition: color v.$transition-fast;
     white-space: nowrap;
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { color: v.$primary; }
   }
 
@@ -43,7 +46,7 @@
   }
 }
 
-// Attempt info
+// Информация о попытке.
 .attempt-info {
   background: v.$bg-muted;
   border-radius: v.$radius-lg;
@@ -74,7 +77,7 @@
   font-size: v.$font-size-base;
 }
 
-// Grade list
+// Список оценок.
 .grade-list {
   display: flex;
   flex-direction: column;
@@ -143,6 +146,7 @@
     gap: v.$spacing-4;
     align-items: start;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-sm) {
       grid-template-columns: 1fr;
     }

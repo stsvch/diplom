@@ -1,5 +1,7 @@
+<!-- login.component.html -->
+<!-- Шаблон входа: слева промо-блок платформы, справа форма email/пароль, ошибки валидации и ссылка на восстановление доступа. -->
 <div class="auth-layout">
-  <!-- Left Panel -->
+  <!-- Левая промо-панель показывает бренд, обещание платформы и доверительные факты. -->
   <div class="auth-layout__left">
     <div class="auth-layout__left-inner">
       <div class="auth-brand">
@@ -36,7 +38,7 @@
     </div>
   </div>
 
-  <!-- Right Panel -->
+  <!-- Правая панель содержит основную auth-форму текущего сценария. -->
   <div class="auth-layout__right">
     <div class="auth-form-card">
       <div class="auth-form-card__header">
@@ -45,7 +47,7 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
-        <!-- Email -->
+        <!-- Email используется как логин и адрес для подтверждения/восстановления. -->
         <div class="form-group" [class.form-group--error]="emailError">
           <label class="form-label" for="login-email">Email</label>
           <div class="form-input-wrap">
@@ -66,7 +68,7 @@
           }
         </div>
 
-        <!-- Password -->
+        <!-- Пароль валидируется на клиенте и затем проверяется backend Auth-модулем. -->
         <div class="form-group" [class.form-group--error]="passwordError">
           <div class="form-label-row">
             <label class="form-label" for="login-password">Пароль</label>

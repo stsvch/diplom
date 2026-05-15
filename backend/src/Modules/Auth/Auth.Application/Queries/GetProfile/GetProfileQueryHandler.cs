@@ -1,3 +1,4 @@
+// GetProfileQueryHandler.cs
 using Auth.Application.DTOs;
 using Auth.Domain.Entities;
 using AutoMapper;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Application.Queries.GetProfile;
 
+// Обработчик сценария: читает профиль текущего пользователя и добавляет его роль из Identity.
 public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, Result<UserProfileDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

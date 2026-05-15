@@ -1,5 +1,7 @@
+// UserProfileDto.cs
 namespace Auth.Application.DTOs;
 
+// Профиль пользователя для frontend: id, email, имя, фамилия, avatarUrl, роль и признак подтверждения email.
 public class UserProfileDto
 {
     public string Id { get; set; } = string.Empty;

@@ -1,5 +1,8 @@
+<!-- sidebar.component.html -->
+<!-- Боковая панель хранит вспомогательную навигацию и контекст. -->
 <aside class="sb" [class.sb--mobile-open]="mobileOpen()" [attr.data-role]="roleKey()">
   <!-- Logo -->
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="sb__logo">
     <span class="sb__logo-mark">
       <lucide-icon [img]="icons.GraduationCap" [size]="16" />
@@ -18,7 +21,9 @@
   </div>
 
   <!-- Navigation -->
+  <!-- Навигация связывает основные разделы интерфейса. -->
   <nav class="sb__nav">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (item of navItems(); track item.route) {
       <a
         class="sb__item"

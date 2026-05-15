@@ -1,3 +1,4 @@
+// Файл: CalendarController.cs
 using Calendar.Application.Calendar.Commands.CreateCalendarEvent;
 using Calendar.Application.Calendar.Commands.DeleteCalendarEvent;
 using Calendar.Application.Calendar.Queries.GetMonthEvents;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер CalendarController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/calendar")]
 [Authorize]
@@ -77,6 +79,7 @@ public class CalendarController : ControllerBase
     }
 }
 
+// API-модель CreateCalendarEventRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateCalendarEventRequest(
     Guid? CourseId,
     string Title,

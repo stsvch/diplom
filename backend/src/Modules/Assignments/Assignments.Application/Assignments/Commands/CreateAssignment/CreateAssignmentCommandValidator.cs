@@ -1,7 +1,12 @@
+// CreateAssignmentCommandValidator.cs
+
 using FluentValidation;
 
 namespace Assignments.Application.Assignments.Commands.CreateAssignment;
 
+/// <summary>
+/// Валидатор проверяет обязательную связь с курсом, название, автора, баллы и лимит попыток.
+/// </summary>
 public class CreateAssignmentCommandValidator : AbstractValidator<CreateAssignmentCommand>
 {
     public CreateAssignmentCommandValidator()

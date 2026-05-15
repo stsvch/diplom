@@ -1,7 +1,9 @@
+// Файл: CourseItemManagementDto.cs
 using Courses.Domain.Enums;
 
 namespace EduPlatform.Host.Models.Courses;
 
+// Перечисление CourseItemMutationStatus ограничивает допустимые значения доменного состояния.
 public enum CourseItemMutationStatus
 {
     Success,
@@ -10,11 +12,13 @@ public enum CourseItemMutationStatus
     ValidationFailed
 }
 
+// DTO CourseItemMutationResult переносит данные наружу без раскрытия доменной сущности.
 public sealed record CourseItemMutationResult<T>(
     CourseItemMutationStatus Status,
     T? Value = default,
     string? Error = null);
 
+// DTO CourseItemBackfillDto переносит данные наружу без раскрытия доменной сущности.
 public sealed class CourseItemBackfillDto
 {
     public int CreatedItemsCount { get; set; }

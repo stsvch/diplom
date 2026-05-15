@@ -1,3 +1,4 @@
+// Файл: BaseRepository.cs
 using System.Linq.Expressions;
 using EduPlatform.Shared.Application.Interfaces;
 using EduPlatform.Shared.Domain;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Shared.Infrastructure.Persistence;
 
+// Инфраструктурный репозиторий BaseRepository содержит общие CRUD-операции для сущностей.
 public class BaseRepository<T> : IRepository<T> where T : BaseEntity
 {
     protected readonly DbContext Context;

@@ -1,4 +1,7 @@
+<!-- admin-analytics.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="admin-analytics">
+  <!-- Содержательная секция группирует связанный блок данных. -->
   <section class="hero">
     <div class="hero__copy">
       <p class="hero__eyebrow">Reports / Admin</p>
@@ -9,6 +12,7 @@
       </p>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (summary(); as s) {
       <div class="hero__meter">
         <div class="hero__value">{{ formatMoneyBreakdown(s.grossRevenue30DaysByCurrency) }}</div>
@@ -71,9 +75,9 @@
         iconColor="#A16207"
       />
       <app-stats-card
-        title="Комиссия 30д"
+        title="Доход платформы 30д"
         [value]="formatMoneyBreakdown(s.platformCommission30DaysByCurrency)"
-        subtitle="platform commission"
+        subtitle="course commission + subscriptions"
         [iconName]="CommissionIcon"
         iconBg="#EDE9FE"
         iconColor="#6D28D9"
@@ -153,16 +157,6 @@
               <span>Ошибок / отмен</span>
               <strong>{{ p.failedPayments30Days }}</strong>
               <small>failed + canceled + expired</small>
-            </article>
-            <article class="health-card health-card--warn">
-              <span>Refunded</span>
-              <strong>{{ p.refundedPayments30Days }}</strong>
-              <small>refund pressure за 30д</small>
-            </article>
-            <article class="health-card health-card--risk">
-              <span>Disputed</span>
-              <strong>{{ p.disputedPayments30Days }}</strong>
-              <small>chargeback / dispute flow</small>
             </article>
           </div>
         }

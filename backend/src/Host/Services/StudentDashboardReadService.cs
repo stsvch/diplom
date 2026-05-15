@@ -1,5 +1,5 @@
+// Файл: StudentDashboardReadService.cs
 using Calendar.Application.Calendar.Queries.GetUpcomingEvents;
-using Calendar.Infrastructure.Persistence;
 using Courses.Domain.Enums;
 using EduPlatform.Host.Models.Reports;
 using Grading.Infrastructure.Persistence;
@@ -10,25 +10,23 @@ using Courses.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис чтения StudentDashboardReadService собирает модель чтения для API без изменения состояния.
 public class StudentDashboardReadService
 {
     private readonly CoursesDbContext _coursesDb;
     private readonly ProgressDbContext _progressDb;
     private readonly GradingDbContext _gradingDb;
-    private readonly CalendarDbContext _calendarDb;
     private readonly IMediator _mediator;
 
     public StudentDashboardReadService(
         CoursesDbContext coursesDb,
         ProgressDbContext progressDb,
         GradingDbContext gradingDb,
-        CalendarDbContext calendarDb,
         IMediator mediator)
     {
         _coursesDb = coursesDb;
         _progressDb = progressDb;
         _gradingDb = gradingDb;
-        _calendarDb = calendarDb;
         _mediator = mediator;
     }
 
@@ -128,12 +126,6 @@ public class StudentDashboardReadService
         var upcomingEvents = upcomingResult.IsSuccess && upcomingResult.Value is not null
             ? upcomingResult.Value
             : [];
-        var now = DateTime.UtcNow.Date;
-        var totalUpcomingEventsCount = await _calendarDb.CalendarEvents
-            .AsNoTracking()
-            .CountAsync(
-                e => (e.UserId == null || e.UserId == studentId) && e.EventDate >= now,
-                cancellationToken);
 
         var knownCourseNames = courses
             .ToDictionary(c => c.CourseId, c => c.Title);
@@ -209,8 +201,8 @@ public class StudentDashboardReadService
         var totalLessons = courses.Sum(c => c.TotalLessons);
         var completedLessons = courses.Sum(c => c.CompletedLessons);
         var completedCourses = courses.Count(c => c.IsCompleted);
-        var averageGradePercent = recentGradeRows.Count > 0
-            ? Math.Round(recentGradeRows.Average(g => g.MaxScore > 0 ? g.Score / g.MaxScore * 100m : 0m), 1)
+        var averageGradePercent = gradeRows.Count > 0
+            ? Math.Round(gradeRows.Average(g => g.MaxScore > 0 ? g.Score / g.MaxScore * 100m : 0m), 1)
             : 0m;
 
         return new StudentDashboardDto
@@ -225,8 +217,7 @@ public class StudentDashboardReadService
                 OverallProgressPercent = totalLessons > 0
                     ? Math.Round((decimal)completedLessons / totalLessons * 100m, 1)
                     : 0m,
-                AverageGradePercent = averageGradePercent,
-                UpcomingEventsCount = totalUpcomingEventsCount
+                AverageGradePercent = averageGradePercent
             },
             Courses = courses,
             RecentGrades = recentGrades,

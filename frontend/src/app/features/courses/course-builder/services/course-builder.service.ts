@@ -1,3 +1,4 @@
+// course-builder.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,6 +14,7 @@ import {
   UpdateStandaloneCourseItemRequest,
 } from '../models/course-builder.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class CourseBuilderService {
   private readonly http = inject(HttpClient);
@@ -20,6 +22,7 @@ export class CourseBuilderService {
 
   /** GET /api/courses/{id}/builder */
   getBuilder(courseId: string): Observable<CourseBuilderDto> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<CourseBuilderDto>(`${this.base}/courses/${courseId}/builder`);
   }
 

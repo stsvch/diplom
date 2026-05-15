@@ -1,3 +1,4 @@
+// Файл: CourseItemSyncService.cs
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
 using Courses.Infrastructure.Persistence;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис CourseItemSyncService инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class CourseItemSyncService
 {
     private readonly CoursesDbContext _coursesDb;

@@ -1,3 +1,5 @@
+// SchedulingDbContext.cs
+
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Application.Interfaces;
@@ -5,14 +7,19 @@ using Scheduling.Domain.Entities;
 
 namespace Scheduling.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core DbContext модуля задаёт DbSet-ы, схему БД и конфигурацию сущностей.
+/// </summary>
 public class SchedulingDbContext : BaseDbContext, ISchedulingDbContext
 {
     public SchedulingDbContext(DbContextOptions<SchedulingDbContext> options) : base(options) { }
 
+    // DbSet-ы открывают агрегаты модуля для command/query handlers и read services.
     public DbSet<ScheduleSlot> ScheduleSlots => Set<ScheduleSlot>();
     public DbSet<SessionBooking> SessionBookings => Set<SessionBooking>();
     public DbSet<TeacherAvailability> TeacherAvailabilities => Set<TeacherAvailability>();
 
+    // EF-конфигурация схемы, ограничений, индексов и связей модуля.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

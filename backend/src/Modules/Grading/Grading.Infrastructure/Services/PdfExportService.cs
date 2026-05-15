@@ -1,3 +1,5 @@
+// PdfExportService.cs
+
 using Grading.Application.DTOs;
 using Grading.Application.Interfaces;
 using QuestPDF.Fluent;
@@ -6,13 +8,18 @@ using QuestPDF.Infrastructure;
 
 namespace Grading.Infrastructure.Services;
 
+/// <summary>
+/// Инфраструктурный сервис формирует PDF-выгрузку журнала оценок.
+/// </summary>
 public class PdfExportService : IExportService
 {
+    /// Excel-экспорт в этом сервисе не выполняется; для него используется ExcelExportService.
     public Task<byte[]> ExportToExcelAsync(GradebookDto gradebook, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException("Use ExcelExportService for Excel export.");
     }
 
+    /// Формирует PDF-представление журнала оценок и возвращает готовый файл в памяти.
     public Task<byte[]> ExportToPdfAsync(GradebookDto gradebook, CancellationToken cancellationToken = default)
     {
         var allTitles = gradebook.Students
@@ -39,16 +46,16 @@ public class PdfExportService : IExportService
 
                 page.Content().PaddingTop(10).Table(table =>
                 {
-                    // Define columns
+                    // Задаём колонки таблицы.
                     table.ColumnsDefinition(cols =>
                     {
-                        cols.RelativeColumn(3); // Student name
+                        cols.RelativeColumn(3); // Имя студента.
                         foreach (var _ in allTitles)
                             cols.RelativeColumn(2);
-                        cols.RelativeColumn(2); // Average
+                        cols.RelativeColumn(2); // Средний балл.
                     });
 
-                    // Header
+                    // Заголовок таблицы.
                     table.Header(header =>
                     {
                         header.Cell().Background(Colors.Grey.Lighten2).Padding(4)
@@ -62,7 +69,7 @@ public class PdfExportService : IExportService
                             .Text("Средний (%)").Bold();
                     });
 
-                    // Student rows
+                    // Строки студентов.
                     foreach (var student in gradebook.Students)
                     {
                         table.Cell().Padding(4).Text(student.StudentName);
@@ -91,7 +98,7 @@ public class PdfExportService : IExportService
                             .Text($"{student.AverageScore:F1}%").Bold();
                     }
 
-                    // Average row
+                    // Строка средних значений.
                     table.Cell().Background(Colors.Grey.Lighten2).Padding(4)
                         .Text("Средний балл").Bold();
 
@@ -108,7 +115,7 @@ public class PdfExportService : IExportService
                             .Text($"{avg:F1}%").Bold();
                     }
 
-                    // Overall average
+                    // Общий средний балл.
                     var overallAvg = gradebook.Students.Any()
                         ? gradebook.Students.Average(s => s.AverageScore)
                         : 0;

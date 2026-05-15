@@ -1,8 +1,10 @@
+// publish-checklist.component.ts
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { PublishIssue } from '../services/courses.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-publish-checklist',
   standalone: true,

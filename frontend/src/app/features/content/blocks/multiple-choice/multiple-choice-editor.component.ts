@@ -1,8 +1,10 @@
+// multiple-choice-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { MultipleChoiceBlockData, ChoiceOption } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-multiple-choice-editor',
   standalone: true,

@@ -1,14 +1,16 @@
+// catalog.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 // ─────────────────────────────────────────────
 // Корень
-// ─────────────────────────────────────────────
 .cat-page {
   min-height: 100vh;
   background: $slate-50;
   font-family: $font-family;
 
   // Когда каталог рендерится внутри dashboard layout, чуть мягче.
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--embedded {
     min-height: auto;
     background: transparent;
@@ -22,8 +24,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Hero
-// ─────────────────────────────────────────────
+// Главный экран.
 .cat-hero {
   position: relative;
   padding: $spacing-16 $spacing-4 $spacing-12;
@@ -50,6 +51,7 @@
     margin: 0 auto;
     padding: 0 $spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (min-width: $breakpoint-lg) {
       padding: 0 $spacing-8;
     }
@@ -155,8 +157,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Body
-// ─────────────────────────────────────────────
+// Основная область.
 .cat-body {
   max-width: $container-max;
   margin: 0 auto;
@@ -213,7 +214,7 @@
   }
 }
 
-// Filters row (dropdowns)
+// Строка фильтров с выпадающими списками.
 .cat-filters {
   display: flex;
   flex-wrap: wrap;
@@ -279,7 +280,7 @@
   }
 }
 
-// Results row
+// Строка результатов.
 .cat-results-row {
   display: flex;
   align-items: center;
@@ -310,8 +311,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Grid
-// ─────────────────────────────────────────────
+// Сетка.
 .cat-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -330,8 +330,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Empty state
-// ─────────────────────────────────────────────
+// Пустое состояние.
 .cat-empty {
   display: flex;
   flex-direction: column;
@@ -368,7 +367,6 @@
 
 // ─────────────────────────────────────────────
 // Кнопки (catalog-scoped)
-// ─────────────────────────────────────────────
 .cat-btn {
   display: inline-flex;
   align-items: center;
@@ -409,8 +407,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Pagination
-// ─────────────────────────────────────────────
+// Пагинация.
 .cat-pagination {
   display: flex;
   align-items: center;
@@ -458,8 +455,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Promo banner
-// ─────────────────────────────────────────────
+// Промо-баннер.
 .cat-promo {
   margin-top: $spacing-12;
   background: linear-gradient(90deg, $indigo-600 0%, $purple-600 100%);
@@ -510,7 +506,6 @@
 
 // ─────────────────────────────────────────────
 // Skeleton (под новый дизайн карточки)
-// ─────────────────────────────────────────────
 .cat-skeleton {
   background: #fff;
   border: 1px solid $slate-100;

@@ -1,3 +1,4 @@
+// RefreshTokenCommandHandler.cs
 using System.Security.Claims;
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Auth.Application.Commands.RefreshToken;
 
+// Обработчик сценария: обновляет пару токенов по истёкшему access token и действующему refresh token, старый refresh token помечает отозванным.
 public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<LoginResultDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

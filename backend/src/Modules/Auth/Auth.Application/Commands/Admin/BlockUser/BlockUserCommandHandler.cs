@@ -1,3 +1,4 @@
+// BlockUserCommandHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +8,7 @@ using Auth.Application.Interfaces;
 
 namespace Auth.Application.Commands.Admin.BlockUser;
 
+// Обработчик сценария: блокирует пользователя администратором, запрещает блокировку самого себя/последнего администратора и отзывает активные refresh-токены.
 public class BlockUserCommandHandler : IRequestHandler<BlockUserCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

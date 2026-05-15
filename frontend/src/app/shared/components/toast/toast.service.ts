@@ -1,3 +1,4 @@
+// toast.service.ts
 import { Injectable, signal } from '@angular/core';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -10,10 +11,12 @@ export interface Toast {
 
 let nextId = 0;
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
 export class ToastService {
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly toasts = signal<Toast[]>([]);
 
   private add(message: string, type: ToastType): void {

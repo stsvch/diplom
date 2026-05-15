@@ -1,3 +1,5 @@
+// messages-page.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .messages-page {
   display: flex;
   height: 100%;
@@ -5,8 +7,7 @@
   background: var(--color-bg-primary, #f9fafb);
 
   // ===========================
-  // SIDEBAR
-  // ===========================
+  // Сайдбар.
   &__sidebar {
     width: 280px;
     min-width: 280px;
@@ -154,8 +155,7 @@
   }
 
   // ===========================
-  // CHAT WINDOW
-  // ===========================
+  // Окно чата.
   &__chat {
     flex: 1;
     display: flex;
@@ -194,8 +194,7 @@
 }
 
 // ===========================
-// SEARCH INPUT
-// ===========================
+// Поле поиска.
 .search-wrapper {
   position: relative;
   display: flex;
@@ -220,6 +219,7 @@
   outline: none;
   transition: border-color 0.2s;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:focus {
     border-color: var(--color-primary, #6366f1);
     background: #fff;
@@ -231,8 +231,7 @@
 }
 
 // ===========================
-// CHAT ITEM
-// ===========================
+// Элемент чата.
 .chat-item {
   display: flex;
   align-items: center;
@@ -316,8 +315,7 @@
 }
 
 // ===========================
-// CHAT HEADER
-// ===========================
+// Шапка чата.
 .chat-header {
   display: flex;
   align-items: center;
@@ -361,8 +359,7 @@
 }
 
 // ===========================
-// MESSAGES AREA
-// ===========================
+// Область сообщений.
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -383,8 +380,7 @@
 }
 
 // ===========================
-// MESSAGE BUBBLE
-// ===========================
+// Пузырь сообщения.
 .message {
   display: flex;
   align-items: flex-end;
@@ -509,8 +505,7 @@
 }
 
 // ===========================
-// INPUT BAR
-// ===========================
+// Панель ввода.
 .input-bar {
   display: flex;
   align-items: flex-end;
@@ -571,8 +566,7 @@
 }
 
 // ===========================
-// LOADING STATE
-// ===========================
+// Состояние загрузки.
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -598,8 +592,7 @@
 }
 
 // ===========================
-// EMPTY STATE
-// ===========================
+// Пустое состояние.
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -617,8 +610,7 @@
 }
 
 // ===========================
-// ERROR TOAST
-// ===========================
+// Toast ошибки.
 .error-toast {
   position: fixed;
   bottom: 24px;
@@ -652,8 +644,8 @@
 }
 
 // ===========================
-// RESPONSIVE
-// ===========================
+// Адаптивность.
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (max-width: 768px) {
   .messages-page {
     position: relative;

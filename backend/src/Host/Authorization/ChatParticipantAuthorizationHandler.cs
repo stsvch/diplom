@@ -1,3 +1,4 @@
+// Файл: ChatParticipantAuthorizationHandler.cs
 using Messaging.Application.Interfaces;
 using Messaging.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -5,6 +6,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Authorization;
 
+// Обработчик авторизации ChatParticipantAuthorizationHandler проверяет доступ пользователя к защищённому ресурсу.
 public class ChatParticipantAuthorizationHandler : AuthorizationHandler<ChatParticipantRequirement>
 {
     private readonly IMessagingRepository _repository;
@@ -34,6 +36,7 @@ public class ChatParticipantAuthorizationHandler : AuthorizationHandler<ChatPart
     }
 }
 
+// Обработчик авторизации CourseChatOwnerAuthorizationHandler проверяет доступ пользователя к защищённому ресурсу.
 public class CourseChatOwnerAuthorizationHandler : AuthorizationHandler<CourseChatOwnerRequirement>
 {
     private readonly IMessagingRepository _repository;

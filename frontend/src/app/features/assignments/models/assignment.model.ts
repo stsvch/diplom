@@ -1,3 +1,5 @@
+// assignment.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface AssignmentDto {
   id: string;
   courseId?: string;

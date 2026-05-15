@@ -1,3 +1,4 @@
+// Файл: ModulesController.cs
 using Courses.Application.DTOs;
 using Courses.Application.Modules.Commands.CreateModule;
 using Courses.Application.Modules.Commands.DeleteModule;
@@ -13,6 +14,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер ModulesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/modules")]
 public class ModulesController : ControllerBase
@@ -151,4 +153,5 @@ public class ModulesController : ControllerBase
     private bool IsAdmin() => User.IsInRole("Admin");
 }
 
+// API-модель UpdateModuleRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateModuleRequest(string Title, string? Description, bool? IsPublished);

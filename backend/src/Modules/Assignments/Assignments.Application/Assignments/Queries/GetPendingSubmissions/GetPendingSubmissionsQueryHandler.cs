@@ -1,3 +1,5 @@
+// GetPendingSubmissionsQueryHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Enums;
@@ -7,6 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Queries.GetPendingSubmissions;
 
+/// <summary>
+/// Обработчик сценария: возвращает преподавателю работы в статусах Submitted/UnderReview, ожидающие проверки.
+/// </summary>
 public class GetPendingSubmissionsQueryHandler : IRequestHandler<GetPendingSubmissionsQuery, List<SubmissionDto>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -14,6 +19,7 @@ public class GetPendingSubmissionsQueryHandler : IRequestHandler<GetPendingSubmi
 
     public GetPendingSubmissionsQueryHandler(IAssignmentsDbContext db, IMapper mapper) { _db = db; _mapper = mapper; }
 
+    // Последовательно выполняет сценарий: возвращает преподавателю работы в статусах Submitted/UnderReview, ожидающие проверки.
     public async Task<List<SubmissionDto>> Handle(GetPendingSubmissionsQuery request, CancellationToken cancellationToken)
     {
         var submissions = await _db.AssignmentSubmissions

@@ -1,3 +1,4 @@
+// Файл: GetMyProgressQueryHandler.cs
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Progress.Application.DTOs;
@@ -5,6 +6,7 @@ using Progress.Application.Interfaces;
 
 namespace Progress.Application.Progress.Queries.GetMyProgress;
 
+// Обработчик запроса GetMyProgressQueryHandler собирает данные чтения без изменения состояния.
 public class GetMyProgressQueryHandler : IRequestHandler<GetMyProgressQuery, MyProgressDto>
 {
     private readonly IProgressDbContext _context;
@@ -20,7 +22,7 @@ public class GetMyProgressQueryHandler : IRequestHandler<GetMyProgressQuery, MyP
             .Where(p => p.StudentId == request.StudentId && p.IsCompleted)
             .ToListAsync(cancellationToken);
 
-        // Return raw progress; controller enriches with course structure
+        // Возвращаем сырой прогресс, а контроллер дополняет его структурой курса.
         return new MyProgressDto
         {
             Courses = progresses

@@ -1,5 +1,6 @@
+// course-detail.component.ts
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
   ChevronLeft,
@@ -32,6 +33,7 @@ import { AvatarComponent } from '../../../shared/components/avatar/avatar.compon
 import { DurationPipe } from '../../../shared/pipes/duration.pipe';
 import { PaymentsService } from '../../payments/services/payments.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-detail',
   standalone: true,
@@ -49,6 +51,7 @@ import { PaymentsService } from '../../payments/services/payments.service';
 })
 export class CourseDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly coursesService = inject(CoursesService);
   private readonly toastService = inject(ToastService);
   private readonly progressService = inject(ProgressService);
@@ -57,6 +60,7 @@ export class CourseDetailComponent implements OnInit {
   private readonly paymentsService = inject(PaymentsService);
 
   readonly isPreview = this.previewMode.isPreview;
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly actualProgress = signal<number | null>(null);
 
   readonly ChevronLeftIcon = ChevronLeft;
@@ -81,6 +85,7 @@ export class CourseDetailComponent implements OnInit {
   readonly course = signal<CourseDetailDto | null>(null);
   readonly expandedModules = signal<Set<string>>(new Set());
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.loadCourse(id);
@@ -88,15 +93,16 @@ export class CourseDetailComponent implements OnInit {
 
   loadCourse(id: string): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getCourseById(id).subscribe({
       next: (data) => {
         this.course.set(data);
         this.loading.set(false);
-        // expand first module by default
+        // По умолчанию раскрываем первый модуль.
         if (data.modules.length > 0) {
           this.expandedModules.set(new Set([data.modules[0].id]));
         }
-        // Load real progress only for students (not in preview)
+        // Реальный прогресс загружается только для студентов и не используется в preview.
         if (!this.isPreview() && this.authService.userRole() === 'Student' && data.progress !== undefined && data.progress !== null) {
           this.loadCourseProgress(id);
         }
@@ -114,7 +120,7 @@ export class CourseDetailComponent implements OnInit {
         this.actualProgress.set(progress.progressPercent);
       },
       error: () => {
-        // silently ignore — falls back to course.progress
+        // Молча игнорируем ошибку и используем course.progress как fallback.
       },
     });
   }
@@ -251,5 +257,23 @@ export class CourseDetailComponent implements OnInit {
 
   getLessonIcon(lesson: { blocksCount: number }): any {
     return lesson.blocksCount > 0 ? this.PlayCircleIcon : this.FileTextIcon;
+  }
+
+  get firstLessonId(): string | null {
+    const modules = this.course()?.modules ?? [];
+    for (const m of modules) {
+      const lesson = m.lessons.find((l) => l.isPublished) ?? m.lessons[0];
+      if (lesson) return lesson.id;
+    }
+    return null;
+  }
+
+  continueLearning(): void {
+    const lessonId = this.firstLessonId;
+    if (lessonId) {
+      this.router.navigate(['/student/lesson', lessonId]);
+      return;
+    }
+    this.toastService.info('У этого курса пока нет уроков для прохождения.');
   }
 }

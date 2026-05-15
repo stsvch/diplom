@@ -1,3 +1,5 @@
+// LessonContentCleaner.cs
+
 using Content.Application.Interfaces;
 using Content.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -5,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class LessonContentCleaner : ILessonContentCleaner
 {
     private readonly IContentDbContext _context;

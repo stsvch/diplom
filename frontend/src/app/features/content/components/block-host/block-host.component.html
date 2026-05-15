@@ -1,17 +1,22 @@
+<!-- block-host.component.html -->
 <article
   class="block"
   [class.block--readonly]="readonly"
   [class.block--error]="hasError"
   [attr.data-category]="category"
 >
+  <!-- Боковая панель хранит вспомогательную навигацию и контекст. -->
   <aside class="block__spine" aria-hidden="true"></aside>
 
+  <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
   <header class="block__head">
+    <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
     <div class="block__kind">
       <lucide-icon [name]="icon" size="14"></lucide-icon>
       <span>{{ label }}</span>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (!readonly) {
       <div class="block__tools">
         <button type="button" class="tool" (click)="duplicate.emit()" aria-label="Дублировать">

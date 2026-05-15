@@ -1,3 +1,5 @@
+// CancelBookingCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -8,6 +10,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.CancelBooking;
 
+/// <summary>
+/// Обработчик CQRS-команды CancelBookingCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand, Result<string>>
 {
     private const int LateCancelWindowHours = 24;
@@ -29,6 +34,7 @@ public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand,
         _entitlements = entitlements;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(CancelBookingCommand request, CancellationToken cancellationToken)
     {
         var slot = await _context.ScheduleSlots

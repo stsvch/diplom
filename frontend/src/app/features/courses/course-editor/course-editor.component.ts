@@ -1,3 +1,4 @@
+// course-editor.component.ts
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -21,6 +22,7 @@ import { PublishChecklistComponent } from './publish-checklist.component';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-editor',
   standalone: true,
@@ -37,6 +39,7 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly save$ = new Subject<void>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   courseId = signal<string>('');
   course = signal<CourseDetailDto | null>(null);
   loading = signal(true);
@@ -58,6 +61,7 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
   titleDraft = signal('');
   modules = computed<CourseModuleDetailDto[]>(() => this.course()?.modules ?? []);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe((p) => {
       const id = p.get('id');
@@ -74,6 +78,7 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
       .subscribe(() => this.persistCourse());
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -81,15 +86,14 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
 
   private loadCourse(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getCourseById(this.courseId()).subscribe({
       next: (c) => {
         this.course.set(c);
         this.titleDraft.set(c.title);
         this.settingsValue.set({
           deadline: c.deadline ? c.deadline.substring(0, 10) : '',
-          hasCertificate: c.hasCertificate ?? false,
           orderType: c.orderType ?? 'Sequential',
-          hasGrading: c.hasGrading ?? false,
         });
         this.loading.set(false);
       },
@@ -127,8 +131,6 @@ export class CourseEditorComponent implements OnInit, OnDestroy {
       price: c.price ?? null,
       imageUrl: c.imageUrl ?? null,
       orderType: s.orderType,
-      hasGrading: s.hasGrading,
-      hasCertificate: s.hasCertificate,
       deadline: s.deadline ? new Date(s.deadline).toISOString() : null,
     };
 

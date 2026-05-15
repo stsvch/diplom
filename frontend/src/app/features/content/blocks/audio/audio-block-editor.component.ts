@@ -1,3 +1,4 @@
+// audio-block-editor.component.ts
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AudioBlockData } from '../../models';
@@ -6,6 +7,7 @@ import { AttachmentDto } from '../../../../core/models/attachment.model';
 
 type Mode = 'url' | 'upload';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-audio-block-editor',
   standalone: true,
@@ -69,6 +71,7 @@ export class AudioBlockEditorComponent {
   @Input() blockId = '';
   @Output() dataChange = new EventEmitter<AudioBlockData>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   mode = signal<Mode>('url');
 
   update(patch: Partial<AudioBlockData>) {

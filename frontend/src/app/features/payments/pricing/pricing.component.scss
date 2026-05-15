@@ -1,3 +1,5 @@
+// pricing.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .pr-page {
   padding: 48px 24px;
   max-width: 1100px;
@@ -30,6 +32,7 @@
   flex-direction: column;
   transition: transform .15s, box-shadow .15s;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--featured {
     border-color: #6366f1;
     border-width: 2px;

@@ -1,3 +1,5 @@
+// CoursesModuleRegistration.cs
+
 using Courses.Application.Interfaces;
 using Courses.Application.Mappings;
 using Courses.Domain.Entities;
@@ -13,19 +15,20 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Courses.Infrastructure.Configuration;
 
+// DI-регистрация class: подключает инфраструктуру, сервисы и application-компоненты модуля.
 public static class CoursesModuleRegistration
 {
     public static IServiceCollection AddCoursesModule(this IServiceCollection services, IConfiguration configuration)
     {
         var applicationAssembly = typeof(CoursesMappingProfile).Assembly;
 
-        // DbContext
+        // Регистрация DbContext.
         services.AddDbContext<CoursesDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")));
 
         services.AddScoped<ICoursesDbContext>(provider => provider.GetRequiredService<CoursesDbContext>());
 
-        // Repositories
+        // Регистрация репозиториев.
         services.AddScoped<IRepository<Discipline>>(provider =>
             new BaseRepository<Discipline>(provider.GetRequiredService<CoursesDbContext>()));
         services.AddScoped<IRepository<Course>>(provider =>
@@ -43,14 +46,14 @@ public static class CoursesModuleRegistration
         services.AddScoped<ICourseAccessRevocationService, CourseAccessRevocationService>();
         services.AddScoped<Courses.Application.Tags.ITagSynchronizer, Services.TagSynchronizer>();
 
-        // MediatR
+        // Регистрация MediatR.
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(applicationAssembly));
 
-        // FluentValidation
+        // Регистрация FluentValidation.
         services.AddValidatorsFromAssembly(applicationAssembly);
 
-        // AutoMapper
+        // Регистрация AutoMapper.
         services.AddAutoMapper(cfg => { }, applicationAssembly);
 
         return services;

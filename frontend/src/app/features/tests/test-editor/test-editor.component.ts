@@ -1,3 +1,4 @@
+// test-editor.component.ts
 import {
   Component,
   inject,
@@ -43,6 +44,7 @@ interface LocalQuestion extends QuestionDto {
 
 type QuestionType = 'SingleChoice' | 'MultipleChoice' | 'TextInput' | 'Matching' | 'OpenAnswer';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-test-editor',
   standalone: true,
@@ -76,6 +78,7 @@ export class TestEditorComponent implements OnInit, OnDestroy {
   readonly SettingsIcon = Settings;
   readonly HelpCircleIcon = HelpCircle;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly showAddMenu = signal(false);
@@ -84,7 +87,7 @@ export class TestEditorComponent implements OnInit, OnDestroy {
   readonly testId = signal<string | null>(null);
   readonly isNew = signal(false);
 
-  // Test settings form
+  // Форма настроек теста.
   readonly title = signal('');
   readonly description = signal('');
   readonly courseId = signal<string>('');
@@ -112,7 +115,9 @@ export class TestEditorComponent implements OnInit, OnDestroy {
     OpenAnswer: 'Открытый ответ',
   };
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.coursesService.getMyCourses().subscribe({
       next: (list) => this.courses.set(list),
     });
@@ -128,6 +133,7 @@ export class TestEditorComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {}
 
   private newLocalId(): string {

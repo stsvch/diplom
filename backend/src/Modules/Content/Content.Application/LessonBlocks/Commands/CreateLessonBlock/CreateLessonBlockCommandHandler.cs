@@ -1,3 +1,5 @@
+// CreateLessonBlockCommandHandler.cs
+
 using System.Text.Json;
 using AutoMapper;
 using Content.Application.DTOs;
@@ -12,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.LessonBlocks.Commands.CreateLessonBlock;
 
+// Тип class: ключевой элемент файла CreateLessonBlockCommandHandler.cs.
 public class CreateLessonBlockCommandHandler : IRequestHandler<CreateLessonBlockCommand, Result<LessonBlockDto>>
 {
     private readonly IContentDbContext _context;
@@ -25,6 +28,7 @@ public class CreateLessonBlockCommandHandler : IRequestHandler<CreateLessonBlock
         _validator = validator;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<LessonBlockDto>> Handle(CreateLessonBlockCommand request, CancellationToken cancellationToken)
     {
         if (request.Data.Type != request.Type)

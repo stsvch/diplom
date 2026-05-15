@@ -1,8 +1,10 @@
+// rich-text-viewer.component.ts
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { renderMarkdown } from './markdown';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-rich-text-viewer',
   standalone: true,

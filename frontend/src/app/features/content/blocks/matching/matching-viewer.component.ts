@@ -1,3 +1,4 @@
+// matching-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,6 +8,7 @@ import {
   LessonBlockAttemptDto,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-matching-viewer',
   standalone: true,
@@ -69,12 +71,14 @@ export class MatchingViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<MatchingAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   selection = signal<Map<string, string>>(new Map());
   submitted = signal(false);
   shuffledRight = signal<typeof this.data.rightItems>([]);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     this.shuffledRight.set([...this.data.rightItems].sort(() => Math.random() - 0.5));
 

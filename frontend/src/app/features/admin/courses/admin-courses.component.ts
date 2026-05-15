@@ -1,3 +1,4 @@
+// admin-courses.component.ts
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +10,7 @@ import { AdminCourseDto } from '../models/admin.model';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-courses',
   standalone: true,
@@ -25,6 +27,7 @@ export class AdminCoursesComponent implements OnInit {
   readonly SearchIcon = Search;
   readonly XIcon = X;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly searchText = signal('');
   readonly statusFilter = signal('');
   readonly page = signal(1);
@@ -40,6 +43,7 @@ export class AdminCoursesComponent implements OnInit {
 
   private readonly search$ = new Subject<string>();
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.search$
       .pipe(
@@ -65,6 +69,7 @@ export class AdminCoursesComponent implements OnInit {
       status: this.statusFilter() || undefined,
       page: this.page(),
       pageSize: this.pageSize(),
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: (r) => { this.data.set(r); this.loading.set(false); },
       error: (err) => { this.toast.error(parseApiError(err).message); this.loading.set(false); },

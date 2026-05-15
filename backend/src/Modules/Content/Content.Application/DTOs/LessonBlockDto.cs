@@ -1,8 +1,11 @@
+// LessonBlockDto.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Blocks;
 
 namespace Content.Application.DTOs;
 
+// DTO class: передаёт данные наружу из application layer без раскрытия доменных сущностей.
 public class LessonBlockDto
 {
     public Guid Id { get; set; }

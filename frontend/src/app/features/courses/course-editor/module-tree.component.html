@@ -1,5 +1,8 @@
+<!-- module-tree.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div cdkDropListGroup class="tree">
   <div cdkDropList [cdkDropListData]="modules" (cdkDropListDropped)="onModuleDrop($event)" class="tree__modules">
+    <!-- Список рендерит повторяющиеся элементы из состояния компонента. -->
     @for (mod of modules; track trackById($index, mod)) {
       <div cdkDrag cdkDragLockAxis="y" class="mod">
         <header class="mod__head">
@@ -90,6 +93,7 @@
     }
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (modules.length === 0) {
     <div class="tree__empty">В курсе пока нет модулей</div>
   }

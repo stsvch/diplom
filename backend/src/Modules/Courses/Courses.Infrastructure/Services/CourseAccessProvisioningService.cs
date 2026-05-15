@@ -1,3 +1,5 @@
+// CourseAccessProvisioningService.cs
+
 using Courses.Application.Interfaces;
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class CourseAccessProvisioningService : ICourseAccessProvisioningService
 {
     private readonly ICoursesDbContext _context;

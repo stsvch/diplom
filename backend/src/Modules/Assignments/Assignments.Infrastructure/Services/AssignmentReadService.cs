@@ -1,3 +1,5 @@
+// AssignmentReadService.cs
+
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -6,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Infrastructure.Services;
 
+/// <summary>
+/// Read-service для других модулей: отдаёт дедлайны заданий и статусы сдач через shared-контракты без раскрытия внутреннего DbContext.
+/// </summary>
 public class AssignmentReadService : IAssignmentReadService
 {
     private readonly IAssignmentsDbContext _context;
@@ -15,6 +20,7 @@ public class AssignmentReadService : IAssignmentReadService
         _context = context;
     }
 
+    /// Возвращает элементы курса с дедлайнами для календаря и прогресса.
     public async Task<IReadOnlyList<AssignmentDeadlineInfo>> GetByCourseAsync(Guid courseId, CancellationToken cancellationToken = default)
     {
         return await _context.Assignments
@@ -23,6 +29,9 @@ public class AssignmentReadService : IAssignmentReadService
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Возвращает агрегированные статусы выполнения для набора учебных элементов.
+    /// </summary>
     public async Task<IReadOnlyDictionary<Guid, DeadlineStatus>> GetStatusesAsync(
         IReadOnlyCollection<Guid> assignmentIds,
         string studentId,

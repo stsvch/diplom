@@ -1,3 +1,4 @@
+// messages-page.component.ts
 import {
   Component,
   OnInit,
@@ -40,6 +41,7 @@ import { parseApiError } from '../../../core/models/api-error.model';
 
 type PickerMode = 'newDirect' | 'addParticipant' | null;
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-messages-page',
   standalone: true,
@@ -62,6 +64,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   private readonly requestedChatId = signal<string | null>(null);
   private loadingChatById: string | null = null;
 
@@ -213,6 +216,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -228,6 +232,7 @@ export class MessagesPageComponent implements OnInit, OnDestroy {
 
   private loadChats(): void {
     this.loadingChats.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.messagingService.getChats().subscribe({
       next: (chats) => {
         this.chats.set(chats);

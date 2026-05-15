@@ -1,13 +1,19 @@
+// AssignmentsMappingProfile.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Domain.Entities;
 using AutoMapper;
 
 namespace Assignments.Application.Mappings;
 
+/// <summary>
+/// Профиль AutoMapper для Assignments: переводит Assignment, AssignmentSubmission и AssignmentCriteria в DTO для API.
+/// </summary>
 public class AssignmentsMappingProfile : Profile
 {
     public AssignmentsMappingProfile()
     {
+        // Правила маппинга отделяют DTO application-слоя от EF/domain-моделей.
         CreateMap<AssignmentCriteria, AssignmentCriteriaDto>();
 
         CreateMap<Assignment, AssignmentDto>()

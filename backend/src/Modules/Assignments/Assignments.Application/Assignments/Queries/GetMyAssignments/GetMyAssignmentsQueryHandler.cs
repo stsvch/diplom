@@ -1,3 +1,5 @@
+// GetMyAssignmentsQueryHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using AutoMapper;
@@ -6,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Queries.GetMyAssignments;
 
+/// <summary>
+/// Обработчик сценария: возвращает задания, созданные конкретным преподавателем, в порядке от новых к старым.
+/// </summary>
 public class GetMyAssignmentsQueryHandler : IRequestHandler<GetMyAssignmentsQuery, List<AssignmentDto>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -17,6 +22,7 @@ public class GetMyAssignmentsQueryHandler : IRequestHandler<GetMyAssignmentsQuer
         _mapper = mapper;
     }
 
+    // Последовательно выполняет сценарий: возвращает задания, созданные конкретным преподавателем, в порядке от новых к старым.
     public async Task<List<AssignmentDto>> Handle(GetMyAssignmentsQuery request, CancellationToken cancellationToken)
     {
         var list = await _db.Assignments

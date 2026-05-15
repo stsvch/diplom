@@ -1,3 +1,4 @@
+// GetUserStatsQueryHandler.cs
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Queries.GetDashboardStats;
 
+// Обработчик сценария: собирает агрегированную статистику пользователей для админского дашборда.
 public class GetUserStatsQueryHandler : IRequestHandler<GetUserStatsQuery, Result<UserStatsDto>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

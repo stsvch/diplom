@@ -1,10 +1,11 @@
+// AssignmentCriteria.cs
+
 using EduPlatform.Shared.Domain;
 
 namespace Assignments.Domain.Entities;
 
 /// <summary>
-/// Критерий оценивания задания. У задания может быть несколько критериев,
-/// каждый со своим максимальным баллом. Сумма MaxPoints критериев = Assignment.MaxScore.
+/// Критерий оценивания внутри задания: текст пункта, максимальные баллы и порядок вывода в форме проверки.
 /// </summary>
 public class AssignmentCriteria : BaseEntity
 {

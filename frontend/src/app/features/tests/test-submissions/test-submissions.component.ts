@@ -1,3 +1,4 @@
+// test-submissions.component.ts
 import {
   Component,
   inject,
@@ -23,6 +24,7 @@ import { TestAttemptDto, TestDetailDto } from '../models/test.model';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-test-submissions',
   standalone: true,
@@ -49,6 +51,7 @@ export class TestSubmissionsComponent implements OnInit {
   readonly CheckIcon = CheckCircle2;
   readonly EditIcon = Edit3;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly test = signal<TestDetailDto | null>(null);
   readonly submissions = signal<TestAttemptDto[]>([]);
@@ -71,6 +74,7 @@ export class TestSubmissionsComponent implements OnInit {
     return Math.round((passed.length / completed.length) * 100);
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.testId = this.route.snapshot.paramMap.get('testId') ?? '';
     if (this.testId) {
@@ -80,6 +84,7 @@ export class TestSubmissionsComponent implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.getTest(this.testId).subscribe({
       next: (test) => {
         this.test.set(test);

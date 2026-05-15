@@ -1,5 +1,8 @@
+// LessonBlockStatus.cs
+
 namespace Content.Domain.Enums;
 
+// Доменное перечисление enum: фиксирует допустимые состояния и режимы без строковых литералов.
 public enum LessonBlockStatus
 {
     /// <summary>
@@ -7,13 +10,9 @@ public enum LessonBlockStatus
     /// </summary>
     Draft = 0,
 
-    /// <summary>
     /// Блок прошёл валидацию и готов к показу студентам.
-    /// </summary>
     Ready = 1,
 
-    /// <summary>
     /// Блок принудительно помечен сломанным (например, удалён ресурс, на который ссылался).
-    /// </summary>
     Invalid = 2
 }

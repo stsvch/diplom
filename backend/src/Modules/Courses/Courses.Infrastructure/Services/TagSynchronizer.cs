@@ -1,3 +1,5 @@
+// TagSynchronizer.cs
+
 using System.Globalization;
 using System.Text;
 using Courses.Application.Interfaces;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class TagSynchronizer : ITagSynchronizer
 {
     private readonly ICoursesDbContext _context;

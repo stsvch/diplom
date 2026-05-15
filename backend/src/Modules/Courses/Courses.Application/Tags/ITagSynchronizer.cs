@@ -1,3 +1,5 @@
+// ITagSynchronizer.cs
+
 namespace Courses.Application.Tags;
 
 /// <summary>

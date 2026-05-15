@@ -1,8 +1,13 @@
+// TestAttempt.cs
+
 using EduPlatform.Shared.Domain;
 using Tests.Domain.Enums;
 
 namespace Tests.Domain.Entities;
 
+/// <summary>
+/// Тип TestAttempt относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class TestAttempt : BaseEntity
 {
     public Guid TestId { get; set; }

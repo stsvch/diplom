@@ -1,9 +1,11 @@
+// file-block-viewer.component.ts
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { FileService } from '../../../../core/services/file.service';
 import { AttachmentDto } from '../../../../core/models/attachment.model';
 import { FileBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-file-block-viewer',
   standalone: true,
@@ -48,10 +50,13 @@ export class FileBlockViewerComponent implements OnInit {
   @Input({ required: true }) data!: FileBlockData;
 
   private readonly fileService = inject(FileService);
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   attachment = signal<AttachmentDto | null>(null);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (!this.data.attachmentId) return;
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.fileService.getFileInfo(this.data.attachmentId).subscribe({
       next: (att) => this.attachment.set(att),
     });

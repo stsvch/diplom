@@ -1,3 +1,4 @@
+// calendar-page.component.ts
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +25,7 @@ interface CreateEventForm {
   eventTime: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-calendar-page',
   standalone: true,
@@ -39,6 +41,7 @@ export class CalendarPageComponent implements OnInit {
   readonly icons = { ChevronLeft, ChevronRight, Calendar, Plus, Trash2, ArrowUpRight };
 
   readonly userRole = this.authService.userRole;
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly isTeacher = computed(() => this.userRole() === UserRole.Teacher);
 
   readonly currentDate = signal(this.startOfDay(new Date()));
@@ -96,13 +99,13 @@ export class CalendarPageComponent implements OnInit {
     const today = new Date();
 
     const firstDay = new Date(year, month, 1);
-    // Monday-based: getDay() returns 0=Sun,1=Mon... we need 0=Mon
+    // Переводим getDay к неделе с понедельника: нужен формат 0=Пн.
     let startDow = firstDay.getDay(); // 0=Sun
     startDow = startDow === 0 ? 6 : startDow - 1; // convert to Mon=0
 
     const days: CalendarDay[] = [];
 
-    // Previous month days
+    // Дни предыдущего месяца.
     for (let i = startDow - 1; i >= 0; i--) {
       const date = new Date(year, month, -i);
       days.push({
@@ -113,7 +116,7 @@ export class CalendarPageComponent implements OnInit {
       });
     }
 
-    // Current month days
+    // Дни текущего месяца.
     const lastDay = new Date(year, month + 1, 0).getDate();
     for (let i = 1; i <= lastDay; i++) {
       const date = new Date(year, month, i);
@@ -130,7 +133,7 @@ export class CalendarPageComponent implements OnInit {
       days.push({ date, isCurrentMonth: true, isToday, events });
     }
 
-    // Fill remaining cells to complete 6 rows (42 cells)
+    // Заполняем остаток сетки до 6 строк, то есть 42 ячеек.
     const remaining = 42 - days.length;
     for (let i = 1; i <= remaining; i++) {
       const date = new Date(year, month + 1, i);
@@ -145,6 +148,7 @@ export class CalendarPageComponent implements OnInit {
     return days;
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.syncCreateFormDate(this.selectedDate());
     this.loadMonthEvents();
@@ -162,6 +166,7 @@ export class CalendarPageComponent implements OnInit {
     const d = this.currentDate();
     this.loading.set(true);
     this.error.set(null);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.calendarService.getMonthEvents(d.getFullYear(), d.getMonth() + 1).subscribe({
       next: (events) => {
         this.monthEvents.set(this.sortEvents(events));

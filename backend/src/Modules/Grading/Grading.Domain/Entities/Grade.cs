@@ -1,8 +1,13 @@
+// Grade.cs
+
 using EduPlatform.Shared.Domain;
 using Grading.Domain.Enums;
 
 namespace Grading.Domain.Entities;
 
+/// <summary>
+/// Тип Grade относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class Grade : BaseEntity, IAuditableEntity
 {
     public string StudentId { get; set; } = string.Empty;

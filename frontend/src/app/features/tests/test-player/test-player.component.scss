@@ -1,5 +1,7 @@
+// test-player.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .test-player {
   min-height: 100vh;
   background: v.$bg-page;
@@ -26,7 +28,7 @@
   }
 }
 
-// Header
+// Шапка.
 .player-header {
   display: flex;
   align-items: center;
@@ -64,6 +66,7 @@
   min-width: 80px;
   justify-content: center;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--warning {
     color: v.$danger;
     background: v.$danger-light;
@@ -76,7 +79,7 @@
   50% { opacity: 0.7; }
 }
 
-// Question pane
+// Панель вопроса.
 .question-pane {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -107,7 +110,7 @@
   }
 }
 
-// Choice cards
+// Карточки вариантов.
 .choice-list {
   display: flex;
   flex-direction: column;
@@ -185,7 +188,7 @@
   }
 }
 
-// Text answer
+// Текстовый ответ.
 .text-answer-input {
   width: 100%;
   padding: v.$spacing-3 v.$spacing-4;
@@ -210,7 +213,7 @@
   line-height: 1.6;
 }
 
-// Matching
+// Сопоставление.
 .matching-list {
   display: flex;
   flex-direction: column;
@@ -259,7 +262,7 @@
   }
 }
 
-// Navigation
+// Навигация.
 .player-nav {
   display: flex;
   align-items: center;
@@ -271,7 +274,7 @@
   }
 }
 
-// Question navigator
+// Навигатор вопросов.
 .question-navigator {
   display: flex;
   flex-wrap: wrap;
@@ -319,7 +322,7 @@
   color: v.$text-muted;
 }
 
-// Dialog
+// Диалог.
 .dialog-backdrop {
   position: fixed;
   inset: 0;

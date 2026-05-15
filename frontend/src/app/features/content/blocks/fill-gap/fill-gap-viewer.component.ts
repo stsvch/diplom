@@ -1,3 +1,4 @@
+// fill-gap-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -12,6 +13,7 @@ interface Segment {
   value: string; // text or gapId
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-fill-gap-viewer',
   standalone: true,
@@ -74,11 +76,13 @@ export class FillGapViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<FillGapAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   values = signal<Map<string, string>>(new Map()); // "sentenceId|gapId" -> value
   submitted = signal(false);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && 'responses' in this.attempt.answers && this.attempt.answers.type !== 'Dropdown') {
       const ans = this.attempt.answers as FillGapAnswer;

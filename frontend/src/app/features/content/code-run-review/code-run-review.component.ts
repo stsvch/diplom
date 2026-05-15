@@ -1,3 +1,4 @@
+// code-run-review.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +16,7 @@ interface CodeBlockOption {
   label: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-code-run-review',
   standalone: true,
@@ -283,6 +285,7 @@ export class CodeRunReviewComponent implements OnInit {
   private readonly attemptsService = inject(BlockAttemptsService);
   private readonly toast = inject(ToastService);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly lessonId = signal('');
   readonly lesson = signal<LessonDto | null>(null);
   readonly codeBlocks = signal<CodeBlockOption[]>([]);
@@ -312,6 +315,7 @@ export class CodeRunReviewComponent implements OnInit {
     });
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -337,6 +341,7 @@ export class CodeRunReviewComponent implements OnInit {
     this.attemptsService.getLessonCodeRuns(this.lessonId(), {
       blockId: this.selectedBlockId() || undefined,
       take: 200,
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     }).subscribe({
       next: (runs) => {
         this.runs.set(runs);

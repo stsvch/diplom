@@ -1,9 +1,11 @@
+// disciplines.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { DisciplineDto } from '../models/course.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -12,6 +14,7 @@ export class DisciplinesService {
   private readonly base = `${environment.apiUrl}/disciplines`;
 
   getAll(): Observable<DisciplineDto[]> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<DisciplineDto[]>(this.base);
   }
 

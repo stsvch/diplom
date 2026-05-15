@@ -1,5 +1,7 @@
+// AttachmentDto.cs
 namespace Messaging.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public class AttachmentDto
 {
     public Guid? AttachmentId { get; set; }

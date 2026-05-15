@@ -1,3 +1,4 @@
+// DeleteChatCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -5,8 +6,10 @@ using Messaging.Application.Interfaces;
 
 namespace Messaging.Application.Commands.DeleteChat;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record DeleteChatCommand(string ChatId) : IRequest<Result>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class DeleteChatValidator : AbstractValidator<DeleteChatCommand>
 {
     public DeleteChatValidator()
@@ -15,6 +18,7 @@ public class DeleteChatValidator : AbstractValidator<DeleteChatCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class DeleteChatCommandHandler : IRequestHandler<DeleteChatCommand, Result>
 {
     private readonly IMessagingRepository _repository;

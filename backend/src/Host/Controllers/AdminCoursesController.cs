@@ -1,3 +1,4 @@
+// Файл: AdminCoursesController.cs
 using Courses.Application.Courses.Commands.ForceArchiveCourse;
 using Courses.Application.Courses.Queries.GetAllCoursesAdmin;
 using Auth.Domain.Entities;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AdminCoursesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/admin/courses")]
 [Authorize(Roles = "Admin")]
@@ -87,4 +89,5 @@ public class AdminCoursesController : ControllerBase
     }
 }
 
+// API-модель ForceArchiveRequest фиксирует тело запроса или результат для действия контроллера.
 public record ForceArchiveRequest(string Reason);

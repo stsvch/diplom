@@ -1,8 +1,10 @@
+// ChatConnectionTracker.cs
 using Messaging.Application.Interfaces;
 using System.Collections.Concurrent;
 
 namespace Messaging.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class ChatConnectionTracker : IChatConnectionTracker
 {
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte>> _connections = new();

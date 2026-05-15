@@ -1,3 +1,4 @@
+// Файл: NotificationPublisher.cs
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.AspNetCore.SignalR;
@@ -9,6 +10,7 @@ using Notifications.Infrastructure.Hubs;
 
 namespace Notifications.Infrastructure.Services;
 
+// Сервис NotificationPublisher инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class NotificationPublisher : INotificationDispatcher
 {
     private readonly INotificationsDbContext _context;

@@ -1,24 +1,30 @@
+// ExcelExportService.cs
+
 using ClosedXML.Excel;
 using Grading.Application.DTOs;
 using Grading.Application.Interfaces;
 
 namespace Grading.Infrastructure.Services;
 
+/// <summary>
+/// Инфраструктурный сервис формирует Excel-выгрузку журнала оценок.
+/// </summary>
 public class ExcelExportService : IExportService
 {
+    /// Формирует Excel-представление журнала оценок и возвращает готовый файл в памяти.
     public Task<byte[]> ExportToExcelAsync(GradebookDto gradebook, CancellationToken cancellationToken = default)
     {
         using var workbook = new XLWorkbook();
         var ws = workbook.Worksheets.Add("Журнал оценок");
 
-        // Collect all unique assignment titles
+        // Собираем все уникальные названия оцениваемых работ.
         var allTitles = gradebook.Students
             .SelectMany(s => s.Grades.Select(g => g.Title))
             .Distinct()
             .OrderBy(t => t)
             .ToList();
 
-        // Header row
+        // Строка заголовков.
         ws.Cell(1, 1).Value = "Студент";
         ws.Cell(1, 1).Style.Font.Bold = true;
         ws.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -38,7 +44,7 @@ public class ExcelExportService : IExportService
         avgHeader.Style.Font.Bold = true;
         avgHeader.Style.Fill.BackgroundColor = XLColor.LightGray;
 
-        // Student rows
+        // Строки студентов.
         for (int row = 0; row < gradebook.Students.Count; row++)
         {
             var student = gradebook.Students[row];
@@ -57,7 +63,7 @@ public class ExcelExportService : IExportService
                     var pct = grade.MaxScore > 0 ? (double)(grade.Score / grade.MaxScore * 100) : 0;
                     cell.Value = $"{grade.Score}/{grade.MaxScore}";
 
-                    // Color coding
+                    // Цветовая индикация результата.
                     if (pct >= 90)
                         cell.Style.Fill.BackgroundColor = XLColor.LightGreen;
                     else if (pct >= 75)
@@ -79,7 +85,7 @@ public class ExcelExportService : IExportService
             avgCell.Style.Font.Bold = true;
         }
 
-        // Average row at bottom
+        // Итоговая строка со средними значениями.
         var avgRow = gradebook.Students.Count + 2;
         ws.Cell(avgRow, 1).Value = "Средний балл";
         ws.Cell(avgRow, 1).Style.Font.Bold = true;
@@ -108,6 +114,9 @@ public class ExcelExportService : IExportService
         return Task.FromResult(stream.ToArray());
     }
 
+    /// <summary>
+    /// Формирует PDF-представление журнала оценок или делегирует его профильному сервису.
+    /// </summary>
     public Task<byte[]> ExportToPdfAsync(GradebookDto gradebook, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException("Use PdfExportService for PDF export.");

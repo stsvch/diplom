@@ -1,5 +1,7 @@
+// profile.component.scss
 @use '../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .profile-page {
   max-width: 760px;
   margin: 0 auto;
@@ -63,6 +65,7 @@
     font-size: $font-size-xs;
     cursor: pointer;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       color: $primary;
       border-color: $primary-ring;
@@ -158,6 +161,7 @@
     grid-template-columns: 1fr 1fr;
     gap: $spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: $breakpoint-md) {
       grid-template-columns: 1fr;
     }

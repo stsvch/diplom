@@ -1,5 +1,7 @@
+// rich-text-editor.component.scss
 @use '../../../../styles/variables' as v;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .rte {
   display: block;
   border: 1px solid v.$border-color;
@@ -30,6 +32,7 @@
     transition: background v.$transition-fast, color v.$transition-fast;
     padding: 0;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       background: v.$slate-200;
       color: v.$slate-700;

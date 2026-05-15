@@ -1,7 +1,12 @@
+// GradeDto.cs
+
 using Grading.Domain.Enums;
 
 namespace Grading.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные GradeDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class GradeDto
 {
     public Guid Id { get; set; }
@@ -16,6 +21,9 @@ public class GradeDto
     public DateTime GradedAt { get; set; }
 }
 
+/// <summary>
+/// DTO описывает данные StudentGradesDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class StudentGradesDto
 {
     public string StudentId { get; set; } = string.Empty;
@@ -24,6 +32,7 @@ public class StudentGradesDto
     public decimal AverageScore { get; set; }
 }
 
+/// DTO описывает данные GradebookDto, передаваемые наружу без прямой отдачи доменных сущностей.
 public class GradebookDto
 {
     public Guid CourseId { get; set; }
@@ -31,6 +40,9 @@ public class GradebookDto
     public List<StudentGradesDto> Students { get; set; } = new();
 }
 
+/// <summary>
+/// DTO описывает данные GradebookStatsDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class GradebookStatsDto
 {
     public int StudentCount { get; set; }

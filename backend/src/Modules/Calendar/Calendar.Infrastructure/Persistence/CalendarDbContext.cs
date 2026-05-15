@@ -1,3 +1,4 @@
+// CalendarDbContext.cs
 using Calendar.Application.Interfaces;
 using Calendar.Domain.Entities;
 using EduPlatform.Shared.Infrastructure.Persistence;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Calendar.Infrastructure.Persistence;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class CalendarDbContext : BaseDbContext, ICalendarDbContext
 {
     public CalendarDbContext(DbContextOptions<CalendarDbContext> options) : base(options) { }

@@ -1,5 +1,8 @@
+// CourseStatsDto.cs
+
 namespace Courses.Application.Courses.Queries.GetCourseStats;
 
+// Тип class: ключевой элемент файла CourseStatsDto.cs.
 public class CourseStatsDto
 {
     public int Total { get; set; }

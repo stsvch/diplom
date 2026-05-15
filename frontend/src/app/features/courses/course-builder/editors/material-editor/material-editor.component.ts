@@ -1,3 +1,4 @@
+// material-editor.component.ts
 import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +13,7 @@ import { CourseBuilderStore } from '../../state/course-builder.store';
 import { CourseBuilderService } from '../../services/course-builder.service';
 import { ToastService } from '../../../../../shared/components/toast/toast.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-material-editor',
   standalone: true,
@@ -26,6 +28,7 @@ export class MaterialEditorComponent {
 
   readonly icons = { paperclip: Paperclip, link: Link2, upload: Upload, external: ExternalLink };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly item = computed(() => this.store.selectedItem());
   readonly section = computed(() => this.store.selectedSection());
   readonly isMaterial = computed(() => this.item()?.type === 'Resource');
@@ -62,6 +65,7 @@ export class MaterialEditorComponent {
         attachmentId: it.attachmentId,
         resourceKind: it.resourceKind,
       })
+      // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
       .subscribe({
         error: () => this.toast.error('Не удалось сохранить'),
       });

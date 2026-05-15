@@ -1,8 +1,13 @@
+// AssignmentSubmission.cs
+
 using Assignments.Domain.Enums;
 using EduPlatform.Shared.Domain;
 
 namespace Assignments.Domain.Entities;
 
+/// <summary>
+/// Сдача студента по заданию: хранит номер попытки, текст ответа, статус проверки, балл, комментарий преподавателя и связь с заданием.
+/// </summary>
 public class AssignmentSubmission : BaseEntity
 {
     public Guid AssignmentId { get; set; }

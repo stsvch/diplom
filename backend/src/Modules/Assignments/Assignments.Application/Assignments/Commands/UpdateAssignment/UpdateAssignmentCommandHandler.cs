@@ -1,3 +1,5 @@
+// UpdateAssignmentCommandHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
@@ -11,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Commands.UpdateAssignment;
 
+/// <summary>
+/// Обработчик сценария: обновляет задание автора: меняет текст, дедлайн, баллы, формат сдачи и при необходимости полностью заменяет критерии.
+/// </summary>
 public class UpdateAssignmentCommandHandler : IRequestHandler<UpdateAssignmentCommand, Result<AssignmentDto>>
 {
     private readonly IAssignmentsDbContext _context;
@@ -33,6 +38,7 @@ public class UpdateAssignmentCommandHandler : IRequestHandler<UpdateAssignmentCo
         _enrollment = enrollment;
     }
 
+    // Последовательно выполняет сценарий: обновляет задание автора: меняет текст, дедлайн, баллы, формат сдачи и при необходимости полностью заменяет критерии.
     public async Task<Result<AssignmentDto>> Handle(UpdateAssignmentCommand request, CancellationToken cancellationToken)
     {
         var assignment = await _context.Assignments

@@ -1,5 +1,7 @@
+// course-editor.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .editor {
   display: flex;
   flex-direction: column;
@@ -55,6 +57,7 @@
   justify-content: center;
   color: $text-secondary;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover { background: $bg-muted; color: $primary; }
 }
 

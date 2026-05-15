@@ -1,3 +1,5 @@
+// GetMyAvailabilityQueryHandler.cs
+
 using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,9 @@ using Scheduling.Application.Interfaces;
 
 namespace Scheduling.Application.Scheduling.Queries.GetMyAvailability;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetMyAvailabilityQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetMyAvailabilityQueryHandler : IRequestHandler<GetMyAvailabilityQuery, List<TeacherAvailabilityDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -17,6 +22,7 @@ public class GetMyAvailabilityQueryHandler : IRequestHandler<GetMyAvailabilityQu
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<List<TeacherAvailabilityDto>> Handle(GetMyAvailabilityQuery request, CancellationToken cancellationToken)
     {
         var rules = await _context.TeacherAvailabilities

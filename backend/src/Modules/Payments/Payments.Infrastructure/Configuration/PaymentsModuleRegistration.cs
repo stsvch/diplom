@@ -1,9 +1,9 @@
+// PaymentsModuleRegistration.cs
 using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Payments.Application.Interfaces;
 using Payments.Infrastructure.Persistence;
 using Payments.Infrastructure.Services;
@@ -46,9 +46,6 @@ public static class PaymentsModuleRegistration
         services.AddScoped<IPaymentsService>(sp => sp.GetRequiredService<PaymentsService>());
         services.AddScoped<ITeacherPayoutReadService>(sp => sp.GetRequiredService<PaymentsService>());
         services.AddScoped<ISubscriptionEntitlementProvider, SubscriptionEntitlementProvider>();
-        services.TryAddScoped<ICompletedBookingReadService, NoCompletedBookingsReadService>();
-        services.AddScoped<LiveSessionAllocationService>();
-
         var applicationAssembly = typeof(IPaymentsService).Assembly;
         services.AddValidatorsFromAssembly(applicationAssembly);
         services.AddAutoMapper(cfg => { }, applicationAssembly);

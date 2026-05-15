@@ -1,3 +1,4 @@
+// admin-analytics.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -25,6 +26,7 @@ import {
 } from '../models/admin.model';
 import { AdminService } from '../services/admin.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-analytics',
   standalone: true,
@@ -51,6 +53,7 @@ export class AdminAnalyticsComponent implements OnInit {
   readonly ArrowRightIcon = ArrowRight;
   readonly TeachersIcon = GraduationCap;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly analytics = signal<AdminAnalyticsDto | null>(null);
@@ -84,6 +87,7 @@ export class AdminAnalyticsComponent implements OnInit {
     this.countDistinctCurrencies(this.topTeachers().map((item) => item.currency)) <= 1,
   );
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadAnalytics();
   }
@@ -92,6 +96,7 @@ export class AdminAnalyticsComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.admin.getAnalytics().subscribe({
       next: (analytics) => {
         this.analytics.set(analytics);

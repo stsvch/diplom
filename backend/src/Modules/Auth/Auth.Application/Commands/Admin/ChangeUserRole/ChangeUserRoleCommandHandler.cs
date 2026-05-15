@@ -1,3 +1,4 @@
+// ChangeUserRoleCommandHandler.cs
 using Auth.Domain.Entities;
 using Auth.Application.Interfaces;
 using EduPlatform.Shared.Domain;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.Admin.ChangeUserRole;
 
+// Обработчик сценария: меняет роль пользователя, защищает последнего администратора и отзывает refresh-токены, чтобы новая роль применилась сразу.
 public class ChangeUserRoleCommandHandler : IRequestHandler<ChangeUserRoleCommand, Result<string>>
 {
     private static readonly string[] AllowedRoles = { "Admin", "Teacher", "Student" };

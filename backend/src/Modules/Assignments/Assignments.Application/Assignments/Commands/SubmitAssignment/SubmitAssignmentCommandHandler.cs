@@ -1,3 +1,5 @@
+// SubmitAssignmentCommandHandler.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Entities;
@@ -11,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Commands.SubmitAssignment;
 
+/// <summary>
+/// Обработчик сценария: принимает работу студента, проверяет дедлайн, лимит попыток и отсутствие работы на проверке, затем уведомляет преподавателя.
+/// </summary>
 public class SubmitAssignmentCommandHandler : IRequestHandler<SubmitAssignmentCommand, Result<SubmissionDto>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -24,6 +29,7 @@ public class SubmitAssignmentCommandHandler : IRequestHandler<SubmitAssignmentCo
         _notifications = notifications;
     }
 
+    // Последовательно выполняет сценарий: принимает работу студента, проверяет дедлайн, лимит попыток и отсутствие работы на проверке, затем уведомляет преподавателя.
     public async Task<Result<SubmissionDto>> Handle(SubmitAssignmentCommand request, CancellationToken cancellationToken)
     {
         var assignment = await _db.Assignments.FirstOrDefaultAsync(a => a.Id == request.AssignmentId, cancellationToken);

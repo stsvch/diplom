@@ -1,3 +1,4 @@
+// EditMessageCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -7,9 +8,11 @@ using Messaging.Application.Mappings;
 
 namespace Messaging.Application.Commands.EditMessage;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record EditMessageCommand(string MessageId, string UserId, string Text)
     : IRequest<Result<MessageDto>>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class EditMessageValidator : AbstractValidator<EditMessageCommand>
 {
     public EditMessageValidator()
@@ -20,6 +23,7 @@ public class EditMessageValidator : AbstractValidator<EditMessageCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class EditMessageCommandHandler : IRequestHandler<EditMessageCommand, Result<MessageDto>>
 {
     private static readonly TimeSpan EditWindow = TimeSpan.FromMinutes(15);

@@ -1,3 +1,5 @@
+// CreateGradeCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -8,6 +10,9 @@ using MediatR;
 
 namespace Grading.Application.Grades.Commands.CreateGrade;
 
+/// <summary>
+/// Обработчик CQRS-команды CreateGradeCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class CreateGradeCommandHandler : IRequestHandler<CreateGradeCommand, Result<GradeDto>>
 {
     private readonly IGradingDbContext _context;
@@ -19,6 +24,7 @@ public class CreateGradeCommandHandler : IRequestHandler<CreateGradeCommand, Res
         _notifications = notifications;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<GradeDto>> Handle(CreateGradeCommand request, CancellationToken cancellationToken)
     {
         var grade = new Grade

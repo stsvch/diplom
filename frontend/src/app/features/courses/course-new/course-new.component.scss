@@ -1,3 +1,5 @@
+// course-new.component.scss
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host {
   display: block;
   min-height: 100%;
@@ -23,6 +25,7 @@
   margin-bottom: 24px;
   transition: color 120ms ease;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     color: #4f46e5;
   }
@@ -89,6 +92,7 @@
   max-width: 560px;
 }
 
+// Адаптивные правила уточняют отображение на разных ширинах экрана.
 @media (max-width: 640px) {
   .modes {
     grid-template-columns: 1fr;

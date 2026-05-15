@@ -1,8 +1,10 @@
+// CalendarEvent.cs
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
 
 namespace Calendar.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class CalendarEvent : BaseEntity
 {
     public string? UserId { get; set; }

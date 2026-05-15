@@ -1,5 +1,9 @@
+<!-- lesson-view.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="view-page">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (progress(); as p) {
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="view-page__progress" [class.view-page__progress--done]="isCompleted()">
       <div class="progress-bar">
         <div class="progress-bar__fill" [style.width.%]="progressPct()"></div>
@@ -23,9 +27,17 @@
     </header>
   }
 
+  <!-- Основная область страницы показывает рабочий контент пользователя. -->
   <main class="view-page__body">
     @if (loading()) {
-      <div class="lv-skel">
+      <div class="lesson-loading" role="status" aria-live="polite">
+        <div class="lesson-loading__spinner" aria-hidden="true"></div>
+        <div>
+          <p class="lesson-loading__title">Загружаем урок</p>
+          <p class="lesson-loading__hint">Собираем блоки и ваши ответы</p>
+        </div>
+      </div>
+      <div class="lv-skel" aria-hidden="true">
         <div class="lv-skel__card">
           <div class="lv-skel__chip"></div>
           <div class="lv-skel__line lv-skel__line--full"></div>
@@ -43,8 +55,17 @@
           <div class="lv-skel__line lv-skel__line--sm"></div>
         </div>
       </div>
+    } @else if (loadError()) {
+      <div class="lesson-state lesson-state--error">
+        <p class="lesson-state__title">Урок не загрузился</p>
+        <p class="lesson-state__text">{{ loadError() }}</p>
+        <button type="button" class="lesson-state__action" (click)="retryLoad()">Повторить</button>
+      </div>
     } @else if (entries().length === 0) {
-      <div class="empty">В этом уроке пока нет контента.</div>
+      <div class="lesson-state">
+        <p class="lesson-state__title">В этом уроке пока нет контента</p>
+        <p class="lesson-state__text">Когда преподаватель добавит блоки, они появятся здесь.</p>
+      </div>
     } @else {
       @for (e of entries(); track e.block.id) {
         <app-block-host [type]="e.block.type" [readonly]="true">

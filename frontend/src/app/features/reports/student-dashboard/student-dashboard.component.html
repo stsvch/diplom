@@ -1,33 +1,7 @@
+<!-- student-dashboard.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="sd">
-  <!-- ── Hero ── -->
-  <section class="sd-hero">
-    <div class="sd-hero__bg-orbs" aria-hidden="true">
-      <span class="sd-hero__orb sd-hero__orb--1"></span>
-      <span class="sd-hero__orb sd-hero__orb--2"></span>
-    </div>
-    <div class="sd-hero__col sd-hero__col--copy">
-      <span class="sd-hero__pill">REPORTS / STUDENT</span>
-      <h1>Учебная аналитика</h1>
-      <p>
-        Здесь собраны текущий прогресс по курсам, последние оценки и ближайшие дедлайны,
-        чтобы не переключаться между несколькими разделами.
-      </p>
-    </div>
-    @if (summary(); as s) {
-      <div class="sd-hero__col sd-hero__col--meter">
-        <div class="sd-meter">
-          <div class="sd-meter__value">{{ formatPercent(s.overallProgressPercent) }}</div>
-          <div class="sd-meter__label">Общий прогресс</div>
-          <div class="sd-meter__chips">
-            <span class="sd-meter__chip">{{ s.activeCourses }} в процессе</span>
-            <span class="sd-meter__chip sd-meter__chip--accent">{{ s.completedCourses }} завершено</span>
-          </div>
-        </div>
-      </div>
-    }
-  </section>
-
-  @if (loading()) {
+@if (loading()) {
     <div class="sd-state">Загружаю дашборд…</div>
   } @else if (error()) {
     <div class="sd-state sd-state--error">
@@ -40,7 +14,7 @@
       <app-stats-card
         title="Курсы"
         [value]="s.enrolledCourses"
-        subtitle="активных записей"
+        subtitle="всего записей"
         [iconName]="BookOpenIcon"
         iconBg="#eef2ff"
         iconColor="#4f46e5"
@@ -64,26 +38,10 @@
       <app-stats-card
         title="Средний балл"
         [value]="formatPercent(s.averageGradePercent)"
-        subtitle="по последним оценкам"
+        subtitle="по всем оценкам"
         [iconName]="GradeIcon"
         iconBg="#f5f3ff"
         iconColor="#7c3aed"
-      />
-      <app-stats-card
-        title="Ближайшее"
-        [value]="s.upcomingEventsCount"
-        subtitle="событий в фокусе"
-        [iconName]="CalendarIcon"
-        iconBg="#fffbeb"
-        iconColor="#d97706"
-      />
-      <app-stats-card
-        title="Ритм"
-        [value]="s.activeCourses"
-        subtitle="курсов в активной работе"
-        [iconName]="ActivityIcon"
-        iconBg="#fff1f2"
-        iconColor="#e11d48"
       />
     </section>
 

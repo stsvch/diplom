@@ -1,6 +1,8 @@
+// audio-block-viewer.component.ts
 import { Component, Input } from '@angular/core';
 import { AudioBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-audio-block-viewer',
   standalone: true,

@@ -1,7 +1,10 @@
+// _mixins.scss
 @use 'variables' as *;
 
+// Миксины собирают повторяемые паттерны адаптивности, layout и типографики.
 @mixin respond-to($breakpoint) {
   @if $breakpoint == sm {
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: $breakpoint-sm) { @content; }
   } @else if $breakpoint == md {
     @media (max-width: $breakpoint-md) { @content; }

@@ -1,3 +1,5 @@
+// GetCourseCatalogQueryHandler.cs
+
 using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
 using AutoMapper;
@@ -11,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Queries.GetCourseCatalog;
 
+// Тип class: ключевой элемент файла GetCourseCatalogQueryHandler.cs.
 public class GetCourseCatalogQueryHandler : IRequestHandler<GetCourseCatalogQuery, PagedResult<CourseListDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -22,6 +25,7 @@ public class GetCourseCatalogQueryHandler : IRequestHandler<GetCourseCatalogQuer
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<PagedResult<CourseListDto>> Handle(GetCourseCatalogQuery request, CancellationToken cancellationToken)
     {
         var countSpec = new CourseCatalogCountSpec(request.DisciplineId, request.IsFree, request.Level, request.Search);

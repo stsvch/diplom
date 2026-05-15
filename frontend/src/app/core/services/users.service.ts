@@ -1,3 +1,4 @@
+// users.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -15,12 +16,14 @@ export interface ChangePasswordPayload {
   newPassword: string;
 }
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/users`;
 
   updateProfile(payload: UpdateProfilePayload): Observable<User> {
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.put<User>(`${this.base}/me`, payload);
   }
 

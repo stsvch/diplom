@@ -1,8 +1,10 @@
+// UserSubscription.cs
 using EduPlatform.Shared.Domain;
 using Payments.Domain.Enums;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class UserSubscription : BaseEntity, IAuditableEntity
 {
     public Guid SubscriptionPlanId { get; set; }
@@ -18,6 +20,7 @@ public class UserSubscription : BaseEntity, IAuditableEntity
     public DateTime? CurrentPeriodEnd { get; set; }
     public bool CancelAtPeriodEnd { get; set; }
     public DateTime? CanceledAt { get; set; }
+    public DateTime? PastDueSinceUtc { get; set; }
     public DateTime StartedAt { get; set; }
     public DateTime? EndedAt { get; set; }
     public DateTime CreatedAt { get; set; }

@@ -1,3 +1,4 @@
+// Файл: CourseBuilderController.cs
 using EduPlatform.Host.Models.Courses;
 using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер CourseBuilderController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/courses/{courseId:guid}/builder")]
 [Authorize(Roles = "Teacher,Admin")]

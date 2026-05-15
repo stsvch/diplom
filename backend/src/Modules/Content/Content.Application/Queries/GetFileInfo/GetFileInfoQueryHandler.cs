@@ -1,3 +1,5 @@
+// GetFileInfoQueryHandler.cs
+
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.Queries.GetFileInfo;
 
+// Тип class: ключевой элемент файла GetFileInfoQueryHandler.cs.
 public class GetFileInfoQueryHandler : IRequestHandler<GetFileInfoQuery, Result<AttachmentDto>>
 {
     private readonly IContentDbContext _context;
@@ -18,6 +21,7 @@ public class GetFileInfoQueryHandler : IRequestHandler<GetFileInfoQuery, Result<
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<AttachmentDto>> Handle(GetFileInfoQuery request, CancellationToken cancellationToken)
     {
         var attachment = await _context.Attachments

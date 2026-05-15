@@ -1,5 +1,10 @@
+// AnswerOptionDto.cs
+
 namespace Tests.Application.DTOs;
 
+/// <summary>
+/// DTO описывает данные AnswerOptionDto, передаваемые наружу без прямой отдачи доменных сущностей.
+/// </summary>
 public class AnswerOptionDto
 {
     public Guid Id { get; set; }

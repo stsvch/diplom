@@ -1,7 +1,9 @@
+// ProcessedWebhookEvent.cs
 using EduPlatform.Shared.Domain;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class ProcessedWebhookEvent : BaseEntity, IAuditableEntity
 {
     public string Provider { get; set; } = "Stripe";

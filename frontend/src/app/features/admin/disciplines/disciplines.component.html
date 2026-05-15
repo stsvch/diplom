@@ -1,3 +1,5 @@
+<!-- disciplines.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="disciplines">
   <div class="disciplines__header">
     <div>
@@ -10,6 +12,7 @@
     </app-button>
   </div>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="disciplines__grid">
       @for (item of skeletonItems; track $index) {

@@ -1,3 +1,4 @@
+// course-card.component.ts
 import { Component, Input, computed, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -21,6 +22,7 @@ const GRADIENTS = [
   'emerald-teal',
 ];
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-card',
   standalone: true,
@@ -29,6 +31,7 @@ const GRADIENTS = [
   styleUrl: './course-card.component.scss',
 })
 export class CourseCardComponent {
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   private readonly _course = signal<CourseListDto | null>(null);
 
   @Input() set course(value: CourseListDto) {

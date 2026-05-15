@@ -1,3 +1,4 @@
+// block-type-menu.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal, computed, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +18,7 @@ interface MenuGroup {
   types: LessonBlockType[];
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-block-type-menu',
   standalone: true,
@@ -28,6 +30,7 @@ export class BlockTypeMenuComponent {
   @Output() selected = new EventEmitter<LessonBlockType>();
   @Output() closed = new EventEmitter<void>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   search = signal('');
 
   groups: MenuGroup[] = [

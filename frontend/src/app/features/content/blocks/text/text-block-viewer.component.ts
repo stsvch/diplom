@@ -1,7 +1,9 @@
+// text-block-viewer.component.ts
 import { Component, Input } from '@angular/core';
 import { RichTextViewerComponent } from '../../../../shared/components/rich-text-viewer/rich-text-viewer.component';
 import { TextBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-text-block-viewer',
   standalone: true,

@@ -1,5 +1,7 @@
+// gradebook.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .gradebook {
   padding: v.$spacing-6;
   max-width: 100%;
@@ -39,6 +41,7 @@
     gap: v.$spacing-4;
     margin-bottom: v.$spacing-6;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-lg) {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -108,7 +111,7 @@
   }
 }
 
-// Export dropdown
+// Выпадающее меню экспорта.
 .export-menu {
   position: relative;
 
@@ -138,13 +141,14 @@
     color: v.$text-foreground;
     transition: background v.$transition-fast;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover {
       background: v.$bg-muted;
     }
   }
 }
 
-// Course pills
+// Плашки курсов.
 .course-pills {
   display: flex;
   gap: v.$spacing-2;
@@ -175,7 +179,7 @@
   }
 }
 
-// Table
+// Таблица.
 .gradebook-table {
   width: 100%;
   border-collapse: collapse;
@@ -252,7 +256,7 @@
   max-width: 160px;
 }
 
-// Score badges
+// Бейджи баллов.
 .score-badge {
   display: inline-flex;
   align-items: center;
@@ -316,7 +320,7 @@
   &.score--red { background: #FEE2E2; color: #991B1B; }
 }
 
-// Student cell
+// Ячейка студента.
 .student-cell {
   display: flex;
   align-items: center;
@@ -347,7 +351,7 @@
   }
 }
 
-// Score legend
+// Легенда баллов.
 .score-legend {
   display: flex;
   gap: v.$spacing-4;
@@ -374,7 +378,7 @@
   &--red { background: #EF4444; }
 }
 
-// Skeleton
+// Скелетон загрузки.
 .skeleton-table {
   display: flex;
   flex-direction: column;

@@ -1,8 +1,10 @@
+// Файл: ValidationBehavior.cs
 using FluentValidation;
 using MediatR;
 
 namespace EduPlatform.Shared.Application.Behaviors;
 
+// Поведение конвейера ValidationBehavior запускает сквозную обработку MediatR-запросов.
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {

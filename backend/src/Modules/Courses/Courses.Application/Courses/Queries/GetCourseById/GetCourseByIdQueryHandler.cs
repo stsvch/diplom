@@ -1,3 +1,5 @@
+// GetCourseByIdQueryHandler.cs
+
 using Ardalis.Specification.EntityFrameworkCore;
 using AutoMapper;
 using Courses.Application.DTOs;
@@ -9,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Queries.GetCourseById;
 
+// Тип class: ключевой элемент файла GetCourseByIdQueryHandler.cs.
 public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Result<CourseDetailDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -20,6 +23,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Res
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<CourseDetailDto>> Handle(GetCourseByIdQuery request, CancellationToken cancellationToken)
     {
         var spec = new CourseByIdSpec(request.Id);

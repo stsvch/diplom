@@ -1,3 +1,5 @@
+<!-- assignment-submit.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="assignment-submit">
 
   <a [routerLink]="backUrl" class="assignment-submit__back">
@@ -5,6 +7,7 @@
     Назад к курсам
   </a>
 
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="assignment-submit__loading">
       <lucide-icon [img]="Loader2Icon" [size]="32" class="spin" />

@@ -1,5 +1,7 @@
+// material-editor.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .me {
@@ -27,6 +29,7 @@
   font-weight: $font-weight-medium;
   width: fit-content;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--material { background: $slate-100; color: $slate-600; }
   &--link     { background: #ede9fe;    color: #7c3aed; }
 }

@@ -1,3 +1,5 @@
+// ContentMappingProfile.cs
+
 using System.Text.Json;
 using AutoMapper;
 using Content.Application.DTOs;
@@ -5,8 +7,10 @@ using Content.Domain.Entities;
 
 namespace Content.Application.Mappings;
 
+// AutoMapper-профиль class: группирует правила преобразования доменных моделей и DTO.
 public class ContentMappingProfile : Profile
 {
+    // Здесь описаны преобразования между доменными сущностями и DTO application layer.
     public ContentMappingProfile()
     {
         CreateMap<Attachment, AttachmentDto>();

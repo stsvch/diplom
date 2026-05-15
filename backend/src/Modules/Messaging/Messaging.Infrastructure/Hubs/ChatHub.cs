@@ -1,3 +1,4 @@
+// ChatHub.cs
 using Messaging.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -5,6 +6,7 @@ using System.Security.Claims;
 
 namespace Messaging.Infrastructure.Hubs;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 [Authorize]
 public class ChatHub : Hub
 {

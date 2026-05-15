@@ -1,9 +1,11 @@
+// Файл: NotificationHub.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace Notifications.Infrastructure.Hubs;
 
+// SignalR-хаб NotificationHub принимает подключения в реальном времени клиентов.
 [Authorize]
 public class NotificationHub : Hub
 {

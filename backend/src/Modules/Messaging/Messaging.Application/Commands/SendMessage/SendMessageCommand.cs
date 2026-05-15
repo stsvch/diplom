@@ -1,3 +1,4 @@
+// SendMessageCommand.cs
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -10,6 +11,7 @@ using Messaging.Domain.Documents;
 
 namespace Messaging.Application.Commands.SendMessage;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record SendMessageCommand(
     string ChatId,
     string SenderId,
@@ -18,6 +20,7 @@ public record SendMessageCommand(
     IReadOnlyList<AttachmentDto>? Attachments
 ) : IRequest<Result<MessageDto>>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class SendMessageValidator : AbstractValidator<SendMessageCommand>
 {
     public SendMessageValidator()
@@ -31,6 +34,7 @@ public class SendMessageValidator : AbstractValidator<SendMessageCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Result<MessageDto>>
 {
     private readonly IMessagingRepository _repository;

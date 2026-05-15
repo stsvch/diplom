@@ -1,3 +1,4 @@
+// Файл: LessonProgressUpdater.cs
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Progress.Application.Interfaces;
@@ -5,6 +6,7 @@ using Progress.Domain.Entities;
 
 namespace Progress.Infrastructure.Services;
 
+// Сервис LessonProgressUpdater инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class LessonProgressUpdater : ILessonProgressUpdater
 {
     private readonly IProgressDbContext _context;

@@ -1,3 +1,5 @@
+<!-- assignment-grading.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="grading-page">
 
   <!-- Left panel -->
@@ -32,6 +34,7 @@
       >Просрочено</button>
     </div>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (loading()) {
       <div class="grading-page__loading">
         <lucide-icon [img]="Loader2Icon" [size]="28" class="spin" />

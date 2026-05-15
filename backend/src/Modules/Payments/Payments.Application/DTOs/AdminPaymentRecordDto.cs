@@ -1,5 +1,7 @@
+// AdminPaymentRecordDto.cs
 namespace Payments.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public record AdminPaymentRecordDto(
     Guid PaymentAttemptId,
     Guid CourseId,
@@ -9,15 +11,10 @@ public record AdminPaymentRecordDto(
     string TeacherId,
     string TeacherName,
     decimal Amount,
-    decimal RefundedAmount,
-    decimal PendingRefundAmount,
-    decimal DisputedAmount,
-    decimal RemainingRefundableAmount,
     decimal ProviderFeeAmount,
     string Currency,
     string PaymentStatus,
     string? ProviderChargeId,
-    string? LatestDisputeStatus,
     string? PurchaseStatus,
     DateTime CreatedAt,
     DateTime? CompletedAt);

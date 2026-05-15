@@ -1,10 +1,14 @@
+<!-- lesson-editor.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="editor-page">
+  <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
   <header class="editor-page__header">
     <button class="back" [routerLink]="['../../']">
       <lucide-icon name="chevron-left" size="20"></lucide-icon>
       <span>К курсу</span>
     </button>
 
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (lesson(); as l) {
       <input
         class="title-input"
@@ -49,6 +53,7 @@
     </div>
   }
 
+  <!-- Основная область страницы показывает рабочий контент пользователя. -->
   <main class="editor-page__body">
     @if (loading()) {
       <div class="state">Загрузка...</div>

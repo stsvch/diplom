@@ -1,3 +1,5 @@
+// CreateCourseCommandHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Application.Interfaces;
@@ -8,6 +10,7 @@ using MediatR;
 
 namespace Courses.Application.Courses.Commands.CreateCourse;
 
+// Тип class: ключевой элемент файла CreateCourseCommandHandler.cs.
 public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, Result<CourseDetailDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -21,6 +24,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
         _chatAdmin = chatAdmin;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<CourseDetailDto>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
         var discipline = await _context.Disciplines.FindAsync([request.DisciplineId], cancellationToken);
@@ -42,10 +46,8 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             Price = request.Price,
             IsFree = request.IsFree,
             OrderType = request.OrderType,
-            HasGrading = request.HasGrading,
             Level = request.Level,
             ImageUrl = request.ImageUrl,
-            HasCertificate = request.HasCertificate,
             Deadline = request.Deadline,
             Discipline = discipline
         };

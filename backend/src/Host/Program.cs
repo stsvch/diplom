@@ -1,3 +1,4 @@
+// Файл: Program.cs
 using Auth.Infrastructure.Configuration;
 using Auth.Infrastructure.Persistence;
 using Calendar.Infrastructure.Configuration;
@@ -44,11 +45,11 @@ builder.Configuration
     .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.Local.json", optional: true, reloadOnChange: true);
 
-// Serilog
+// Настройка Serilog.
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-// Controllers
+// Подключение MVC-контроллеров.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -59,54 +60,53 @@ builder.Services.AddControllers()
             new Content.Infrastructure.Persistence.JsonConverters.LessonBlockDataLenientConverter());
     });
 
-// Swagger
+// Подключение Swagger для документации API.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Auth Module (registers Identity, JWT, DbContext, MediatR handlers, FluentValidation, AutoMapper)
+// Регистрация модуля Auth: Identity, JWT, DbContext, MediatR, FluentValidation и AutoMapper.
 builder.Services.AddAuthModule(builder.Configuration);
 
-// Courses Module
+// Регистрация модуля Courses.
 builder.Services.AddCoursesModule(builder.Configuration);
 
-// Content Module
+// Регистрация модуля Content.
 builder.Services.AddContentModule(builder.Configuration);
 
-// Tests Module
+// Регистрация модуля Tests.
 builder.Services.AddTestsModule(builder.Configuration);
 
-// Assignments Module
+// Регистрация модуля Assignments.
 builder.Services.AddAssignmentsModule(builder.Configuration);
 
-// Grading Module
+// Регистрация модуля Grading.
 builder.Services.AddGradingModule(builder.Configuration);
 
-// Progress Module
+// Регистрация модуля Progress.
 builder.Services.AddProgressModule(builder.Configuration);
 
-// Notifications Module
+// Регистрация модуля Notifications.
 builder.Services.AddNotificationsModule(builder.Configuration);
 builder.Services.AddSignalR();
 
-// Calendar Module
+// Регистрация модуля Calendar.
 builder.Services.AddCalendarModule(builder.Configuration);
 
-// Messaging Module
+// Регистрация модуля Messaging.
 builder.Services.AddMessagingModule(builder.Configuration);
 
-// Scheduling Module
+// Регистрация модуля Scheduling.
 builder.Services.AddSchedulingModule(builder.Configuration);
 
-// Payments Module
+// Регистрация модуля Payments.
 builder.Services.AddPaymentsModule(builder.Configuration);
 
-// Tools Module
+// Регистрация модуля Tools.
 builder.Services.AddToolsModule(builder.Configuration);
 
-// Shared MediatR pipeline behavior (validation)
+// Общий pipeline MediatR запускает валидацию до обработчиков.
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddScoped<IUserDeletionGuard, UserDeletionGuard>();
-builder.Services.AddScoped<ISubscriptionAllocationReadService, SubscriptionAllocationReadService>();
 builder.Services.AddScoped<LessonAccessService>();
 builder.Services.AddScoped<StudentDashboardReadService>();
 builder.Services.AddScoped<TeacherDashboardReadService>();
@@ -118,7 +118,7 @@ builder.Services.AddScoped<CourseReviewService>();
 builder.Services.AddScoped<AdminAnalyticsReadService>();
 builder.Services.AddHostedService<ChatAttachmentCleanupService>();
 
-// Chat authorization policies
+// Политики авторизации ограничивают доступ к чатам.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthorizationHandler, ChatParticipantAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, CourseChatOwnerAuthorizationHandler>();
@@ -128,7 +128,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("CourseChatOwner", policy => policy.Requirements.Add(new CourseChatOwnerRequirement()));
 });
 
-// CORS
+// Настройка CORS для запросов фронтенда.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -142,7 +142,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply migrations and seed roles
+// Применение миграций и первичное заполнение ролей.
 using (var scope = app.Services.CreateScope())
 {
     var authDb = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
@@ -187,7 +187,7 @@ using (var scope = app.Services.CreateScope())
     await toolsDb.Database.MigrateAsync();
 }
 
-// Middleware
+// Подключение middleware в конвейер обработки запросов.
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())

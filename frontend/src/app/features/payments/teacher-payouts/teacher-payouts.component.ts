@@ -2,16 +2,19 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { PaymentsService } from '../services/payments.service';
-import {
-  DisputeRecordDto,
-  PayoutRecordDto,
-  TeacherPayoutAccountDto,
-  TeacherSettlementDto,
-  TeacherSettlementSummaryDto,
-  TeacherSubscriptionAllocationDto,
-} from '../models/payments.model';
+import { TeacherPayoutAccountDto, TeacherSettlementDto, TeacherSettlementSummaryDto } from '../models/payments.model';
 import { parseApiError } from '../../../core/models/api-error.model';
 import { forkJoin } from 'rxjs';
+
+interface CourseEarningsRow {
+  courseId: string;
+  courseTitle: string;
+  purchasesCount: number;
+  grossAmount: number;
+  netAmount: number;
+  readyForPayoutAmount: number;
+  currency: string;
+}
 
 @Component({
   selector: 'app-teacher-payouts',
@@ -31,14 +34,45 @@ export class TeacherPayoutsComponent implements OnInit {
   readonly account = signal<TeacherPayoutAccountDto | null>(null);
   readonly summary = signal<TeacherSettlementSummaryDto | null>(null);
   readonly settlements = signal<TeacherSettlementDto[]>([]);
-  readonly subscriptionAllocations = signal<TeacherSubscriptionAllocationDto[]>([]);
-  readonly disputes = signal<DisputeRecordDto[]>([]);
-  readonly payouts = signal<PayoutRecordDto[]>([]);
-  readonly subscriptionAllocationNetTotal = computed(() =>
-    this.subscriptionAllocations()
-      .filter((item) => item.status === 'Applied')
-      .reduce((sum, item) => sum + item.netAmount, 0),
-  );
+  readonly totalFees = computed(() => {
+    const summary = this.summary();
+    return summary ? Math.max(0, summary.totalGrossAmount - summary.totalNetAmount) : 0;
+  });
+  readonly canRequestPayout = computed(() => {
+    const summary = this.summary();
+    const account = this.account();
+    return !!summary
+      && summary.readyForPayoutNetAmount > 0
+      && !!account
+      && account.payoutsEnabled;
+  });
+  readonly courseRows = computed<CourseEarningsRow[]>(() => {
+    const rows = new Map<string, CourseEarningsRow>();
+
+    for (const settlement of this.settlements()) {
+      const row = rows.get(settlement.courseId) ?? {
+        courseId: settlement.courseId,
+        courseTitle: settlement.courseTitle,
+        purchasesCount: 0,
+        grossAmount: 0,
+        netAmount: 0,
+        readyForPayoutAmount: 0,
+        currency: settlement.currency,
+      };
+
+      row.purchasesCount += 1;
+      row.grossAmount += settlement.grossAmount;
+      row.netAmount += settlement.netAmount;
+      if (settlement.status === 'ReadyForPayout') {
+        row.readyForPayoutAmount += settlement.netAmount;
+      }
+
+      rows.set(settlement.courseId, row);
+    }
+
+    return [...rows.values()]
+      .sort((a, b) => b.netAmount - a.netAmount || a.courseTitle.localeCompare(b.courseTitle));
+  });
 
   ngOnInit(): void {
     this.loadPage();
@@ -103,9 +137,9 @@ export class TeacherPayoutsComponent implements OnInit {
 
   getSettlementStatusLabel(status: string): string {
     const map: Record<string, string> = {
-      PendingHold: 'Холд',
-      ReadyForPayout: 'Готово к выплате',
-      InPayout: 'В payout batch',
+      PendingHold: 'Ожидает',
+      ReadyForPayout: 'Доступно',
+      InPayout: 'Запрошено',
       PaidOut: 'Выплачено',
       Reversed: 'Сторнировано',
       Canceled: 'Отменено',
@@ -119,92 +153,6 @@ export class TeacherPayoutsComponent implements OnInit {
     if (status === 'ReadyForPayout') return 'status status--primary';
     if (status === 'InPayout') return 'status status--info';
     if (status === 'PendingHold') return 'status status--warning';
-    return 'status status--danger';
-  }
-
-  getPayoutStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      Queued: 'В очереди',
-      SubmittedToProvider: 'Transfer отправлен',
-      Paid: 'Переведено преподавателю',
-      Failed: 'Ошибка выплаты',
-      Reversed: 'Сторнировано',
-      Canceled: 'Отменено',
-    };
-
-    return map[status] ?? status;
-  }
-
-  getPayoutStatusClass(status: string): string {
-    if (status === 'Paid') return 'status status--success';
-    if (status === 'Queued' || status === 'SubmittedToProvider') return 'status status--info';
-    return 'status status--danger';
-  }
-
-  getAllocationStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      Applied: 'Распределено',
-      Skipped: 'Пропущено',
-      Reversed: 'Сторнировано',
-      Canceled: 'Отменено',
-    };
-
-    return map[status] ?? status;
-  }
-
-  getAllocationStatusClass(status: string): string {
-    if (status === 'Applied') return 'status status--success';
-    if (status === 'Skipped') return 'status status--warning';
-    return 'status status--danger';
-  }
-
-  getAllocationPayoutStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      PendingHold: 'В холде',
-      ReadyForPayout: 'Готово к выплате',
-      InPayout: 'В payout batch',
-      PaidOut: 'Выплачено',
-      Reversed: 'Сторнировано',
-      Canceled: 'Отменено',
-      Skipped: 'Не распределяется',
-    };
-
-    return map[status] ?? status;
-  }
-
-  getAllocationPayoutStatusClass(status: string): string {
-    if (status === 'PaidOut') return 'status status--success';
-    if (status === 'ReadyForPayout') return 'status status--primary';
-    if (status === 'InPayout') return 'status status--info';
-    if (status === 'PendingHold' || status === 'Skipped') return 'status status--warning';
-    return 'status status--danger';
-  }
-
-  getDisputeStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      NeedsResponse: 'Нужен ответ',
-      UnderReview: 'На рассмотрении',
-      Won: 'Выигран',
-      Lost: 'Проигран',
-      WarningNeedsResponse: 'Раннее предупреждение',
-      WarningUnderReview: 'Warning на рассмотрении',
-      WarningClosed: 'Warning закрыт',
-      Prevented: 'Предотвращён',
-    };
-
-    return map[status] ?? status;
-  }
-
-  getDisputeStatusClass(status: string): string {
-    if (status === 'Won' || status === 'WarningClosed' || status === 'Prevented') {
-      return 'status status--success';
-    }
-    if (status === 'NeedsResponse' || status === 'WarningNeedsResponse') {
-      return 'status status--warning';
-    }
-    if (status === 'UnderReview' || status === 'WarningUnderReview') {
-      return 'status status--info';
-    }
     return 'status status--danger';
   }
 
@@ -226,23 +174,53 @@ export class TeacherPayoutsComponent implements OnInit {
     });
   }
 
+  getSettlementAvailabilityText(settlement: TeacherSettlementDto): string {
+    if (settlement.status === 'ReadyForPayout') {
+      return 'Можно вывести сейчас';
+    }
+
+    if (settlement.status === 'PendingHold') {
+      return `Будет доступно ${this.formatDate(settlement.availableAt)}`;
+    }
+
+    if (settlement.status === 'InPayout') {
+      return 'Выплата уже запрошена';
+    }
+
+    if (settlement.status === 'PaidOut' && settlement.paidOutAt) {
+      return `Выплачено ${this.formatDate(settlement.paidOutAt)}`;
+    }
+
+    return this.getSettlementStatusLabel(settlement.status);
+  }
+
+  getPayoutSetupText(account: TeacherPayoutAccountDto): string {
+    if (!account.providerConfigured) {
+      return 'Платёжная система ещё не настроена.';
+    }
+
+    if (account.status === 'Ready' && account.payoutsEnabled) {
+      return 'Выплаты подключены. Можно выводить доступные начисления.';
+    }
+
+    if (account.status === 'PendingVerification' || account.status === 'OnboardingStarted') {
+      return 'Данные отправлены, платёжная система проверяет подключение.';
+    }
+
+    return 'Чтобы получать выплаты, завершите подключение платёжного аккаунта.';
+  }
+
   private loadPage(): void {
     this.loading.set(true);
     forkJoin({
       account: this.paymentsService.getTeacherPayoutAccount(),
       summary: this.paymentsService.getTeacherSettlementSummary(),
       settlements: this.paymentsService.getTeacherSettlements(),
-      subscriptionAllocations: this.paymentsService.getTeacherSubscriptionAllocations(),
-      disputes: this.paymentsService.getTeacherDisputes(),
-      payouts: this.paymentsService.getTeacherPayoutRecords(),
     }).subscribe({
-      next: ({ account, summary, settlements, subscriptionAllocations, disputes, payouts }) => {
+      next: ({ account, summary, settlements }) => {
         this.account.set(account);
         this.summary.set(summary);
         this.settlements.set(settlements);
-        this.subscriptionAllocations.set(subscriptionAllocations);
-        this.disputes.set(disputes);
-        this.payouts.set(payouts);
         this.loading.set(false);
         this.connecting.set(false);
         this.openingDashboard.set(false);

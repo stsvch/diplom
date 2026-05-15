@@ -1,11 +1,14 @@
+// card.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .card {
   background-color: $bg-card;
   border: 1px solid $border-color;
   border-radius: $radius-lg;
   transition: box-shadow $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--hoverable {
     cursor: pointer;
 

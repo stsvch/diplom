@@ -1,3 +1,4 @@
+// CreateCalendarEventCommand.cs
 using Calendar.Application.DTOs;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -5,6 +6,7 @@ using MediatR;
 
 namespace Calendar.Application.Calendar.Commands.CreateCalendarEvent;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record CreateCalendarEventCommand(
     string? UserId,
     Guid? CourseId,

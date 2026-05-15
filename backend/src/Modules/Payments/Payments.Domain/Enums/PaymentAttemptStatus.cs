@@ -1,5 +1,7 @@
+// PaymentAttemptStatus.cs
 namespace Payments.Domain.Enums;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public enum PaymentAttemptStatus
 {
     Initiated = 0,
@@ -7,8 +9,5 @@ public enum PaymentAttemptStatus
     Succeeded = 2,
     Failed = 3,
     Canceled = 4,
-    Expired = 5,
-    Refunded = 6,
-    PartiallyRefunded = 7,
-    Disputed = 8
+    Expired = 5
 }

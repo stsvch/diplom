@@ -1,3 +1,5 @@
+// GetLessonProgressQueryHandler.cs
+
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
 using Content.Domain.Entities;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.Attempts.Queries.GetLessonProgress;
 
+// Тип class: ключевой элемент файла GetLessonProgressQueryHandler.cs.
 public class GetLessonProgressQueryHandler : IRequestHandler<GetLessonProgressQuery, LessonProgressDto>
 {
     private readonly IContentDbContext _context;
@@ -16,6 +19,7 @@ public class GetLessonProgressQueryHandler : IRequestHandler<GetLessonProgressQu
         _context = context;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<LessonProgressDto> Handle(GetLessonProgressQuery request, CancellationToken cancellationToken)
     {
         var blocks = await _context.LessonBlocks

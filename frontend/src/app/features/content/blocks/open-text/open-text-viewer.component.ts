@@ -1,3 +1,4 @@
+// open-text-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -6,6 +7,7 @@ import {
   LessonBlockAttemptDto,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-open-text-viewer',
   standalone: true,
@@ -73,6 +75,7 @@ export class OpenTextViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<OpenTextAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   text = signal('');
   submitted = signal(false);
 
@@ -98,6 +101,7 @@ export class OpenTextViewerComponent implements OnInit {
     return 'Ваш ответ...';
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && this.attempt.answers.type === 'OpenText') {
       this.text.set(this.attempt.answers.text);

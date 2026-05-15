@@ -1,3 +1,4 @@
+// teacher-course-reports.component.ts
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -34,6 +35,7 @@ import {
 } from '../models/reports.model';
 import { ReportsService } from '../services/reports.service';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-teacher-course-reports',
   standalone: true,
@@ -63,6 +65,7 @@ export class TeacherCourseReportsComponent implements OnInit {
   readonly ArrowRightIcon = ArrowRight;
   readonly RiskIcon = TriangleAlert;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly dashboardLoading = signal(false);
   readonly reportLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -117,6 +120,7 @@ export class TeacherCourseReportsComponent implements OnInit {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadDashboard();
   }
@@ -125,6 +129,7 @@ export class TeacherCourseReportsComponent implements OnInit {
     this.dashboardLoading.set(true);
     this.error.set(null);
 
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.reports.getTeacherDashboard().subscribe({
       next: (dashboard) => {
         this.dashboard.set(dashboard);

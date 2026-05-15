@@ -1,8 +1,13 @@
+// SessionBooking.cs
+
 using EduPlatform.Shared.Domain;
 using Scheduling.Domain.Enums;
 
 namespace Scheduling.Domain.Entities;
 
+/// <summary>
+/// Тип SessionBooking относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class SessionBooking : BaseEntity
 {
     public Guid SlotId { get; set; }

@@ -1,3 +1,4 @@
+// Файл: AdminStatsController.cs
 using Auth.Application.Queries.GetDashboardStats;
 using Courses.Application.Courses.Queries.GetCourseStats;
 using EduPlatform.Host.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер AdminStatsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/admin/stats")]
 [Authorize(Roles = "Admin")]

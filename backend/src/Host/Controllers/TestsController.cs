@@ -1,3 +1,4 @@
+// Файл: TestsController.cs
 using EduPlatform.Shared.Application.Models;
 using Courses.Domain.Enums;
 using EduPlatform.Host.Services;
@@ -15,6 +16,7 @@ using Tests.Application.Tests.Queries.GetTestSubmissions;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер TestsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/tests")]
 public class TestsController : ControllerBase
@@ -182,6 +184,7 @@ public class TestsController : ControllerBase
     }
 }
 
+// API-модель CreateTestRequest фиксирует тело запроса или результат для действия контроллера.
 public record CreateTestRequest(
     Guid CourseId,
     string Title,
@@ -194,6 +197,7 @@ public record CreateTestRequest(
     bool ShowCorrectAnswers,
     Guid? SectionId = null);
 
+// API-модель UpdateTestRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateTestRequest(
     Guid CourseId,
     string Title,

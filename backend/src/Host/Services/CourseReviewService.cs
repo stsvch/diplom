@@ -1,3 +1,4 @@
+// Файл: CourseReviewService.cs
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
 using Courses.Infrastructure.Persistence;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис CourseReviewService инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class CourseReviewService
 {
     private readonly CoursesDbContext _coursesDb;

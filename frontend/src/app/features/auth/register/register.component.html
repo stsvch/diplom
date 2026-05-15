@@ -1,5 +1,7 @@
+<!-- register.component.html -->
+<!-- Шаблон регистрации: форма личных данных, выбор роли Student/Teacher, пароль с подтверждением и переход к логину. -->
 <div class="auth-layout">
-  <!-- Left Panel -->
+  <!-- Левая промо-панель показывает бренд, обещание платформы и доверительные факты. -->
   <div class="auth-layout__left">
     <div class="auth-layout__left-inner">
       <div class="auth-brand">
@@ -28,7 +30,7 @@
     </div>
   </div>
 
-  <!-- Right Panel -->
+  <!-- Правая панель содержит основную auth-форму текущего сценария. -->
   <div class="auth-layout__right">
     <div class="auth-form-card">
       <div class="auth-form-card__header">
@@ -36,7 +38,7 @@
         <p class="auth-form-card__subtitle">Заполните форму для регистрации</p>
       </div>
 
-      <!-- Role selector -->
+      <!-- Выбор роли определяет, будет создан аккаунт студента или преподавателя. -->
       <div class="role-selector">
         <button
           type="button"
@@ -57,7 +59,7 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
-        <!-- Name row -->
+        <!-- Имя и фамилия отправляются в профиль пользователя на backend. -->
         <div class="form-row">
           <div class="form-group" [class.form-group--error]="firstNameError">
             <label class="form-label" for="reg-first-name">Имя</label>
@@ -100,7 +102,7 @@
           </div>
         </div>
 
-        <!-- Email -->
+        <!-- Email используется как логин и адрес для подтверждения/восстановления. -->
         <div class="form-group" [class.form-group--error]="emailError">
           <label class="form-label" for="reg-email">Email</label>
           <div class="form-input-wrap">
@@ -121,7 +123,7 @@
           }
         </div>
 
-        <!-- Password -->
+        <!-- Пароль валидируется на клиенте и затем проверяется backend Auth-модулем. -->
         <div class="form-group" [class.form-group--error]="passwordError">
           <label class="form-label" for="reg-password">Пароль</label>
           <div class="form-input-wrap">
@@ -149,7 +151,7 @@
           }
         </div>
 
-        <!-- Confirm Password -->
+        <!-- Повтор пароля нужен только для клиентской проверки совпадения перед отправкой. -->
         <div class="form-group" [class.form-group--error]="confirmPasswordError">
           <label class="form-label" for="reg-confirm-password">Подтвердите пароль</label>
           <div class="form-input-wrap">

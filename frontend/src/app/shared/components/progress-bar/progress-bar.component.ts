@@ -1,5 +1,7 @@
+// progress-bar.component.ts
 import { Component, Input, computed, signal } from '@angular/core';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-progress-bar',
   standalone: true,
@@ -17,6 +19,7 @@ export class ProgressBarComponent {
   @Input() showLabel = false;
   @Input() color: 'primary' | 'success' = 'primary';
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   private _value = signal(0);
   readonly clampedValue = this._value;
 

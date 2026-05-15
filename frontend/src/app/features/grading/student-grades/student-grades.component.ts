@@ -1,3 +1,4 @@
+// student-grades.component.ts
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import {
   LucideAngularModule,
@@ -22,6 +23,7 @@ interface GradeGroup {
   averageScore: number;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-student-grades',
   standalone: true,
@@ -44,6 +46,7 @@ export class StudentGradesComponent implements OnInit {
   readonly ChartIcon = BarChart2;
   readonly BookIcon = BookOpen;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(true);
   readonly grades = signal<GradeDto[]>([]);
 
@@ -78,12 +81,14 @@ export class StudentGradesComponent implements OnInit {
     this.grades().filter(g => g.maxScore > 0 && (g.score / g.maxScore * 100) >= 60).length
   );
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loadGrades();
   }
 
   loadGrades(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.gradingService.getMyGrades().subscribe({
       next: (data) => {
         this.grades.set(data);

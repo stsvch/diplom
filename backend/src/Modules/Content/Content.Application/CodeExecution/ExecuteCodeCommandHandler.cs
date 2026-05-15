@@ -1,3 +1,5 @@
+// ExecuteCodeCommandHandler.cs
+
 using Content.Application.Interfaces;
 using Content.Domain.Entities;
 using Content.Domain.Enums;
@@ -7,6 +9,7 @@ using MediatR;
 
 namespace Content.Application.CodeExecution;
 
+// Компонент запуска кода class: описывает или выполняет проверку code exercise блоков.
 public class ExecuteCodeCommandHandler : IRequestHandler<ExecuteCodeCommand, Result<CodeExecutionResponse>>
 {
     private readonly IContentDbContext _context;
@@ -18,6 +21,7 @@ public class ExecuteCodeCommandHandler : IRequestHandler<ExecuteCodeCommand, Res
         _executor = executor;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<CodeExecutionResponse>> Handle(ExecuteCodeCommand request, CancellationToken cancellationToken)
     {
         var block = await _context.LessonBlocks.FindAsync([request.BlockId], cancellationToken);

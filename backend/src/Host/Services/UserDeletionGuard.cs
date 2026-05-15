@@ -1,3 +1,4 @@
+// Файл: UserDeletionGuard.cs
 using Assignments.Infrastructure.Persistence;
 using Content.Infrastructure.Persistence;
 using Courses.Infrastructure.Persistence;
@@ -13,6 +14,7 @@ using Tests.Infrastructure.Persistence;
 
 namespace EduPlatform.Host.Services;
 
+// Сервис UserDeletionGuard инкапсулирует прикладную операцию и скрывает детали инфраструктуры.
 public class UserDeletionGuard : IUserDeletionGuard
 {
     private readonly CoursesDbContext _coursesDbContext;

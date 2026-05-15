@@ -1,6 +1,8 @@
+// register.component.scss
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/mixins' as *;
 
+// Стили регистрации оформляют auth-layout, карточку формы, выбор роли, ошибки полей и мобильную адаптацию.
 .auth-layout {
   display: flex;
   min-height: 100vh;
@@ -13,6 +15,7 @@
     justify-content: center;
     padding: $spacing-12 $spacing-8;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @include respond-to(lg) {
       display: none;
     }
@@ -99,7 +102,7 @@
   }
 }
 
-// Form Card
+// Карточка формы.
 .auth-form-card {
   background: $bg-card;
   border-radius: $radius-xl;
@@ -133,7 +136,7 @@
   }
 }
 
-// Role selector
+// Выбор роли.
 .role-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -154,6 +157,7 @@
     transition: all $transition-fast;
     font-family: $font-family;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--active {
       background: $bg-card;
       color: $primary;
@@ -167,7 +171,7 @@
   }
 }
 
-// Form
+// Форма.
 .auth-form {
   display: flex;
   flex-direction: column;

@@ -1,11 +1,14 @@
+// assignment-grading.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .grading-page {
   display: grid;
   grid-template-columns: 340px 1fr;
   height: calc(100vh - v.$header-height);
   overflow: hidden;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: v.$breakpoint-lg) {
     grid-template-columns: 280px 1fr;
   }
@@ -16,7 +19,7 @@
     overflow: visible;
   }
 
-  // ── Left panel ──────────────────────────────────────────────────────────
+  // Стили следующей секции интерфейса.
 
   &__left {
     border-right: 1px solid v.$border-color;
@@ -79,7 +82,7 @@
     opacity: 0.6;
   }
 
-  // ── Right panel ─────────────────────────────────────────────────────────
+  // Стили следующей секции интерфейса.
 
   &__right {
     overflow-y: auto;
@@ -113,7 +116,7 @@
   }
 }
 
-// Filter tabs
+// Вкладки фильтрации.
 .filter-tabs {
   display: flex;
   padding: v.$spacing-3 v.$spacing-4;
@@ -134,6 +137,7 @@
     transition: all v.$transition-fast;
     white-space: nowrap;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--active {
       background: v.$primary;
       color: v.$primary-foreground;
@@ -147,7 +151,7 @@
   }
 }
 
-// Submission list
+// Список сдач.
 .submission-list {
   flex: 1;
   overflow-y: auto;
@@ -235,7 +239,7 @@
   }
 }
 
-// Review panel
+// Панель проверки.
 .review-panel {
   padding: v.$spacing-6;
   display: flex;
@@ -317,7 +321,7 @@
   }
 }
 
-// Grading form
+// Форма оценивания.
 .grading-form {
   background: v.$bg-card;
   border: 1px solid v.$border-color;

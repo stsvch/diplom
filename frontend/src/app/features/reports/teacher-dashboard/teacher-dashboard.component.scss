@@ -1,144 +1,24 @@
+// teacher-dashboard.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .teacher-dashboard {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
+  gap: $spacing-6;
   padding: $spacing-4;
   font-family: $font-family;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (min-width: $breakpoint-lg) {
     padding: $spacing-8;
   }
 }
 
 // ─────────────────────────────────────────────
-// Hero — amber/orange gradient
-// ─────────────────────────────────────────────
-.hero {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: $spacing-6;
-  padding: $spacing-6;
-  border-radius: $radius-3xl;
-  background: linear-gradient(135deg, $amber-500 0%, $orange-500 50%, $rose-500 100%);
-  color: #fff;
-  overflow: hidden;
-  isolation: isolate;
-
-  @media (min-width: $breakpoint-lg) {
-    grid-template-columns: 1.6fr 1fr;
-    align-items: center;
-    padding: $spacing-8;
-  }
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(48px);
-    pointer-events: none;
-    z-index: -1;
-  }
-  &::before {
-    top: -32px; right: -32px;
-    width: 192px; height: 192px;
-    background: rgba(#fff, 0.10);
-  }
-  &::after {
-    bottom: 0; left: 25%;
-    width: 160px; height: 160px;
-    background: rgba(#000, 0.10);
-  }
-
-  &__copy {
-    h1 {
-      font-size: clamp(1.4rem, 3vw, 1.8rem);
-      font-weight: $font-weight-extrabold;
-      color: #fff;
-      margin: $spacing-2 0;
-      letter-spacing: -0.02em;
-    }
-  }
-
-  &__eyebrow {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: $radius-full;
-    background: rgba(#fff, 0.20);
-    color: #fff;
-    font-size: 11px;
-    font-weight: $font-weight-bold;
-    letter-spacing: 0.05em;
-    margin: 0;
-    text-transform: uppercase;
-  }
-
-  &__text {
-    color: rgba(#fff, 0.85);
-    font-size: $font-size-sm;
-    line-height: 1.65;
-    max-width: 28rem;
-    margin: 0;
-  }
-
-  &__earnings {
-    padding: $spacing-5;
-    border-radius: $radius-2xl;
-    background: rgba(#fff, 0.10);
-    border: 1px solid rgba(#fff, 0.20);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  &__value {
-    font-size: clamp(1.6rem, 2.5vw, 2.1rem);
-    font-weight: $font-weight-extrabold;
-    color: #fff;
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  &__label {
-    color: #fff;
-    font-weight: $font-weight-bold;
-    font-size: $font-size-sm;
-  }
-
-  &__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-2;
-    margin-top: $spacing-3;
-  }
-
-  &__chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 10px;
-    border-radius: $radius-full;
-    background: rgba(#fff, 0.15);
-    color: rgba(#fff, 0.85);
-    font-size: $font-size-xs;
-    font-weight: $font-weight-medium;
-
-    &--accent {
-      background: rgba(#fff, 0.25);
-      color: #fff;
-    }
-  }
-}
-
-// ─────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────
+// Состояние.
 .state {
   padding: $spacing-6;
   border: 1px dashed $slate-300;
@@ -150,6 +30,7 @@
   justify-content: space-between;
   gap: $spacing-3;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--error {
     color: $red-600;
     border-color: $red-100;
@@ -172,31 +53,38 @@
 }
 
 // ─────────────────────────────────────────────
-// Stats grid
-// ─────────────────────────────────────────────
+// Сетка статистики.
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  align-items: stretch;
   gap: $spacing-4;
 
-  @media (min-width: $breakpoint-sm) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (min-width: $breakpoint-lg) {
-    grid-template-columns: repeat(4, 1fr);
+  app-stats-card {
+    min-width: 0;
   }
 }
 
 // ─────────────────────────────────────────────
-// Two-col grid
-// ─────────────────────────────────────────────
+// Двухколоночная сетка.
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-6;
+  align-items: stretch;
 
   @media (min-width: $breakpoint-lg) {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.dashboard-grid__stack {
+  display: grid;
+  gap: $spacing-6;
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    min-height: 640px;
   }
 }
 
@@ -204,11 +92,21 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-4;
+  min-width: 0;
+  padding: $spacing-5;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid $slate-100;
+  border-radius: $radius-2xl;
+  box-shadow: $shadow-sm;
 
   &--courses {
     @media (min-width: $breakpoint-lg) {
-      grid-row: span 3;
+      min-height: 640px;
     }
+  }
+
+  &--reviews {
+    min-height: 0;
   }
 }
 
@@ -224,7 +122,6 @@
   color: $slate-400;
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -286,15 +183,14 @@
 }
 
 // ─────────────────────────────────────────────
-// Course cards
-// ─────────────────────────────────────────────
+// Карточки курсов.
 .course-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-4;
 
   @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   }
 }
 
@@ -302,6 +198,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-4;
+  min-height: 232px;
   padding: $spacing-5;
   background: #fff;
   border: 1px solid $slate-100;
@@ -381,13 +278,22 @@
 }
 
 // ─────────────────────────────────────────────
-// Review queue + Sessions
-// ─────────────────────────────────────────────
+// Очередь проверки и занятия.
 .review-list,
 .session-list {
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
+}
+
+.review-list {
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+
+  @media (min-width: $breakpoint-lg) {
+    max-height: 438px;
+  }
 }
 
 .review-item,
@@ -463,8 +369,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Earnings cards
-// ─────────────────────────────────────────────
+// Карточки доходов.
 .earnings-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -479,8 +384,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: $spacing-5;
-  border-radius: $radius-2xl;
+  min-width: 0;
+  padding: $spacing-4;
+  border-radius: $radius-xl;
   border: 1px solid;
   background: #fff;
 
@@ -491,10 +397,9 @@
   }
 
   strong {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: $font-weight-extrabold;
     line-height: 1;
-    letter-spacing: -0.02em;
   }
 
   &--ready {
@@ -515,8 +420,7 @@
 }
 
 // ─────────────────────────────────────────────
-// Pills
-// ─────────────────────────────────────────────
+// Плашки.
 .pill {
   display: inline-flex;
   align-items: center;
@@ -532,7 +436,7 @@
   &--neutral { background: $slate-100; color: $slate-600;  }
 }
 
-// Mobile
+// Мобильная версия.
 @media (max-width: $breakpoint-md) {
   .course-card__footer,
   .review-item,

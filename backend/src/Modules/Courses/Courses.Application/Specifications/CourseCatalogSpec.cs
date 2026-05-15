@@ -1,9 +1,12 @@
+// CourseCatalogSpec.cs
+
 using Ardalis.Specification;
 using Courses.Domain.Entities;
 using Courses.Domain.Enums;
 
 namespace Courses.Application.Specifications;
 
+// Specification class: инкапсулирует фильтры, сортировку и include-ы для запросов курсов.
 public class CourseCatalogSpec : Specification<Course>
 {
     public CourseCatalogSpec(

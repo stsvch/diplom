@@ -1,8 +1,10 @@
+// fill-gap-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { FillGapBlockData, FillGapSentence, FillGapSlot } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-fill-gap-editor',
   standalone: true,

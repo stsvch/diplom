@@ -1,3 +1,5 @@
+// index.ts
+// Баррельный файл собирает публичные экспорты модуля в одной точке.
 export * from './block-host/block-host.component';
 export * from './block-inserter/block-inserter.component';
 export * from './block-type-menu/block-type-menu.component';

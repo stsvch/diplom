@@ -1,3 +1,4 @@
+// Файл: NotificationsModuleRegistration.cs
 using EduPlatform.Shared.Application.Contracts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Notifications.Infrastructure.Services;
 
 namespace Notifications.Infrastructure.Configuration;
 
+// DI-регистрация NotificationsModuleRegistration подключает DbContext, сервисы и MediatR-обработчики модуля.
 public static class NotificationsModuleRegistration
 {
     public static IServiceCollection AddNotificationsModule(this IServiceCollection services, IConfiguration configuration)

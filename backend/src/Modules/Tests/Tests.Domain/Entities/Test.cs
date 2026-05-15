@@ -1,7 +1,12 @@
+// Test.cs
+
 using EduPlatform.Shared.Domain;
 
 namespace Tests.Domain.Entities;
 
+/// <summary>
+/// Тип Test относится к основному сценарию модуля и документирует его публичный контракт.
+/// </summary>
 public class Test : BaseEntity, IAuditableEntity
 {
     public Guid? CourseId { get; set; }

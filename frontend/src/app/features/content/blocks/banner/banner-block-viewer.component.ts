@@ -1,6 +1,8 @@
+// banner-block-viewer.component.ts
 import { Component, Input } from '@angular/core';
 import { BannerBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-banner-block-viewer',
   standalone: true,

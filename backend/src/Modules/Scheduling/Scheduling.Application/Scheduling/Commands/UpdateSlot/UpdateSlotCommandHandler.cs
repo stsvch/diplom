@@ -1,3 +1,5 @@
+// UpdateSlotCommandHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -10,6 +12,9 @@ using Scheduling.Domain.Enums;
 
 namespace Scheduling.Application.Scheduling.Commands.UpdateSlot;
 
+/// <summary>
+/// Обработчик CQRS-команды UpdateSlotCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class UpdateSlotCommandHandler : IRequestHandler<UpdateSlotCommand, Result<ScheduleSlotDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -23,6 +28,7 @@ public class UpdateSlotCommandHandler : IRequestHandler<UpdateSlotCommand, Resul
         _calendar = calendar;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<ScheduleSlotDto>> Handle(UpdateSlotCommand request, CancellationToken cancellationToken)
     {
         var slot = await _context.ScheduleSlots

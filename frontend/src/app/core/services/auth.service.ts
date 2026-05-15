@@ -1,3 +1,4 @@
+// auth.service.ts
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -21,6 +22,7 @@ export interface RegisterData {
 const TOKEN_KEY = 'access_token';
 const USER_KEY = 'current_user';
 
+// Сервис авторизации хранит access token и профиль в Signals/localStorage, вызывает auth API и управляет переходами после входа/выхода.
 @Injectable({
   providedIn: 'root',
 })
@@ -28,6 +30,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
+  // currentUser/accessToken держат авторизованную сессию, а computed-поля дают guard-ам готовые признаки доступа.
   readonly currentUser = signal<User | null>(null);
   readonly accessToken = signal<string | null>(null);
 
@@ -44,7 +47,8 @@ export class AuthService {
 
   private restoreSession(): void {
     if (this.ensureSessionRestored()) {
-      // Validate token by fetching fresh profile
+      // При старте восстанавливаем token/user из localStorage и сразу сверяем профиль с backend.
+      // Ошибка 401/403 означает, что локальную сессию нужно очистить.
       this.fetchProfile().subscribe({
         error: (error: unknown) => {
           if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
@@ -150,6 +154,7 @@ export class AuthService {
   }
 
   fetchProfile(): Observable<User> {
+    // fetchProfile обновляет currentUser и localStorage после login/refresh или ручного восстановления сессии.
     return this.http.get<User>(`${environment.apiUrl}/users/me`).pipe(
       tap((user) => {
         this.currentUser.set(user);

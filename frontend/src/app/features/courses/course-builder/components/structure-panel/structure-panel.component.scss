@@ -1,5 +1,7 @@
+// structure-panel.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 :host {
   display: block;
   height: 100%;
@@ -40,6 +42,7 @@
   cursor: pointer;
   transition: background $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover { background: $indigo-50; color: $indigo-700; }
 }
 
@@ -99,7 +102,7 @@
   &::-webkit-scrollbar-thumb { background: $slate-200; border-radius: $radius-full; }
 }
 
-// ── Empty state ──
+// Пустое состояние.
 .sp__empty {
   display: flex;
   flex-direction: column;
@@ -147,7 +150,7 @@
   &:hover { background: $indigo-100; }
 }
 
-// ── Section ──
+// Секция.
 .sp__section {
   margin-bottom: $spacing-1;
 
@@ -295,7 +298,7 @@
   &:hover { background: $red-50; color: $red-500; }
 }
 
-// ── Items ──
+// Элементы.
 .sp__items {
   padding-left: $spacing-4;
 }
@@ -480,7 +483,7 @@
   &--ready { color: $emerald-500; }
 }
 
-// ── Add item button + menu ──
+// Кнопка и меню добавления элемента.
 .sp__add-wrapper {
   position: relative;
 }
@@ -600,7 +603,7 @@
   margin-top: 2px;
 }
 
-// ── Footer ──
+// Подвал.
 .sp__footer {
   padding: $spacing-3 $spacing-4;
   border-top: 1px solid $slate-100;
@@ -629,7 +632,7 @@
   }
 }
 
-// ── Mobile close button ──
+// Кнопка закрытия на мобильных.
 .sp__close-mobile {
   display: none;
   position: absolute;
@@ -647,6 +650,7 @@
 
   &:hover { background: $slate-100; color: $slate-700; }
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: 1023px) {
     display: inline-flex;
   }

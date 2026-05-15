@@ -1,3 +1,5 @@
+// calendar.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export enum CalendarEventType {
   Deadline = 'Deadline',
   Lesson = 'Lesson',

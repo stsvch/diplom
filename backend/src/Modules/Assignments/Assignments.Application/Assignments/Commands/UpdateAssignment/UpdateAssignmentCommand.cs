@@ -1,3 +1,5 @@
+// UpdateAssignmentCommand.cs
+
 using Assignments.Application.DTOs;
 using Assignments.Domain.Enums;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,9 @@ using MediatR;
 
 namespace Assignments.Application.Assignments.Commands.UpdateAssignment;
 
+/// <summary>
+/// Команда обновления несёт id задания, id автора и новые значения полей; CriteriaItems=null означает оставить критерии без изменений.
+/// </summary>
 public record UpdateAssignmentCommand(
     Guid Id,
     string CreatedById,

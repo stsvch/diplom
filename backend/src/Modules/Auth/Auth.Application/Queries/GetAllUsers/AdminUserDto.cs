@@ -1,5 +1,7 @@
+// AdminUserDto.cs
 namespace Auth.Application.Queries.GetAllUsers;
 
+// Строка пользователя для админ-панели: id, email, ФИО, роль, блокировка, подтверждение email и дата создания.
 public class AdminUserDto
 {
     public string Id { get; set; } = string.Empty;

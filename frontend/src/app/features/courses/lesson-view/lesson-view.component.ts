@@ -1,5 +1,9 @@
+// lesson-view.component.ts
 import {
   Component,
+  ChangeDetectorRef,
+  EventEmitter,
+  Output,
   inject,
   signal,
   OnInit,
@@ -30,6 +34,7 @@ interface BlockWithAttempt {
   lastResult: SubmitAttemptResult | null;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-lesson-view',
   standalone: true,
@@ -44,13 +49,18 @@ export class LessonViewComponent implements OnInit, OnDestroy {
   private readonly progressService = inject(ProgressService);
   private readonly toast = inject(ToastService);
   private readonly previewMode = inject(PreviewModeService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly isPreview = this.previewMode.isPreview;
 
   private readonly destroy$ = new Subject<void>();
 
+  @Output() loaded = new EventEmitter<void>();
+
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   lessonId = signal('');
   loading = signal(true);
+  loadError = signal<string | null>(null);
   entries = signal<BlockWithAttempt[]>([]);
   progress = signal<ContentLessonProgressDto | null>(null);
   manualProgress = signal<ManualLessonProgressDto | null>(null);
@@ -63,6 +73,7 @@ export class LessonViewComponent implements OnInit, OnDestroy {
     !this.isPreview() && !(this.progress()?.isCompleted ?? false),
   );
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     this.route.paramMap
       .pipe(takeUntil(this.destroy$))
@@ -74,6 +85,7 @@ export class LessonViewComponent implements OnInit, OnDestroy {
       });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -81,20 +93,25 @@ export class LessonViewComponent implements OnInit, OnDestroy {
 
   private load() {
     this.loading.set(true);
-    this.contentService.getByLesson(this.lessonId()).subscribe({
+    this.loadError.set(null);
+    this.entries.set([]);
+    this.progress.set(null);
+    this.manualProgress.set(null);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
+    this.contentService.getByLesson(this.lessonId()).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blocks) => {
         if (blocks.length === 0) {
           this.entries.set([]);
-          this.loading.set(false);
+          this.finishLoading();
           return;
         }
         if (this.isPreview()) {
           this.entries.set(blocks.map((b) => ({ block: b, attempt: null, lastResult: null })));
-          this.loading.set(false);
+          this.finishLoading();
           return;
         }
         const attemptRequests = blocks.map((b) => this.attemptsService.getMyAttempt(b.id));
-        forkJoin(attemptRequests).subscribe({
+        forkJoin(attemptRequests).pipe(takeUntil(this.destroy$)).subscribe({
           next: (attempts) => {
             const combined = blocks.map((b, i) => ({
               block: b,
@@ -103,27 +120,37 @@ export class LessonViewComponent implements OnInit, OnDestroy {
             }));
             this.entries.set(combined);
             this.loadProgress();
-            this.loading.set(false);
+            this.finishLoading();
           },
           error: () => {
             this.entries.set(blocks.map((b) => ({ block: b, attempt: null, lastResult: null })));
-            this.loading.set(false);
+            this.finishLoading();
           },
         });
       },
       error: (err) => {
         const e = err.error as ApiError | undefined;
-        this.toast.error(e?.message ?? 'Не удалось загрузить урок');
-        this.loading.set(false);
+        const message = e?.message ?? 'Не удалось загрузить урок';
+        this.loadError.set(message);
+        this.toast.error(message);
+        this.finishLoading();
       },
     });
+  }
+
+  retryLoad(): void {
+    if (!this.lessonId()) {
+      return;
+    }
+
+    this.load();
   }
 
   private loadProgress() {
     forkJoin({
       content: this.attemptsService.getMyLessonProgress(this.lessonId()),
       manual: this.progressService.getLessonProgress(this.lessonId()),
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: ({ content, manual }) => {
         this.progress.set(content);
         this.manualProgress.set(manual);
@@ -133,6 +160,12 @@ export class LessonViewComponent implements OnInit, OnDestroy {
         this.manualProgress.set(null);
       },
     });
+  }
+
+  private finishLoading(): void {
+    this.loading.set(false);
+    this.loaded.emit();
+    this.changeDetector.detectChanges();
   }
 
   toggleCompletion() {

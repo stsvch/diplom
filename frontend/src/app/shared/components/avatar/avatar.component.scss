@@ -1,5 +1,7 @@
+// avatar.component.scss
 @use '../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .avatar {
   display: inline-flex;
   align-items: center;
@@ -10,6 +12,7 @@
   overflow: hidden;
   flex-shrink: 0;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &--sm {
     width: 28px;
     height: 28px;

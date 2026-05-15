@@ -1,7 +1,9 @@
+// IChatBroadcaster.cs
 using Messaging.Application.DTOs;
 
 namespace Messaging.Application.Interfaces;
 
+// Контракт application-слоя отделяет бизнес-сценарии от конкретной инфраструктуры.
 public interface IChatBroadcaster
 {
     Task MessageSentAsync(string chatId, MessageDto message, IReadOnlyCollection<string> participantIds);

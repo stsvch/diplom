@@ -1,7 +1,12 @@
+// CreateTestCommandValidator.cs
+
 using FluentValidation;
 
 namespace Tests.Application.Tests.Commands.CreateTest;
 
+/// <summary>
+/// Валидатор FluentValidation для CreateTestCommand: проверяет входные данные до выполнения handler-а.
+/// </summary>
 public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
 {
     public CreateTestCommandValidator()

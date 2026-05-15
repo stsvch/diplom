@@ -1,3 +1,5 @@
+// TestsDbContext.cs
+
 using EduPlatform.Shared.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Tests.Application.Interfaces;
@@ -6,18 +8,23 @@ using Tests.Domain.Enums;
 
 namespace Tests.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core DbContext модуля задаёт DbSet-ы, схему БД и конфигурацию сущностей.
+/// </summary>
 public class TestsDbContext : BaseDbContext, ITestsDbContext
 {
     public TestsDbContext(DbContextOptions<TestsDbContext> options) : base(options)
     {
     }
 
+    // DbSet-ы открывают агрегаты модуля для command/query handlers и read services.
     public DbSet<Test> Tests => Set<Test>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<AnswerOption> AnswerOptions => Set<AnswerOption>();
     public DbSet<TestAttempt> TestAttempts => Set<TestAttempt>();
     public DbSet<TestResponse> TestResponses => Set<TestResponse>();
 
+    // EF-конфигурация схемы, ограничений, индексов и связей модуля.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

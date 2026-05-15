@@ -1,5 +1,7 @@
+// lesson-view.component.scss
 @use '../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .view-page {
   display: flex;
   flex-direction: column;
@@ -16,6 +18,7 @@
     align-items: center;
     gap: $spacing-4;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--done {
       background: $success-light;
     }
@@ -93,6 +96,84 @@
   color: $text-muted;
 }
 
+.lesson-loading {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-5;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  &__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $indigo-100;
+    border-top-color: $primary;
+    border-radius: $radius-full;
+    animation: lv-spin 0.9s linear infinite;
+    flex: 0 0 auto;
+  }
+
+  &__title {
+    margin: 0;
+    color: $text-foreground;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__hint {
+    margin: $spacing-1 0 0;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+}
+
+.lesson-state {
+  padding: $spacing-8 $spacing-5;
+  text-align: center;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  &--error {
+    border-color: $danger;
+    background: $danger-light;
+  }
+
+  &__title {
+    margin: 0;
+    color: $text-foreground;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__text {
+    margin: $spacing-2 auto 0;
+    max-width: 520px;
+    color: $text-secondary;
+    font-size: $font-size-sm;
+  }
+
+  &__action {
+    margin-top: $spacing-4;
+    border: 1px solid $primary;
+    border-radius: $radius-md;
+    background: $primary;
+    color: #fff;
+    cursor: pointer;
+    font-weight: $font-weight-semibold;
+    padding: $spacing-2 $spacing-4;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: $primary-hover;
+      border-color: $primary-hover;
+    }
+  }
+}
+
 .lv-skel {
   display: flex;
   flex-direction: column;
@@ -131,6 +212,10 @@
 @keyframes lv-skel-pulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.5; }
+}
+
+@keyframes lv-spin {
+  to { transform: rotate(360deg); }
 }
 
 .feedback {

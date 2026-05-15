@@ -1,5 +1,7 @@
+// duration.pipe.ts
 import { Pipe, PipeTransform } from '@angular/core';
 
+// Pipe форматирует значение для безопасного и единообразного вывода в шаблонах.
 @Pipe({
   name: 'duration',
   standalone: true,

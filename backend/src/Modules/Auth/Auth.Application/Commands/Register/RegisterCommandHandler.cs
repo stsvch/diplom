@@ -1,3 +1,4 @@
+// RegisterCommandHandler.cs
 using Auth.Application.Interfaces;
 using Auth.Domain.Entities;
 using EduPlatform.Shared.Domain;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Auth.Application.Commands.Register;
 
+// Обработчик сценария: регистрирует студента или преподавателя, проверяет настройки платформы, создаёт Identity-пользователя и отправляет письмо подтверждения.
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<string>>
 {
     private readonly UserManager<ApplicationUser> _userManager;

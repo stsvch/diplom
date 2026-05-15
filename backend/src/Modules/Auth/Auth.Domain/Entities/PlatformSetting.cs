@@ -1,5 +1,7 @@
+// PlatformSetting.cs
 namespace Auth.Domain.Entities;
 
+// Singleton-настройки платформы: запись с Id=1 управляет регистрацией, режимом обслуживания, названием платформы и email поддержки.
 public class PlatformSetting
 {
     public const int SingletonId = 1;

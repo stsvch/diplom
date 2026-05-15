@@ -1,3 +1,4 @@
+// reset-password.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -14,6 +15,7 @@ function passwordMatchValidator(ctrl: AbstractControl): ValidationErrors | null 
   return null;
 }
 
+// Экран сброса берёт email/token из query-параметров, принимает новый пароль и завершает восстановление аккаунта.
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -22,6 +24,7 @@ function passwordMatchValidator(ctrl: AbstractControl): ValidationErrors | null 
   styleUrl: './reset-password.component.scss',
 })
 export class ResetPasswordComponent implements OnInit {
+  // DI-зависимости читают query-параметры, строят форму, вызывают сброс пароля и переводят к login.
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -34,6 +37,7 @@ export class ResetPasswordComponent implements OnInit {
   readonly EyeOffIcon = EyeOff;
   readonly ArrowLeftIcon = ArrowLeft;
 
+  // Signals хранят состояние отправки, видимость паролей и ошибку отсутствующих email/token.
   readonly loading = signal(false);
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
@@ -50,6 +54,7 @@ export class ResetPasswordComponent implements OnInit {
     { validators: passwordMatchValidator },
   );
 
+  // При открытии страницы достаём email и token из ссылки восстановления; без них сброс невозможен.
   ngOnInit(): void {
     this.email = this.route.snapshot.queryParamMap.get('email') ?? '';
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
@@ -91,6 +96,7 @@ export class ResetPasswordComponent implements OnInit {
     }
     const { newPassword } = this.form.value;
     this.loading.set(true);
+    // При submit новый пароль отправляется вместе с token/email, после успеха пользователь возвращается к login.
     this.authService.resetPassword(this.email, this.token, newPassword!).subscribe({
       next: () => {
         this.loading.set(false);

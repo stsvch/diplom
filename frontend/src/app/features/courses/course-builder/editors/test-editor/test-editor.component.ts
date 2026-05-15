@@ -1,3 +1,4 @@
+// test-editor.component.ts
 import { Component, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -46,6 +47,7 @@ interface QuestionTypeOption {
   color: 'orange' | 'amber' | 'blue' | 'violet';
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-test-editor',
   standalone: true,
@@ -93,6 +95,7 @@ export class TestEditorComponent implements OnDestroy {
     { type: 'Code',           label: 'Код',               desc: 'Студент пишет код — вручную или по эталонному выводу',  icon: CodeIcon, gradeType: 'Manual', color: 'violet' },
   ];
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly item = computed(() => this.store.selectedItem());
   readonly section = computed(() => this.store.selectedSection());
 
@@ -142,6 +145,7 @@ export class TestEditorComponent implements OnDestroy {
       .subscribe();
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -151,6 +155,7 @@ export class TestEditorComponent implements OnDestroy {
 
   private loadTest(testId: string): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.api.getTest(testId).subscribe({
       next: (t) => {
         this.test.set({ ...t, questions: [...t.questions].sort((a, b) => a.orderIndex - b.orderIndex) });

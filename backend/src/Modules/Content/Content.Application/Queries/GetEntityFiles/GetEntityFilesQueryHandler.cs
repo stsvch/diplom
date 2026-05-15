@@ -1,3 +1,5 @@
+// GetEntityFilesQueryHandler.cs
+
 using AutoMapper;
 using Content.Application.DTOs;
 using Content.Application.Interfaces;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Content.Application.Queries.GetEntityFiles;
 
+// Тип class: ключевой элемент файла GetEntityFilesQueryHandler.cs.
 public class GetEntityFilesQueryHandler : IRequestHandler<GetEntityFilesQuery, List<AttachmentDto>>
 {
     private readonly IContentDbContext _context;
@@ -18,6 +21,7 @@ public class GetEntityFilesQueryHandler : IRequestHandler<GetEntityFilesQuery, L
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<List<AttachmentDto>> Handle(GetEntityFilesQuery request, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<AttachmentEntityType>(request.EntityType, ignoreCase: true, out var entityType))

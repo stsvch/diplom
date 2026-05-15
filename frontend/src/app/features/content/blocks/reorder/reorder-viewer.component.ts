@@ -1,3 +1,4 @@
+// reorder-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import {
   ReorderBlockData,
@@ -5,6 +6,7 @@ import {
   LessonBlockAttemptDto,
 } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-reorder-viewer',
   standalone: true,
@@ -71,11 +73,13 @@ export class ReorderViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<ReorderAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   order = signal<string[]>([]);
   submitted = signal(false);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && this.attempt.answers.type === 'Reorder') {
       this.order.set([...this.attempt.answers.order]);

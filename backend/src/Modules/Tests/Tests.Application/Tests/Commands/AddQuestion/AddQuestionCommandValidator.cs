@@ -1,7 +1,12 @@
+// AddQuestionCommandValidator.cs
+
 using FluentValidation;
 
 namespace Tests.Application.Tests.Commands.AddQuestion;
 
+/// <summary>
+/// Валидатор FluentValidation для AddQuestionCommand: проверяет входные данные до выполнения handler-а.
+/// </summary>
 public class AddQuestionCommandValidator : AbstractValidator<AddQuestionCommand>
 {
     public AddQuestionCommandValidator()

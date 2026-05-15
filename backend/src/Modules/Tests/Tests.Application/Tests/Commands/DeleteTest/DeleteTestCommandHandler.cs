@@ -1,3 +1,5 @@
+// DeleteTestCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -6,6 +8,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Tests.Commands.DeleteTest;
 
+/// <summary>
+/// Обработчик CQRS-команды DeleteTestCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class DeleteTestCommandHandler : IRequestHandler<DeleteTestCommand, Result<string>>
 {
     private readonly ITestsDbContext _context;
@@ -22,6 +27,7 @@ public class DeleteTestCommandHandler : IRequestHandler<DeleteTestCommand, Resul
         _grades = grades;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(DeleteTestCommand request, CancellationToken cancellationToken)
     {
         var test = await _context.Tests

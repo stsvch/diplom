@@ -1,3 +1,4 @@
+// login.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,6 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ApiError } from '../../../core/models/api-error.model';
 
+// Экран входа собирает email/пароль, показывает локальные ошибки формы и передаёт данные в AuthService.login.
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -14,6 +16,7 @@ import { ApiError } from '../../../core/models/api-error.model';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  // DI-зависимости отвечают за построение формы, вызов auth API и показ toast-уведомлений.
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
@@ -27,6 +30,7 @@ export class LoginComponent {
   readonly MailIcon = Mail;
   readonly LockIcon = Lock;
 
+  // loading блокирует повторную отправку, showPassword переключает тип password/input в шаблоне.
   readonly loading = signal(false);
   readonly showPassword = signal(false);
 
@@ -64,6 +68,7 @@ export class LoginComponent {
     }
     const { email, password } = this.form.value;
     this.loading.set(true);
+    // При submit компонент валидирует форму, вызывает login и показывает toast; переход на нужный dashboard выполняет AuthService.
     this.authService.login(email!, password!).subscribe({
       next: () => {
         this.loading.set(false);

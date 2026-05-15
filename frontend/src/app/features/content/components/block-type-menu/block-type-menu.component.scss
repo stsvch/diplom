@@ -1,5 +1,7 @@
+// block-type-menu.component.scss
 @use '../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .menu {
   background: $bg-card;
   border: 1px solid $border-color;
@@ -68,6 +70,7 @@
   color: $text-foreground;
   transition: background-color $transition-fast;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover,
   &:focus-visible {
     background: $bg-muted;

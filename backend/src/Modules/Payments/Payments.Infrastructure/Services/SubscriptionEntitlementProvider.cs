@@ -1,3 +1,4 @@
+// SubscriptionEntitlementProvider.cs
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Payments.Application.Interfaces;
@@ -6,6 +7,7 @@ using Payments.Domain.Enums;
 
 namespace Payments.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class SubscriptionEntitlementProvider : ISubscriptionEntitlementProvider
 {
     private readonly IPaymentsDbContext _context;

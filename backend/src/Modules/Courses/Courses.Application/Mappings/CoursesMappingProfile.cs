@@ -1,11 +1,15 @@
+// CoursesMappingProfile.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Domain.Entities;
 
 namespace Courses.Application.Mappings;
 
+// AutoMapper-профиль class: группирует правила преобразования доменных моделей и DTO.
 public class CoursesMappingProfile : Profile
 {
+    // Здесь описаны преобразования между доменными сущностями и DTO application layer.
     public CoursesMappingProfile()
     {
         CreateMap<Discipline, DisciplineDto>()

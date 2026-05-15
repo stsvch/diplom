@@ -1,5 +1,7 @@
+// test-result.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .test-result {
   padding: v.$spacing-6;
   max-width: 760px;
@@ -18,7 +20,7 @@
   }
 }
 
-// Score card
+// Карточка результата.
 .score-card {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -29,6 +31,7 @@
   gap: v.$spacing-8;
   flex-wrap: wrap;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: v.$breakpoint-sm) {
     flex-direction: column;
     text-align: center;
@@ -46,6 +49,7 @@
     flex-shrink: 0;
     background: v.$bg-muted;
 
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &--passed {
       border-color: v.$success;
       background: v.$success-light;
@@ -93,7 +97,7 @@
   max-width: 300px;
 }
 
-// Stats
+// Статистика.
 .stats-row {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -130,7 +134,7 @@
   }
 }
 
-// Breakdown
+// Детализация.
 .breakdown {
   display: flex;
   flex-direction: column;
@@ -242,7 +246,7 @@
   lucide-icon { flex-shrink: 0; margin-top: 1px; }
 }
 
-// Actions
+// Действия.
 .result-actions {
   display: flex;
   gap: v.$spacing-3;

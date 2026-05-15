@@ -1,3 +1,4 @@
+// CreateCourseChatCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -7,6 +8,7 @@ using Messaging.Application.Mappings;
 
 namespace Messaging.Application.Commands.CreateCourseChat;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record CreateCourseChatCommand(
     string OwnerId,
     string CourseId,
@@ -15,6 +17,7 @@ public record CreateCourseChatCommand(
     IReadOnlyList<string>? ParticipantNames
 ) : IRequest<Result<ChatDto>>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class CreateCourseChatValidator : AbstractValidator<CreateCourseChatCommand>
 {
     public CreateCourseChatValidator()
@@ -25,6 +28,7 @@ public class CreateCourseChatValidator : AbstractValidator<CreateCourseChatComma
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class CreateCourseChatCommandHandler : IRequestHandler<CreateCourseChatCommand, Result<ChatDto>>
 {
     private readonly IMessagingRepository _repository;

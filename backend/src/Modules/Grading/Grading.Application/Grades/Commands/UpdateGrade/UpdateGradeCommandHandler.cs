@@ -1,3 +1,5 @@
+// UpdateGradeCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -8,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grading.Application.Grades.Commands.UpdateGrade;
 
+/// <summary>
+/// Обработчик CQRS-команды UpdateGradeCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class UpdateGradeCommandHandler : IRequestHandler<UpdateGradeCommand, Result<GradeDto>>
 {
     private readonly IGradingDbContext _context;
@@ -19,6 +24,7 @@ public class UpdateGradeCommandHandler : IRequestHandler<UpdateGradeCommand, Res
         _notifications = notifications;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<GradeDto>> Handle(UpdateGradeCommand request, CancellationToken cancellationToken)
     {
         var grade = await _context.Grades.FirstOrDefaultAsync(g => g.Id == request.Id, cancellationToken);

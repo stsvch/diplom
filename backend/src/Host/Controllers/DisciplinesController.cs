@@ -1,3 +1,4 @@
+// Файл: DisciplinesController.cs
 using Courses.Application.Disciplines.Commands.CreateDiscipline;
 using Courses.Application.Disciplines.Commands.DeleteDiscipline;
 using Courses.Application.Disciplines.Commands.UpdateDiscipline;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер DisciplinesController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/disciplines")]
 public class DisciplinesController : ControllerBase
@@ -83,4 +85,5 @@ public class DisciplinesController : ControllerBase
     }
 }
 
+// API-модель UpdateDisciplineRequest фиксирует тело запроса или результат для действия контроллера.
 public record UpdateDisciplineRequest(string Name, string? Description, string? ImageUrl);

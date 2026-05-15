@@ -1,9 +1,12 @@
+// CodeExerciseRun.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Answers;
 using EduPlatform.Shared.Domain;
 
 namespace Content.Domain.Entities;
 
+// Доменная сущность class: хранит состояние, инварианты и связи бизнес-модели модуля Content.
 public class CodeExerciseRun : BaseEntity
 {
     public Guid BlockId { get; set; }

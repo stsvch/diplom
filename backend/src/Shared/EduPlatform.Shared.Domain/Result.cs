@@ -1,5 +1,7 @@
+// Файл: Result.cs
 namespace EduPlatform.Shared.Domain;
 
+// Результат операции Result представляет успешный или ошибочный исход операции.
 public class Result
 {
     public bool IsSuccess { get; }
@@ -18,6 +20,7 @@ public class Result
     public static Result<T> Failure<T>(string error) => new(default, false, error);
 }
 
+// Результат операции Result представляет успешный или ошибочный исход операции.
 public class Result<T> : Result
 {
     public T? Value { get; }

@@ -1,3 +1,4 @@
+// ChatAdminService.cs
 using EduPlatform.Shared.Application.Contracts;
 using Messaging.Application.DTOs;
 using Messaging.Application.Interfaces;
@@ -5,6 +6,7 @@ using Messaging.Domain.Documents;
 
 namespace Messaging.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class ChatAdminService : IChatAdmin
 {
     private readonly IMessagingRepository _repository;
@@ -63,6 +65,17 @@ public class ChatAdminService : IChatAdmin
 
         await _broadcaster.RemoveUserFromChatAsync(userId, chat.Id);
         await _broadcaster.ParticipantRemovedAsync(chat.Id, userId);
+    }
+
+    public async Task UpdateCourseChatNameAsync(
+        string courseId,
+        string courseName,
+        CancellationToken cancellationToken = default)
+    {
+        var chat = await _repository.GetByCourseIdAsync(courseId);
+        if (chat == null || chat.CourseName == courseName) return;
+
+        await _repository.UpdateCourseChatNameAsync(courseId, courseName);
     }
 
     public async Task DeleteCourseChatAsync(string courseId, CancellationToken cancellationToken = default)

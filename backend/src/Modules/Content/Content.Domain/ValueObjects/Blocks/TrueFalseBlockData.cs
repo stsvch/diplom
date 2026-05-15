@@ -1,7 +1,10 @@
+// TrueFalseBlockData.cs
+
 using Content.Domain.Enums;
 
 namespace Content.Domain.ValueObjects.Blocks;
 
+// Value object class: описывает структуру JSON-данных блока урока.
 public class TrueFalseBlockData : LessonBlockData
 {
     public override LessonBlockType Type => LessonBlockType.TrueFalse;

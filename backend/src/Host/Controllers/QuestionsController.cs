@@ -1,3 +1,4 @@
+// Файл: QuestionsController.cs
 using EduPlatform.Shared.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ using Tests.Domain.Enums;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер QuestionsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 public class QuestionsController : ControllerBase
 {
@@ -114,6 +116,7 @@ public class QuestionsController : ControllerBase
     }
 }
 
+// API-модель AddQuestionRequest фиксирует тело запроса или результат для действия контроллера.
 public record AddQuestionRequest(
     QuestionType Type,
     string Text,
@@ -123,6 +126,7 @@ public record AddQuestionRequest(
     string? Explanation = null,
     string? ExpectedAnswer = null);
 
+// API-модель AnswerOptionRequest фиксирует тело запроса или результат для действия контроллера.
 public record AnswerOptionRequest(string Text, bool IsCorrect, string? MatchingPairValue);
 
 public record UpdateQuestionRequest(

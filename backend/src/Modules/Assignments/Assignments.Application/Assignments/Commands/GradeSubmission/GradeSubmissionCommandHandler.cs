@@ -1,3 +1,5 @@
+// GradeSubmissionCommandHandler.cs
+
 using Assignments.Application.Interfaces;
 using Assignments.Domain.Enums;
 using EduPlatform.Shared.Application.Contracts;
@@ -8,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Assignments.Application.Assignments.Commands.GradeSubmission;
 
+/// <summary>
+/// Обработчик сценария: фиксирует оценку или возврат на доработку, синхронизирует журнал оценок и отправляет студенту уведомление.
+/// </summary>
 public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionCommand, Result<string>>
 {
     private readonly IAssignmentsDbContext _db;
@@ -24,6 +29,7 @@ public class GradeSubmissionCommandHandler : IRequestHandler<GradeSubmissionComm
         _notifications = notifications;
     }
 
+    // Последовательно выполняет сценарий: фиксирует оценку или возврат на доработку, синхронизирует журнал оценок и отправляет студенту уведомление.
     public async Task<Result<string>> Handle(GradeSubmissionCommand request, CancellationToken cancellationToken)
     {
         var submission = await _db.AssignmentSubmissions

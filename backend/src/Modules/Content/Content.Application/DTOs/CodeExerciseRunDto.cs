@@ -1,7 +1,10 @@
+// CodeExerciseRunDto.cs
+
 using Content.Domain.ValueObjects.Answers;
 
 namespace Content.Application.DTOs;
 
+// DTO class: передаёт данные наружу из application layer без раскрытия доменных сущностей.
 public class CodeExerciseRunDto
 {
     public Guid Id { get; set; }

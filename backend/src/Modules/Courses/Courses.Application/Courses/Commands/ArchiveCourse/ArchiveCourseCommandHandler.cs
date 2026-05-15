@@ -1,3 +1,5 @@
+// ArchiveCourseCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -5,6 +7,7 @@ using MediatR;
 
 namespace Courses.Application.Courses.Commands.ArchiveCourse;
 
+// Тип class: ключевой элемент файла ArchiveCourseCommandHandler.cs.
 public class ArchiveCourseCommandHandler : IRequestHandler<ArchiveCourseCommand, Result<string>>
 {
     private readonly ICoursesDbContext _context;
@@ -21,6 +24,7 @@ public class ArchiveCourseCommandHandler : IRequestHandler<ArchiveCourseCommand,
         _chatAdmin = chatAdmin;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<string>> Handle(ArchiveCourseCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses.FindAsync([request.Id], cancellationToken);

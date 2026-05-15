@@ -1,7 +1,9 @@
+// Файл: NotificationDto.cs
 using EduPlatform.Shared.Domain.Enums;
 
 namespace Notifications.Application.DTOs;
 
+// DTO NotificationDto переносит данные наружу без раскрытия доменной сущности.
 public class NotificationDto
 {
     public Guid Id { get; set; }

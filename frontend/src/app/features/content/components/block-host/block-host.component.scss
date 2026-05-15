@@ -1,5 +1,7 @@
+// block-host.component.scss
 @use '../../../../../styles/variables' as *;
 
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
 .block {
   position: relative;
   background: $bg-card;
@@ -10,6 +12,7 @@
   padding-left: $spacing-6 + $spacing-2;
   transition: box-shadow $transition-normal;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     box-shadow: $shadow-md;
 

@@ -1,9 +1,18 @@
+// stats-card.component.scss
 @use '../../../../styles/variables' as *;
+
+// Стили компонента описывают его контейнеры, элементы и интерактивные состояния.
+:host {
+  display: block;
+  height: 100%;
+}
 
 .stats-card {
   display: flex;
   align-items: flex-start;
   gap: $spacing-4;
+  height: 100%;
+  min-height: 104px;
   background: #fff;
   border: 1px solid $slate-100;
   border-radius: $radius-2xl;
@@ -12,6 +21,7 @@
   transition: box-shadow $transition-normal, transform $transition-normal;
   font-family: $font-family;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);

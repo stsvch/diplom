@@ -1,3 +1,5 @@
+// AttachmentCleaner.cs
+
 using Content.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Content.Infrastructure.Services;
 
+// Инфраструктурный сервис class: реализует внешний или межмодульный контракт.
 public class AttachmentCleaner : IAttachmentCleaner
 {
     private readonly IContentDbContext _context;

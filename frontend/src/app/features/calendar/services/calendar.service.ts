@@ -1,3 +1,4 @@
+// calendar.service.ts
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -16,6 +17,7 @@ export interface CreateCalendarEventDto {
   sourceId?: string;
 }
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +26,7 @@ export class CalendarService {
   private readonly signalR = inject(SignalRService);
   private readonly base = `${environment.apiUrl}/calendar`;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   private readonly _refreshTick = signal(0);
   readonly refreshTick = this._refreshTick.asReadonly();
 
@@ -39,6 +42,7 @@ export class CalendarService {
 
   getMonthEvents(year: number, month: number): Observable<CalendarEventDto[]> {
     const params = new HttpParams().set('year', String(year)).set('month', String(month));
+    // HTTP-вызов делегирует обмен с backend API и возвращает Observable вызывающему коду.
     return this.http.get<CalendarEventDto[]>(`${this.base}/events`, { params });
   }
 

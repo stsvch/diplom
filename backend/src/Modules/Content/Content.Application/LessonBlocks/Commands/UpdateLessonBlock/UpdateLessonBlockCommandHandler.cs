@@ -1,3 +1,5 @@
+// UpdateLessonBlockCommandHandler.cs
+
 using System.Text.Json;
 using AutoMapper;
 using Content.Application.DTOs;
@@ -9,6 +11,7 @@ using MediatR;
 
 namespace Content.Application.LessonBlocks.Commands.UpdateLessonBlock;
 
+// Тип class: ключевой элемент файла UpdateLessonBlockCommandHandler.cs.
 public class UpdateLessonBlockCommandHandler : IRequestHandler<UpdateLessonBlockCommand, Result<LessonBlockDto>>
 {
     private readonly IContentDbContext _context;
@@ -22,6 +25,7 @@ public class UpdateLessonBlockCommandHandler : IRequestHandler<UpdateLessonBlock
         _validator = validator;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<LessonBlockDto>> Handle(UpdateLessonBlockCommand request, CancellationToken cancellationToken)
     {
         var block = await _context.LessonBlocks.FindAsync([request.Id], cancellationToken);

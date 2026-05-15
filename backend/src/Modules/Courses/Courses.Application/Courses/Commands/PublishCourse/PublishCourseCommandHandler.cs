@@ -1,3 +1,5 @@
+// PublishCourseCommandHandler.cs
+
 using Courses.Application.Interfaces;
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
@@ -6,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Commands.PublishCourse;
 
+// Тип class: ключевой элемент файла PublishCourseCommandHandler.cs.
 public class PublishCourseCommandHandler : IRequestHandler<PublishCourseCommand, Result<PublishValidationResult>>
 {
     private readonly ICoursesDbContext _context;
@@ -22,6 +25,7 @@ public class PublishCourseCommandHandler : IRequestHandler<PublishCourseCommand,
         _teacherPayoutReadService = teacherPayoutReadService;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<PublishValidationResult>> Handle(PublishCourseCommand request, CancellationToken cancellationToken)
     {
         var course = await _context.Courses

@@ -1,3 +1,4 @@
+// SignalRChatBroadcaster.cs
 using Messaging.Application.DTOs;
 using Messaging.Application.Interfaces;
 using Messaging.Infrastructure.Hubs;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Messaging.Infrastructure.Services;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class SignalRChatBroadcaster : IChatBroadcaster
 {
     private readonly IHubContext<ChatHub> _hub;

@@ -1,3 +1,5 @@
+// reports.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface StudentDashboardSummaryDto {
   enrolledCourses: number;
   activeCourses: number;
@@ -6,7 +8,6 @@ export interface StudentDashboardSummaryDto {
   totalLessons: number;
   overallProgressPercent: number;
   averageGradePercent: number;
-  upcomingEventsCount: number;
 }
 
 export interface StudentDashboardCourseDto {

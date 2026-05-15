@@ -1,3 +1,4 @@
+// block-host.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
@@ -13,6 +14,7 @@ import {
 
 type BlockCategory = 'informational' | 'auto' | 'manual' | 'composite';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-block-host',
   standalone: true,

@@ -1,5 +1,7 @@
+// assignment-submit.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .assignment-submit {
   padding: v.$spacing-6;
   max-width: 860px;
@@ -17,6 +19,7 @@
     font-size: v.$font-size-sm;
     width: fit-content;
     transition: color v.$transition-fast;
+    // Состояния элемента описывают hover, active, disabled и похожие варианты.
     &:hover { color: v.$primary; }
   }
 
@@ -30,7 +33,7 @@
   }
 }
 
-// Assignment info card
+// Карточка информации о задании.
 .assignment-card {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -116,7 +119,7 @@
   }
 }
 
-// Previous submissions
+// Предыдущие сдачи.
 .submissions-section {
   &__title {
     font-size: v.$font-size-lg;
@@ -185,7 +188,7 @@
   }
 }
 
-// Submit form
+// Форма отправки.
 .submit-form {
   background: v.$bg-card;
   border: 1px solid v.$border-color;

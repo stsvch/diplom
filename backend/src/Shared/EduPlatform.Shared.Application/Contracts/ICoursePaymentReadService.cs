@@ -1,5 +1,7 @@
+// Файл: ICoursePaymentReadService.cs
 namespace EduPlatform.Shared.Application.Contracts;
 
+// Межмодульный контракт CoursePaymentInfo передаёт минимальные данные между контекстами модулей.
 public sealed record CoursePaymentInfo(
     Guid CourseId,
     string Title,
@@ -10,6 +12,7 @@ public sealed record CoursePaymentInfo(
     bool IsPublished,
     bool IsArchived);
 
+// Сервис чтения ICoursePaymentReadService собирает модель чтения для API без изменения состояния.
 public interface ICoursePaymentReadService
 {
     Task<CoursePaymentInfo?> GetCoursePaymentInfoAsync(Guid courseId, CancellationToken cancellationToken = default);

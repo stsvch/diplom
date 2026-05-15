@@ -1,6 +1,9 @@
+<!-- course-card.component.html -->
 <a [routerLink]="courseLink" class="cc">
   <!-- Cover -->
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="cc__cover" [attr.data-grad]="gradient()">
+    <!-- Условный блок переключает состояние отображения по данным компонента. -->
     @if (course.imageUrl) {
       <img [src]="course.imageUrl" [alt]="course.title" class="cc__cover-img" />
     } @else {
@@ -65,7 +68,7 @@
       </span>
     </div>
 
-    @if (showProgress && course.progress !== undefined) {
+    @if (showProgress && course.progress !== undefined && course.progress !== null) {
       <div class="cc__progress">
         <div class="cc__progress-head">
           <span class="cc__progress-label">Прогресс</span>
@@ -77,6 +80,16 @@
             [attr.data-grad]="gradient()"
             [style.width.%]="course.progress"
           ></span>
+        </div>
+      </div>
+    } @else if (showProgress) {
+      <div class="cc__progress">
+        <div class="cc__progress-head">
+          <span class="cc__progress-label">Прогресс</span>
+          <span class="cc__progress-pct">0%</span>
+        </div>
+        <div class="cc__progress-bar">
+          <span class="cc__progress-fill" [attr.data-grad]="gradient()" [style.width.%]="0"></span>
         </div>
       </div>
     }

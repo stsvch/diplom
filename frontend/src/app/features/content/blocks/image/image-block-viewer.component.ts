@@ -1,6 +1,8 @@
+// image-block-viewer.component.ts
 import { Component, Input } from '@angular/core';
 import { ImageBlockData } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-image-block-viewer',
   standalone: true,

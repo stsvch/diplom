@@ -1,3 +1,4 @@
+// onboarding-modal.component.ts
 import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -63,6 +64,7 @@ const STEPS: Step[] = [
   },
 ];
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-onboarding-modal',
   standalone: true,
@@ -75,6 +77,7 @@ export class OnboardingModalComponent {
   @Output() close = new EventEmitter<void>();
 
   readonly icons = { x: X, chevLeft: ChevronLeft, chevRight: ChevronRight, rocket: Rocket };
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly stepIdx = signal(0);
   readonly steps = STEPS;
   readonly current = computed(() => this.steps[this.stepIdx()]);

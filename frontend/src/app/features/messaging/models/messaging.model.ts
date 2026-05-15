@@ -1,3 +1,5 @@
+// messaging.model.ts
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface ParticipantDto {
   userId: string;
   name: string;

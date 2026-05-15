@@ -1,3 +1,5 @@
+// GetSlotByIdQueryHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +9,9 @@ using Scheduling.Application.Interfaces;
 
 namespace Scheduling.Application.Scheduling.Queries.GetSlotById;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetSlotByIdQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetSlotByIdQueryHandler : IRequestHandler<GetSlotByIdQuery, Result<ScheduleSlotDto>>
 {
     private readonly ISchedulingDbContext _context;
@@ -18,6 +23,7 @@ public class GetSlotByIdQueryHandler : IRequestHandler<GetSlotByIdQuery, Result<
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<ScheduleSlotDto>> Handle(GetSlotByIdQuery request, CancellationToken cancellationToken)
     {
         var slot = await _context.ScheduleSlots

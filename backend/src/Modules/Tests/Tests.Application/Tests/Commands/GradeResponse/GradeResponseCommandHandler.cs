@@ -1,3 +1,5 @@
+// GradeResponseCommandHandler.cs
+
 using EduPlatform.Shared.Application.Contracts;
 using EduPlatform.Shared.Domain;
 using EduPlatform.Shared.Domain.Enums;
@@ -8,6 +10,9 @@ using Tests.Domain.Enums;
 
 namespace Tests.Application.Tests.Commands.GradeResponse;
 
+/// <summary>
+/// Обработчик CQRS-команды GradeResponseCommand: выполняет сценарий изменения состояния и сохраняет результат.
+/// </summary>
 public class GradeResponseCommandHandler : IRequestHandler<GradeResponseCommand, Result<string>>
 {
     private readonly ITestsDbContext _context;
@@ -24,6 +29,7 @@ public class GradeResponseCommandHandler : IRequestHandler<GradeResponseCommand,
         _notifications = notifications;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<string>> Handle(GradeResponseCommand request, CancellationToken cancellationToken)
     {
         var response = await _context.TestResponses
@@ -45,7 +51,7 @@ public class GradeResponseCommandHandler : IRequestHandler<GradeResponseCommand,
         response.IsCorrect = request.Points > 0;
         response.TeacherComment = request.Comment;
 
-        // Recalculate attempt score
+        // Пересчитываем итоговый балл попытки.
         var attempt = response.Attempt;
         var allResponses = await _context.TestResponses
             .Where(r => r.AttemptId == attempt.Id)
@@ -53,7 +59,7 @@ public class GradeResponseCommandHandler : IRequestHandler<GradeResponseCommand,
 
         attempt.Score = allResponses.Sum(r => r.Points ?? 0);
 
-        // Check if all OpenAnswer responses are graded
+        // Проверяем, что все ответы OpenAnswer уже оценены.
         var hasUngraded = allResponses.Any(r => r.IsCorrect == null);
         var statusFlipped = false;
         if (!hasUngraded && attempt.Status == AttemptStatus.NeedsReview)

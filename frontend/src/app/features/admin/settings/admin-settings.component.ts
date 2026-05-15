@@ -1,3 +1,4 @@
+// admin-settings.component.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,6 +8,7 @@ import { PlatformSettingsDto } from '../models/admin.model';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { parseApiError } from '../../../core/models/api-error.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-admin-settings',
   standalone: true,
@@ -94,12 +96,15 @@ export class AdminSettingsComponent implements OnInit {
 
   readonly SaveIcon = Save;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly settings = signal<PlatformSettingsDto | null>(null);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
     this.loading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.admin.getSettings().subscribe({
       next: (s) => { this.settings.set(s); this.loading.set(false); },
       error: (err) => { this.toast.error(parseApiError(err).message); this.loading.set(false); },

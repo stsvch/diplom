@@ -1,5 +1,8 @@
+// TagDto.cs
+
 namespace Courses.Application.Tags;
 
+// Компонент тегов class: обслуживает поиск, DTO или синхронизацию тегов курса.
 public class TagDto
 {
     public Guid Id { get; set; }

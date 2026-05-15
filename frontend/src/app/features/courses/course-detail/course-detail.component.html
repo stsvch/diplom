@@ -1,4 +1,7 @@
+<!-- course-detail.component.html -->
+<!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
 <div class="course-detail">
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading()) {
     <div class="course-detail__loading">
       <div class="detail-skeleton">
@@ -96,9 +99,13 @@
                 </div>
                 <app-progress-bar [value]="actualProgress() ?? course()!.progress ?? 0" [showLabel]="false" />
               </div>
-              <a routerLink="/student/courses" class="enroll-btn enroll-btn--continue">
+              <button
+                type="button"
+                class="enroll-btn enroll-btn--continue"
+                (click)="continueLearning()"
+              >
                 Продолжить обучение
-              </a>
+              </button>
               } @else {
                 <div class="course-detail__price">
                   @if (course()!.isFree) {
@@ -230,6 +237,21 @@
                           }
                         </div>
                       </a>
+                    } @else if (isEnrolled()) {
+                      <a
+                        class="lesson-row lesson-row--clickable"
+                        [routerLink]="['/student/lesson', lesson.id]"
+                      >
+                        <div class="lesson-row__left">
+                          <lucide-icon [img]="PlayCircleIcon" [size]="18" class="lesson-row__icon" />
+                          <span class="lesson-row__title">{{ lesson.title }}</span>
+                        </div>
+                        <div class="lesson-row__right">
+                          @if (lesson.duration) {
+                            <span class="lesson-row__duration">{{ lesson.duration | duration }}</span>
+                          }
+                        </div>
+                      </a>
                     } @else {
                       <div class="lesson-row">
                         <div class="lesson-row__left">
@@ -240,9 +262,7 @@
                           @if (lesson.duration) {
                             <span class="lesson-row__duration">{{ lesson.duration | duration }}</span>
                           }
-                          @if (!isEnrolled()) {
-                            <lucide-icon [img]="LockIcon" [size]="14" class="lesson-row__lock" />
-                          }
+                          <lucide-icon [img]="LockIcon" [size]="14" class="lesson-row__lock" />
                         </div>
                       </div>
                     }

@@ -1,7 +1,9 @@
+// IMessagingRepository.cs
 using Messaging.Domain.Documents;
 
 namespace Messaging.Application.Interfaces;
 
+// Контракт application-слоя отделяет бизнес-сценарии от конкретной инфраструктуры.
 public interface IMessagingRepository
 {
     Task<List<ChatDocument>> GetUserChatsAsync(string userId);
@@ -20,5 +22,6 @@ public interface IMessagingRepository
     Task<bool> DeleteChatAsync(string chatId);
     Task<bool> AddParticipantAsync(string chatId, string userId, string userName);
     Task<bool> RemoveParticipantAsync(string chatId, string userId);
+    Task UpdateCourseChatNameAsync(string courseId, string courseName);
     Task SetArchivedAsync(string chatId, bool archived);
 }

@@ -1,3 +1,5 @@
+// GetMyCoursesQueryHandler.cs
+
 using Ardalis.Specification.EntityFrameworkCore;
 using AutoMapper;
 using Courses.Application.DTOs;
@@ -9,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Courses.Queries.GetMyCourses;
 
+// Тип class: ключевой элемент файла GetMyCoursesQueryHandler.cs.
 public class GetMyCoursesQueryHandler : IRequestHandler<GetMyCoursesQuery, List<CourseListDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -20,6 +23,7 @@ public class GetMyCoursesQueryHandler : IRequestHandler<GetMyCoursesQuery, List<
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<List<CourseListDto>> Handle(GetMyCoursesQuery request, CancellationToken cancellationToken)
     {
         if (request.Role.Equals("Teacher", StringComparison.OrdinalIgnoreCase))

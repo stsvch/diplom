@@ -1,9 +1,11 @@
+// chat-signalr.service.ts
 import { Injectable, inject, signal, effect } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 import { MessageDto, ParticipantDto } from '../../features/messaging/models/messaging.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -12,6 +14,7 @@ export class ChatSignalRService {
   private hubConnection: signalR.HubConnection | null = null;
   private readonly unloadHandler = () => this.disposeForUnload();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly unreadCount = signal(0);
   readonly lastMessage = signal<MessageDto | null>(null);
   readonly messageEdited = signal<MessageDto | null>(null);

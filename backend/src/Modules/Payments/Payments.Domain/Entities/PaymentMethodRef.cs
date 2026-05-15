@@ -1,7 +1,9 @@
+// PaymentMethodRef.cs
 using EduPlatform.Shared.Domain;
 
 namespace Payments.Domain.Entities;
 
+// Основной тип файла описывает часть модуля и его публичный контракт.
 public class PaymentMethodRef : BaseEntity, IAuditableEntity
 {
     public string UserId { get; set; } = string.Empty;

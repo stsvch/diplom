@@ -1,11 +1,12 @@
+// PayoutRecordDto.cs
 namespace Payments.Application.DTOs;
 
+// DTO задаёт форму данных, которую application-слой возвращает API и клиенту.
 public record PayoutRecordDto(
     Guid Id,
     decimal Amount,
     string Currency,
     int SettlementsCount,
-    int AllocationLinesCount,
     string Status,
     string? ProviderTransferId,
     DateTime RequestedAt,

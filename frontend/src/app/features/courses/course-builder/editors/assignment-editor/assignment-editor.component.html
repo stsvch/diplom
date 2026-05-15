@@ -1,5 +1,9 @@
+<!-- assignment-editor.component.html -->
+<!-- Условный блок переключает состояние отображения по данным компонента. -->
 @if (item(); as it) {
+  <!-- Основной контейнер задает структуру и визуальный контекст шаблона. -->
   <div class="ae">
+    <!-- Шапка секции содержит заголовок и основные действия пользователя. -->
     <header class="ae__header">
       <span class="ae__badge">
         <lucide-icon [img]="icons.assignment" [size]="12" />

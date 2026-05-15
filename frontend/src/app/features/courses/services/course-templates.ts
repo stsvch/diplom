@@ -1,3 +1,4 @@
+// course-templates.ts
 export interface TemplateLesson {
   title: string;
   description?: string;

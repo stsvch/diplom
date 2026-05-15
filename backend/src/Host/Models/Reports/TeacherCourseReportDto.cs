@@ -1,5 +1,7 @@
+// Файл: TeacherCourseReportDto.cs
 namespace EduPlatform.Host.Models.Reports;
 
+// DTO TeacherCourseReportDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherCourseReportDto
 {
     public TeacherCourseReportSummaryDto Summary { get; set; } = new();
@@ -8,6 +10,7 @@ public class TeacherCourseReportDto
     public List<TeacherCourseDeadlineItemDto> Deadlines { get; set; } = [];
 }
 
+// DTO TeacherCourseReportSummaryDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherCourseReportSummaryDto
 {
     public Guid CourseId { get; set; }
@@ -27,6 +30,7 @@ public class TeacherCourseReportSummaryDto
     public int UpcomingDeadlinesCount { get; set; }
 }
 
+// DTO TeacherCourseGradeBucketDto переносит данные наружу без раскрытия доменной сущности.
 public class TeacherCourseGradeBucketDto
 {
     public string Label { get; set; } = string.Empty;

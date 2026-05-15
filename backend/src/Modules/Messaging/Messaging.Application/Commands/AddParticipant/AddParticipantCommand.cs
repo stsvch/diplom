@@ -1,3 +1,4 @@
+// AddParticipantCommand.cs
 using EduPlatform.Shared.Domain;
 using FluentValidation;
 using MediatR;
@@ -6,9 +7,11 @@ using Messaging.Application.Interfaces;
 
 namespace Messaging.Application.Commands.AddParticipant;
 
+// Command содержит входные данные операции, изменяющей состояние модуля.
 public record AddParticipantCommand(string ChatId, string UserId, string UserName)
     : IRequest<Result<bool>>;
 
+// Валидатор проверяет параметры до выполнения handler-а.
 public class AddParticipantValidator : AbstractValidator<AddParticipantCommand>
 {
     public AddParticipantValidator()
@@ -19,6 +22,7 @@ public class AddParticipantValidator : AbstractValidator<AddParticipantCommand>
     }
 }
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class AddParticipantCommandHandler : IRequestHandler<AddParticipantCommand, Result<bool>>
 {
     private readonly IMessagingRepository _repository;

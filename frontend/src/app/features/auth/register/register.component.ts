@@ -1,3 +1,4 @@
+// register.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,6 +17,7 @@ function passwordMatchValidator(ctrl: AbstractControl): ValidationErrors | null 
   return null;
 }
 
+// Экран регистрации собирает имя, email, пароль и роль Student/Teacher, проверяет совпадение паролей и отправляет заявку на создание аккаунта.
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -24,6 +26,7 @@ function passwordMatchValidator(ctrl: AbstractControl): ValidationErrors | null 
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent {
+  // DI-зависимости строят форму, отправляют регистрацию, показывают toast и переводят на login после успеха.
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
@@ -37,6 +40,7 @@ export class RegisterComponent {
   readonly LockIcon = Lock;
   readonly UserIcon = User;
 
+  // Signals управляют отправкой формы, видимостью паролей и выбранной ролью Student/Teacher.
   readonly loading = signal(false);
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
@@ -132,6 +136,7 @@ export class RegisterComponent {
         password: password!,
         role: this.selectedRole(),
       })
+      // При submit компонент отправляет регистрационные данные и после успеха переводит пользователя на страницу входа.
       .subscribe({
         next: () => {
           this.loading.set(false);

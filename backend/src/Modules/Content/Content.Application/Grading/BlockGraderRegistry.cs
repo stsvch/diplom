@@ -1,9 +1,12 @@
+// BlockGraderRegistry.cs
+
 using Content.Domain.Enums;
 using Content.Domain.ValueObjects.Answers;
 using Content.Domain.ValueObjects.Blocks;
 
 namespace Content.Application.Grading;
 
+// Тип class: ключевой элемент файла BlockGraderRegistry.cs.
 public class BlockGraderRegistry : IBlockGraderRegistry
 {
     private readonly Dictionary<LessonBlockType, IBlockGrader> _graders;

@@ -1,7 +1,9 @@
+// open-text-editor.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OpenTextBlockData, OpenTextLengthUnit } from '../../models';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-open-text-editor',
   standalone: true,

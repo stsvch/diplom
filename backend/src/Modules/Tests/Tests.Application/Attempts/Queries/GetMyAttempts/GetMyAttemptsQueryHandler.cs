@@ -1,3 +1,5 @@
+// GetMyAttemptsQueryHandler.cs
+
 using AutoMapper;
 using EduPlatform.Shared.Domain;
 using MediatR;
@@ -7,6 +9,9 @@ using Tests.Application.Interfaces;
 
 namespace Tests.Application.Attempts.Queries.GetMyAttempts;
 
+/// <summary>
+/// Обработчик CQRS-запроса GetMyAttemptsQuery: читает данные, применяет фильтры и возвращает DTO/Result.
+/// </summary>
 public class GetMyAttemptsQueryHandler : IRequestHandler<GetMyAttemptsQuery, Result<List<TestAttemptDto>>>
 {
     private readonly ITestsDbContext _context;
@@ -18,6 +23,7 @@ public class GetMyAttemptsQueryHandler : IRequestHandler<GetMyAttemptsQuery, Res
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: проверки, чтение/изменение данных и возврат результата.
     public async Task<Result<List<TestAttemptDto>>> Handle(GetMyAttemptsQuery request, CancellationToken cancellationToken)
     {
         var testExists = await _context.Tests

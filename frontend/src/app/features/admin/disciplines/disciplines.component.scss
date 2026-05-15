@@ -1,5 +1,7 @@
+// disciplines.component.scss
 @use '../../../../styles/variables' as v;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 .disciplines {
   padding: v.$spacing-6;
   max-width: 1400px;
@@ -12,6 +14,7 @@
     margin-bottom: v.$spacing-6;
     gap: v.$spacing-4;
 
+    // Адаптивные правила уточняют отображение на разных ширинах экрана.
     @media (max-width: v.$breakpoint-sm) {
       flex-direction: column;
     }
@@ -75,7 +78,7 @@
   }
 }
 
-// Discipline card
+// Карточка дисциплины.
 .discipline-card {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -88,6 +91,7 @@
   position: relative;
   overflow: hidden;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &:hover {
     box-shadow: v.$shadow-md;
   }
@@ -156,7 +160,7 @@
   }
 }
 
-// Confirm dialog
+// Диалог подтверждения.
 .confirm-content {
   display: flex;
   flex-direction: column;
@@ -189,7 +193,7 @@
   margin-top: v.$spacing-2;
 }
 
-// Skeleton
+// Скелетон загрузки.
 .discipline-skeleton {
   background: v.$bg-card;
   border: 1px solid v.$border-color;
@@ -226,7 +230,7 @@
   &--md { width: 70%; }
 }
 
-// Modal
+// Модальное окно.
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -295,7 +299,7 @@
   }
 }
 
-// Form styles
+// Стили формы.
 .form-group {
   display: flex;
   flex-direction: column;

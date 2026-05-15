@@ -1,5 +1,7 @@
+// Файл: DictionaryWordDto.cs
 namespace Tools.Application.DTOs;
 
+// DTO DictionaryWordDto переносит данные наружу без раскрытия доменной сущности.
 public class DictionaryWordDto
 {
     public Guid Id { get; set; }

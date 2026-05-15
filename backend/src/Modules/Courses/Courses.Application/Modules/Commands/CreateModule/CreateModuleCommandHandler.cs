@@ -1,3 +1,5 @@
+// CreateModuleCommandHandler.cs
+
 using AutoMapper;
 using Courses.Application.DTOs;
 using Courses.Application.Interfaces;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Application.Modules.Commands.CreateModule;
 
+// Тип class: ключевой элемент файла CreateModuleCommandHandler.cs.
 public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, Result<CourseModuleDto>>
 {
     private readonly ICoursesDbContext _context;
@@ -19,6 +22,7 @@ public class CreateModuleCommandHandler : IRequestHandler<CreateModuleCommand, R
         _mapper = mapper;
     }
 
+    // Основной сценарий handler-а: загружает нужные данные, применяет правила и формирует ответ.
     public async Task<Result<CourseModuleDto>> Handle(CreateModuleCommand request, CancellationToken cancellationToken)
     {
         var courseExists = await _context.Courses.AnyAsync(c => c.Id == request.CourseId, cancellationToken);

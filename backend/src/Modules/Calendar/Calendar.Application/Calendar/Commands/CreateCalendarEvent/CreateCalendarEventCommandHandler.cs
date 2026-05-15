@@ -1,3 +1,4 @@
+// CreateCalendarEventCommandHandler.cs
 using AutoMapper;
 using Calendar.Application.DTOs;
 using Calendar.Application.Interfaces;
@@ -7,6 +8,7 @@ using MediatR;
 
 namespace Calendar.Application.Calendar.Commands.CreateCalendarEvent;
 
+// Handler выполняет сценарий через контекст или репозитории и возвращает Result/DTO.
 public class CreateCalendarEventCommandHandler : IRequestHandler<CreateCalendarEventCommand, Result<CalendarEventDto>>
 {
     private readonly ICalendarDbContext _context;

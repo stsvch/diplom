@@ -1,3 +1,4 @@
+// file-uploader.component.ts
 import {
   Component,
   Input,
@@ -23,6 +24,7 @@ import {
 import { FileService } from '../../../core/services/file.service';
 import { AttachmentDto } from '../../../core/models/attachment.model';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-file-uploader',
   standalone: true,
@@ -52,6 +54,7 @@ export class FileUploaderComponent {
   readonly Loader2Icon = Loader2;
   readonly AlertCircleIcon = AlertCircle;
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly isDragOver = signal(false);
   readonly uploading = signal(false);
   readonly errorMessage = signal('');
@@ -128,6 +131,7 @@ export class FileUploaderComponent {
     }
 
     this.uploading.set(true);
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.fileService.upload(file, this.entityType, this.entityId).subscribe({
       next: (attachment) => {
         this.uploading.set(false);

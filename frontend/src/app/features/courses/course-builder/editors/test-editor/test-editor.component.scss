@@ -1,5 +1,7 @@
+// test-editor.component.scss
 @use '../../../../../../styles/variables' as *;
 
+// Основные группы стилей задают композицию, состояния и адаптивность этого файла.
 :host { display: block; }
 
 .te {
@@ -11,7 +13,7 @@
   gap: $spacing-5;
 }
 
-// ── Header ─────────────────────────────────────────────
+// Шапка.
 .te__header {
   display: flex;
   flex-direction: column;
@@ -43,6 +45,7 @@
   font-family: inherit;
   outline: none;
 
+  // Состояния элемента описывают hover, active, disabled и похожие варианты.
   &::placeholder { color: $slate-300; }
   &:focus { border-bottom-color: $orange-400; }
 }
@@ -77,7 +80,7 @@
   font-size: $font-size-sm;
 }
 
-// ── Info-box ───────────────────────────────────────────
+// Стили следующей секции интерфейса.
 .te__info {
   display: flex;
   align-items: flex-start;
@@ -94,7 +97,7 @@
 .te__info-auto   { color: $emerald-600; font-weight: $font-weight-medium; }
 .te__info-manual { color: $purple-600;  font-weight: $font-weight-medium; }
 
-// ── Settings accordion ─────────────────────────────────
+// Стили следующей секции интерфейса.
 .te-settings {
   border: 1px solid $slate-100;
   border-radius: $radius-2xl;
@@ -207,7 +210,7 @@
   input { accent-color: $orange-500; }
 }
 
-// ── Questions section header ───────────────────────────
+// Стили следующей секции интерфейса.
 .te-qs__head {
   display: flex;
   align-items: center;
@@ -235,7 +238,7 @@
   lucide-icon { color: $amber-500; }
 }
 
-// ── Empty state ────────────────────────────────────────
+// Пустое состояние.
 .te__empty {
   display: flex;
   flex-direction: column;
@@ -300,7 +303,7 @@
   &[data-color='violet'] { background: $purple-50; color: $violet-600; border-color: $purple-300; }
 }
 
-// ── Question cards ─────────────────────────────────────
+// Карточки вопросов.
 .te-qs {
   display: flex;
   flex-direction: column;
@@ -356,7 +359,7 @@
   .te-q[data-color='violet'] & { background: $purple-100; color: $violet-700; }
 }
 
-// ── Type picker (button + dropdown) ────────────────────
+// Выбор типа.
 .te-q__type-wrap {
   position: relative;
 }
@@ -474,7 +477,7 @@
   &--manual { background: $purple-50;  color: $purple-700;  border-color: $purple-100;  }
 }
 
-// ── Points / icon buttons ──────────────────────────────
+// Баллы и иконки действий.
 .te-q__points {
   display: inline-flex;
   align-items: center;
@@ -516,7 +519,7 @@
   &--delete:hover { background: rgba(244, 63, 94, 0.08); color: $rose-500; }
 }
 
-// ── Question body ──────────────────────────────────────
+// Тело вопроса.
 .te-q__body {
   padding: 14px;
   display: flex;
@@ -542,7 +545,7 @@
   &::placeholder { color: $slate-300; }
 }
 
-// ── Options (single / multiple) ────────────────────────
+// Варианты.
 .te-q__opts {
   display: flex;
   flex-direction: column;
@@ -656,7 +659,7 @@
   &:hover { background: $indigo-50; color: $indigo-700; }
 }
 
-// ── Info box (text / code) ─────────────────────────────
+// Стили следующей секции интерфейса.
 .te-info-box {
   display: flex;
   align-items: flex-start;
@@ -696,7 +699,7 @@
   font-size: $font-size-xs;
 }
 
-// ── Expected answer / Code ─────────────────────────────
+// Ожидаемый ответ и код.
 .te-q__expected {
   display: flex;
   flex-direction: column;
@@ -772,7 +775,7 @@
   &::placeholder { color: #4b5563; }
 }
 
-// ── Explanation ────────────────────────────────────────
+// Пояснение.
 .te-q__expl {
   display: flex;
   flex-direction: column;
@@ -819,7 +822,7 @@
   &:focus { background: #fff; border-color: $orange-300; }
 }
 
-// ── Add question button ────────────────────────────────
+// Кнопка добавления вопроса.
 .te-add__btn {
   display: flex;
   align-items: center;
@@ -864,6 +867,7 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 
+  // Адаптивные правила уточняют отображение на разных ширинах экрана.
   @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
 }
 

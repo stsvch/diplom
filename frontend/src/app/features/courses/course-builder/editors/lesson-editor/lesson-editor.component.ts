@@ -1,3 +1,4 @@
+// lesson-editor.component.ts
 import { Component, Input, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -72,6 +73,7 @@ interface BlockTypeOption {
   colorClass: string;
 }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-cb-lesson-editor',
   standalone: true,
@@ -117,6 +119,7 @@ export class LessonEditorComponent implements OnDestroy {
   };
 
   /** ID блоков, для которых сейчас идёт загрузка файла. */
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly uploadingBlocks = signal<ReadonlySet<string>>(new Set());
 
   readonly blockTypes: BlockTypeOption[] = [
@@ -164,6 +167,7 @@ export class LessonEditorComponent implements OnDestroy {
   }
 
   private loadPickerSources(): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.testsService.getMyTests().subscribe({
       next: (tests) => this.availableTests.set(tests),
       error: () => this.availableTests.set([]),
@@ -174,6 +178,7 @@ export class LessonEditorComponent implements OnDestroy {
     });
   }
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -206,7 +211,7 @@ export class LessonEditorComponent implements OnDestroy {
     this.router.navigate(['/teacher/lesson', it.sourceId, 'edit']);
   }
 
-  // ── Block CRUD ─────────────────────────────────────
+  // CRUD блоков.
 
   private buildEmptyData(type: SimpleBlockType): any {
     switch (type) {
@@ -305,7 +310,7 @@ export class LessonEditorComponent implements OnDestroy {
     this.content.reorder(it.sourceId, ids).subscribe();
   }
 
-  // ── Drag-and-drop ──────────────────────────────────
+  // Перетаскивание.
 
   onBlockDrop(event: CdkDragDrop<LessonBlockDto[]>): void {
     if (event.previousIndex === event.currentIndex) return;

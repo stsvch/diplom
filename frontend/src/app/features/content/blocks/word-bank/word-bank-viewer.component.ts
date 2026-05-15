@@ -1,3 +1,4 @@
+// word-bank-viewer.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -9,6 +10,7 @@ import {
 
 interface Segment { kind: 'text' | 'gap'; value: string }
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-word-bank-viewer',
   standalone: true,
@@ -77,11 +79,13 @@ export class WordBankViewerComponent implements OnInit {
   @Input() showFeedback = true;
   @Output() submitAnswer = new EventEmitter<WordBankAnswer>();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   values = signal<Map<string, string>>(new Map()); // "sentenceId|gapIndex" -> word
   submitted = signal(false);
 
   showResult = computed(() => this.submitted() && this.showFeedback);
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit() {
     if (this.attempt?.answers && this.attempt.answers.type === 'WordBank') {
       const map = new Map<string, string>();

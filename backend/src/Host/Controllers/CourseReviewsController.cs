@@ -1,3 +1,4 @@
+// Файл: CourseReviewsController.cs
 using EduPlatform.Host.Models.Courses;
 using EduPlatform.Host.Services;
 using EduPlatform.Shared.Application.Models;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер CourseReviewsController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api/courses/{courseId:guid}/reviews")]
 public class CourseReviewsController : ControllerBase

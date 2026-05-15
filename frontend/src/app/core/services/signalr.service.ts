@@ -1,9 +1,11 @@
+// signalr.service.ts
 import { Injectable, inject, signal, effect } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 import { NotificationDto } from '../../features/notifications/models/notification.model';
 
+// Сервис инкапсулирует бизнес-операции, состояние и обращения к API своего модуля.
 @Injectable({
   providedIn: 'root',
 })
@@ -12,6 +14,7 @@ export class SignalRService {
   private hubConnection: signalR.HubConnection | null = null;
   private readonly unloadHandler = () => this.disposeForUnload();
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly unreadCount = signal<number>(0);
   readonly lastNotification = signal<NotificationDto | null>(null);
 

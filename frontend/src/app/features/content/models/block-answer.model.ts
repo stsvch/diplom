@@ -1,5 +1,7 @@
+// block-answer.model.ts
 import { LessonBlockType } from './block-type.model';
 
+// Модели описывают DTO и типы, которыми frontend обменивается с backend API.
 export interface SingleChoiceAnswer {
   type: 'SingleChoice';
   selectedOptionId: string;

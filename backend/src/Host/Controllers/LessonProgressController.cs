@@ -1,3 +1,4 @@
+// Файл: LessonProgressController.cs
 using Auth.Domain.Entities;
 using Content.Application.Attempts.Commands.ReviewAttempt;
 using Content.Application.Attempts.Queries.GetLessonAttempts;
@@ -18,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EduPlatform.Host.Controllers;
 
+// Контроллер LessonProgressController группирует HTTP-эндпоинты и делегирует работу в прикладные сценарии.
 [ApiController]
 [Route("api")]
 public class LessonProgressController : ControllerBase
@@ -245,4 +247,5 @@ public class LessonProgressController : ControllerBase
     }
 }
 
+// API-модель ReviewAttemptRequest фиксирует тело запроса или результат для действия контроллера.
 public record ReviewAttemptRequest(decimal Score, string? Comment);

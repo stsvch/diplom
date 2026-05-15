@@ -1,9 +1,11 @@
+// block-inserter.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { LessonBlockType } from '../../models';
 import { BlockTypeMenuComponent } from '../block-type-menu/block-type-menu.component';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-block-inserter',
   standalone: true,
@@ -16,6 +18,7 @@ export class BlockInserterComponent {
 
   private readonly host = inject(ElementRef<HTMLElement>);
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   menuOpen = signal(false);
 
   toggle() {

@@ -1,3 +1,4 @@
+// course-new.component.ts
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -21,6 +22,7 @@ import { COURSE_TEMPLATES, CourseTemplate } from '../services/course-templates';
 
 type CreateMode = 'empty' | 'template';
 
+// Компонент связывает шаблон, стили и состояние этого участка интерфейса.
 @Component({
   selector: 'app-course-new',
   standalone: true,
@@ -52,6 +54,7 @@ export class CourseNewComponent implements OnInit {
     homework: FileEdit,
   };
 
+  // Signals и computed-значения хранят реактивное состояние без ручной синхронизации с шаблоном.
   readonly mode = signal<CreateMode>('empty');
   readonly templateId = signal<string | null>(null);
   readonly creating = signal(false);
@@ -71,7 +74,9 @@ export class CourseNewComponent implements OnInit {
     return this.templateId() ? 'Создать по шаблону' : 'Выберите шаблон';
   });
 
+  // Lifecycle hook запускает первичную загрузку или очистку ресурсов компонента.
   ngOnInit(): void {
+    // Подписка синхронизирует ответ сервиса с локальным состоянием и уведомлениями.
     this.disciplinesService.getAll().subscribe({
       next: (list) => {
         if (!list.length) {
@@ -124,8 +129,6 @@ export class CourseNewComponent implements OnInit {
       isFree: true,
       price: null,
       orderType: 'Sequential',
-      hasGrading: false,
-      hasCertificate: false,
       deadline: null,
       imageUrl: null,
     };

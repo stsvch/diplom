@@ -1,3 +1,4 @@
+<!-- button.component.html -->
 <button
   class="btn"
   [class]="'btn btn--' + variant + ' btn--' + size"
@@ -6,6 +7,7 @@
   [disabled]="disabled || loading"
   [type]="type"
 >
+  <!-- Условный блок переключает состояние отображения по данным компонента. -->
   @if (loading) {
     <lucide-icon class="btn__spinner" [img]="loaderIcon" [size]="16" />
   }
